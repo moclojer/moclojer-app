@@ -1,0 +1,19 @@
+;;shadow clj config
+
+{:source-paths 
+  ["src/dev"
+  "src/main"
+  "src/test"]
+ 
+ :dependencies 
+ [[lilactown/helix "0.1.8"]
+  [binaryage/devtools "0.9.7"]
+  [thheller/shadow-cljs "2.15.1"]]
+  
+ 
+ :dev-http {8080 "public"}
+ :builds {:app {:target :browser
+                :modules {:main {:init-fn hello-helix.app/init}}
+                :devtools {:reload-strategy :full
+                           :prelaods [devtools.prelaods
+                                      hello-helix.dev]}}}}
