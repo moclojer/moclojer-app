@@ -1,0 +1,32 @@
+{
+  "presets": [
+    [
+      "@babel/preset-react"
+    ]
+  ],
+  "plugins": [
+    "@babel/plugin-syntax-jsx",
+    [
+      "react-css-modules"
+    ],
+    [
+      "module-resolver",
+      {
+        "alias": {
+          "@/*": "src/*"
+        }
+      }
+    ],
+    [
+      "file-loader",
+      {
+        "name": "[hash].[ext]",
+        "extensions": ["png", "jpg", "jpeg", "gif", "svg"],
+        "publicPath": "/lib/images",
+        "outputPath": "/lib/images",
+        "context": "",
+        "limit": 0
+      }
+    ]
+  ]
+}
