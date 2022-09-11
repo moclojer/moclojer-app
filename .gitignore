@@ -2,7 +2,6 @@ pom.xml
 pom.xml.asc
 *.jar
 *.class
-/lib/
 /classes/
 /target/
 /checkouts/
@@ -18,3 +17,8 @@ node_modules
 .shadow-cljs
 .lsp
 .clj-kondo/.cache
+
+lib/node_modules/
+lib/lib
+
+resources/public/assets

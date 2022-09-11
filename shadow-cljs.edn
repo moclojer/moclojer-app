@@ -1,19 +1,7 @@
 ;;shadow clj config
-
-{:source-paths
- ["src/dev"
-  "src/main"
-  "src/test"]
-
- :dependencies
- [[lilactown/helix "0.1.8"]
-  [binaryage/devtools "0.9.7"]
-  [thheller/shadow-cljs "2.15.1"]]
-
-
- :dev-http {8080 "public"}
+{:deps {:aliases [:cljs]}
  :builds {:app {:target :browser
-                :modules {:main {:init-fn hello-helix.app/init}}
-                :devtools {:reload-strategy :full
-                           :prelaods [devtools.prelaods
-                                      hello-helix.dev]}}}}
+                :output-dir "resources/public/assets/js"
+                :modules {:main {:init-fn app.core/init}}
+                :js-options {:js-package-dirs ["node_modules" "../node_modules"]}}}
+ :dev-http {5003 "resources/public"}}
