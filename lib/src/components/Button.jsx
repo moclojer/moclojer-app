@@ -27,7 +27,7 @@ const variantStyles = {
 
 export function Button({
   variant = 'solid',
-  color = 'slate',
+  color = 'blue',
   className,
   href,
   ...props
@@ -37,6 +37,7 @@ export function Button({
     variantStyles[variant][color],
     className
   )
+  console.log("Testing", className)
 
   return href ? (
     <Link href={href} className={className} {...props} />
