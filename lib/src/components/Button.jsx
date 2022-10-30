@@ -37,7 +37,6 @@ export function Button({
     variantStyles[variant][color],
     className
   )
-  console.log("Testing", className)
 
   return href ? (
     <Link href={href} className={className} {...props} />

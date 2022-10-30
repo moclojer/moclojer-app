@@ -2,12 +2,11 @@
   (:require [helix.core :refer [defnc $]]
             [helix.hooks :as hooks]
             [helix.dom :as d]
-            ["next/link"  :as Link]
-            [app.components :as c]
+            ["moclojer-components" :as mc]
             ["react-dom/client" :as rdom]))
 
 (defnc NavLink [{:keys [href children]}]
-  ($ Link {:href href
+  (d/a {:href href
          :className "inline-block rounded-lg py-1 px-2 text-sm text-slate-700"}
         children))
 
@@ -25,11 +24,7 @@
         (d/div {:class-name "flex items-center gap-x-5 md:gap-x-8"}
           (d/div {:class-name "hidden md:block"}
             ($ NavLink {:children "Sign In" :href "/Login"}))
-          ($ c/Button {:on-click (fn [] (prn "Oizinho"))
-                       :href ""
-                       :color :blue
-                       :variant :solid
-                       :label "Get started"})
+          ($ mc/Button  "Get started")
           (d/div {:class-name "-mr-1 md:hidden"}))))))
 
 (defnc app []
