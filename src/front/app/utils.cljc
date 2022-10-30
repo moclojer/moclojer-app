@@ -2,7 +2,6 @@
   #?(:clj (:require [helix.core :as helix]))
   #?(:cljs (:require-macros [app.utils])))
 
-
 #?(:clj
    (defmacro defnc [type params & body]
      (let [opts? (map? (first body)) ;; whether an opts map was passed in
