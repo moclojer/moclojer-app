@@ -1,7 +1,7 @@
 {:paths ["src/clj" "src/front" "resources" "src"]
- :deps {org.clojure/clojure {:mvn/version "1.10.0"}}
+ :deps {org.clojure/clojure {:mvn/version "1.11.1"}}
  :aliases
  {:cljs
-  {:extra-deps {thheller/shadow-cljs {:mvn/version "2.19.9"}
-                lilactown/helix {:mvn/version "0.1.8"}
-                funcool/promesa {:mvn/version "8.0.450"}}}}}
+  {:extra-deps {thheller/shadow-cljs {:mvn/version "2.20.7"}
+                lilactown/helix {:mvn/version "0.1.9"}
+                funcool/promesa {:mvn/version "9.0.489"}}}}}
