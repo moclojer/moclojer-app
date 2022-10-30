@@ -6,7 +6,7 @@ We use the [helix](https://github.com/lilactown/helix) framework to develop our 
 
 **how to get up the development environment?**
 
-```sh
+```bash
 npm i
-npx shadow-cljs server
+npm run watch
 ```

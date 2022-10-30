@@ -1,8 +1,11 @@
 ;;shadow clj config
-{:deps {:aliases [:cljs]}
+{:deps {:aliases [:dev]}
  :dev-http {5003 "resources/public"}
  :builds {:app {:target :browser
                 :output-dir "resources/public/assets/js"
                 :asset-path "/assets/js"
                 :modules {:main {:init-fn app.core/init}}
-                :js-options {:js-package-dirs ["node_modules" "../node_modules"]}}}}
+                :js-options {:js-package-dirs ["node_modules"
+                                               "../node_modules"]}
+                :devtools {:reload-strategy :full
+                           :preloads [app.dev]}}}}
