@@ -4,8 +4,21 @@
  :builds {:app {:target :browser
                 :output-dir "resources/public/assets/js"
                 :asset-path "/assets/js"
-                :modules {:main {:init-fn app.core/init}}
                 :js-options {:js-package-dirs ["node_modules"
                                                "../node_modules"]}
-                :devtools {:reload-strategy :full
-                           :preloads [app.dev]}}}}
+                :devtools {:http-port 8000
+                           :http-root "resources/public/assets"
+                           :reload-strategy :full
+                           :preloads [dev.refresh]}
+                :dev      {:modules {:core {:init-fn dev.core/init}}}
+                :release  {:modules {:core {:init-fn app.core/init}}}}
+          :tests    {:target           :browser-test
+                     :test-dir         "resources/test"
+                     :ns-regexp        "-test$"
+                     :devtools         {:http-port 8100
+                                        :http-root "resources/test"}}
+
+          :ci-tests {:target           :karma
+                     :output-to        "resources/test/ci.js"
+                     :ns-regexp        "-test$"
+                     :compiler-options {:static-fns false}}}}

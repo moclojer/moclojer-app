@@ -1,6 +1,7 @@
-(ns app.utils
+(ns app.lib
   #?(:clj (:require [helix.core :as helix]))
-  #?(:cljs (:require-macros [app.utils])))
+  #?(:cljs (:require-macros [app.lib])))
+
 
 #?(:clj
    (defmacro defnc [type params & body]

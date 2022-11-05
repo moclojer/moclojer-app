@@ -1,10 +1,15 @@
 (ns app.core
   (:require ["moclojer-components" :as mc]
             ["react-dom/client" :as rdom]
-            [app.dev :as dev]
-            [app.routes :as routes]
-            [app.utils :refer [defnc]]
             [clojure.pprint :as pprint]
+            [app.lib :refer [defnc]]
+            [app.routes.core :as routes]
+            [app.routes.subs]
+            [app.routes.events]
+            [app.auth.subs]
+            [app.auth.events]
+            [app.auth.views :as auth]
+            [app.pages :as pages]
             [helix.core :refer [$]]
             [helix.dom :as d]
             [refx.alpha :as refx]
@@ -13,13 +18,12 @@
 
 ;;; Events ;;;
 
-(refx/reg-event-db
- ::initialize-db
- (fn [db _]
-   (if db
-     db
-     {:app.routes/current-route nil
-      :app.login/current-user nil})))
+(refx/reg-event-db ::initialize-db
+                   (fn [db _]
+                     (if db
+                       db
+                       {:current-route nil
+                        :current-user nil})))
 
 ;;; Components ;;;
 
@@ -28,6 +32,7 @@
    {:href href
     :className "inline-block rounded-lg py-1 px-2 text-sm text-slate-700"}
    children))
+
 
 (defnc Header []
   (d/div
@@ -68,41 +73,26 @@
      ; State debug
      (d/pre (with-out-str (pprint/pprint @db/app-db)))))))
 
-;;; Pages ;;;
-
-(defnc home-page []
-  (d/div
-   (d/h2 "Welcome!")
-   (d/p "Some motivational catch phrase here.")))
-
-(defnc features-page []
-  (d/div
-   (d/h2 "Features")
-   (d/p "Here our features.")))
-
-(defnc pricing-page []
-  (d/div
-   (d/h2 "Pricing")
-   (d/p "Here our values.")))
-
-(defnc about-page []
-  (d/div
-   (d/h2 "About")
-   (d/p "About us. (And some nice pictures)")))
-
-(defnc login-page []
-  (d/div
-   (d/h2 "Login")
-   (d/p "Login form here.")))
 
 (defnc app []
-  (let [current-route (refx/use-sub [:app.routes/current-route])
+  (let [{:keys [username] :as user} (refx/use-sub [:app.auth/current-user])
+        current-route (refx/use-sub [:app.routes/current-route])
         route-data (:data current-route)]
     (d/div
      ($ Header)
 
-     (when-let [view (:view route-data)]
-       ($ view {:match current-route}))
+       (when user
+        (d/div
+         (d/li (d/a {:on-click (fn [e]
+                                 (.preventDefault e)
+                                 (refx/dispatch [:app.auth/logout]))
+                     :href "#"}
+                    (str "Logout (" username ")")))))
+
+       (if (or user (:public? route-data))
+         (when-let [view (:view route-data)]
+           ($ view {:match current-route}))
+         ($ auth/login-view))
 
      ($ Footer))))
 
@@ -112,35 +102,40 @@
   ["/"
    [""
     {:name ::frontpage
-     :view home-page
+     :view pages/home-page
      :public? true}]
 
    ["features"
     {:name ::features
-     :view features-page
+     :view pages/features-page
      :public? true}]
 
    ["pricing"
     {:name ::pricing
-     :view pricing-page
+     :view pages/pricing-page
      :public? true}]
 
    ["about"
     {:name ::about
-     :view about-page
+     :view pages/about-page
      :public? true}]
 
    ["login"
     {:name ::login
-     :view login-page
+     :view auth/login-view
      :public? true}]])
 
 ;;; Setup ;;;
 
+(defonce root
+  (rdom/createRoot (js/document.getElementById "app")))
+
+(defn render []
+  (.render root ($ app)))
+
 (defn ^:export init []
   (refx/clear-subscription-cache!)
   (refx/dispatch-sync [::initialize-db])
-  (dev/dev-setup)
   (routes/init-routes! routes)
-  (doto (rdom/createRoot (js/document.getElementById "app"))
-    (.render ($ app))))
+  (render))
+

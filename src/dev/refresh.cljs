@@ -1,8 +1,8 @@
-(ns app.dev
+(ns dev.refresh
   "A place to add preloads for developer tools!"
-  (:require
-   [helix.experimental.refresh :as r]
-   [refx.alpha :as refx]))
+  (:require [app.core :as app]
+            [helix.experimental.refresh :as r]
+            [refx.alpha :as refx]))
 
 ;; inject-hook! needs to run on application start.
 ;; For ease, we run it at the top level.
@@ -13,20 +13,12 @@
 ;; to signal that it should be run after any code reload. We call the `refresh!`
 ;; function, which will tell react to refresh any components which have a
 ;; signature created by turning on the `:fast-refresh` feature flag.
-
-;; The `:dev/after-load` metadata causes this function to be called
-;; after shadow-cljs hot-reloads code. We force a UI update by clearing
-;; the Reframe subscription cache.
-
-#_{:clj-kondo/ignore [:clojure-lsp/unused-public-var]}
 (defn ^:dev/after-load refresh []
-  (refx/clear-subscription-cache!)
   (r/refresh!))
 
-(def debug? ^boolean goog.DEBUG)
-
-(defn dev-setup []
-  (when debug?
-    (enable-console-print!)
-    (println "dev mode")))
-
+(defn ^:dev/after-load clear-cache-and-render! []
+  ;; The `:dev/after-load` metadata causes this function to be called
+  ;; after shadow-cljs hot-reloads code. We force a UI update by clearing
+  ;; the Refx subscription cache.
+  (refx/clear-subscription-cache!)
+  (app/render))
