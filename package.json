@@ -10,7 +10,8 @@
     "watch:tests": "shadow-cljs watch tests",
     "watch:app": "shadow-cljs watch app",
     "watch": "shadow-cljs watch app tests",
-    "release": "shadow-cljs release app"
+    "release": "shadow-cljs release app",
+    "repl": "shadow-cljs clj-repl"
   },
   "repository": {
     "type": "git",

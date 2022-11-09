@@ -21,7 +21,7 @@
        {:id "login-email"
         :value (:email state)
         :disabled loading?
-        :on-change #(set-state assoc :username (.. % -target -value))})
+        :on-change #(set-state assoc :email (.. % -target -value))})
 
       (d/button
        {:type "submit"}
