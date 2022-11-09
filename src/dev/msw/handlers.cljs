@@ -2,7 +2,7 @@
   (:require [dev.msw.helpers :refer [resp-post]]))
 
 (defn login-handler [req res ctx]
-  (if (= (-> req .-body .-username) "err@ee.cc")
+  (if (= (-> req .-body .-email) "err@ee.cc")
     (apply
      res
      [(.delay ctx 500)
@@ -13,7 +13,7 @@
      [(.delay ctx 500)
       (.status ctx 201)
       (.json ctx (clj->js {:ok true
-                           :username (-> req .-body .-username)}))])))
+                           :username (-> req .-body .-email)}))])))
 
 (def handlers
   [(resp-post "/login" login-handler)])
