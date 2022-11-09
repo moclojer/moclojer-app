@@ -15,7 +15,7 @@
                 render (-> auth.views/login-view aux/render)
                 container (.-container render)
                 button (-> container (aux/tag "button") first)
-                input (-> container (aux/query "#login-username"))
+                input (-> container (aux/query "#login-email"))
                 _change (-> input (aux/change "err@ee.cc"))
                 _click (-> button aux/click)
                 error-msg (-> render (aux/find-by-text "Error... Try again"))]

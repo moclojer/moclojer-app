@@ -7,28 +7,21 @@
 (defnc login-view []
   (let [loading? (refx/use-sub [:app.auth/login-loading])
         error? (refx/use-sub [:app.auth/login-error])
-        [state set-state] (hooks/use-state {:username "" :password ""})]
+        [state set-state] (hooks/use-state {:email ""})]
     (d/div
      (d/form
       {:disabled loading?
        :on-submit (fn [e]
                     (.preventDefault e)
-                    (when (and (:username state)
-                               (:password state))
+                    (when (:email state)
                       (refx/dispatch [:app.auth/login state])))}
 
-      (d/label "Username")
+      (d/label "E-mail")
       (d/input
-       {:id "login-username"
-        :value (:username state)
+       {:id "login-email"
+        :value (:email state)
         :disabled loading?
         :on-change #(set-state assoc :username (.. % -target -value))})
-
-      (d/label "Password")
-      (d/input
-       {:value (:password state)
-        :disabled loading?
-        :on-change #(set-state assoc :password (.. % -target -value))})
 
       (d/button
        {:type "submit"}
