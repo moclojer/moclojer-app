@@ -2,8 +2,7 @@
   (:require ["msw" :as msw]
             [dev.msw.config :as config]
             [dev.msw.mount :as mount]
-            [dev.session-storage :as ss]
-            [promesa.core :as p]))
+            [dev.session-storage :as ss]))
 
 (def ^:private ss-key "mock-active?")
 
@@ -12,9 +11,10 @@
 (defn start-browser [handlers]
   (when-not (nil? @mock-state)
     (.resetHandlers ^js/Object @mock-state))
-  (p/do (reset! mock-state handlers)
-        (.start @mock-state #js {:onUnhandledRequest "bypass"})
-        (ss/set-item! ss-key true)))
+  (reset! mock-state handlers)
+  (-> (.start @mock-state (clj->js {:onUnhandledRequest "bypass"}))
+      (.then #(ss/set-item! ss-key true))
+      (.catch #(js/console.log %))))
 
 (defn stop-browser []
   (.stop @mock-state)
@@ -24,8 +24,7 @@
 (defn start!
   ([] (start! config/default))
   ([custom-config]
-   (let [[start-fn setup-fn] [start-browser msw/setupWorker]]
-     (start-fn (apply setup-fn (mount/mount custom-config))))))
+   (start-browser (apply msw/setupWorker (mount/mount custom-config)))))
 
 (defn stop! []
   (stop-browser))
