@@ -29,7 +29,6 @@ export function Button({
   variant = 'solid',
   color = 'blue',
   className,
-  href,
   ...props
 }) {
   className = clsx(
@@ -38,9 +37,5 @@ export function Button({
     className
   )
 
-  return href ? (
-    <Link href={href} className={className} {...props} />
-  ) : (
-    <button className={className} {...props} />
-  )
+  return <button className={className} {...props} />
 }
