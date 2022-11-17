@@ -9,7 +9,8 @@
 
 (def login-error-mock
   {"/login"
-   {:post {:status 500
+   {:post {:lag 300
+           :status 500
            :content-type :json
            :body #js {:ok false}}}})
 
