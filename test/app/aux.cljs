@@ -5,7 +5,8 @@
 (def wait-for tlr/waitFor)
 
 (defn text [el]
-  (.-textContent el))
+  (or (.-innerText el)
+      (.-textContent el)))
 
 (defn length [el]
   (.-length el))

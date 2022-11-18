@@ -15,34 +15,33 @@
 
 ;;; Events ;;;
 
-(refx/reg-event-db ::initialize-db
-                   (fn [db _]
-                     (if db
-                       db
-                       {:current-route nil
-                        :current-user nil})))
-
-
+(refx/reg-event-db
+ ::initialize-db
+ (fn [db _]
+   (if db
+     db
+     {:current-route nil
+      :current-user nil})))
 
 (defnc app []
   (let [{:keys [username] :as user} (refx/use-sub [:app.auth/current-user])
         current-route (refx/use-sub [:app.routes/current-route])
         route-data (:data current-route)]
     (d/div
-       ($ comp/NavBar)
-       (when user
-        (d/div
-         (d/li (d/a {:on-click (fn [e]
-                                 (.preventDefault e)
-                                 (refx/dispatch [:app.auth/logout]))
-                     :href "#"}
-                    (str "Logout (" username ")")))))
+     ($ comp/NavBar)
+     (when user
+       (d/div
+        (d/li (d/a {:on-click (fn [e]
+                                (.preventDefault e)
+                                (refx/dispatch [:app.auth/logout]))
+                    :href "#"}
+                   (str "Logout (" username ")")))))
 
-       (if (or user (:public? route-data))
-         (when-let [view (:view route-data)]
-           ($ view {:match current-route}))
-         ($ auth/login-view))
-       ($ comp/Footer ))))
+     (if (or user (:public? route-data))
+       (when-let [view (:view route-data)]
+         ($ view {:match current-route}))
+       ($ auth/login-view))
+     ($ comp/Footer))))
 
 ;;; Routes ;;;
 

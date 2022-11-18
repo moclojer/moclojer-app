@@ -7,6 +7,11 @@
    (:current-user db)))
 
 (refx/reg-sub
+ :app.auth/email-sent
+ (fn [db]
+   (:login-email-sent db)))
+
+(refx/reg-sub
  :app.auth/login-loading
  (fn [db]
    (:login-loading? db)))
