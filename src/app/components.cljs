@@ -59,7 +59,6 @@
    {:class-name "bg-slate-50"}
    (d/div
     {:class-name "mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"}
-    ($ LoadingSpinner {})
     (d/div
      {:class-name "py-16"}
      ; State debug
