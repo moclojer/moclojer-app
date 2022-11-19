@@ -5,10 +5,10 @@
                 :asset-path "/assets/js"
                 :js-options {:js-package-dirs ["node_modules"
                                                "../node_modules"]}
-                :devtools {:http-port 8000
-                           :http-root "resources/public/"
+                :devtools {:preloads [dev.refresh]
                            :reload-strategy :full
-                           :preloads [dev.refresh]}
+                           :http-port 8000
+                           :http-root "resources/public/"}
                 :dev      {:modules {:core {:init-fn dev.core/init}}}
                 :release  {:modules {:core {:init-fn app.core/init}}}}
           :tests    {:target           :browser-test

@@ -2,7 +2,11 @@
   (:require ["@testing-library/react" :as tlr]
             [helix.core :refer [$]]))
 
-(def wait-for tlr/waitFor)
+(defn wait-for
+  ([callback]
+   (tlr/waitFor callback))
+  ([callback options]
+   (tlr/waitFor callback (clj->js options))))
 
 (defn text [el]
   (.-textContent el))

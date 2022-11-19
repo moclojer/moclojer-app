@@ -1,5 +1,6 @@
 (ns app.auth.views
   (:require ["moclojer-components" :as mc]
+            [app.components :refer [LoadingSpinner NavLink]]
             [app.lib :refer [defnc]]
             [helix.core :refer [$]]
             [helix.dom :as d]
@@ -29,45 +30,67 @@
 (defnc login-view []
   (let [loading? (refx/use-sub [:app.auth/login-loading])
         error? (refx/use-sub [:app.auth/login-error])
+        email-sent? (refx/use-sub [:app.auth/email-sent])
         [state set-state] (hooks/use-state {:email ""})]
 
     ($ mc/AuthLayout
        (d/div
-        (d/div {:class-name "flex flex-col"}
-               (d/a {:href "/"}
-                    (d/img {:class-name "h-10 w-auto"})
-                    "Home")
-               (d/div {:class-name "mt-20"}
-                      (d/h2 {:class-name "text-lg font-semibold text-gray-900"}
-                            "Sign in to your account")
-                      (d/p {:class-name "mt-2 text-sm text-gray-700"}
-                           "Don't have an account? ")))
-        (if loading?
-          (d/div {:id "login-loading"}
-                 "Check your email, and click on the link")
-          (d/form {:disabled loading?
-                   :class-name "mt-10 grid grid-cols-1 gap-y-8"
-                   :on-submit  (fn [e]
-                                 (.preventDefault e)
-                                 (when (:email state)
-                                   (refx/dispatch [:app.auth/login state])))}
-                  ($ text-field {:label "Email address"
-                                 :id "login-email"
-                                 :name "email"
-                                 :type-field "email"
-                                 :required true
-                                 :value (:email state)
-                                 :disabled loading?
-                                 :on-change #(set-state assoc :email (.. % -target -value))})
+
+        (if email-sent?
+          (d/div {:id "login-email-sent"
+                  :class-name "flex flex-col"}
+                 (d/h2
+                  {:class-name "text-lg font-semibold text-gray-900"}
+                  "Check your email, and click on the link.")
+                 (d/div
                   (d/div
-                   ($ mc/Button
-                      {:type "submit"
-                       :variant "solid"
-                       :color "blue"
-                       :class-name "w-full"}
-                      (d/span "Sign in"))))))
+                   {:class-name "mt-2 text-sm text-gray-700"}
+                   "Didn't received it?"
+                   ($ NavLink
+                      {:children " Try again."
+                       :on-click (fn [e]
+                                   (.preventDefault e)
+                                   (refx/dispatch [:app.auth/send-email-again]))
+                       :href "#"}))))
+
+          (d/div {:class-name "flex flex-col"}
+                 (d/a {:href "/"}
+                      (d/img {:class-name "h-10 w-auto"})
+                      "Home")
+                 (d/div {:class-name "mt-20"}
+                        (d/h2 {:class-name "text-lg font-semibold text-gray-900"}
+                              "Sign in to your account")
+                        (d/p {:class-name "mt-2 text-sm text-gray-700"}
+                             "Don't have an account? "))
+                 (d/form {:disabled loading?
+                          :class-name "mt-10 grid grid-cols-1 gap-y-8"
+                          :on-submit  (fn [e]
+                                        (.preventDefault e)
+                                        (when (:email state)
+                                          (refx/dispatch [:app.auth/send-email state])))}
+                         ($ text-field {:label "Email address"
+                                        :id "login-email"
+                                        :name "email"
+                                        :type-field "email"
+                                        :required true
+                                        :value (:email state)
+                                        :disabled loading?
+                                        :on-change #(set-state assoc :email (.. % -target -value))})
+                         (d/div
+                          ($ mc/Button
+                             {:disabled loading?
+                              :type "submit"
+                              :variant "solid"
+                              :color "blue"
+                              :class-name "w-full"}
+                             (if loading?
+                               (d/span {:class-name "inline-flex"}
+                                       ($ LoadingSpinner {})
+                                       "Loading...")
+                               (d/span "Sign in"))))))))
+
        (when error?
          (d/div
           {:id "login-error"
            :class-name "flex flex-col"}
-          "Error... try it again")))))
+          "Error... try it again.")))))
