@@ -37,10 +37,10 @@
        (d/div
 
         (if email-sent?
-          (d/div {:class-name "flex flex-col"}
+          (d/div {:id "login-email-sent"
+                  :class-name "flex flex-col"}
                  (d/h2
-                  {:class-name "text-lg font-semibold text-gray-900"
-                   :id "login-email-sent"}
+                  {:class-name "text-lg font-semibold text-gray-900"}
                   "Check your email, and click on the link.")
                  (d/div
                   (d/div
@@ -85,8 +85,8 @@
                               :class-name "w-full"}
                              (if loading?
                                (d/span {:class-name "inline-flex"}
-                                ($ LoadingSpinner {})
-                                "Loading...")
+                                       ($ LoadingSpinner {})
+                                       "Loading...")
                                (d/span "Sign in"))))))))
 
        (when error?

@@ -1,17 +1,17 @@
 (ns app.core
   (:require ["react-dom/client" :as rdom]
-            [app.lib :refer [defnc]]
-            [app.routes.core :as routes]
-            [app.routes.subs]
-            [app.routes.events]
-            [app.auth.subs]
             [app.auth.events]
+            [app.auth.subs]
             [app.auth.views :as auth]
+            [app.components :as comp]
+            [app.lib :refer [defnc]]
             [app.pages :as pages]
+            [app.routes.core :as routes]
+            [app.routes.events]
+            [app.routes.subs]
             [helix.core :refer [$]]
             [helix.dom :as d]
-            [refx.alpha :as refx]
-            [app.components :as comp]))
+            [refx.alpha :as refx]))
 
 ;;; Events ;;;
 
@@ -80,9 +80,11 @@
 (defn render []
   (.render root ($ app)))
 
-(defn ^:export init []
+(defn setup! []
   (refx/clear-subscription-cache!)
   (refx/dispatch-sync [::initialize-db])
-  (routes/init-routes! routes)
-  (render))
+  (routes/init-routes! routes))
 
+(defn ^:export init []
+  (setup!)
+  (render))
