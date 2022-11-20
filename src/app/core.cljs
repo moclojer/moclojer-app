@@ -41,7 +41,7 @@
        (when-let [view (:view route-data)]
          ($ view {:match current-route}))
        ($ auth/login-view))
-     ($ comp/Footer))))
+     ($ comp/FooterComponent))))
 
 ;;; Routes ;;;
 

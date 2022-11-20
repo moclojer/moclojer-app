@@ -1,6 +1,5 @@
 (ns app.auth.views
-  (:require ["moclojer-components" :as mc]
-            [app.components :refer [LoadingSpinner NavLink]]
+  (:require [app.components :refer [LoadingSpinner NavLink AuthLayout Button]]
             [app.lib :refer [defnc]]
             [helix.core :refer [$]]
             [helix.dom :as d]
@@ -32,10 +31,8 @@
         error? (refx/use-sub [:app.auth/login-error])
         email-sent? (refx/use-sub [:app.auth/email-sent])
         [state set-state] (hooks/use-state {:email ""})]
-
-    ($ mc/AuthLayout
+    ($ AuthLayout
        (d/div
-
         (if email-sent?
           (d/div {:id "login-email-sent"
                   :class-name "flex flex-col"}
@@ -77,7 +74,7 @@
                                         :disabled loading?
                                         :on-change #(set-state assoc :email (.. % -target -value))})
                          (d/div
-                          ($ mc/Button
+                          ($ Button
                              {:disabled loading?
                               :type "submit"
                               :variant "solid"
