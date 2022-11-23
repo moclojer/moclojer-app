@@ -1,25 +1,23 @@
 (ns app.pages
-  (:require [app.lib :refer [defnc]]
-            [helix.core :refer [$]]
-            [helix.dom :as d]))
-
-(defnc about-page []
-  (d/div
-   (d/h2 "About")
-   (d/p "About us. (And some nice pictures)")))
+  (:require
+   [app.components.hero :refer [Hero]]
+   [app.features.views :refer [Features]]
+   [app.lib :refer [defnc]]
+   [app.pricing.views :refer [Pricing]]
+   [helix.core :refer [$]]
+   [helix.dom :as d]))
 
 (defnc home-page []
-  (d/div
-   (d/h2 "Welcome!")
-   (d/p "Some motivational catch phrase here.")))
+  (d/main
+   ($ Hero)))
 
 (defnc features-page []
   (d/div
-   (d/h2 "Features")
+   ($ Features)
    (d/p "Here our features.")))
 
 (defnc pricing-page []
   (d/div
-   (d/h2 "Pricing")
-   (d/p "Here our values.")))
+    ($ Pricing)))
+
 

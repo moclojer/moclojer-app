@@ -1,10 +1,13 @@
 (ns app.auth.views
-  (:require [app.components :refer [LoadingSpinner NavLink AuthLayout Button]]
-            [app.lib :refer [defnc]]
-            [helix.core :refer [$]]
-            [helix.dom :as d]
-            [helix.hooks :as hooks]
-            [refx.alpha :as refx]))
+  (:require
+   [app.components.button :refer [Button]]
+   [app.components.loading :refer [LoadingSpinner]]
+   [app.components.navlink :refer [NavLink]]
+   [app.lib :refer [defnc]]
+   [helix.core :refer [$]]
+   [helix.dom :as d]
+   [helix.hooks :as hooks]
+   [refx.alpha :as refx]))
 
 (def form-classes
   "block w-full appearance-none rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-blue-500 sm:text-sm")
@@ -25,6 +28,14 @@
            :on-change on-change
            :disabled disabled
            :required required})))
+
+
+(defnc AuthLayout
+  [{:keys [children]}]
+  (d/div {:class-name "relative flex min-h-full justify-center md:px-12 lg:px-0"}
+         (d/div {:class-name "relative z-10 flex flex-1 flex-col bg-white py-10 px-4 shadow-2xl sm:justify-center md:flex-none md:px-28"}
+                (d/div {:class-name "mx-auto w-full max-w-md sm:px-4 md:w-96 md:max-w-sm md:px-0"}
+                       children))))
 
 (defnc login-view []
   (let [loading? (refx/use-sub [:app.auth/login-loading])
