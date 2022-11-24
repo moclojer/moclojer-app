@@ -39,8 +39,8 @@
                           :class-name "flex flex-col items-center gap-y-8 sm:flex-row sm:gap-x-12 sm:gap-y-0"}
                          (d/li {:key "Moclojer" :class-name "flex"}
                                (d/img {:src "https://avatars.githubusercontent.com/u/60410876?s=200&v=4" :alt ""}))
-                         (d/li {:key "Moclojer" :class-name "flex"}
+                         (d/li {:key "Moclojer1" :class-name "flex"}
                                (d/img {:src "https://avatars.githubusercontent.com/u/60410876?s=200&v=4" :alt ""}))
-                         (d/li {:key "Moclojer" :class-name "flex"}
+                         (d/li {:key "Moclojer2" :class-name "flex"}
                                (d/img {:src "https://avatars.githubusercontent.com/u/60410876?s=200&v=4" :alt ""}))))))))
 

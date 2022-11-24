@@ -20,9 +20,7 @@
                               ($ NavLink {:children "Features"
                                           :href (rfe/href :app.core/features)})
                               ($ NavLink {:children "Pricing"
-                                          :href (rfe/href :app.core/pricing)})
-                              ($ NavLink {:children "About"
-                                          :href (rfe/href :app.core/about)}))))
+                                          :href (rfe/href :app.core/pricing)}))))
                (d/div {:class-name "flex flex-col items-center border-t border-slate-400/10 py-10 sm:flex-row-reverse sm:justify-between"}
                       (d/div {:class-name "flex gap-x-6"}
                              (d/a {:href "https://twitter.com" :class-name "group"}
