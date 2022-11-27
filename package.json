@@ -5,7 +5,6 @@
   "main": "index.js",
   "scripts": {
     "ci:tests": "shadow-cljs compile ci-tests && karma start --single-run",
-    "test:watch": "shadow-cljs watch tests",
     "app:watch": "shadow-cljs watch tests app",
     "shadow:release": "shadow-cljs release app",
     "postcss:build": "cross-env TAILWIND_MODE=build postcss src/css/tailwind.css -o ./resources/public/assets/css/output.css --verbose",
