@@ -5,10 +5,14 @@
   "main": "index.js",
   "scripts": {
     "ci:tests": "shadow-cljs compile ci-tests && karma start --single-run",
-    "wathc:test": "shadow-cljs watch tests",
-    "watch:app": "shadow-cljs watch app",
-    "release": "tailwind -i src/css/tailwind.css -o ./resources/public/assets/css/output.css & shadow-cljs release app",
-    "watch": "tailwind -i src/css/tailwind.css -o ./resources/public/assets/css/output.css & shadow-cljs watch app tests",
+    "test:watch": "shadow-cljs watch tests",
+    "app:watch": "shadow-cljs watch tests app",
+    "shadow:release": "shadow-cljs release app",
+    "postcss:build": "cross-env TAILWIND_MODE=build postcss src/css/tailwind.css -o ./resources/public/assets/css/output.css --verbose",
+    "postcss:watch": "cross-env TAILWIND_MODE=watch postcss src/css/tailwind.css -o ./resources/public/assets/css/output.css --verbose -w",
+    "postcss:release": "cross-env NODE_ENV=production postcss src/css/tailwind.css -o ./resources/public/assets/css/output.css --verbose",
+    "watch": "run-p -l *:watch",
+    "release": "run-s *:release",
     "repl": "shadow-cljs clj-repl"
   },
   "repository": {
