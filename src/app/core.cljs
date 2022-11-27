@@ -6,8 +6,10 @@
    [app.auth.views :as auth]
    [app.components.footer :refer [FooterComponent]]
    [app.components.nav :refer [NavBar]]
+   [app.home.views :as home]
+   [app.features.views :as features]
+   [app.pricing.views :as pricing]
    [app.lib :refer [defnc]]
-   [app.pages :as pages]
    [app.routes.core :as routes]
    [app.routes.events]
    [app.routes.subs]
@@ -51,17 +53,17 @@
   ["/"
    [""
     {:name ::home
-     :view pages/home-page
+     :view home/home-page
      :public? true}]
 
    ["features"
     {:name ::features
-     :view pages/features-page
+     :view features/features-page
      :public? true}]
 
    ["pricing"
     {:name ::pricing
-     :view pages/pricing-page
+     :view pricing/pricing-page
      :public? true}]
 
    ["login"

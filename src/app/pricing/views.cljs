@@ -78,3 +78,7 @@
                                       "Track up to 15 expenses per month"
                                       "Manual payroll support"
                                       "Export up to 3 reports"]})))))
+
+(defnc pricing-page []
+  (d/div
+    ($ Pricing)))

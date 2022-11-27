@@ -3,5 +3,7 @@
    [app.lib :refer [defnc]]
    [helix.dom :as d]))
 
-(defnc Features []
-  (d/div "Features screen"))
+
+(defnc features-page []
+  (d/div
+   (d/p "Here our features.")))
