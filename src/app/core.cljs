@@ -1,17 +1,21 @@
 (ns app.core
-  (:require ["react-dom/client" :as rdom]
-            [app.auth.events]
-            [app.auth.subs]
-            [app.auth.views :as auth]
-            [app.components :as comp]
-            [app.lib :refer [defnc]]
-            [app.pages :as pages]
-            [app.routes.core :as routes]
-            [app.routes.events]
-            [app.routes.subs]
-            [helix.core :refer [$]]
-            [helix.dom :as d]
-            [refx.alpha :as refx]))
+  (:require
+   ["react-dom/client" :as rdom]
+   [app.auth.events]
+   [app.auth.subs]
+   [app.auth.views :as auth]
+   [app.components.footer :refer [FooterComponent]]
+   [app.components.nav :refer [NavBar]]
+   [app.home.views :as home]
+   [app.features.views :as features]
+   [app.pricing.views :as pricing]
+   [app.lib :refer [defnc]]
+   [app.routes.core :as routes]
+   [app.routes.events]
+   [app.routes.subs]
+   [helix.core :refer [$]]
+   [helix.dom :as d]
+   [refx.alpha :as refx]))
 
 ;;; Events ;;;
 
@@ -28,7 +32,7 @@
         current-route (refx/use-sub [:app.routes/current-route])
         route-data (:data current-route)]
     (d/div
-     ($ comp/NavBar)
+     ($ NavBar)
      (when user
        (d/div
         (d/li (d/a {:on-click (fn [e]
@@ -41,30 +45,25 @@
        (when-let [view (:view route-data)]
          ($ view {:match current-route}))
        ($ auth/login-view))
-     ($ comp/Footer))))
+     ($ FooterComponent))))
 
 ;;; Routes ;;;
 
 (def routes
   ["/"
    [""
-    {:name ::frontpage
-     :view pages/home-page
+    {:name ::home
+     :view home/home-page
      :public? true}]
 
    ["features"
     {:name ::features
-     :view pages/features-page
+     :view features/features-page
      :public? true}]
 
    ["pricing"
     {:name ::pricing
-     :view pages/pricing-page
-     :public? true}]
-
-   ["about"
-    {:name ::about
-     :view pages/about-page
+     :view pricing/pricing-page
      :public? true}]
 
    ["login"
