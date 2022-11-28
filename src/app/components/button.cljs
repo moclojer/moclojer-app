@@ -1,7 +1,6 @@
 (ns app.components.button
-  (:require
-   [app.lib :refer [defnc]]
-   [helix.dom :as d]))
+  (:require [app.lib :refer [defnc]]
+            [helix.dom :as d]))
 
 (def base-styles
   {:solid "group inline-flex items-center justify-center rounded-full py-2 px-4 text-sm font-semibold focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 "
@@ -14,15 +13,18 @@
    :outline {:slate "ring-slate-200 text-slate-700 hover:text-slate-900 hover:ring-slate-300 active:bg-slate-100 active:text-slate-600 focus-visible:outline-blue-600 focus-visible:ring-slate-300 ",
              :white "ring-slate-700 text-white hover:ring-slate-500 active:ring-slate-700 active:text-slate-400 focus-visible:outline-white "}})
 
-(defnc Button
-  [{:keys [variant color class-name children]
-    :or {variant :solid color :blue class-name ""} :as props}]
+(defn props->classes
+  [{:keys [variant color class-name]
+    :or {variant :solid color :blue class-name ""}}]
   (let [variant (keyword variant)
-        color (keyword color)
-        class-name (str (-> base-styles variant)
-                        (-> variant-syles variant color)
-                        class-name)]
+        color (keyword color)]
+    (str (-> variant base-styles)
+         (get-in variant-syles [variant color])
+         class-name)))
 
+(defnc Button
+  [{:keys [children] :as props}]
+  (let [classes (props->classes props)]
     (d/button
-     {:class-name class-name & props}
+     {:class-name classes & (dissoc props :class-name)}
      children)))

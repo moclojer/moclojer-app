@@ -1,5 +1,6 @@
 (ns app.auth.views
   (:require
+   [app.components.alerts :refer [Error]]
    [app.components.button :refer [Button]]
    [app.components.loading :refer [LoadingSpinner]]
    [app.components.navlink :refer [NavLink]]
@@ -29,7 +30,6 @@
            :disabled disabled
            :required required})))
 
-
 (defnc AuthLayout
   [{:keys [children]}]
   (d/div {:class-name "relative flex min-h-full justify-center md:px-12 lg:px-0"}
@@ -39,7 +39,7 @@
 
 (defnc login-view []
   (let [loading? (refx/use-sub [:app.auth/login-loading])
-        error? (refx/use-sub [:app.auth/login-error])
+        [error error-res] (refx/use-sub [:app.auth/login-error])
         email-sent? (refx/use-sub [:app.auth/email-sent])
         [state set-state] (hooks/use-state {:email ""})]
     ($ AuthLayout
@@ -84,6 +84,10 @@
                                         :value (:email state)
                                         :disabled loading?
                                         :on-change #(set-state assoc :email (.. % -target -value))})
+                         (when error
+                           ($ Error
+                              {:id "login-error"
+                               :error "Error... try it again."}))
                          (d/div
                           ($ Button
                              {:disabled loading?
@@ -95,10 +99,4 @@
                                (d/span {:class-name "inline-flex"}
                                        ($ LoadingSpinner {})
                                        "Loading...")
-                               (d/span "Sign in"))))))))
-
-       (when error?
-         (d/div
-          {:id "login-error"
-           :class-name "flex flex-col"}
-          "Error... try it again.")))))
+                               (d/span "Sign in")))))))))))
