@@ -87,7 +87,8 @@
                          (when error
                            ($ Error
                               {:id "login-error"
-                               :error "Error... try it again."}))
+                               :error "Error... try it again."
+                               :description error-res}))
                          (d/div
                           ($ Button
                              {:disabled loading?
@@ -100,3 +101,29 @@
                                        ($ LoadingSpinner {})
                                        "Loading...")
                                (d/span "Sign in")))))))))))
+
+(defnc login-auth-view []
+  (let [{:keys [query-params]} (refx/use-sub [:app.route/current-route])
+        loading? (refx/use-sub [:app.auth/login-loading])
+        user (refx/use-sub [:app.auth/current-user])
+        [error _error-res] (refx/use-sub [:app.auth/login-error])]
+
+    (hooks/use-effect
+     [query-params]
+     (if-let [error-msg (:error_description query-params)]
+       (refx/dispatch [:app.auth/error error-msg])
+       (refx/dispatch [:app.auth/login (select-keys query-params [:code])])))
+
+    (when user
+      ;; redirects to home when login success
+      (refx/dispatch [:app.routes/push-state :app.core/home]))
+
+    (when error
+      ;; redirects to login when login fails
+      (refx/dispatch [:app.routes/push-state :app.core/login]))
+
+    ($ AuthLayout
+       (when loading?
+         (d/div
+          ;; todo better screen for this
+          (str "Validating... " (:code query-params)))))))

@@ -31,7 +31,7 @@
    {:post {:lag 300
            :status 500
            :content-type :json
-           :body #js {:ok false}}}})
+           :body "Not found"}}})
 
 (def login-sucess-msw
   {"/login/send-email"
@@ -51,7 +51,7 @@
                    _change (aux/wait-for #(-> input (aux/change "err@ee.cc")))
                    _click (aux/wait-for #(-> button aux/click))
                    error-msg (aux/wait-for #(-> container (aux/query "#login-error") aux/text))]
-             (is (= "Error... try it again." error-msg))
+             (is (= "Error... try it again.Not found" error-msg))
              (aux/cleanup)
              (done)))))
 

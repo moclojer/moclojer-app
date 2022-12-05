@@ -15,11 +15,11 @@
 (refx/reg-event-db
  :app.auth/login-error
  (fn
-   [db response]
-   (println :fail response)
+   [db [key-error val-error]]
+   (println :fail key-error val-error)
    (-> db
        (assoc :login-loading? false)
-       (assoc :login-error response)
+       (assoc :login-error [key-error (:body val-error)])
        (assoc :current-user nil))))
 
 (refx/reg-event-fx
@@ -50,11 +50,11 @@
 (refx/reg-event-db
  :app.auth/send-email-error
  (fn
-   [db response]
-   (println :fail response)
+   [db [key-error val-error]]
+   (println :fail key-error val-error)
    (-> db
        (assoc :login-loading? false)
-       (assoc :login-error response)
+       (assoc :login-error [key-error (:body val-error)])
        (assoc :login-email-sent nil))))
 
 (refx/reg-event-fx
@@ -85,3 +85,13 @@
    [db _]
    (-> db
        (assoc :current-user nil))))
+
+(refx/reg-event-db
+ :app.auth/error
+ (fn
+   [db error]
+   (-> db
+       (assoc :current-user nil)
+       (assoc :login-loading? false)
+       (assoc :login-error error)
+       (assoc :login-email-sent nil))))

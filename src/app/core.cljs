@@ -67,9 +67,14 @@
      :public? true}]
 
    ["login"
-    {:name ::login
-     :view auth/login-view
-     :public? true}]])
+    [""
+     {:name ::login
+      :view auth/login-view
+      :public? true}]
+    ["/auth"
+     {:name ::login-auth
+      :view auth/login-auth-view
+      :public? true}]]])
 
 ;;; Setup ;;;
 
