@@ -1,9 +1,17 @@
 (ns app.auth.events
   (:require [app.http]
-            [refx.alpha :as refx]))
+            [app.auth.db :as auth.db]
+            [refx.alpha :as refx]
+            [refx.interceptors :refer [after]]))
+
+;; TODO unit test & maybe move to adapter ns
+(defn current-user->cookie
+  [{:keys [current-user]}]
+  (auth.db/set-cookie "current-user" (:expires_in current-user) current-user))
 
 (refx/reg-event-fx
  :app.auth/login-done
+ [(after current-user->cookie)]
  (fn
    [{db :db} [_ response]]
    (println :success response)
@@ -16,7 +24,7 @@
  :app.auth/login-error
  (fn
    [db [key-error val-error]]
-   (println :fail key-error val-error)
+   (js/console.error key-error val-error)
    (-> db
        (assoc :login-loading? false)
        (assoc :login-error [key-error (:body val-error)])
@@ -27,7 +35,7 @@
  (fn
    [{db :db} [_ login]]
    {:http {:method      :post
-           :url         "/login"
+           :url         "/login/auth"
            :body        login
            :accept :json
            :content-type :json
@@ -51,7 +59,7 @@
  :app.auth/send-email-error
  (fn
    [db [key-error val-error]]
-   (println :fail key-error val-error)
+   (js/console.error key-error val-error)
    (-> db
        (assoc :login-loading? false)
        (assoc :login-error [key-error (:body val-error)])

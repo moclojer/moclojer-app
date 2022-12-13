@@ -1,6 +1,7 @@
 (ns app.core
   (:require
    ["react-dom/client" :as rdom]
+   [app.auth.db]
    [app.auth.events]
    [app.auth.subs]
    [app.auth.views :as auth]
@@ -17,15 +18,20 @@
    [helix.dom :as d]
    [refx.alpha :as refx]))
 
+(def default-db
+  {:current-route nil
+   :current-user nil})
+
 ;;; Events ;;;
 
-(refx/reg-event-db
+(refx/reg-event-fx
  ::initialize-db
- (fn [db _]
-   (if db
-     db
-     {:current-route nil
-      :current-user nil})))
+ [(refx/inject-cofx :app.auth/cookie)]
+ (fn [{:keys [cookie-current-user]} _]
+   {:db (assoc default-db
+               :current-user cookie-current-user)}))
+
+;;; Components ;;;
 
 (defnc app []
   (let [{:keys [username] :as user} (refx/use-sub [:app.auth/current-user])
