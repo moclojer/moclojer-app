@@ -1,9 +1,20 @@
 (ns app.auth.events
   (:require [app.http]
-            [refx.alpha :as refx]))
+            [app.auth.db :as auth.db]
+            [refx.alpha :as refx]
+            [refx.interceptors :refer [after]]))
+
+(defn set-current-user-cookie!
+  [{:keys [current-user]}]
+  (auth.db/set-cookie "current-user" (:expires_in current-user) current-user))
+
+(defn remove-current-user-cookie!
+  [_]
+  (auth.db/remove-cookie "current-user"))
 
 (refx/reg-event-fx
  :app.auth/login-done
+ [(after set-current-user-cookie!)]
  (fn
    [{db :db} [_ response]]
    (println :success response)
@@ -15,11 +26,11 @@
 (refx/reg-event-db
  :app.auth/login-error
  (fn
-   [db response]
-   (println :fail response)
+   [db [key-error val-error]]
+   (js/console.error key-error val-error)
    (-> db
        (assoc :login-loading? false)
-       (assoc :login-error response)
+       (assoc :login-error [key-error (:body val-error)])
        (assoc :current-user nil))))
 
 (refx/reg-event-fx
@@ -27,7 +38,7 @@
  (fn
    [{db :db} [_ login]]
    {:http {:method      :post
-           :url         "/login"
+           :url         "/login/auth"
            :body        login
            :accept :json
            :content-type :json
@@ -50,11 +61,11 @@
 (refx/reg-event-db
  :app.auth/send-email-error
  (fn
-   [db response]
-   (println :fail response)
+   [db [key-error val-error]]
+   (js/console.error key-error val-error)
    (-> db
        (assoc :login-loading? false)
-       (assoc :login-error response)
+       (assoc :login-error [key-error (:body val-error)])
        (assoc :login-email-sent nil))))
 
 (refx/reg-event-fx
@@ -79,9 +90,19 @@
    (-> db
        (assoc :login-email-sent nil))))
 
-(refx/reg-event-db
+(refx/reg-event-fx
  :app.auth/logout
+ [(after remove-current-user-cookie!)]
  (fn
    [db _]
+   {:db (assoc db :current-user nil)}))
+
+(refx/reg-event-db
+ :app.auth/error
+ (fn
+   [db error]
    (-> db
-       (assoc :current-user nil))))
+       (assoc :current-user nil)
+       (assoc :login-loading? false)
+       (assoc :login-error error)
+       (assoc :login-email-sent nil))))

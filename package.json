@@ -42,6 +42,7 @@
   "dependencies": {
     "@tailwindcss/forms": "^0.5.3",
     "cross-env": "^7.0.3",
+    "js-cookie": "^3.0.1",
     "postcss-focus-visible": "^6.0.4",
     "react": "^18.2.0",
     "react-dom": "18.2.0",
