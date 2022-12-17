@@ -1,14 +1,13 @@
-(ns app.components.nav 
-  (:require
-   [app.components.button :refer [Button]]
-   [app.components.navlink :refer [NavLink]]
-   [app.lib :refer [defnc]]
-   [helix.core :refer [$]]
-   [helix.dom :as d]
-   [reitit.frontend.easy :as rfe]))
+(ns app.components.nav
+  (:require [app.auth.views :refer [AuthMenu]]
+            [app.components.button :refer [Button]]
+            [app.components.navlink :refer [NavLink]]
+            [app.lib :refer [defnc]]
+            [helix.core :refer [$]]
+            [helix.dom :as d]
+            [reitit.frontend.easy :as rfe]))
 
-
-(defnc NavBar []
+(defnc NavBar [{:keys [user]}]
   (d/div
    {:class-name "py-10"}
    (d/div {:class-name "mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"}
@@ -22,13 +21,9 @@
                                            :href (rfe/href :app.core/features)})
                                ($ NavLink {:children "Pricing"
                                            :href (rfe/href :app.core/pricing)})))
-
                  (d/div
                   {:class-name "flex items-center gap-x-5 md:gap-x-8"}
-                  (d/div
-                   {:class-name "hidden md:block"}
-                   ($ NavLink {:children "Sign In"
-                               :href (rfe/href :app.core/login)}))
+                  ($ AuthMenu {:user user})
                   ($ Button "Get started")
                   (d/div {:class-name "-mr-1 md:hidden"}))))))
 

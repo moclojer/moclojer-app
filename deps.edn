@@ -11,4 +11,5 @@
  :aliases
  {:dev
   {:extra-paths ["test"]
-   :extra-deps {thheller/shadow-cljs {:mvn/version "2.20.7"}}}}}
+   :extra-deps {cider/cider-nrepl {:mvn/version "0.28.6"}
+                thheller/shadow-cljs {:mvn/version "2.20.7"}}}}}

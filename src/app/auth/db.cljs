@@ -11,6 +11,10 @@
   [name]
   (cookie/get name))
 
+(defn remove-cookie
+  [name]
+  (cookie/remove name))
+
 (refx/reg-cofx
  :app.auth/cookie
  (fn [cofx _]

@@ -8,7 +8,8 @@
    [helix.core :refer [$]]
    [helix.dom :as d]
    [helix.hooks :as hooks]
-   [refx.alpha :as refx]))
+   [refx.alpha :as refx]
+   [reitit.frontend.easy :as rfe]))
 
 (def form-classes
   "block w-full appearance-none rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-blue-500 sm:text-sm")
@@ -36,6 +37,27 @@
          (d/div {:class-name "relative z-10 flex flex-1 flex-col bg-white py-10 px-4 shadow-2xl sm:justify-center md:flex-none md:px-28"}
                 (d/div {:class-name "mx-auto w-full max-w-md sm:px-4 md:w-96 md:max-w-sm md:px-0"}
                        children))))
+
+(defnc SignInBtn []
+  (d/div
+   {:class-name "hidden md:block"}
+   ($ NavLink {:children "Sign In"
+               :href (rfe/href :app.core/login)})))
+
+(defnc LogOutBtn []
+  (d/div
+   {:class-name "hidden md:block"}
+   ($ NavLink {:on-click (fn [e]
+                           (.preventDefault e)
+                           (refx/dispatch [:app.auth/logout]))
+               :children "Logout"
+               :href "#"})))
+
+(defnc AuthMenu
+  [{:keys [user]}]
+  (if user
+    ($ LogOutBtn)
+    ($ SignInBtn)))
 
 (defnc login-view []
   (let [loading? (refx/use-sub [:app.auth/login-loading])
@@ -84,11 +106,12 @@
                                         :value (:email state)
                                         :disabled loading?
                                         :on-change #(set-state assoc :email (.. % -target -value))})
+
                          (when error
                            ($ Error
                               {:id "login-error"
                                :error "Error... try it again."
-                               :description error-res}))
+                               :description (:message error-res)}))
                          (d/div
                           ($ Button
                              {:disabled loading?
@@ -108,12 +131,6 @@
         user (refx/use-sub [:app.auth/current-user])
         [error _error-res] (refx/use-sub [:app.auth/login-error])]
 
-    (hooks/use-effect
-     [query-params]
-     (if-let [error-msg (:error_description query-params)]
-       (refx/dispatch [:app.auth/error error-msg])
-       (refx/dispatch [:app.auth/login (select-keys query-params [:code])])))
-
     (when user
       ;; redirects to home when login success
       (refx/dispatch [:app.routes/push-state :app.core/home]))
@@ -121,6 +138,12 @@
     (when error
       ;; redirects to login when login fails
       (refx/dispatch [:app.routes/push-state :app.core/login]))
+
+    (hooks/use-effect
+     [query-params]
+     (if-let [error-msg (:error_description query-params)]
+       (refx/dispatch [:app.auth/error error-msg])
+       (refx/dispatch [:app.auth/login (select-keys query-params [:code])])))
 
     ($ AuthLayout
        (when loading?

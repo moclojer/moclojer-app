@@ -1,37 +1,25 @@
-(ns app.integration.auth-view-test
+(ns app.integration.login-view-test
   (:require [app.auth.events]
             [app.auth.subs]
             [app.auth.views :as auth.views]
             [app.aux :as aux]
+            [app.integration.aux :refer [after-fn before-fn]]
             [cljs.test :refer [async deftest is testing use-fixtures]]
             [dev.msw.core :as mock]
-            [promesa.core :as p]
-            [refx.alpha :as refx]))
-
-(refx/reg-event-db
- :test/initialize-db
- (fn [_ _]
-   {:current-route nil
-    :current-user nil
-    :login-loading? false
-    :login-error nil
-    :login-email-sent nil}))
+            [promesa.core :as p]))
 
 (use-fixtures :each
-  {:before #(async done
-                   (refx/clear-subscription-cache!)
-                   (refx/dispatch-sync [:test/initialize-db])
-                   (aux/cleanup)
-                   (done))
-   :after (fn []
-            (aux/cleanup))})
+  {:before before-fn
+   :after after-fn})
+
+;; http mocks
 
 (def login-error-msw
   {"/login/send-email"
    {:post {:lag 300
            :status 500
            :content-type :json
-           :body "Not found"}}})
+           :body #js {:message "Not found"}}}})
 
 (def login-sucess-msw
   {"/login/send-email"

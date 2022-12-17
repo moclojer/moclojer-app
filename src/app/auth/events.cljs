@@ -4,14 +4,17 @@
             [refx.alpha :as refx]
             [refx.interceptors :refer [after]]))
 
-;; TODO unit test & maybe move to adapter ns
-(defn current-user->cookie
+(defn set-current-user-cookie!
   [{:keys [current-user]}]
   (auth.db/set-cookie "current-user" (:expires_in current-user) current-user))
 
+(defn remove-current-user-cookie!
+  [_]
+  (auth.db/remove-cookie "current-user"))
+
 (refx/reg-event-fx
  :app.auth/login-done
- [(after current-user->cookie)]
+ [(after set-current-user-cookie!)]
  (fn
    [{db :db} [_ response]]
    (println :success response)
@@ -87,12 +90,12 @@
    (-> db
        (assoc :login-email-sent nil))))
 
-(refx/reg-event-db
+(refx/reg-event-fx
  :app.auth/logout
+ [(after remove-current-user-cookie!)]
  (fn
    [db _]
-   (-> db
-       (assoc :current-user nil))))
+   {:db (assoc db :current-user nil)}))
 
 (refx/reg-event-db
  :app.auth/error
