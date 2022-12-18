@@ -1,5 +1,5 @@
 # Auth
-The auth using WORKOS is divided in two steps, **email send** and **code validation** via redirect.
+The auth using WORKOS is divided in two steps, **email send** and **code validation** via redirect in the frontend url `http://localhost:8000/#/login/auth?code=<string>`.
 
 ## Email Send
 
