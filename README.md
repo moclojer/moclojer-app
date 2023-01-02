@@ -30,9 +30,9 @@ npm run repl
 shadow.user => (shadow/watch :app)
 # then open the http://localhost:8000
 
-shadow.user =>  (shadow/repl :app)
-cljs.user=> (in-ns 'dev.core)
-dev.core=>   (p/do (browser/start!) (.reload js/location)) 
+shadow.user => (shadow/repl :app)
+cljs.user => (in-ns 'dev.core)
+dev.core => (p/do (mock/start!) (.reload js/location))
 ```
 Then your mock (msw) will be running.
 
@@ -56,7 +56,7 @@ I decided to start the app (even on development) with [MSW](https://mswjs.io/) t
 To enable it you need an active repl connection with the project and and evaluate
 the start expression on the block comment at the end of the following file: [src/dev/core.cljs](src/dev/core.cljs)
 ```clj
-(p/do (browser/start!)
+(p/do (mock/start!)
  (.reload js/location))
 ```
 
