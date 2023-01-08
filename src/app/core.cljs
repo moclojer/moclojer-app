@@ -30,17 +30,28 @@
 
 ;;; Components ;;;
 
-(defnc app []
-  (let [user (refx/use-sub [:app.auth/current-user])
-        current-route (refx/use-sub [:app.routes/current-route])
+(defnc dashboard-screen 
+  []
+  (let [user (refx/use-sub [:app.auth/current-user])]
+    ))
+
+(defnc landing-screen [user]
+  (let [current-route (refx/use-sub [:app.routes/current-route])
         route-data (:data current-route)]
+  (d/div
+   ($ NavBar {:user user})
+   (if (or user (:public? route-data))
+     (when-let [view (:view route-data)]
+       ($ view {:match current-route}))
+     ($ auth/login-view))
+   ($ FooterComponent))))
+
+(defnc app []
+  (let [user (refx/use-sub [:app.auth/current-user])]
     (d/div
-     ($ NavBar {:user user})
-     (if (or user (:public? route-data))
-       (when-let [view (:view route-data)]
-         ($ view {:match current-route}))
-       ($ auth/login-view))
-     ($ FooterComponent))))
+     (if user 
+       (d/div)
+       ($ landing-screen)))))
 
 ;;; Setup ;;;
 

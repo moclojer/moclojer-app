@@ -26,6 +26,7 @@
      {:name :app.core/login
       :view auth/login-view
       :public? true}]
+
     ["/auth"
      {:name :app.core/login-auth
       :view auth/login-auth-view

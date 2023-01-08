@@ -22,4 +22,5 @@
 
   "Stop mock service worker"
   (p/do (mock/stop!)
-        (.reload js/location)))
+        (.reload js/location))
+  )
