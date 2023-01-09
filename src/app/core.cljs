@@ -1,19 +1,23 @@
 (ns app.core
-  (:require ["react-dom/client" :as rdom]
-            [app.auth.db]
-            [app.auth.events]
-            [app.auth.subs]
-            [app.auth.views :as auth]
-            [app.components.footer :refer [FooterComponent]]
-            [app.components.nav :refer [NavBar]]
-            [app.lib :refer [defnc]]
-            [app.routes.bookmarks :as routes.bookmarks]
-            [app.routes.core :as routes]
-            [app.routes.events]
-            [app.routes.subs]
-            [helix.core :refer [$]]
-            [helix.dom :as d]
-            [refx.alpha :as refx]))
+  (:require
+   ["react-dom/client" :as rdom]
+   [app.auth.db]
+   [app.auth.events]
+   [app.auth.subs]
+   [app.auth.views :as auth]
+   [app.components.aside :as dashboard]
+   [app.components.dashboard.header :refer [Header]]
+   [app.components.dashboard.main :refer [Main]]
+   [app.components.footer :refer [FooterComponent]]
+   [app.components.nav :refer [NavBar]]
+   [app.lib :refer [defnc]]
+   [app.routes.bookmarks :as routes.bookmarks]
+   [app.routes.core :as routes]
+   [app.routes.events]
+   [app.routes.subs]
+   [helix.core :refer [$]]
+   [helix.dom :as d]
+   [refx.alpha :as refx]))
 
 (def default-db
   {:current-route nil
@@ -30,28 +34,32 @@
 
 ;;; Components ;;;
 
-(defnc dashboard-screen 
-  []
-  (let [user (refx/use-sub [:app.auth/current-user])]
-    ))
+(defnc dashboard-screen
+  [{:keys [user]}]
+  (d/body
+   {:class-name
+    "relative bg-yellow-50 overflow-hidden max-h-screen"}
+   ($ Header)
+   ($ dashboard/Aside)
+   ($ Main)))
 
-(defnc landing-screen [user]
+(defnc landing-screen [{:keys [user]}]
   (let [current-route (refx/use-sub [:app.routes/current-route])
         route-data (:data current-route)]
-  (d/div
-   ($ NavBar {:user user})
-   (if (or user (:public? route-data))
-     (when-let [view (:view route-data)]
-       ($ view {:match current-route}))
-     ($ auth/login-view))
-   ($ FooterComponent))))
+    (d/div
+     ($ NavBar {:user user})
+     (if (or user (:public? route-data))
+       (when-let [view (:view route-data)]
+         ($ view {:match current-route}))
+       ($ auth/login-view))
+     ($ FooterComponent))))
 
 (defnc app []
   (let [user (refx/use-sub [:app.auth/current-user])]
     (d/div
-     (if user 
-       (d/div)
-       ($ landing-screen)))))
+     (if user
+       ($ dashboard-screen {:user user})
+       ($ landing-screen {:user user})))))
 
 ;;; Setup ;;;
 

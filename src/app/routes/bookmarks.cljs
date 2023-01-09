@@ -30,6 +30,8 @@
     ["/auth"
      {:name :app.core/login-auth
       :view auth/login-auth-view
-      :public? true}]]])
+      :public? true}]]
+
+   ])
 
 
