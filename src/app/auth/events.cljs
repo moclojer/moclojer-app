@@ -94,8 +94,11 @@
  :app.auth/logout
  [(after remove-current-user-cookie!)]
  (fn
-   [db _]
-   {:db (assoc db :current-user nil)}))
+   [{db :db} _]
+   {:db (-> db
+            (assoc :current-user nil)
+            (assoc :login-loading? false)
+            (assoc :login-error nil))}))
 
 (refx/reg-event-db
  :app.auth/error

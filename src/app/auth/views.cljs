@@ -49,6 +49,7 @@
    {:class-name "hidden md:block"}
    ($ NavLink {:on-click (fn [e]
                            (.preventDefault e)
+                           (refx/dispatch-sync [:app.routes/push-state :app.core/home])
                            (refx/dispatch [:app.auth/logout]))
                :children "Logout"
                :href "#"})))
