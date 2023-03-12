@@ -47,7 +47,6 @@
   (let [current-route (refx/use-sub [:app.routes/current-route])
         route-data (:data current-route)]
     (d/div
-
      ($ NavBar {:user user})
      (if (or user (:public? route-data))
        (when-let [view (:view route-data)]
