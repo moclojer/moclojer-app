@@ -60,7 +60,7 @@ npm run app:watch
 
 In your neovim run
 
-```sh
+```vim
 :ConjureShadowSelect app
 ```
 
@@ -68,10 +68,11 @@ In your neovim run
 
 I decided to start the app (even on development) with [MSW](https://mswjs.io/) turned off.  
 
-To enable it you need an active repl connection with the project and and evaluate
-the start expression on the block comment at the end of the following file: [src/dev/core.cljs](src/dev/core.cljs)
+To enable it you need an active REPL connection with the project and and evaluate the start expression on the block comment at the end of the following file: [`src/dev/core.cljs`](src/dev/core.cljs)
 
 ```clj
 (p/do (mock/start!)
- (.reload js/location))
+      (.reload js/location))
 ```
+
+read more [here](#repl-on-your-terminal)
