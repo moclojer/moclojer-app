@@ -16,7 +16,7 @@ npm i # install
 
 ### Watch
 
-Start shadow-cljs watching and serving main in [`localhost:8000`](http://localhost:8000) and tests in [`localhost:8100`](http://localhost:8100)
+Start shadow-cljs watching and serving main in [`localhost:8000`](http://localhost:8000) and tests in [`localhost:8100`](http://localhost:8100):
 
 ```sh
 npm run watch
@@ -24,7 +24,7 @@ npm run watch
 
 ### Tests
 
-Run **Karma** tests targeted for running CI tests with *Headless Chromium Driver*
+Run **Karma** tests targeted for running CI tests with *Headless Chromium Driver*:
 
 ```sh
 npm run ci:tests
@@ -55,7 +55,7 @@ Then your mock (msw) will be running.
 - To configure your neovim to use Conjure follow [setup](https://github.com/rafaeldelboni/nvim-fennel-lsp-conjure-as-clojure-ide)
 
 ```sh
-npm run watch
+npm run app:watch
 ```
 
 In your neovim run
