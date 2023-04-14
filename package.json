@@ -4,27 +4,25 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "postinstall": "shadow-cljs compile app",
-    "ci:tests": "shadow-cljs compile ci-tests && karma start --single-run",
-    "app:watch": "shadow-cljs watch tests app",
-    "shadow:release": "shadow-cljs release app",
-    "postcss:build": "cross-env TAILWIND_MODE=build postcss src/css/tailwind.css -o ./resources/public/assets/css/output.css --verbose",
-    "postcss:watch": "cross-env TAILWIND_MODE=watch postcss src/css/tailwind.css -o ./resources/public/assets/css/output.css --verbose -w",
-    "postcss:release": "cross-env NODE_ENV=production postcss src/css/tailwind.css -o ./resources/public/assets/css/output.css --verbose",
-    "watch": "run-p -l *:watch",
-    "release": "run-s *:release",
-    "repl": "shadow-cljs clj-repl"
+    "postinstall": "npx shadow-cljs compile app",
+    "ci:tests": "npx shadow-cljs compile ci-tests && npx karma start --single-run",
+    "app:watch": "npx shadow-cljs watch tests app",
+    "shadow:release": "npx shadow-cljs release app",
+    "postcss:build": "npx cross-env TAILWIND_MODE=build postcss src/css/tailwind.css -o ./resources/public/assets/css/output.css --verbose",
+    "postcss:watch": "npx cross-env TAILWIND_MODE=watch postcss src/css/tailwind.css -o ./resources/public/assets/css/output.css --verbose -w",
+    "postcss:release": "npx cross-env NODE_ENV=production postcss src/css/tailwind.css -o ./resources/public/assets/css/output.css --verbose",
+    "watch": "run -p -l *:watch",
+    "release": "run -s *:release",
+    "repl": "npx shadow-cljs clj-repl"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/moclojer/front-helix.git"
   },
-  "author": "",
-  "license": "ISC",
   "bugs": {
     "url": "https://github.com/moclojer/front-helix/issues"
   },
-  "homepage": "https://github.com/moclojer/front-helix#readme",
+  "homepage": "https://github.com/moclojer/front-helix",
   "devDependencies": {
     "@testing-library/react": "^13.4.0",
     "autoprefixer": "^10.4.12",
@@ -40,7 +38,6 @@
     "tailwindcss": "^3.2.1"
   },
   "dependencies": {
-    "@tailwindcss/forms": "^0.5.3",
     "@codemirror/autocomplete": "0.18.8",
     "@codemirror/closebrackets": "0.18.0",
     "@codemirror/commands": "0.18.3",
@@ -56,9 +53,11 @@
     "@codemirror/search": "0.18.4",
     "@codemirror/state": "0.18.7",
     "@codemirror/view": "0.18.19",
+    "@tailwindcss/forms": "^0.5.3",
     "cross-env": "^7.0.3",
     "js-cookie": "^3.0.1",
     "postcss-focus-visible": "^6.0.4",
+    "puppeteer": "^19.9.0",
     "react": "^18.2.0",
     "react-dom": "18.2.0",
     "react-refresh": "^0.14.0",
