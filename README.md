@@ -34,19 +34,23 @@ npm run ci:tests
 
 #### Repl on your terminal
 
+**Open REPL:**
+
 ```sh
 npm run repl
-# inside repl
+```
 
+Inside **REPL** run the following calls (log below is with the output, _call the functions_):
+
+```log
 shadow.user => (shadow/watch :app)
 # then open the http://localhost:8000
-
 shadow.user => (shadow/repl :app)
 cljs.user => (in-ns 'dev.core)
 dev.core => (p/do (mock/start!) (.reload js/location))
 ```
 
-Then your mock (msw) will be running.
+Then your mock (**msw**) will be running.
 
 #### REPL on your nvim
 
