@@ -46,7 +46,7 @@ Inside **REPL** run the following calls (log below is with the output, *call the
 shadow.user => (shadow/watch :app)
 # then open the http://localhost:8000
 shadow.user => (shadow/repl :app)
-cljs.user => (in-ns 'dev.core)
+cljs.user => (in-ns 'front.dev.core)
 dev.core => (p/do (mock/start!) (.reload js/location))
 ```
 
