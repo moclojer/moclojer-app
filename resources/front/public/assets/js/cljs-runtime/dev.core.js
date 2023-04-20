@@ -10,9 +10,9 @@ return null;
 }
 });
 dev.core.init = (function dev$core$init(){
-return promesa.protocols._bind(promesa.protocols._promise(null),(function (___29329__auto__){
-return promesa.protocols._bind(promesa.protocols._promise(dev.msw.core.init_BANG_()),(function (___29328__auto__){
-return promesa.protocols._bind(promesa.protocols._promise(dev.core.dev_setup()),(function (___29328__auto____$1){
+return promesa.protocols._bind(promesa.protocols._promise(null),(function (___32147__auto__){
+return promesa.protocols._bind(promesa.protocols._promise(dev.msw.core.init_BANG_()),(function (___32146__auto__){
+return promesa.protocols._bind(promesa.protocols._promise(dev.core.dev_setup()),(function (___32146__auto____$1){
 return promesa.protocols._promise(front.app.core.init());
 }));
 }));

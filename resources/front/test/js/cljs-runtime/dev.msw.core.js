@@ -15,8 +15,8 @@ cljs.core.reset_BANG_(dev.msw.core.mock_state,handlers);
 
 return cljs.core.deref(dev.msw.core.mock_state).start(cljs.core.clj__GT_js(new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"onUnhandledRequest","onUnhandledRequest",375972856),"bypass"], null))).then((function (){
 return dev.session_storage.set_item_BANG_(dev.msw.core.ss_key,true);
-})).catch((function (p1__31438_SHARP_){
-return console.log(p1__31438_SHARP_);
+})).catch((function (p1__60437_SHARP_){
+return console.log(p1__60437_SHARP_);
 }));
 });
 dev.msw.core.stop_browser = (function dev$msw$core$stop_browser(){
@@ -27,8 +27,8 @@ cljs.core.reset_BANG_(dev.msw.core.mock_state,null);
 return dev.session_storage.remove_item_BANG_(dev.msw.core.ss_key);
 });
 dev.msw.core.start_BANG_ = (function dev$msw$core$start_BANG_(var_args){
-var G__31440 = arguments.length;
-switch (G__31440) {
+var G__60439 = arguments.length;
+switch (G__60439) {
 case 0:
 return dev.msw.core.start_BANG_.cljs$core$IFn$_invoke$arity$0();
 

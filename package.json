@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "postinstall": "npx shadow-cljs compile app",
+    "ci:karma-make": "npx msw init resources/front/test",
     "ci:tests": "npx shadow-cljs compile ci-tests && npx karma start --single-run",
     "app:watch": "npx shadow-cljs watch tests app",
     "shadow:release": "npx shadow-cljs release app",
@@ -66,6 +67,6 @@
     "use-sync-external-store": "1.2.0"
   },
   "msw": {
-    "workerDirectory": "resources/public"
+    "workerDirectory": "resources/front/test"
   }
 }
