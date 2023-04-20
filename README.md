@@ -40,7 +40,7 @@ npm run ci:tests
 npm run repl
 ```
 
-Inside **REPL** run the following calls (log below is with the output, _call the functions_):
+Inside **REPL** run the following calls (log below is with the output, *call the functions*):
 
 ```log
 shadow.user => (shadow/watch :app)
@@ -51,6 +51,10 @@ dev.core => (p/do (mock/start!) (.reload js/location))
 ```
 
 Then your mock (**msw**) will be running.
+
+1. after running the mock, you must enter the `msw.mock@email.com` email address into the `/#/login/auth?code=123ABC456DEF` URI
+      > it will give you the *"Check your email, and click on the link. Didn't received it?"* message
+2. in the same tab, open this URI `/#/login/auth?code=123ABC456DEF` *(what changes is the parameter code)*
 
 #### REPL on your nvim
 
