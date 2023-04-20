@@ -6,6 +6,7 @@
            :status 201
            :content-type :json
            :body #js {:ok true}}}
+   ;; /#/login/auth?code=123ABC456DEF
    "/login/auth"
    {:post {:status 201
            :content-type :json

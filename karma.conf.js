@@ -1,8 +1,12 @@
+// use puppeteer to not depend on Chromium installed
+const puppeteer = require('puppeteer');
+process.env.CHROMIUM_BIN = puppeteer.executablePath();
+
 module.exports = function (config) {
     config.set({
         browsers: ['ChromiumHeadless'],
         // The directory where the output file lives
-        basePath: 'resources/test',
+        basePath: 'resources/front/test',
         // The file itself
         files: ['ci.js', 'mockServiceWorker.js'],
         frameworks: ['cljs-test'],

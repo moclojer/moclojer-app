@@ -1,23 +1,23 @@
 ;;shadow clj config
-{:deps {:aliases [:dev]}
+{:deps {:aliases [:front-dev]}
  :builds {:app {:target :browser
-                :output-dir "resources/public/assets/js"
+                :output-dir "resources/front/public/assets/js"
                 :asset-path "/assets/js"
                 :js-options {:js-package-dirs ["node_modules"
                                                "../node_modules"]}
                 :devtools {:preloads [dev.refresh]
                            :reload-strategy :full
                            :http-port 8000
-                           :http-root "resources/public/"}
+                           :http-root "resources/front/public/"}
                 :dev      {:modules {:core {:init-fn dev.core/init}}}
-                :release  {:modules {:core {:init-fn app.core/init}}}}
+                :release  {:modules {:core {:init-fn front.app.core/init}}}}
           :tests    {:target           :browser-test
-                     :test-dir         "resources/test"
+                     :test-dir         "resources/front/test"
                      :ns-regexp        "-test$"
                      :devtools         {:http-port 8100
-                                        :http-root "resources/test"}}
+                                        :http-root "resources/front/test"}}
 
           :ci-tests {:target           :karma
-                     :output-to        "resources/test/ci.js"
+                     :output-to        "resources/front/test/ci.js"
                      :ns-regexp        "-test$"
                      :compiler-options {:static-fns false}}}}

@@ -1,5 +1,5 @@
 (ns dev.core
-  (:require [app.core :as app]
+  (:require [front.app.core :as app]
             [dev.msw.core :as mock]
             [promesa.core :as p]))
 
@@ -18,7 +18,8 @@
 (comment
   "Start mock service worker"
   (p/do (mock/start!)
-        (.reload js/location))
+        (.reload js/location)
+        )
 
   "Stop mock service worker"
   (p/do (mock/stop!)

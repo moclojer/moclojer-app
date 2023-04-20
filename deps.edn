@@ -1,5 +1,6 @@
 {:paths ["src" "resources"]
  :deps {org.clojure/clojure {:mvn/version "1.11.1"}
+        ;; front
         refx/core {:git/url "https://github.com/ferdinand-beyer/refx.git"
                    :git/sha "bdfbb4401a2fcc1258ecc3544e0e290548fc3ea3"
                    :deps/root "core"}
@@ -7,9 +8,55 @@
         funcool/promesa {:mvn/version "9.0.494"}
         metosin/reitit-schema {:mvn/version "0.5.18"}
         metosin/reitit-frontend {:mvn/version "0.5.18"}
-        lambdaisland/fetch {:mvn/version "1.1.60"}}
+        lambdaisland/fetch {:mvn/version "1.1.60"}
+        ;; back
+        aero/aero {:mvn/version "1.1.6"}
+        cheshire/cheshire {:mvn/version "5.11.0"}
+        clj-http/clj-http {:mvn/version "3.12.3"}
+        com.fzakaria/slf4j-timbre {:mvn/version "0.3.21"}
+        com.github.seancorfield/honeysql {:mvn/version "2.3.928"}
+        com.github.seancorfield/next.jdbc {:mvn/version "1.3.834"}
+        com.stuartsierra/component {:mvn/version "1.1.0"}
+        com.taoensso/timbre {:mvn/version "5.2.1"}
+        com.zaxxer/HikariCP {:mvn/version "5.0.1"}
+        io.pedestal/pedestal.jetty  {:mvn/version "0.5.10"}
+        io.pedestal/pedestal.service  {:mvn/version "0.5.10"}
+        metosin/muuntaja {:mvn/version "0.6.8"}
+        metosin/reitit {:mvn/version "0.5.18"}
+        metosin/reitit-pedestal {:mvn/version "0.5.18"}
+        metosin/reitit-swagger {:mvn/version "0.5.18"}
+        metosin/reitit-swagger-ui {:mvn/version "0.5.18"}
+        migratus/migratus {:mvn/version "1.4.4"}
+        org.bouncycastle/bcprov-jdk15on {:mvn/version "1.70"}
+        org.postgresql/postgresql {:mvn/version "42.5.0"}
+        org.slf4j/slf4j-simple {:mvn/version "2.0.2"}
+        prismatic/schema {:mvn/version "1.4.0"}
+        prismatic/schema-generators {:mvn/version "0.1.5"}
+        selmer/selmer {:mvn/version "1.12.55"}}
  :aliases
- {:dev
-  {:extra-paths ["test"]
+ {;; frontend
+  :front-dev
+  {:extra-paths ["test/front"]
    :extra-deps {cider/cider-nrepl {:mvn/version "0.28.6"}
-                thheller/shadow-cljs {:mvn/version "2.20.7"}}}}}
+                thheller/shadow-cljs {:mvn/version "2.20.10"}}}
+  ;; backend
+  :back-test {:extra-paths ["test/back"]
+              :extra-deps  {org.clojars.bigsy/pg-embedded-clj {:mvn/version "1.0.0"}
+                            lambdaisland/kaocha {:mvn/version "1.70.1086"}
+                            lambdaisland/kaocha-cloverage {:mvn/version "1.0.75"}
+                            nubank/matcher-combinators {:mvn/version "3.5.1"}
+                            nubank/state-flow {:mvn/version "5.14.2"}}
+              :main-opts   ["-m" "kaocha.runner"]}
+  :back-clojure-lsp {:replace-deps {com.github.clojure-lsp/clojure-lsp-standalone {:mvn/version "2022.09.01-15.27.31"}}
+                     :main-opts ["-m" "clojure-lsp.main"]}
+  
+  :back-migratus {:main-opts ["-m" "components.migrations"]}
+
+  :back-uberjar {:replace-deps {com.github.seancorfield/depstar {:mvn/version "2.1.303"}}
+                 :exec-fn hf.depstar/uberjar
+                 :exec-args {:jar "back.jar"
+                             :aot true
+                             :main-class api.server}}
+
+  :back-nrepl {:extra-deps {cider/cider-nrepl {:mvn/version "0.28.6"}}
+               :main-opts ["-m" "nrepl.cmdline" "--middleware" "[cider.nrepl/cider-middleware]"]}}}

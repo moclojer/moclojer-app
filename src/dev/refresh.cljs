@@ -1,6 +1,6 @@
 (ns dev.refresh
   "A place to add preloads for developer tools!"
-  (:require [app.core :as app]
+  (:require [front.app.core :as app]
             [helix.experimental.refresh :as r]
             [refx.alpha :as refx]))
 
