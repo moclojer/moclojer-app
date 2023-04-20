@@ -49,8 +49,8 @@ return cljs.core.native_satisfies_QMARK_(promesa.protocols.IExecutor,o);
 }
 });
 promesa.exec.resolve_executor = (function promesa$exec$resolve_executor(var_args){
-var G__57406 = arguments.length;
-switch (G__57406) {
+var G__52093 = arguments.length;
+switch (G__52093) {
 case 0:
 return promesa.exec.resolve_executor.cljs$core$IFn$_invoke$arity$0();
 
@@ -70,9 +70,9 @@ return promesa.exec.resolve_executor.cljs$core$IFn$_invoke$arity$1(new cljs.core
 }));
 
 (promesa.exec.resolve_executor.cljs$core$IFn$_invoke$arity$1 = (function (executor){
-var G__57410 = executor;
-var G__57410__$1 = (((G__57410 instanceof cljs.core.Keyword))?G__57410.fqn:null);
-switch (G__57410__$1) {
+var G__52095 = executor;
+var G__52095__$1 = (((G__52095 instanceof cljs.core.Keyword))?G__52095.fqn:null);
+switch (G__52095__$1) {
 case "default":
 return promesa.util.maybe_deref(promesa.exec._STAR_default_executor_STAR_);
 
@@ -94,8 +94,8 @@ return promesa.util.maybe_deref(executor);
 (promesa.exec.resolve_executor.cljs$lang$maxFixedArity = 1);
 
 promesa.exec.resolve_scheduler = (function promesa$exec$resolve_scheduler(var_args){
-var G__57417 = arguments.length;
-switch (G__57417) {
+var G__52103 = arguments.length;
+switch (G__52103) {
 case 0:
 return promesa.exec.resolve_scheduler.cljs$core$IFn$_invoke$arity$0();
 
@@ -132,8 +132,8 @@ promesa.exec.noop = cljs.core.constantly(null);
  * Run the task in the provided executor.
  */
 promesa.exec.run_BANG_ = (function promesa$exec$run_BANG_(var_args){
-var G__57424 = arguments.length;
-switch (G__57424) {
+var G__52108 = arguments.length;
+switch (G__52108) {
 case 1:
 return promesa.exec.run_BANG_.cljs$core$IFn$_invoke$arity$1((arguments[(0)]));
 
@@ -166,8 +166,8 @@ return promesa.protocols._submit_BANG_(promesa.exec.resolve_executor.cljs$core$I
  *   A task is a plain clojure function.
  */
 promesa.exec.submit_BANG_ = (function promesa$exec$submit_BANG_(var_args){
-var G__57430 = arguments.length;
-switch (G__57430) {
+var G__52113 = arguments.length;
+switch (G__52113) {
 case 1:
 return promesa.exec.submit_BANG_.cljs$core$IFn$_invoke$arity$1((arguments[(0)]));
 
@@ -200,8 +200,8 @@ return promesa.protocols._submit_BANG_(promesa.exec.resolve_executor.cljs$core$I
  *   it uses the `setTimeout` function.
  */
 promesa.exec.schedule_BANG_ = (function promesa$exec$schedule_BANG_(var_args){
-var G__57445 = arguments.length;
-switch (G__57445) {
+var G__52115 = arguments.length;
+switch (G__52115) {
 case 2:
 return promesa.exec.schedule_BANG_.cljs$core$IFn$_invoke$arity$2((arguments[(0)]),(arguments[(1)]));
 

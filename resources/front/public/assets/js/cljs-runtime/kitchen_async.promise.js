@@ -21,8 +21,8 @@ return (reject.cljs$core$IFn$_invoke$arity$1 ? reject.cljs$core$IFn$_invoke$arit
 })));
 });
 kitchen_async.promise.then = (function kitchen_async$promise$then(var_args){
-var G__30275 = arguments.length;
-switch (G__30275) {
+var G__23111 = arguments.length;
+switch (G__23111) {
 case 2:
 return kitchen_async.promise.then.cljs$core$IFn$_invoke$arity$2((arguments[(0)]),(arguments[(1)]));
 
@@ -66,8 +66,8 @@ kitchen_async.promise.race = (function kitchen_async$promise$race(ps){
 return goog.Promise.race(cljs.core.into_array.cljs$core$IFn$_invoke$arity$1(cljs.core.map.cljs$core$IFn$_invoke$arity$2(kitchen_async.promise.__GT_promise,ps)));
 });
 kitchen_async.promise.timeout = (function kitchen_async$promise$timeout(var_args){
-var G__30293 = arguments.length;
-switch (G__30293) {
+var G__23141 = arguments.length;
+switch (G__23141) {
 case 1:
 return kitchen_async.promise.timeout.cljs$core$IFn$_invoke$arity$1((arguments[(0)]));
 
@@ -87,8 +87,8 @@ return kitchen_async.promise.timeout.cljs$core$IFn$_invoke$arity$2(ms,null);
 }));
 
 (kitchen_async.promise.timeout.cljs$core$IFn$_invoke$arity$2 = (function (ms,v){
-var p__29925__auto__ = kitchen_async.promise.promise_impl();
-return (new p__29925__auto__((function (resolve){
+var p__22686__auto__ = kitchen_async.promise.promise_impl();
+return (new p__22686__auto__((function (resolve){
 return setTimeout((function (){
 return (resolve.cljs$core$IFn$_invoke$arity$1 ? resolve.cljs$core$IFn$_invoke$arity$1(v) : resolve.call(null,v));
 }),ms);
@@ -128,9 +128,9 @@ return kitchen_async.protocols.promisable.__GT_promise_STAR_(x);
  */
 kitchen_async.promise.promisify = (function kitchen_async$promise$promisify(f){
 return (function() { 
-var G__30338__delegate = function (args){
-var p__29925__auto__ = kitchen_async.promise.promise_impl();
-return (new p__29925__auto__((function (resolve,reject){
+var G__23267__delegate = function (args){
+var p__22686__auto__ = kitchen_async.promise.promise_impl();
+return (new p__22686__auto__((function (resolve,reject){
 var callback = (function kitchen_async$promise$promisify_$_callback(err,val){
 if(cljs.core.truth_(err)){
 return (reject.cljs$core$IFn$_invoke$arity$1 ? reject.cljs$core$IFn$_invoke$arity$1(err) : reject.call(null,err));
@@ -141,21 +141,21 @@ return (resolve.cljs$core$IFn$_invoke$arity$1 ? resolve.cljs$core$IFn$_invoke$ar
 return cljs.core.apply.cljs$core$IFn$_invoke$arity$2(f,cljs.core.concat.cljs$core$IFn$_invoke$arity$2(args,new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [callback], null)));
 })));
 };
-var G__30338 = function (var_args){
+var G__23267 = function (var_args){
 var args = null;
 if (arguments.length > 0) {
-var G__30340__i = 0, G__30340__a = new Array(arguments.length -  0);
-while (G__30340__i < G__30340__a.length) {G__30340__a[G__30340__i] = arguments[G__30340__i + 0]; ++G__30340__i;}
-  args = new cljs.core.IndexedSeq(G__30340__a,0,null);
+var G__23268__i = 0, G__23268__a = new Array(arguments.length -  0);
+while (G__23268__i < G__23268__a.length) {G__23268__a[G__23268__i] = arguments[G__23268__i + 0]; ++G__23268__i;}
+  args = new cljs.core.IndexedSeq(G__23268__a,0,null);
 } 
-return G__30338__delegate.call(this,args);};
-G__30338.cljs$lang$maxFixedArity = 0;
-G__30338.cljs$lang$applyTo = (function (arglist__30341){
-var args = cljs.core.seq(arglist__30341);
-return G__30338__delegate(args);
+return G__23267__delegate.call(this,args);};
+G__23267.cljs$lang$maxFixedArity = 0;
+G__23267.cljs$lang$applyTo = (function (arglist__23269){
+var args = cljs.core.seq(arglist__23269);
+return G__23267__delegate(args);
 });
-G__30338.cljs$core$IFn$_invoke$arity$variadic = G__30338__delegate;
-return G__30338;
+G__23267.cljs$core$IFn$_invoke$arity$variadic = G__23267__delegate;
+return G__23267;
 })()
 ;
 });

@@ -5,7 +5,7 @@
             [front.app.aux :as aux]
             [front.app.integration.aux :refer [after-fn before-fn]]
             [cljs.test :refer [async deftest is testing use-fixtures]]
-            [front.dev.msw.core :as mock]
+            [dev.msw.core :as mock]
             [promesa.core :as p]))
 
 (use-fixtures :each

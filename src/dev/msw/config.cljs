@@ -1,4 +1,4 @@
-(ns front.dev.msw.config)
+(ns dev.msw.config)
 
 (def default
   {"/login/send-email"

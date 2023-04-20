@@ -1,8 +1,8 @@
 goog.provide('front.app.aux');
 var module$node_modules$$testing_library$react$dist$index=shadow.js.require("module$node_modules$$testing_library$react$dist$index", {});
 front.app.aux.wait_for = (function front$app$aux$wait_for(var_args){
-var G__59458 = arguments.length;
-switch (G__59458) {
+var G__53607 = arguments.length;
+switch (G__53607) {
 case 1:
 return front.app.aux.wait_for.cljs$core$IFn$_invoke$arity$1((arguments[(0)]));
 
@@ -56,8 +56,8 @@ front.app.aux.render = (function front$app$aux$render(component){
 return module$node_modules$$testing_library$react$dist$index.render(helix.core.get_react().createElement(component,null),({"container": front.app.aux.testing_container()}));
 });
 front.app.aux.cleanup = (function front$app$aux$cleanup(var_args){
-var G__59478 = arguments.length;
-switch (G__59478) {
+var G__53618 = arguments.length;
+switch (G__53618) {
 case 0:
 return front.app.aux.cleanup.cljs$core$IFn$_invoke$arity$0();
 

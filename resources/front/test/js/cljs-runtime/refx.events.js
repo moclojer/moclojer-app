@@ -6,8 +6,8 @@ refx.events.kind = new cljs.core.Keyword(null,"event","event",301435442);
  *   This function is 9/10 about giving good error messages.
  */
 refx.events.flatten_and_remove_nils = (function refx$events$flatten_and_remove_nils(id,interceptors){
-var make_chain = (function (p1__57900_SHARP_){
-return cljs.core.remove.cljs$core$IFn$_invoke$arity$2(cljs.core.nil_QMARK_,cljs.core.flatten(p1__57900_SHARP_));
+var make_chain = (function (p1__52726_SHARP_){
+return cljs.core.remove.cljs$core$IFn$_invoke$arity$2(cljs.core.nil_QMARK_,cljs.core.flatten(p1__52726_SHARP_));
 });
 if((!(refx.interop.debug_enabled_QMARK_))){
 return make_chain(interceptors);
@@ -23,10 +23,10 @@ refx.log.error.cljs$core$IFn$_invoke$arity$variadic(cljs.core.prim_seq.cljs$core
 } else {
 }
 
-var temp__5804__auto___58120 = cljs.core.first(cljs.core.remove.cljs$core$IFn$_invoke$arity$2(refx.interceptor.interceptor_QMARK_,chain));
-if(cljs.core.truth_(temp__5804__auto___58120)){
-var not_i_58121 = temp__5804__auto___58120;
-refx.log.error.cljs$core$IFn$_invoke$arity$variadic(cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2(["when registering",id,", expected interceptors, but got:",not_i_58121], 0));
+var temp__5804__auto___52751 = cljs.core.first(cljs.core.remove.cljs$core$IFn$_invoke$arity$2(refx.interceptor.interceptor_QMARK_,chain));
+if(cljs.core.truth_(temp__5804__auto___52751)){
+var not_i_52752 = temp__5804__auto___52751;
+refx.log.error.cljs$core$IFn$_invoke$arity$variadic(cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2(["when registering",id,", expected interceptors, but got:",not_i_52752], 0));
 } else {
 }
 
@@ -59,12 +59,12 @@ var interceptors = temp__5804__auto__;
 if(cljs.core.truth_(refx.events._STAR_handling_STAR_)){
 return refx.log.error.cljs$core$IFn$_invoke$arity$variadic(cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2(["while handling",refx.events._STAR_handling_STAR_,", dispatch-sync was called for",event_v,". You can't call dispatch-sync within an event handler."], 0));
 } else {
-var _STAR_handling_STAR__orig_val__57933 = refx.events._STAR_handling_STAR_;
-var _STAR_handling_STAR__temp_val__57934 = event_v;
-(refx.events._STAR_handling_STAR_ = _STAR_handling_STAR__temp_val__57934);
+var _STAR_handling_STAR__orig_val__52742 = refx.events._STAR_handling_STAR_;
+var _STAR_handling_STAR__temp_val__52743 = event_v;
+(refx.events._STAR_handling_STAR_ = _STAR_handling_STAR__temp_val__52743);
 
 try{return refx.interceptor.execute(event_v,interceptors);
-}finally {(refx.events._STAR_handling_STAR_ = _STAR_handling_STAR__orig_val__57933);
+}finally {(refx.events._STAR_handling_STAR_ = _STAR_handling_STAR__orig_val__52742);
 }}
 } else {
 return null;
@@ -85,10 +85,10 @@ return null;
  */
 refx.events.db_handler__GT_interceptor = (function refx$events$db_handler__GT_interceptor(handler_fn){
 return refx.interceptor.__GT_interceptor.cljs$core$IFn$_invoke$arity$variadic(cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2([new cljs.core.Keyword(null,"id","id",-1388402092),new cljs.core.Keyword(null,"db-handler","db-handler",579530098),new cljs.core.Keyword(null,"before","before",-1633692388),(function refx$events$db_handler__GT_interceptor_$_db_handler_before(context){
-var map__57937 = refx.interceptor.get_coeffect.cljs$core$IFn$_invoke$arity$1(context);
-var map__57937__$1 = cljs.core.__destructure_map(map__57937);
-var db = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__57937__$1,new cljs.core.Keyword(null,"db","db",993250759));
-var event = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__57937__$1,new cljs.core.Keyword(null,"event","event",301435442));
+var map__52747 = refx.interceptor.get_coeffect.cljs$core$IFn$_invoke$arity$1(context);
+var map__52747__$1 = cljs.core.__destructure_map(map__52747);
+var db = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__52747__$1,new cljs.core.Keyword(null,"db","db",993250759));
+var event = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__52747__$1,new cljs.core.Keyword(null,"event","event",301435442));
 return refx.interceptor.assoc_effect(context,new cljs.core.Keyword(null,"db","db",993250759),(handler_fn.cljs$core$IFn$_invoke$arity$2 ? handler_fn.cljs$core$IFn$_invoke$arity$2(db,event) : handler_fn.call(null,db,event)));
 })], 0));
 });
@@ -108,10 +108,10 @@ return refx.interceptor.assoc_effect(context,new cljs.core.Keyword(null,"db","db
  */
 refx.events.fx_handler__GT_interceptor = (function refx$events$fx_handler__GT_interceptor(handler_fn){
 return refx.interceptor.__GT_interceptor.cljs$core$IFn$_invoke$arity$variadic(cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2([new cljs.core.Keyword(null,"id","id",-1388402092),new cljs.core.Keyword(null,"fx-handler","fx-handler",-549783097),new cljs.core.Keyword(null,"before","before",-1633692388),(function refx$events$fx_handler__GT_interceptor_$_fx_handler_before(context){
-var map__58037 = refx.interceptor.get_coeffect.cljs$core$IFn$_invoke$arity$1(context);
-var map__58037__$1 = cljs.core.__destructure_map(map__58037);
-var coeffects = map__58037__$1;
-var event = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__58037__$1,new cljs.core.Keyword(null,"event","event",301435442));
+var map__52748 = refx.interceptor.get_coeffect.cljs$core$IFn$_invoke$arity$1(context);
+var map__52748__$1 = cljs.core.__destructure_map(map__52748);
+var coeffects = map__52748__$1;
+var event = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__52748__$1,new cljs.core.Keyword(null,"event","event",301435442));
 return cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(context,new cljs.core.Keyword(null,"effects","effects",-282369292),(handler_fn.cljs$core$IFn$_invoke$arity$2 ? handler_fn.cljs$core$IFn$_invoke$arity$2(coeffects,event) : handler_fn.call(null,coeffects,event)));
 })], 0));
 });

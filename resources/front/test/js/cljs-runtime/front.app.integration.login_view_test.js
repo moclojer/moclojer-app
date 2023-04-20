@@ -8,7 +8,7 @@ return cljs.test.test_var(front.app.integration.login_view_test.auth_view_email_
 front.app.integration.login_view_test.auth_view_email_send_error_test.cljs$lang$test = (function (){
 cljs.test.update_current_env_BANG_.cljs$core$IFn$_invoke$arity$variadic(new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"testing-contexts","testing-contexts",-1485646523)], null),cljs.core.conj,cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2(["auth email send view should error"], 0));
 
-try{if((typeof front !== 'undefined') && (typeof front.app !== 'undefined') && (typeof front.app.integration !== 'undefined') && (typeof front.app.integration.login_view_test !== 'undefined') && (typeof front.app.integration.login_view_test.t_front$app$integration$login_view_test60124 !== 'undefined')){
+try{if((typeof front !== 'undefined') && (typeof front.app !== 'undefined') && (typeof front.app.integration !== 'undefined') && (typeof front.app.integration.login_view_test !== 'undefined') && (typeof front.app.integration.login_view_test.t_front$app$integration$login_view_test31454 !== 'undefined')){
 } else {
 
 /**
@@ -18,30 +18,30 @@ try{if((typeof front !== 'undefined') && (typeof front.app !== 'undefined') && (
  * @implements {cljs.test.IAsyncTest}
  * @implements {cljs.core.IWithMeta}
 */
-front.app.integration.login_view_test.t_front$app$integration$login_view_test60124 = (function (meta60125){
-this.meta60125 = meta60125;
+front.app.integration.login_view_test.t_front$app$integration$login_view_test31454 = (function (meta31455){
+this.meta31455 = meta31455;
 this.cljs$lang$protocol_mask$partition0$ = 393217;
 this.cljs$lang$protocol_mask$partition1$ = 0;
 });
-(front.app.integration.login_view_test.t_front$app$integration$login_view_test60124.prototype.cljs$core$IWithMeta$_with_meta$arity$2 = (function (_60126,meta60125__$1){
+(front.app.integration.login_view_test.t_front$app$integration$login_view_test31454.prototype.cljs$core$IWithMeta$_with_meta$arity$2 = (function (_31456,meta31455__$1){
 var self__ = this;
-var _60126__$1 = this;
-return (new front.app.integration.login_view_test.t_front$app$integration$login_view_test60124(meta60125__$1));
+var _31456__$1 = this;
+return (new front.app.integration.login_view_test.t_front$app$integration$login_view_test31454(meta31455__$1));
 }));
 
-(front.app.integration.login_view_test.t_front$app$integration$login_view_test60124.prototype.cljs$core$IMeta$_meta$arity$1 = (function (_60126){
+(front.app.integration.login_view_test.t_front$app$integration$login_view_test31454.prototype.cljs$core$IMeta$_meta$arity$1 = (function (_31456){
 var self__ = this;
-var _60126__$1 = this;
-return self__.meta60125;
+var _31456__$1 = this;
+return self__.meta31455;
 }));
 
-(front.app.integration.login_view_test.t_front$app$integration$login_view_test60124.prototype.cljs$test$IAsyncTest$ = cljs.core.PROTOCOL_SENTINEL);
+(front.app.integration.login_view_test.t_front$app$integration$login_view_test31454.prototype.cljs$test$IAsyncTest$ = cljs.core.PROTOCOL_SENTINEL);
 
-(front.app.integration.login_view_test.t_front$app$integration$login_view_test60124.prototype.call = (function (unused__11783__auto__){
+(front.app.integration.login_view_test.t_front$app$integration$login_view_test31454.prototype.call = (function (unused__11783__auto__){
 var self__ = this;
 var self__ = this;
-var G__60133 = (arguments.length - (1));
-switch (G__60133) {
+var G__31462 = (arguments.length - (1));
+switch (G__31462) {
 case (1):
 return self__.cljs$core$IFn$_invoke$arity$1((arguments[(1)]));
 
@@ -52,17 +52,17 @@ throw (new Error(["Invalid arity: ",cljs.core.str.cljs$core$IFn$_invoke$arity$1(
 }
 }));
 
-(front.app.integration.login_view_test.t_front$app$integration$login_view_test60124.prototype.apply = (function (self__,args60131){
+(front.app.integration.login_view_test.t_front$app$integration$login_view_test31454.prototype.apply = (function (self__,args31461){
 var self__ = this;
 var self____$1 = this;
-return self____$1.call.apply(self____$1,[self____$1].concat(cljs.core.aclone(args60131)));
+return self____$1.call.apply(self____$1,[self____$1].concat(cljs.core.aclone(args31461)));
 }));
 
-(front.app.integration.login_view_test.t_front$app$integration$login_view_test60124.prototype.cljs$core$IFn$_invoke$arity$1 = (function (done){
+(front.app.integration.login_view_test.t_front$app$integration$login_view_test31454.prototype.cljs$core$IFn$_invoke$arity$1 = (function (done){
 var self__ = this;
 var ___11442__auto__ = this;
-return promesa.protocols._bind(promesa.protocols._promise(null),(function (___32162__auto__){
-return promesa.protocols._bind(promesa.protocols._promise(front.dev.msw.core.start_BANG_.cljs$core$IFn$_invoke$arity$1(front.app.integration.login_view_test.login_error_msw)),(function (_){
+return promesa.protocols._bind(promesa.protocols._promise(null),(function (___29344__auto__){
+return promesa.protocols._bind(promesa.protocols._promise(dev.msw.core.start_BANG_.cljs$core$IFn$_invoke$arity$1(front.app.integration.login_view_test.login_error_msw)),(function (_){
 return promesa.protocols._bind(promesa.protocols._promise(front.app.aux.wait_for.cljs$core$IFn$_invoke$arity$1((function (){
 return front.app.aux.render(front.app.auth.views.login_view);
 }))),(function (render){
@@ -80,7 +80,7 @@ return front.app.aux.click(button);
 return promesa.protocols._bind(promesa.protocols._promise(front.app.aux.wait_for.cljs$core$IFn$_invoke$arity$1((function (){
 return front.app.aux.text(front.app.aux.query(container,"#login-error"));
 }))),(function (error_msg){
-return promesa.protocols._bind(promesa.protocols._promise(null),(function (___32147__auto__){
+return promesa.protocols._bind(promesa.protocols._promise(null),(function (___29329__auto__){
 return promesa.protocols._bind(promesa.protocols._promise((function (){try{var values__11360__auto__ = (new cljs.core.List(null,"Error... try it again.Not found",(new cljs.core.List(null,error_msg,null,(1),null)),(2),null));
 var result__11361__auto__ = cljs.core.apply.cljs$core$IFn$_invoke$arity$2(cljs.core._EQ_,values__11360__auto__);
 if(cljs.core.truth_(result__11361__auto__)){
@@ -90,10 +90,10 @@ cljs.test.report.call(null,cljs.core.PersistentHashMap.fromArrays([new cljs.core
 }
 
 return result__11361__auto__;
-}catch (e60146){var t__11411__auto__ = e60146;
+}catch (e31465){var t__11411__auto__ = e31465;
 return cljs.test.report.call(null,cljs.core.PersistentHashMap.fromArrays([new cljs.core.Keyword(null,"file","file",-1269645878),new cljs.core.Keyword(null,"end-column","end-column",1425389514),new cljs.core.Keyword(null,"type","type",1174270348),new cljs.core.Keyword(null,"column","column",2078222095),new cljs.core.Keyword(null,"line","line",212345235),new cljs.core.Keyword(null,"expected","expected",1583670997),new cljs.core.Keyword(null,"end-line","end-line",1837326455),new cljs.core.Keyword(null,"actual","actual",107306363),new cljs.core.Keyword(null,"message","message",-406056002)],["front/app/integration/login_view_test.cljs",65,new cljs.core.Keyword(null,"error","error",-978969032),18,42,cljs.core.list(new cljs.core.Symbol(null,"=","=",-1501502141,null),"Error... try it again.Not found",new cljs.core.Symbol(null,"error-msg","error-msg",231170904,null)),42,t__11411__auto__,null]));
-}})()),(function (___32146__auto__){
-return promesa.protocols._bind(promesa.protocols._promise(front.app.aux.cleanup.cljs$core$IFn$_invoke$arity$0()),(function (___32146__auto____$1){
+}})()),(function (___29328__auto__){
+return promesa.protocols._bind(promesa.protocols._promise(front.app.aux.cleanup.cljs$core$IFn$_invoke$arity$0()),(function (___29328__auto____$1){
 return promesa.protocols._promise((done.cljs$core$IFn$_invoke$arity$0 ? done.cljs$core$IFn$_invoke$arity$0() : done.call(null)));
 }));
 }));
@@ -109,28 +109,28 @@ return promesa.protocols._promise((done.cljs$core$IFn$_invoke$arity$0 ? done.clj
 }));
 }));
 
-(front.app.integration.login_view_test.t_front$app$integration$login_view_test60124.getBasis = (function (){
-return new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Symbol(null,"meta60125","meta60125",857160604,null)], null);
+(front.app.integration.login_view_test.t_front$app$integration$login_view_test31454.getBasis = (function (){
+return new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Symbol(null,"meta31455","meta31455",-38333954,null)], null);
 }));
 
-(front.app.integration.login_view_test.t_front$app$integration$login_view_test60124.cljs$lang$type = true);
+(front.app.integration.login_view_test.t_front$app$integration$login_view_test31454.cljs$lang$type = true);
 
-(front.app.integration.login_view_test.t_front$app$integration$login_view_test60124.cljs$lang$ctorStr = "front.app.integration.login-view-test/t_front$app$integration$login_view_test60124");
+(front.app.integration.login_view_test.t_front$app$integration$login_view_test31454.cljs$lang$ctorStr = "front.app.integration.login-view-test/t_front$app$integration$login_view_test31454");
 
-(front.app.integration.login_view_test.t_front$app$integration$login_view_test60124.cljs$lang$ctorPrWriter = (function (this__5330__auto__,writer__5331__auto__,opt__5332__auto__){
-return cljs.core._write(writer__5331__auto__,"front.app.integration.login-view-test/t_front$app$integration$login_view_test60124");
+(front.app.integration.login_view_test.t_front$app$integration$login_view_test31454.cljs$lang$ctorPrWriter = (function (this__5330__auto__,writer__5331__auto__,opt__5332__auto__){
+return cljs.core._write(writer__5331__auto__,"front.app.integration.login-view-test/t_front$app$integration$login_view_test31454");
 }));
 
 /**
- * Positional factory function for front.app.integration.login-view-test/t_front$app$integration$login_view_test60124.
+ * Positional factory function for front.app.integration.login-view-test/t_front$app$integration$login_view_test31454.
  */
-front.app.integration.login_view_test.__GT_t_front$app$integration$login_view_test60124 = (function front$app$integration$login_view_test$__GT_t_front$app$integration$login_view_test60124(meta60125){
-return (new front.app.integration.login_view_test.t_front$app$integration$login_view_test60124(meta60125));
+front.app.integration.login_view_test.__GT_t_front$app$integration$login_view_test31454 = (function front$app$integration$login_view_test$__GT_t_front$app$integration$login_view_test31454(meta31455){
+return (new front.app.integration.login_view_test.t_front$app$integration$login_view_test31454(meta31455));
 });
 
 }
 
-return (new front.app.integration.login_view_test.t_front$app$integration$login_view_test60124(null));
+return (new front.app.integration.login_view_test.t_front$app$integration$login_view_test31454(null));
 }finally {cljs.test.update_current_env_BANG_(new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"testing-contexts","testing-contexts",-1485646523)], null),cljs.core.rest);
 }});
 
@@ -141,7 +141,7 @@ return cljs.test.test_var(front.app.integration.login_view_test.auth_view_email_
 front.app.integration.login_view_test.auth_view_email_send_success_test.cljs$lang$test = (function (){
 cljs.test.update_current_env_BANG_.cljs$core$IFn$_invoke$arity$variadic(new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"testing-contexts","testing-contexts",-1485646523)], null),cljs.core.conj,cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2(["auth email send view should work and show next panel"], 0));
 
-try{if((typeof front !== 'undefined') && (typeof front.app !== 'undefined') && (typeof front.app.integration !== 'undefined') && (typeof front.app.integration.login_view_test !== 'undefined') && (typeof front.app.integration.login_view_test.t_front$app$integration$login_view_test60150 !== 'undefined')){
+try{if((typeof front !== 'undefined') && (typeof front.app !== 'undefined') && (typeof front.app.integration !== 'undefined') && (typeof front.app.integration.login_view_test !== 'undefined') && (typeof front.app.integration.login_view_test.t_front$app$integration$login_view_test31469 !== 'undefined')){
 } else {
 
 /**
@@ -151,30 +151,30 @@ try{if((typeof front !== 'undefined') && (typeof front.app !== 'undefined') && (
  * @implements {cljs.test.IAsyncTest}
  * @implements {cljs.core.IWithMeta}
 */
-front.app.integration.login_view_test.t_front$app$integration$login_view_test60150 = (function (meta60151){
-this.meta60151 = meta60151;
+front.app.integration.login_view_test.t_front$app$integration$login_view_test31469 = (function (meta31470){
+this.meta31470 = meta31470;
 this.cljs$lang$protocol_mask$partition0$ = 393217;
 this.cljs$lang$protocol_mask$partition1$ = 0;
 });
-(front.app.integration.login_view_test.t_front$app$integration$login_view_test60150.prototype.cljs$core$IWithMeta$_with_meta$arity$2 = (function (_60152,meta60151__$1){
+(front.app.integration.login_view_test.t_front$app$integration$login_view_test31469.prototype.cljs$core$IWithMeta$_with_meta$arity$2 = (function (_31471,meta31470__$1){
 var self__ = this;
-var _60152__$1 = this;
-return (new front.app.integration.login_view_test.t_front$app$integration$login_view_test60150(meta60151__$1));
+var _31471__$1 = this;
+return (new front.app.integration.login_view_test.t_front$app$integration$login_view_test31469(meta31470__$1));
 }));
 
-(front.app.integration.login_view_test.t_front$app$integration$login_view_test60150.prototype.cljs$core$IMeta$_meta$arity$1 = (function (_60152){
+(front.app.integration.login_view_test.t_front$app$integration$login_view_test31469.prototype.cljs$core$IMeta$_meta$arity$1 = (function (_31471){
 var self__ = this;
-var _60152__$1 = this;
-return self__.meta60151;
+var _31471__$1 = this;
+return self__.meta31470;
 }));
 
-(front.app.integration.login_view_test.t_front$app$integration$login_view_test60150.prototype.cljs$test$IAsyncTest$ = cljs.core.PROTOCOL_SENTINEL);
+(front.app.integration.login_view_test.t_front$app$integration$login_view_test31469.prototype.cljs$test$IAsyncTest$ = cljs.core.PROTOCOL_SENTINEL);
 
-(front.app.integration.login_view_test.t_front$app$integration$login_view_test60150.prototype.call = (function (unused__11783__auto__){
+(front.app.integration.login_view_test.t_front$app$integration$login_view_test31469.prototype.call = (function (unused__11783__auto__){
 var self__ = this;
 var self__ = this;
-var G__60158 = (arguments.length - (1));
-switch (G__60158) {
+var G__31475 = (arguments.length - (1));
+switch (G__31475) {
 case (1):
 return self__.cljs$core$IFn$_invoke$arity$1((arguments[(1)]));
 
@@ -185,17 +185,17 @@ throw (new Error(["Invalid arity: ",cljs.core.str.cljs$core$IFn$_invoke$arity$1(
 }
 }));
 
-(front.app.integration.login_view_test.t_front$app$integration$login_view_test60150.prototype.apply = (function (self__,args60153){
+(front.app.integration.login_view_test.t_front$app$integration$login_view_test31469.prototype.apply = (function (self__,args31473){
 var self__ = this;
 var self____$1 = this;
-return self____$1.call.apply(self____$1,[self____$1].concat(cljs.core.aclone(args60153)));
+return self____$1.call.apply(self____$1,[self____$1].concat(cljs.core.aclone(args31473)));
 }));
 
-(front.app.integration.login_view_test.t_front$app$integration$login_view_test60150.prototype.cljs$core$IFn$_invoke$arity$1 = (function (done){
+(front.app.integration.login_view_test.t_front$app$integration$login_view_test31469.prototype.cljs$core$IFn$_invoke$arity$1 = (function (done){
 var self__ = this;
 var ___11442__auto__ = this;
-return promesa.protocols._bind(promesa.protocols._promise(null),(function (___32162__auto__){
-return promesa.protocols._bind(promesa.protocols._promise(front.dev.msw.core.start_BANG_.cljs$core$IFn$_invoke$arity$1(front.app.integration.login_view_test.login_sucess_msw)),(function (_){
+return promesa.protocols._bind(promesa.protocols._promise(null),(function (___29344__auto__){
+return promesa.protocols._bind(promesa.protocols._promise(dev.msw.core.start_BANG_.cljs$core$IFn$_invoke$arity$1(front.app.integration.login_view_test.login_sucess_msw)),(function (_){
 return promesa.protocols._bind(promesa.protocols._promise(front.app.aux.wait_for.cljs$core$IFn$_invoke$arity$1((function (){
 return front.app.aux.render(front.app.auth.views.login_view);
 }))),(function (render){
@@ -213,7 +213,7 @@ return front.app.aux.click(button);
 return promesa.protocols._bind(promesa.protocols._promise(front.app.aux.wait_for.cljs$core$IFn$_invoke$arity$1((function (){
 return front.app.aux.text(front.app.aux.query(container,"#login-email-sent"));
 }))),(function (success_msg){
-return promesa.protocols._bind(promesa.protocols._promise(null),(function (___32147__auto__){
+return promesa.protocols._bind(promesa.protocols._promise(null),(function (___29329__auto__){
 return promesa.protocols._bind(promesa.protocols._promise((function (){try{var values__11360__auto__ = (new cljs.core.List(null,"Check your email, and click on the link.Didn't received it? Try again.",(new cljs.core.List(null,success_msg,null,(1),null)),(2),null));
 var result__11361__auto__ = cljs.core.apply.cljs$core$IFn$_invoke$arity$2(cljs.core._EQ_,values__11360__auto__);
 if(cljs.core.truth_(result__11361__auto__)){
@@ -223,10 +223,10 @@ cljs.test.report.call(null,cljs.core.PersistentHashMap.fromArrays([new cljs.core
 }
 
 return result__11361__auto__;
-}catch (e60160){var t__11411__auto__ = e60160;
+}catch (e31477){var t__11411__auto__ = e31477;
 return cljs.test.report.call(null,cljs.core.PersistentHashMap.fromArrays([new cljs.core.Keyword(null,"file","file",-1269645878),new cljs.core.Keyword(null,"end-column","end-column",1425389514),new cljs.core.Keyword(null,"type","type",1174270348),new cljs.core.Keyword(null,"column","column",2078222095),new cljs.core.Keyword(null,"line","line",212345235),new cljs.core.Keyword(null,"expected","expected",1583670997),new cljs.core.Keyword(null,"end-line","end-line",1837326455),new cljs.core.Keyword(null,"actual","actual",107306363),new cljs.core.Keyword(null,"message","message",-406056002)],["front/app/integration/login_view_test.cljs",106,new cljs.core.Keyword(null,"error","error",-978969032),18,57,cljs.core.list(new cljs.core.Symbol(null,"=","=",-1501502141,null),"Check your email, and click on the link.Didn't received it? Try again.",new cljs.core.Symbol(null,"success-msg","success-msg",1043718722,null)),57,t__11411__auto__,null]));
-}})()),(function (___32146__auto__){
-return promesa.protocols._bind(promesa.protocols._promise(front.app.aux.cleanup.cljs$core$IFn$_invoke$arity$0()),(function (___32146__auto____$1){
+}})()),(function (___29328__auto__){
+return promesa.protocols._bind(promesa.protocols._promise(front.app.aux.cleanup.cljs$core$IFn$_invoke$arity$0()),(function (___29328__auto____$1){
 return promesa.protocols._promise((done.cljs$core$IFn$_invoke$arity$0 ? done.cljs$core$IFn$_invoke$arity$0() : done.call(null)));
 }));
 }));
@@ -242,28 +242,28 @@ return promesa.protocols._promise((done.cljs$core$IFn$_invoke$arity$0 ? done.clj
 }));
 }));
 
-(front.app.integration.login_view_test.t_front$app$integration$login_view_test60150.getBasis = (function (){
-return new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Symbol(null,"meta60151","meta60151",-94139415,null)], null);
+(front.app.integration.login_view_test.t_front$app$integration$login_view_test31469.getBasis = (function (){
+return new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Symbol(null,"meta31470","meta31470",-895257945,null)], null);
 }));
 
-(front.app.integration.login_view_test.t_front$app$integration$login_view_test60150.cljs$lang$type = true);
+(front.app.integration.login_view_test.t_front$app$integration$login_view_test31469.cljs$lang$type = true);
 
-(front.app.integration.login_view_test.t_front$app$integration$login_view_test60150.cljs$lang$ctorStr = "front.app.integration.login-view-test/t_front$app$integration$login_view_test60150");
+(front.app.integration.login_view_test.t_front$app$integration$login_view_test31469.cljs$lang$ctorStr = "front.app.integration.login-view-test/t_front$app$integration$login_view_test31469");
 
-(front.app.integration.login_view_test.t_front$app$integration$login_view_test60150.cljs$lang$ctorPrWriter = (function (this__5330__auto__,writer__5331__auto__,opt__5332__auto__){
-return cljs.core._write(writer__5331__auto__,"front.app.integration.login-view-test/t_front$app$integration$login_view_test60150");
+(front.app.integration.login_view_test.t_front$app$integration$login_view_test31469.cljs$lang$ctorPrWriter = (function (this__5330__auto__,writer__5331__auto__,opt__5332__auto__){
+return cljs.core._write(writer__5331__auto__,"front.app.integration.login-view-test/t_front$app$integration$login_view_test31469");
 }));
 
 /**
- * Positional factory function for front.app.integration.login-view-test/t_front$app$integration$login_view_test60150.
+ * Positional factory function for front.app.integration.login-view-test/t_front$app$integration$login_view_test31469.
  */
-front.app.integration.login_view_test.__GT_t_front$app$integration$login_view_test60150 = (function front$app$integration$login_view_test$__GT_t_front$app$integration$login_view_test60150(meta60151){
-return (new front.app.integration.login_view_test.t_front$app$integration$login_view_test60150(meta60151));
+front.app.integration.login_view_test.__GT_t_front$app$integration$login_view_test31469 = (function front$app$integration$login_view_test$__GT_t_front$app$integration$login_view_test31469(meta31470){
+return (new front.app.integration.login_view_test.t_front$app$integration$login_view_test31469(meta31470));
 });
 
 }
 
-return (new front.app.integration.login_view_test.t_front$app$integration$login_view_test60150(null));
+return (new front.app.integration.login_view_test.t_front$app$integration$login_view_test31469(null));
 }finally {cljs.test.update_current_env_BANG_(new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"testing-contexts","testing-contexts",-1485646523)], null),cljs.core.rest);
 }});
 

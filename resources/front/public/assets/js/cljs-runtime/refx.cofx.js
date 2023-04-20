@@ -4,8 +4,8 @@ refx.cofx.register = (function refx$cofx$register(id,handler){
 return refx.registry.add_BANG_(refx.cofx.kind,id,handler);
 });
 refx.cofx.inject_cofx = (function refx$cofx$inject_cofx(var_args){
-var G__28311 = arguments.length;
-switch (G__28311) {
+var G__21514 = arguments.length;
+switch (G__21514) {
 case 1:
 return refx.cofx.inject_cofx.cljs$core$IFn$_invoke$arity$1((arguments[(0)]));
 

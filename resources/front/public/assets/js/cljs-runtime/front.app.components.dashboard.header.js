@@ -1,43 +1,43 @@
 goog.provide('front.app.components.dashboard.header');
 if(goog.DEBUG){
-front.app.components.dashboard.header.sig35128 = helix.core.signature_BANG_();
+front.app.components.dashboard.header.sig27172 = helix.core.signature_BANG_();
 } else {
 }
 
-front.app.components.dashboard.header.Header = (function (){var G__35129 = (function front$app$components$dashboard$header$Header_render(props__32635__auto__,maybe_ref__32636__auto__){
-var vec__35133 = new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [helix.core.extract_cljs_props(props__32635__auto__),maybe_ref__32636__auto__], null);
+front.app.components.dashboard.header.Header = (function (){var G__27173 = (function front$app$components$dashboard$header$Header_render(props__24071__auto__,maybe_ref__24072__auto__){
+var vec__27174 = new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [helix.core.extract_cljs_props(props__24071__auto__),maybe_ref__24072__auto__], null);
 if(cljs.core.truth_(goog.DEBUG)){
-if(cljs.core.truth_(front.app.components.dashboard.header.sig35128)){
-(front.app.components.dashboard.header.sig35128.cljs$core$IFn$_invoke$arity$0 ? front.app.components.dashboard.header.sig35128.cljs$core$IFn$_invoke$arity$0() : front.app.components.dashboard.header.sig35128.call(null));
+if(cljs.core.truth_(front.app.components.dashboard.header.sig27172)){
+(front.app.components.dashboard.header.sig27172.cljs$core$IFn$_invoke$arity$0 ? front.app.components.dashboard.header.sig27172.cljs$core$IFn$_invoke$arity$0() : front.app.components.dashboard.header.sig27172.call(null));
 } else {
 }
 } else {
 }
 
-return helix.core.get_react().createElement("header",(function (){var obj35147 = ({"className":"fixed right-0 top-0 left-60 bg-blue-50 py-3 h-16"});
-return obj35147;
-})(),helix.core.get_react().createElement("div",(function (){var obj35149 = ({"className":"max-w-4xl mx-auto"});
-return obj35149;
-})(),helix.core.get_react().createElement("div",(function (){var obj35154 = ({"className":"flex items-center justify-between"});
-return obj35154;
-})(),helix.core.get_react().createElement("div",(function (){var obj35156 = ({"className":"text-lg font-bold"});
-return obj35156;
+return helix.core.get_react().createElement("header",(function (){var obj27178 = ({"className":"fixed right-0 top-0 left-60 bg-blue-50 py-3 h-16"});
+return obj27178;
+})(),helix.core.get_react().createElement("div",(function (){var obj27180 = ({"className":"max-w-4xl mx-auto"});
+return obj27180;
+})(),helix.core.get_react().createElement("div",(function (){var obj27183 = ({"className":"flex items-center justify-between"});
+return obj27183;
+})(),helix.core.get_react().createElement("div",(function (){var obj27185 = ({"className":"text-lg font-bold"});
+return obj27185;
 })(),"Mock API made easy"))));
 });
 if(goog.DEBUG === true){
-var G__35157 = G__35129;
-(G__35157.displayName = "front.app.components.dashboard.header/Header");
+var G__27186 = G__27173;
+(G__27186.displayName = "front.app.components.dashboard.header/Header");
 
-return G__35157;
+return G__27186;
 } else {
-return G__35129;
+return G__27173;
 }
 })();
 
 
 if(cljs.core.truth_(cljs.core.with_meta(new cljs.core.Symbol("goog","DEBUG","goog/DEBUG",1589374035,null),new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"tag","tag",-1290361223),new cljs.core.Symbol("clojure.core","boolean","clojure.core/boolean",-1187218872,null)], null)))){
-if(cljs.core.truth_(front.app.components.dashboard.header.sig35128)){
-(front.app.components.dashboard.header.sig35128.cljs$core$IFn$_invoke$arity$4 ? front.app.components.dashboard.header.sig35128.cljs$core$IFn$_invoke$arity$4(front.app.components.dashboard.header.Header,"",null,null) : front.app.components.dashboard.header.sig35128.call(null,front.app.components.dashboard.header.Header,"",null,null));
+if(cljs.core.truth_(front.app.components.dashboard.header.sig27172)){
+(front.app.components.dashboard.header.sig27172.cljs$core$IFn$_invoke$arity$4 ? front.app.components.dashboard.header.sig27172.cljs$core$IFn$_invoke$arity$4(front.app.components.dashboard.header.Header,"",null,null) : front.app.components.dashboard.header.sig27172.call(null,front.app.components.dashboard.header.Header,"",null,null));
 } else {
 }
 

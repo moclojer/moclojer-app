@@ -35,36 +35,36 @@ helix.hooks.IStateUpdater = function(){};
  *   ```
  */
 helix.hooks.use_state = (function helix$hooks$use_state(initial){
-var vec__58924 = module$node_modules$react$index.useState(initial);
-var v = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__58924,(0),null);
-var u = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__58924,(1),null);
+var vec__53318 = module$node_modules$react$index.useState(initial);
+var v = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__53318,(0),null);
+var u = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__53318,(1),null);
 var updater = module$node_modules$react$index.useCallback((function() { 
-var G__59015__delegate = function (x,xs){
+var G__53377__delegate = function (x,xs){
 if((((!((x == null))))?((((false) || ((cljs.core.PROTOCOL_SENTINEL === x.helix$hooks$IStateUpdater$))))?true:(((!x.cljs$lang$protocol_mask$partition$))?cljs.core.native_satisfies_QMARK_(helix.hooks.IStateUpdater,x):false)):cljs.core.native_satisfies_QMARK_(helix.hooks.IStateUpdater,x))){
-var G__58928 = (function helix$hooks$use_state_$_spread_updater(y){
+var G__53322 = (function helix$hooks$use_state_$_spread_updater(y){
 return cljs.core.apply.cljs$core$IFn$_invoke$arity$3(x,y,xs);
 });
-return (u.cljs$core$IFn$_invoke$arity$1 ? u.cljs$core$IFn$_invoke$arity$1(G__58928) : u.call(null,G__58928));
+return (u.cljs$core$IFn$_invoke$arity$1 ? u.cljs$core$IFn$_invoke$arity$1(G__53322) : u.call(null,G__53322));
 } else {
 return (u.cljs$core$IFn$_invoke$arity$1 ? u.cljs$core$IFn$_invoke$arity$1(x) : u.call(null,x));
 }
 };
-var G__59015 = function (x,var_args){
+var G__53377 = function (x,var_args){
 var xs = null;
 if (arguments.length > 1) {
-var G__59016__i = 0, G__59016__a = new Array(arguments.length -  1);
-while (G__59016__i < G__59016__a.length) {G__59016__a[G__59016__i] = arguments[G__59016__i + 1]; ++G__59016__i;}
-  xs = new cljs.core.IndexedSeq(G__59016__a,0,null);
+var G__53378__i = 0, G__53378__a = new Array(arguments.length -  1);
+while (G__53378__i < G__53378__a.length) {G__53378__a[G__53378__i] = arguments[G__53378__i + 1]; ++G__53378__i;}
+  xs = new cljs.core.IndexedSeq(G__53378__a,0,null);
 } 
-return G__59015__delegate.call(this,x,xs);};
-G__59015.cljs$lang$maxFixedArity = 1;
-G__59015.cljs$lang$applyTo = (function (arglist__59017){
-var x = cljs.core.first(arglist__59017);
-var xs = cljs.core.rest(arglist__59017);
-return G__59015__delegate(x,xs);
+return G__53377__delegate.call(this,x,xs);};
+G__53377.cljs$lang$maxFixedArity = 1;
+G__53377.cljs$lang$applyTo = (function (arglist__53379){
+var x = cljs.core.first(arglist__53379);
+var xs = cljs.core.rest(arglist__53379);
+return G__53377__delegate(x,xs);
 });
-G__59015.cljs$core$IFn$_invoke$arity$variadic = G__59015__delegate;
-return G__59015;
+G__53377.cljs$core$IFn$_invoke$arity$variadic = G__53377__delegate;
+return G__53377;
 })()
 ,[]);
 return new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [v,updater], null);
@@ -77,53 +77,53 @@ return new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMP
 helix.hooks.use_ref = (function helix$hooks$use_ref(x){
 var ref = module$node_modules$react$index.useRef(null);
 if((ref.current == null)){
-(ref.current = (function (){var x58932 = ({"current": x});
-(x58932.cljs$core$IDeref$ = cljs.core.PROTOCOL_SENTINEL);
+(ref.current = (function (){var x53323 = ({"current": x});
+(x53323.cljs$core$IDeref$ = cljs.core.PROTOCOL_SENTINEL);
 
-(x58932.cljs$core$IDeref$_deref$arity$1 = (function (this$){
+(x53323.cljs$core$IDeref$_deref$arity$1 = (function (this$){
 var this$__$1 = this;
 return this$__$1.current;
 }));
 
-(x58932.cljs$core$IReset$ = cljs.core.PROTOCOL_SENTINEL);
+(x53323.cljs$core$IReset$ = cljs.core.PROTOCOL_SENTINEL);
 
-(x58932.cljs$core$IReset$_reset_BANG_$arity$2 = (function (this$,v){
+(x53323.cljs$core$IReset$_reset_BANG_$arity$2 = (function (this$,v){
 var this$__$1 = this;
 return helix.hooks.goog$module$goog$object.set(this$__$1,"current",v);
 }));
 
-(x58932.cljs$core$ISwap$ = cljs.core.PROTOCOL_SENTINEL);
+(x53323.cljs$core$ISwap$ = cljs.core.PROTOCOL_SENTINEL);
 
-(x58932.cljs$core$ISwap$_swap_BANG_$arity$2 = (function (this$,f){
+(x53323.cljs$core$ISwap$_swap_BANG_$arity$2 = (function (this$,f){
 var this$__$1 = this;
-return helix.hooks.goog$module$goog$object.set(this$__$1,"current",(function (){var G__58936 = this$__$1.current;
-return (f.cljs$core$IFn$_invoke$arity$1 ? f.cljs$core$IFn$_invoke$arity$1(G__58936) : f.call(null,G__58936));
+return helix.hooks.goog$module$goog$object.set(this$__$1,"current",(function (){var G__53324 = this$__$1.current;
+return (f.cljs$core$IFn$_invoke$arity$1 ? f.cljs$core$IFn$_invoke$arity$1(G__53324) : f.call(null,G__53324));
 })());
 }));
 
-(x58932.cljs$core$ISwap$_swap_BANG_$arity$3 = (function (this$,f,a){
+(x53323.cljs$core$ISwap$_swap_BANG_$arity$3 = (function (this$,f,a){
 var this$__$1 = this;
-return helix.hooks.goog$module$goog$object.set(this$__$1,"current",(function (){var G__58937 = this$__$1.current;
-var G__58938 = a;
-return (f.cljs$core$IFn$_invoke$arity$2 ? f.cljs$core$IFn$_invoke$arity$2(G__58937,G__58938) : f.call(null,G__58937,G__58938));
+return helix.hooks.goog$module$goog$object.set(this$__$1,"current",(function (){var G__53325 = this$__$1.current;
+var G__53326 = a;
+return (f.cljs$core$IFn$_invoke$arity$2 ? f.cljs$core$IFn$_invoke$arity$2(G__53325,G__53326) : f.call(null,G__53325,G__53326));
 })());
 }));
 
-(x58932.cljs$core$ISwap$_swap_BANG_$arity$4 = (function (this$,f,a,b){
+(x53323.cljs$core$ISwap$_swap_BANG_$arity$4 = (function (this$,f,a,b){
 var this$__$1 = this;
-return helix.hooks.goog$module$goog$object.set(this$__$1,"current",(function (){var G__58939 = this$__$1.current;
-var G__58940 = a;
-var G__58941 = b;
-return (f.cljs$core$IFn$_invoke$arity$3 ? f.cljs$core$IFn$_invoke$arity$3(G__58939,G__58940,G__58941) : f.call(null,G__58939,G__58940,G__58941));
+return helix.hooks.goog$module$goog$object.set(this$__$1,"current",(function (){var G__53327 = this$__$1.current;
+var G__53328 = a;
+var G__53329 = b;
+return (f.cljs$core$IFn$_invoke$arity$3 ? f.cljs$core$IFn$_invoke$arity$3(G__53327,G__53328,G__53329) : f.call(null,G__53327,G__53328,G__53329));
 })());
 }));
 
-(x58932.cljs$core$ISwap$_swap_BANG_$arity$5 = (function (this$,f,a,b,xs){
+(x53323.cljs$core$ISwap$_swap_BANG_$arity$5 = (function (this$,f,a,b,xs){
 var this$__$1 = this;
 return helix.hooks.goog$module$goog$object.set(this$__$1,"current",cljs.core.apply.cljs$core$IFn$_invoke$arity$5(f,this$__$1.current,a,b,xs));
 }));
 
-return x58932;
+return x53323;
 })());
 } else {
 }
@@ -134,8 +134,8 @@ return ref.current;
  * Just react/useReducer.
  */
 helix.hooks.use_reducer = (function helix$hooks$use_reducer(var_args){
-var G__58945 = arguments.length;
-switch (G__58945) {
+var G__53333 = arguments.length;
+switch (G__53333) {
 case 2:
 return helix.hooks.use_reducer.cljs$core$IFn$_invoke$arity$2((arguments[(0)]),(arguments[(1)]));
 
@@ -186,9 +186,9 @@ helix.hooks.simple_body_QMARK_ = (function helix$hooks$simple_body_QMARK_(body){
 return ((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(cljs.core.count(body),(1))) && ((cljs.core.first(body) instanceof cljs.core.Symbol)));
 });
 helix.hooks.determine_deps = (function helix$hooks$determine_deps(deps){
-var G__58947 = deps;
-var G__58947__$1 = (((G__58947 instanceof cljs.core.Keyword))?G__58947.fqn:null);
-switch (G__58947__$1) {
+var G__53335 = deps;
+var G__53335__$1 = (((G__53335 instanceof cljs.core.Keyword))?G__53335.fqn:null);
+switch (G__53335__$1) {
 case "once":
 return [];
 
@@ -210,8 +210,8 @@ return cljs.core.to_array(deps);
  * Like react/useEffect.  See `use-effect` for details on what `f`'s return values.  See namespace doc for `deps`.
  */
 helix.hooks.use_effect_STAR_ = (function helix$hooks$use_effect_STAR_(var_args){
-var G__58949 = arguments.length;
-switch (G__58949) {
+var G__53338 = arguments.length;
+switch (G__53338) {
 case 1:
 return helix.hooks.use_effect_STAR_.cljs$core$IFn$_invoke$arity$1((arguments[(0)]));
 
@@ -248,8 +248,8 @@ return module$node_modules$react$index.useEffect(helix.hooks.wrap_fx(f),cljs.cor
  * Like `use-effect*` but instead calls react/useLayoutEffect.
  */
 helix.hooks.use_layout_effect_STAR_ = (function helix$hooks$use_layout_effect_STAR_(var_args){
-var G__58951 = arguments.length;
-switch (G__58951) {
+var G__53341 = arguments.length;
+switch (G__53341) {
 case 1:
 return helix.hooks.use_layout_effect_STAR_.cljs$core$IFn$_invoke$arity$1((arguments[(0)]));
 
@@ -287,8 +287,8 @@ return module$node_modules$react$index.useLayoutEffect(helix.hooks.wrap_fx(f),cl
  *   `deps`.
  */
 helix.hooks.use_memo_STAR_ = (function helix$hooks$use_memo_STAR_(var_args){
-var G__58953 = arguments.length;
-switch (G__58953) {
+var G__53343 = arguments.length;
+switch (G__53343) {
 case 1:
 return helix.hooks.use_memo_STAR_.cljs$core$IFn$_invoke$arity$1((arguments[(0)]));
 
@@ -326,8 +326,8 @@ return module$node_modules$react$index.useMemo(f,cljs.core.to_array(deps));
  *   namespace doc for `deps`.
  */
 helix.hooks.use_callback_STAR_ = (function helix$hooks$use_callback_STAR_(var_args){
-var G__58955 = arguments.length;
-switch (G__58955) {
+var G__53345 = arguments.length;
+switch (G__53345) {
 case 1:
 return helix.hooks.use_callback_STAR_.cljs$core$IFn$_invoke$arity$1((arguments[(0)]));
 
@@ -365,8 +365,8 @@ return module$node_modules$react$index.useCallback(f,cljs.core.to_array(deps));
  *   See namespace doc for `deps`
  */
 helix.hooks.use_imperative_handle_STAR_ = (function helix$hooks$use_imperative_handle_STAR_(var_args){
-var G__58958 = arguments.length;
-switch (G__58958) {
+var G__53362 = arguments.length;
+switch (G__53362) {
 case 2:
 return helix.hooks.use_imperative_handle_STAR_.cljs$core$IFn$_invoke$arity$2((arguments[(0)]),(arguments[(1)]));
 
@@ -411,22 +411,22 @@ helix.hooks.use_debug_value = module$node_modules$react$index.useDebugValue;
  *   either by wrapping the entire params object with `use-memo` or by wrapping the
  *   individual callbacks with `use-callback`.
  */
-helix.hooks.use_subscription = (function helix$hooks$use_subscription(p__58978){
-var map__58980 = p__58978;
-var map__58980__$1 = cljs.core.__destructure_map(map__58980);
-var get_current_value = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__58980__$1,new cljs.core.Keyword(null,"get-current-value","get-current-value",-1706578691));
-var subscribe = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__58980__$1,new cljs.core.Keyword(null,"subscribe","subscribe",416253756));
-var vec__58981 = module$node_modules$react$index.useState((function (){
+helix.hooks.use_subscription = (function helix$hooks$use_subscription(p__53370){
+var map__53371 = p__53370;
+var map__53371__$1 = cljs.core.__destructure_map(map__53371);
+var get_current_value = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__53371__$1,new cljs.core.Keyword(null,"get-current-value","get-current-value",-1706578691));
+var subscribe = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__53371__$1,new cljs.core.Keyword(null,"subscribe","subscribe",416253756));
+var vec__53372 = module$node_modules$react$index.useState((function (){
 return ({"get-current-value": get_current_value, "subscribe": subscribe, "value": (get_current_value.cljs$core$IFn$_invoke$arity$0 ? get_current_value.cljs$core$IFn$_invoke$arity$0() : get_current_value.call(null))});
 }));
-var state = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__58981,(0),null);
-var set_state = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__58981,(1),null);
+var state = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__53372,(0),null);
+var set_state = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__53372,(1),null);
 module$node_modules$react$index.useEffect((function (){
 var did_unsubscribe = ({"value": false});
 var check_for_updates = (function helix$hooks$use_subscription_$_check_for_updates(){
 if(cljs.core.not(helix.hooks.goog$module$goog$object.get(did_unsubscribe,"value"))){
 var value = (get_current_value.cljs$core$IFn$_invoke$arity$0 ? get_current_value.cljs$core$IFn$_invoke$arity$0() : get_current_value.call(null));
-var G__58987 = (function (prev){
+var G__53375 = (function (prev){
 if(((cljs.core.not_EQ_.cljs$core$IFn$_invoke$arity$2(get_current_value,helix.hooks.goog$module$goog$object.get(prev,"get-current-value"))) || (cljs.core.not_EQ_.cljs$core$IFn$_invoke$arity$2(subscribe,helix.hooks.goog$module$goog$object.get(prev,"subscribe"))))){
 return prev;
 } else {
@@ -438,7 +438,7 @@ return ({"get-current-value": helix.hooks.goog$module$goog$object.get(prev,"get-
 }
 }
 });
-return (set_state.cljs$core$IFn$_invoke$arity$1 ? set_state.cljs$core$IFn$_invoke$arity$1(G__58987) : set_state.call(null,G__58987));
+return (set_state.cljs$core$IFn$_invoke$arity$1 ? set_state.cljs$core$IFn$_invoke$arity$1(G__53375) : set_state.call(null,G__53375));
 } else {
 return null;
 }
@@ -455,8 +455,8 @@ return (unsubscribe.cljs$core$IFn$_invoke$arity$0 ? unsubscribe.cljs$core$IFn$_i
 
 if(((cljs.core.not_EQ_.cljs$core$IFn$_invoke$arity$2(get_current_value,helix.hooks.goog$module$goog$object.get(state,"get-current-value"))) || (cljs.core.not_EQ_.cljs$core$IFn$_invoke$arity$2(subscribe,helix.hooks.goog$module$goog$object.get(state,"subscribe"))))){
 var value = (get_current_value.cljs$core$IFn$_invoke$arity$0 ? get_current_value.cljs$core$IFn$_invoke$arity$0() : get_current_value.call(null));
-var G__59013_59045 = ({"get-current-value": get_current_value, "subscribe": subscribe, "value": value});
-(set_state.cljs$core$IFn$_invoke$arity$1 ? set_state.cljs$core$IFn$_invoke$arity$1(G__59013_59045) : set_state.call(null,G__59013_59045));
+var G__53376_53396 = ({"get-current-value": get_current_value, "subscribe": subscribe, "value": value});
+(set_state.cljs$core$IFn$_invoke$arity$1 ? set_state.cljs$core$IFn$_invoke$arity$1(G__53376_53396) : set_state.call(null,G__53376_53396));
 
 return value;
 } else {

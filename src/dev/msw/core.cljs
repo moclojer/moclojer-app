@@ -1,8 +1,8 @@
-(ns front.dev.msw.core
+(ns dev.msw.core
   (:require ["msw" :as msw]
-            [front.dev.msw.config :as config]
-            [front.dev.msw.mount :as mount]
-            [front.dev.session-storage :as ss]))
+            [dev.msw.config :as config]
+            [dev.msw.mount :as mount]
+            [dev.session-storage :as ss]))
 
 (def ^:private ss-key "mock-active?")
 

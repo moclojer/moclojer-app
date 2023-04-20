@@ -1,6 +1,6 @@
-(ns front.dev.core
+(ns dev.core
   (:require [front.app.core :as app]
-            [front.dev.msw.core :as mock]
+            [dev.msw.core :as mock]
             [promesa.core :as p]))
 
 (def debug? ^boolean goog.DEBUG)
@@ -18,7 +18,8 @@
 (comment
   "Start mock service worker"
   (p/do (mock/start!)
-        (.reload js/location))
+        (.reload js/location)
+        )
 
   "Stop mock service worker"
   (p/do (mock/stop!)

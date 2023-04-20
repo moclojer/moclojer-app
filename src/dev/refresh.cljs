@@ -1,4 +1,4 @@
-(ns front.dev.refresh
+(ns dev.refresh
   "A place to add preloads for developer tools!"
   (:require [front.app.core :as app]
             [helix.experimental.refresh :as r]

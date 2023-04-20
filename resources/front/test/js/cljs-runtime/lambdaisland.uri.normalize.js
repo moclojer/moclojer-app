@@ -27,8 +27,8 @@ return ((((55296) <= char_code)) && ((char_code <= (56319))));
  *   UCS-2 (or is it UTF-16?) surrogate pairs. Because JavaScript. And Java.
  */
 lambdaisland.uri.normalize.char_seq = (function lambdaisland$uri$normalize$char_seq(var_args){
-var G__57035 = arguments.length;
-switch (G__57035) {
+var G__51547 = arguments.length;
+switch (G__51547) {
 case 1:
 return lambdaisland.uri.normalize.char_seq.cljs$core$IFn$_invoke$arity$1((arguments[(0)]));
 
@@ -58,10 +58,10 @@ var code = lambdaisland.uri.platform.char_code_at(str,offset__$1);
 var width = ((lambdaisland.uri.normalize.high_surrogate_QMARK_(code))?(2):(1));
 var next_offset = (offset__$1 + width);
 var cur_char = cljs.core.subs.cljs$core$IFn$_invoke$arity$3(str,offset__$1,next_offset);
-var G__57147 = next_offset;
-var G__57148 = cljs.core.conj.cljs$core$IFn$_invoke$arity$2(res,cur_char);
-offset__$1 = G__57147;
-res = G__57148;
+var G__51684 = next_offset;
+var G__51685 = cljs.core.conj.cljs$core$IFn$_invoke$arity$2(res,cur_char);
+offset__$1 = G__51684;
+res = G__51685;
 continue;
 }
 break;
@@ -80,8 +80,8 @@ break;
  * `*character-encoding*`
  */
 lambdaisland.uri.normalize.percent_encode = (function lambdaisland$uri$normalize$percent_encode(var_args){
-var G__57039 = arguments.length;
-switch (G__57039) {
+var G__51564 = arguments.length;
+switch (G__51564) {
 case 1:
 return lambdaisland.uri.normalize.percent_encode.cljs$core$IFn$_invoke$arity$1((arguments[(0)]));
 
@@ -97,19 +97,19 @@ throw (new Error(["Invalid arity: ",cljs.core.str.cljs$core$IFn$_invoke$arity$1(
 });
 
 (lambdaisland.uri.normalize.percent_encode.cljs$core$IFn$_invoke$arity$1 = (function (component){
-return cljs.core.apply.cljs$core$IFn$_invoke$arity$2(cljs.core.str,cljs.core.map.cljs$core$IFn$_invoke$arity$2((function (p1__57036_SHARP_){
-return ["%",lambdaisland.uri.platform.byte__GT_hex(p1__57036_SHARP_)].join('');
+return cljs.core.apply.cljs$core$IFn$_invoke$arity$2(cljs.core.str,cljs.core.map.cljs$core$IFn$_invoke$arity$2((function (p1__51560_SHARP_){
+return ["%",lambdaisland.uri.platform.byte__GT_hex(p1__51560_SHARP_)].join('');
 }),lambdaisland.uri.platform.string__GT_byte_seq(component)));
 }));
 
 (lambdaisland.uri.normalize.percent_encode.cljs$core$IFn$_invoke$arity$2 = (function (component,type){
 var char_class = cljs.core.get.cljs$core$IFn$_invoke$arity$2(lambdaisland.uri.normalize.character_classes,type);
-var encode_char = (function (p1__57037_SHARP_){
-var G__57040 = p1__57037_SHARP_;
-if(cljs.core.truth_(cljs.core.re_find(char_class,p1__57037_SHARP_))){
-return lambdaisland.uri.normalize.percent_encode.cljs$core$IFn$_invoke$arity$1(G__57040);
+var encode_char = (function (p1__51561_SHARP_){
+var G__51567 = p1__51561_SHARP_;
+if(cljs.core.truth_(cljs.core.re_find(char_class,p1__51561_SHARP_))){
+return lambdaisland.uri.normalize.percent_encode.cljs$core$IFn$_invoke$arity$1(G__51567);
 } else {
-return G__57040;
+return G__51567;
 }
 });
 return cljs.core.apply.cljs$core$IFn$_invoke$arity$2(cljs.core.str,cljs.core.map.cljs$core$IFn$_invoke$arity$2(encode_char,lambdaisland.uri.normalize.char_seq.cljs$core$IFn$_invoke$arity$1(component)));
@@ -124,10 +124,10 @@ return cljs.core.apply.cljs$core$IFn$_invoke$arity$2(cljs.core.str,cljs.core.map
  */
 lambdaisland.uri.normalize.percent_decode = (function lambdaisland$uri$normalize$percent_decode(s){
 if(cljs.core.truth_(s)){
-return clojure.string.replace(s,/(%[0-9A-Fa-f]{2})+/,(function (p__57042){
-var vec__57043 = p__57042;
-var x = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__57043,(0),null);
-var _ = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__57043,(1),null);
+return clojure.string.replace(s,/(%[0-9A-Fa-f]{2})+/,(function (p__51578){
+var vec__51580 = p__51578;
+var x = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__51580,(0),null);
+var _ = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__51580,(1),null);
 return lambdaisland.uri.platform.byte_seq__GT_string(cljs.core.map.cljs$core$IFn$_invoke$arity$2(lambdaisland.uri.platform.hex__GT_byte,cljs.core.drop.cljs$core$IFn$_invoke$arity$2((1),clojure.string.split.cljs$core$IFn$_invoke$arity$2(x,/%/))));
 }));
 } else {
@@ -184,24 +184,24 @@ if(cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(i,len)){
 return cljs.core.apply.cljs$core$IFn$_invoke$arity$2(cljs.core.str,res);
 } else {
 if((((i < (len - (2)))) && (((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2((37),lambdaisland.uri.platform.char_code_at(s,i))) && (((lambdaisland.uri.normalize.hex_code_point_QMARK_(lambdaisland.uri.platform.char_code_at(s,(i + (1))))) && (lambdaisland.uri.normalize.hex_code_point_QMARK_(lambdaisland.uri.platform.char_code_at(s,(i + (2))))))))))){
-var G__57164 = (i + (3));
-var G__57165 = cljs.core.conj.cljs$core$IFn$_invoke$arity$2(res,lambdaisland.uri.normalize.percent_encode.cljs$core$IFn$_invoke$arity$2(lambdaisland.uri.normalize.percent_decode(cljs.core.subs.cljs$core$IFn$_invoke$arity$3(s,i,(i + (3)))),new cljs.core.Keyword(null,"query","query",-1288509510)));
-i = G__57164;
-res = G__57165;
+var G__51724 = (i + (3));
+var G__51726 = cljs.core.conj.cljs$core$IFn$_invoke$arity$2(res,lambdaisland.uri.normalize.percent_encode.cljs$core$IFn$_invoke$arity$2(lambdaisland.uri.normalize.percent_decode(cljs.core.subs.cljs$core$IFn$_invoke$arity$3(s,i,(i + (3)))),new cljs.core.Keyword(null,"query","query",-1288509510)));
+i = G__51724;
+res = G__51726;
 continue;
 } else {
 if(cljs.core.contains_QMARK_(lambdaisland.uri.normalize.sub_delims,cljs.core.subs.cljs$core$IFn$_invoke$arity$3(s,i,(i + (1))))){
-var G__57168 = (i + (1));
-var G__57169 = cljs.core.conj.cljs$core$IFn$_invoke$arity$2(res,cljs.core.subs.cljs$core$IFn$_invoke$arity$3(s,i,(i + (1))));
-i = G__57168;
-res = G__57169;
+var G__51727 = (i + (1));
+var G__51728 = cljs.core.conj.cljs$core$IFn$_invoke$arity$2(res,cljs.core.subs.cljs$core$IFn$_invoke$arity$3(s,i,(i + (1))));
+i = G__51727;
+res = G__51728;
 continue;
 } else {
 var increment = ((lambdaisland.uri.normalize.high_surrogate_QMARK_(lambdaisland.uri.platform.char_code_at(s,i)))?(2):(1));
-var G__57177 = (i + increment);
-var G__57178 = cljs.core.conj.cljs$core$IFn$_invoke$arity$2(res,lambdaisland.uri.normalize.percent_encode.cljs$core$IFn$_invoke$arity$2(cljs.core.subs.cljs$core$IFn$_invoke$arity$3(s,i,(i + increment)),new cljs.core.Keyword(null,"query","query",-1288509510)));
-i = G__57177;
-res = G__57178;
+var G__51741 = (i + increment);
+var G__51742 = cljs.core.conj.cljs$core$IFn$_invoke$arity$2(res,lambdaisland.uri.normalize.percent_encode.cljs$core$IFn$_invoke$arity$2(cljs.core.subs.cljs$core$IFn$_invoke$arity$3(s,i,(i + increment)),new cljs.core.Keyword(null,"query","query",-1288509510)));
+i = G__51741;
+res = G__51742;
 continue;
 
 }

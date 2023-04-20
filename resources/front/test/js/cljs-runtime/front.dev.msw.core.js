@@ -15,8 +15,8 @@ cljs.core.reset_BANG_(front.dev.msw.core.mock_state,handlers);
 
 return cljs.core.deref(front.dev.msw.core.mock_state).start(cljs.core.clj__GT_js(new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"onUnhandledRequest","onUnhandledRequest",375972856),"bypass"], null))).then((function (){
 return front.dev.session_storage.set_item_BANG_(front.dev.msw.core.ss_key,true);
-})).catch((function (p1__59812_SHARP_){
-return console.log(p1__59812_SHARP_);
+})).catch((function (p1__54183_SHARP_){
+return console.log(p1__54183_SHARP_);
 }));
 });
 front.dev.msw.core.stop_browser = (function front$dev$msw$core$stop_browser(){
@@ -27,8 +27,8 @@ cljs.core.reset_BANG_(front.dev.msw.core.mock_state,null);
 return front.dev.session_storage.remove_item_BANG_(front.dev.msw.core.ss_key);
 });
 front.dev.msw.core.start_BANG_ = (function front$dev$msw$core$start_BANG_(var_args){
-var G__59814 = arguments.length;
-switch (G__59814) {
+var G__54188 = arguments.length;
+switch (G__54188) {
 case 0:
 return front.dev.msw.core.start_BANG_.cljs$core$IFn$_invoke$arity$0();
 

@@ -1,8 +1,8 @@
 goog.provide('refx.registry');
 refx.registry.registry = cljs.core.atom.cljs$core$IFn$_invoke$arity$1(cljs.core.PersistentArrayMap.EMPTY);
 refx.registry.lookup = (function refx$registry$lookup(var_args){
-var G__57651 = arguments.length;
-switch (G__57651) {
+var G__52576 = arguments.length;
+switch (G__52576) {
 case 2:
 return refx.registry.lookup.cljs$core$IFn$_invoke$arity$2((arguments[(0)]),(arguments[(1)]));
 

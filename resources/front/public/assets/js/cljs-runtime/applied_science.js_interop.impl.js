@@ -3,11 +3,11 @@ goog.provide('applied_science.js_interop.impl');
  * Returns `k` or, if it is a keyword, its name.
  */
 applied_science.js_interop.impl.wrap_key = (function applied_science$js_interop$impl$wrap_key(k){
-var G__29759 = k;
+var G__22323 = k;
 if((k instanceof cljs.core.Keyword)){
-return cljs.core.name(G__29759);
+return cljs.core.name(G__22323);
 } else {
-return G__29759;
+return G__22323;
 }
 });
 applied_science.js_interop.impl.in_QMARK__STAR_ = (function applied_science$js_interop$impl$in_QMARK__STAR_(k_STAR_,obj){
@@ -37,10 +37,10 @@ while(true){
 if(((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(i,end)) || ((obj__$1 == null)))){
 return obj__$1;
 } else {
-var G__29809 = (i + (1));
-var G__29810 = (obj__$1[cljs.core.nth.cljs$core$IFn$_invoke$arity$2(ks_STAR_,i)]);
-i = G__29809;
-obj__$1 = G__29810;
+var G__22515 = (i + (1));
+var G__22516 = (obj__$1[cljs.core.nth.cljs$core$IFn$_invoke$arity$2(ks_STAR_,i)]);
+i = G__22515;
+obj__$1 = G__22516;
 continue;
 }
 break;
@@ -50,8 +50,8 @@ return null;
 }
 });
 applied_science.js_interop.impl.get_in_STAR_ = (function applied_science$js_interop$impl$get_in_STAR_(var_args){
-var G__29764 = arguments.length;
-switch (G__29764) {
+var G__22363 = arguments.length;
+switch (G__22363) {
 case 2:
 return applied_science.js_interop.impl.get_in_STAR_.cljs$core$IFn$_invoke$arity$2((arguments[(0)]),(arguments[(1)]));
 
@@ -92,14 +92,14 @@ return not_found;
  */
 applied_science.js_interop.impl.select_keys_STAR_ = (function applied_science$js_interop$impl$select_keys_STAR_(obj,ks_STAR_){
 return cljs.core.reduce.cljs$core$IFn$_invoke$arity$3((function (m,k){
-var G__29774 = m;
+var G__22450 = m;
 if(applied_science.js_interop.impl.contains_QMARK__STAR_(obj,k)){
-var G__29775 = G__29774;
-(G__29775[k] = (obj[k]));
+var G__22456 = G__22450;
+(G__22456[k] = (obj[k]));
 
-return G__29775;
+return G__22456;
 } else {
-return G__29774;
+return G__22450;
 }
 }),({}),ks_STAR_);
 });

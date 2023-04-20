@@ -5,11 +5,11 @@
                 :asset-path "/assets/js"
                 :js-options {:js-package-dirs ["node_modules"
                                                "../node_modules"]}
-                :devtools {:preloads [front.dev.refresh]
+                :devtools {:preloads [dev.refresh]
                            :reload-strategy :full
                            :http-port 8000
                            :http-root "resources/front/public/"}
-                :dev      {:modules {:core {:init-fn front.dev.core/init}}}
+                :dev      {:modules {:core {:init-fn dev.core/init}}}
                 :release  {:modules {:core {:init-fn front.app.core/init}}}}
           :tests    {:target           :browser-test
                      :test-dir         "resources/front/test"

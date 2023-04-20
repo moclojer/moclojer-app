@@ -26,7 +26,7 @@ refx.hooks.use_sub_counter = cljs.core.atom.cljs$core$IFn$_invoke$arity$1((0));
  */
 refx.hooks.use_sub = (function refx$hooks$use_sub(query_v){
 var sub = refx.subs.sub(query_v);
-var vec__58331 = module$node_modules$react$index.useMemo((function (){
+var vec__52792 = module$node_modules$react$index.useMemo((function (){
 return new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [(function (callback){
 var key = ["use-sub-",cljs.core.str.cljs$core$IFn$_invoke$arity$1(cljs.core.swap_BANG_.cljs$core$IFn$_invoke$arity$2(refx.hooks.use_sub_counter,cljs.core.inc))].join('');
 refx.subs._add_listener(sub,key,callback);
@@ -38,8 +38,8 @@ return refx.subs._remove_listener(sub,key);
 return refx.subs._value(sub);
 })], null);
 }),refx.hooks.cljs_deps(sub));
-var subscribe = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__58331,(0),null);
-var snapshot = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__58331,(1),null);
+var subscribe = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__52792,(0),null);
+var snapshot = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__52792,(1),null);
 module$node_modules$react$index.useDebugValue(query_v,cljs.core.str);
 
 return module$node_modules$use_sync_external_store$shim$index.useSyncExternalStore(subscribe,snapshot);

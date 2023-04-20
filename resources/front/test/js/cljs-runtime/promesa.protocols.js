@@ -6,9 +6,9 @@ goog.provide('promesa.protocols');
  */
 promesa.protocols.IPromise = function(){};
 
-var promesa$protocols$IPromise$_bind$dyn_57353 = (function() {
-var G__57354 = null;
-var G__57354__2 = (function (_,f){
+var promesa$protocols$IPromise$_bind$dyn_52072 = (function() {
+var G__52073 = null;
+var G__52073__2 = (function (_,f){
 var x__5393__auto__ = (((_ == null))?null:_);
 var m__5394__auto__ = (promesa.protocols._bind[goog.typeOf(x__5393__auto__)]);
 if((!((m__5394__auto__ == null)))){
@@ -22,7 +22,7 @@ throw cljs.core.missing_protocol("IPromise.-bind",_);
 }
 }
 });
-var G__57354__3 = (function (_,f,executor){
+var G__52073__3 = (function (_,f,executor){
 var x__5393__auto__ = (((_ == null))?null:_);
 var m__5394__auto__ = (promesa.protocols._bind[goog.typeOf(x__5393__auto__)]);
 if((!((m__5394__auto__ == null)))){
@@ -36,26 +36,26 @@ throw cljs.core.missing_protocol("IPromise.-bind",_);
 }
 }
 });
-G__57354 = function(_,f,executor){
+G__52073 = function(_,f,executor){
 switch(arguments.length){
 case 2:
-return G__57354__2.call(this,_,f);
+return G__52073__2.call(this,_,f);
 case 3:
-return G__57354__3.call(this,_,f,executor);
+return G__52073__3.call(this,_,f,executor);
 }
 throw(new Error('Invalid arity: ' + arguments.length));
 };
-G__57354.cljs$core$IFn$_invoke$arity$2 = G__57354__2;
-G__57354.cljs$core$IFn$_invoke$arity$3 = G__57354__3;
-return G__57354;
+G__52073.cljs$core$IFn$_invoke$arity$2 = G__52073__2;
+G__52073.cljs$core$IFn$_invoke$arity$3 = G__52073__3;
+return G__52073;
 })()
 ;
 /**
  * Apply function to a computation and flatten.
  */
 promesa.protocols._bind = (function promesa$protocols$_bind(var_args){
-var G__57069 = arguments.length;
-switch (G__57069) {
+var G__51884 = arguments.length;
+switch (G__51884) {
 case 2:
 return promesa.protocols._bind.cljs$core$IFn$_invoke$arity$2((arguments[(0)]),(arguments[(1)]));
 
@@ -74,7 +74,7 @@ throw (new Error(["Invalid arity: ",cljs.core.str.cljs$core$IFn$_invoke$arity$1(
 if((((!((_ == null)))) && ((!((_.promesa$protocols$IPromise$_bind$arity$2 == null)))))){
 return _.promesa$protocols$IPromise$_bind$arity$2(_,f);
 } else {
-return promesa$protocols$IPromise$_bind$dyn_57353(_,f);
+return promesa$protocols$IPromise$_bind$dyn_52072(_,f);
 }
 }));
 
@@ -82,16 +82,16 @@ return promesa$protocols$IPromise$_bind$dyn_57353(_,f);
 if((((!((_ == null)))) && ((!((_.promesa$protocols$IPromise$_bind$arity$3 == null)))))){
 return _.promesa$protocols$IPromise$_bind$arity$3(_,f,executor);
 } else {
-return promesa$protocols$IPromise$_bind$dyn_57353(_,f,executor);
+return promesa$protocols$IPromise$_bind$dyn_52072(_,f,executor);
 }
 }));
 
 (promesa.protocols._bind.cljs$lang$maxFixedArity = 3);
 
 
-var promesa$protocols$IPromise$_map$dyn_57365 = (function() {
-var G__57366 = null;
-var G__57366__2 = (function (_,f){
+var promesa$protocols$IPromise$_map$dyn_52109 = (function() {
+var G__52110 = null;
+var G__52110__2 = (function (_,f){
 var x__5393__auto__ = (((_ == null))?null:_);
 var m__5394__auto__ = (promesa.protocols._map[goog.typeOf(x__5393__auto__)]);
 if((!((m__5394__auto__ == null)))){
@@ -105,7 +105,7 @@ throw cljs.core.missing_protocol("IPromise.-map",_);
 }
 }
 });
-var G__57366__3 = (function (_,f,executor){
+var G__52110__3 = (function (_,f,executor){
 var x__5393__auto__ = (((_ == null))?null:_);
 var m__5394__auto__ = (promesa.protocols._map[goog.typeOf(x__5393__auto__)]);
 if((!((m__5394__auto__ == null)))){
@@ -119,26 +119,26 @@ throw cljs.core.missing_protocol("IPromise.-map",_);
 }
 }
 });
-G__57366 = function(_,f,executor){
+G__52110 = function(_,f,executor){
 switch(arguments.length){
 case 2:
-return G__57366__2.call(this,_,f);
+return G__52110__2.call(this,_,f);
 case 3:
-return G__57366__3.call(this,_,f,executor);
+return G__52110__3.call(this,_,f,executor);
 }
 throw(new Error('Invalid arity: ' + arguments.length));
 };
-G__57366.cljs$core$IFn$_invoke$arity$2 = G__57366__2;
-G__57366.cljs$core$IFn$_invoke$arity$3 = G__57366__3;
-return G__57366;
+G__52110.cljs$core$IFn$_invoke$arity$2 = G__52110__2;
+G__52110.cljs$core$IFn$_invoke$arity$3 = G__52110__3;
+return G__52110;
 })()
 ;
 /**
  * Apply function to a computation
  */
 promesa.protocols._map = (function promesa$protocols$_map(var_args){
-var G__57071 = arguments.length;
-switch (G__57071) {
+var G__51891 = arguments.length;
+switch (G__51891) {
 case 2:
 return promesa.protocols._map.cljs$core$IFn$_invoke$arity$2((arguments[(0)]),(arguments[(1)]));
 
@@ -157,7 +157,7 @@ throw (new Error(["Invalid arity: ",cljs.core.str.cljs$core$IFn$_invoke$arity$1(
 if((((!((_ == null)))) && ((!((_.promesa$protocols$IPromise$_map$arity$2 == null)))))){
 return _.promesa$protocols$IPromise$_map$arity$2(_,f);
 } else {
-return promesa$protocols$IPromise$_map$dyn_57365(_,f);
+return promesa$protocols$IPromise$_map$dyn_52109(_,f);
 }
 }));
 
@@ -165,16 +165,16 @@ return promesa$protocols$IPromise$_map$dyn_57365(_,f);
 if((((!((_ == null)))) && ((!((_.promesa$protocols$IPromise$_map$arity$3 == null)))))){
 return _.promesa$protocols$IPromise$_map$arity$3(_,f,executor);
 } else {
-return promesa$protocols$IPromise$_map$dyn_57365(_,f,executor);
+return promesa$protocols$IPromise$_map$dyn_52109(_,f,executor);
 }
 }));
 
 (promesa.protocols._map.cljs$lang$maxFixedArity = 3);
 
 
-var promesa$protocols$IPromise$_then$dyn_57370 = (function() {
-var G__57371 = null;
-var G__57371__2 = (function (_,f){
+var promesa$protocols$IPromise$_then$dyn_52124 = (function() {
+var G__52125 = null;
+var G__52125__2 = (function (_,f){
 var x__5393__auto__ = (((_ == null))?null:_);
 var m__5394__auto__ = (promesa.protocols._then[goog.typeOf(x__5393__auto__)]);
 if((!((m__5394__auto__ == null)))){
@@ -188,7 +188,7 @@ throw cljs.core.missing_protocol("IPromise.-then",_);
 }
 }
 });
-var G__57371__3 = (function (_,f,executor){
+var G__52125__3 = (function (_,f,executor){
 var x__5393__auto__ = (((_ == null))?null:_);
 var m__5394__auto__ = (promesa.protocols._then[goog.typeOf(x__5393__auto__)]);
 if((!((m__5394__auto__ == null)))){
@@ -202,26 +202,26 @@ throw cljs.core.missing_protocol("IPromise.-then",_);
 }
 }
 });
-G__57371 = function(_,f,executor){
+G__52125 = function(_,f,executor){
 switch(arguments.length){
 case 2:
-return G__57371__2.call(this,_,f);
+return G__52125__2.call(this,_,f);
 case 3:
-return G__57371__3.call(this,_,f,executor);
+return G__52125__3.call(this,_,f,executor);
 }
 throw(new Error('Invalid arity: ' + arguments.length));
 };
-G__57371.cljs$core$IFn$_invoke$arity$2 = G__57371__2;
-G__57371.cljs$core$IFn$_invoke$arity$3 = G__57371__3;
-return G__57371;
+G__52125.cljs$core$IFn$_invoke$arity$2 = G__52125__2;
+G__52125.cljs$core$IFn$_invoke$arity$3 = G__52125__3;
+return G__52125;
 })()
 ;
 /**
  * Apply function to a computation and flatten if promise found.
  */
 promesa.protocols._then = (function promesa$protocols$_then(var_args){
-var G__57073 = arguments.length;
-switch (G__57073) {
+var G__51910 = arguments.length;
+switch (G__51910) {
 case 2:
 return promesa.protocols._then.cljs$core$IFn$_invoke$arity$2((arguments[(0)]),(arguments[(1)]));
 
@@ -240,7 +240,7 @@ throw (new Error(["Invalid arity: ",cljs.core.str.cljs$core$IFn$_invoke$arity$1(
 if((((!((_ == null)))) && ((!((_.promesa$protocols$IPromise$_then$arity$2 == null)))))){
 return _.promesa$protocols$IPromise$_then$arity$2(_,f);
 } else {
-return promesa$protocols$IPromise$_then$dyn_57370(_,f);
+return promesa$protocols$IPromise$_then$dyn_52124(_,f);
 }
 }));
 
@@ -248,16 +248,16 @@ return promesa$protocols$IPromise$_then$dyn_57370(_,f);
 if((((!((_ == null)))) && ((!((_.promesa$protocols$IPromise$_then$arity$3 == null)))))){
 return _.promesa$protocols$IPromise$_then$arity$3(_,f,executor);
 } else {
-return promesa$protocols$IPromise$_then$dyn_57370(_,f,executor);
+return promesa$protocols$IPromise$_then$dyn_52124(_,f,executor);
 }
 }));
 
 (promesa.protocols._then.cljs$lang$maxFixedArity = 3);
 
 
-var promesa$protocols$IPromise$_mapErr$dyn_57384 = (function() {
-var G__57385 = null;
-var G__57385__2 = (function (_,f){
+var promesa$protocols$IPromise$_mapErr$dyn_52131 = (function() {
+var G__52132 = null;
+var G__52132__2 = (function (_,f){
 var x__5393__auto__ = (((_ == null))?null:_);
 var m__5394__auto__ = (promesa.protocols._mapErr[goog.typeOf(x__5393__auto__)]);
 if((!((m__5394__auto__ == null)))){
@@ -271,7 +271,7 @@ throw cljs.core.missing_protocol("IPromise.-mapErr",_);
 }
 }
 });
-var G__57385__3 = (function (_,f,executor){
+var G__52132__3 = (function (_,f,executor){
 var x__5393__auto__ = (((_ == null))?null:_);
 var m__5394__auto__ = (promesa.protocols._mapErr[goog.typeOf(x__5393__auto__)]);
 if((!((m__5394__auto__ == null)))){
@@ -285,26 +285,26 @@ throw cljs.core.missing_protocol("IPromise.-mapErr",_);
 }
 }
 });
-G__57385 = function(_,f,executor){
+G__52132 = function(_,f,executor){
 switch(arguments.length){
 case 2:
-return G__57385__2.call(this,_,f);
+return G__52132__2.call(this,_,f);
 case 3:
-return G__57385__3.call(this,_,f,executor);
+return G__52132__3.call(this,_,f,executor);
 }
 throw(new Error('Invalid arity: ' + arguments.length));
 };
-G__57385.cljs$core$IFn$_invoke$arity$2 = G__57385__2;
-G__57385.cljs$core$IFn$_invoke$arity$3 = G__57385__3;
-return G__57385;
+G__52132.cljs$core$IFn$_invoke$arity$2 = G__52132__2;
+G__52132.cljs$core$IFn$_invoke$arity$3 = G__52132__3;
+return G__52132;
 })()
 ;
 /**
  * Apply function to a failed computation.
  */
 promesa.protocols._mapErr = (function promesa$protocols$_mapErr(var_args){
-var G__57075 = arguments.length;
-switch (G__57075) {
+var G__51935 = arguments.length;
+switch (G__51935) {
 case 2:
 return promesa.protocols._mapErr.cljs$core$IFn$_invoke$arity$2((arguments[(0)]),(arguments[(1)]));
 
@@ -323,7 +323,7 @@ throw (new Error(["Invalid arity: ",cljs.core.str.cljs$core$IFn$_invoke$arity$1(
 if((((!((_ == null)))) && ((!((_.promesa$protocols$IPromise$_mapErr$arity$2 == null)))))){
 return _.promesa$protocols$IPromise$_mapErr$arity$2(_,f);
 } else {
-return promesa$protocols$IPromise$_mapErr$dyn_57384(_,f);
+return promesa$protocols$IPromise$_mapErr$dyn_52131(_,f);
 }
 }));
 
@@ -331,16 +331,16 @@ return promesa$protocols$IPromise$_mapErr$dyn_57384(_,f);
 if((((!((_ == null)))) && ((!((_.promesa$protocols$IPromise$_mapErr$arity$3 == null)))))){
 return _.promesa$protocols$IPromise$_mapErr$arity$3(_,f,executor);
 } else {
-return promesa$protocols$IPromise$_mapErr$dyn_57384(_,f,executor);
+return promesa$protocols$IPromise$_mapErr$dyn_52131(_,f,executor);
 }
 }));
 
 (promesa.protocols._mapErr.cljs$lang$maxFixedArity = 3);
 
 
-var promesa$protocols$IPromise$_thenErr$dyn_57411 = (function() {
-var G__57419 = null;
-var G__57419__2 = (function (_,f){
+var promesa$protocols$IPromise$_thenErr$dyn_52134 = (function() {
+var G__52135 = null;
+var G__52135__2 = (function (_,f){
 var x__5393__auto__ = (((_ == null))?null:_);
 var m__5394__auto__ = (promesa.protocols._thenErr[goog.typeOf(x__5393__auto__)]);
 if((!((m__5394__auto__ == null)))){
@@ -354,7 +354,7 @@ throw cljs.core.missing_protocol("IPromise.-thenErr",_);
 }
 }
 });
-var G__57419__3 = (function (_,f,executor){
+var G__52135__3 = (function (_,f,executor){
 var x__5393__auto__ = (((_ == null))?null:_);
 var m__5394__auto__ = (promesa.protocols._thenErr[goog.typeOf(x__5393__auto__)]);
 if((!((m__5394__auto__ == null)))){
@@ -368,26 +368,26 @@ throw cljs.core.missing_protocol("IPromise.-thenErr",_);
 }
 }
 });
-G__57419 = function(_,f,executor){
+G__52135 = function(_,f,executor){
 switch(arguments.length){
 case 2:
-return G__57419__2.call(this,_,f);
+return G__52135__2.call(this,_,f);
 case 3:
-return G__57419__3.call(this,_,f,executor);
+return G__52135__3.call(this,_,f,executor);
 }
 throw(new Error('Invalid arity: ' + arguments.length));
 };
-G__57419.cljs$core$IFn$_invoke$arity$2 = G__57419__2;
-G__57419.cljs$core$IFn$_invoke$arity$3 = G__57419__3;
-return G__57419;
+G__52135.cljs$core$IFn$_invoke$arity$2 = G__52135__2;
+G__52135.cljs$core$IFn$_invoke$arity$3 = G__52135__3;
+return G__52135;
 })()
 ;
 /**
  * Apply function to a failed computation. and flatten if promise found.
  */
 promesa.protocols._thenErr = (function promesa$protocols$_thenErr(var_args){
-var G__57077 = arguments.length;
-switch (G__57077) {
+var G__51944 = arguments.length;
+switch (G__51944) {
 case 2:
 return promesa.protocols._thenErr.cljs$core$IFn$_invoke$arity$2((arguments[(0)]),(arguments[(1)]));
 
@@ -406,7 +406,7 @@ throw (new Error(["Invalid arity: ",cljs.core.str.cljs$core$IFn$_invoke$arity$1(
 if((((!((_ == null)))) && ((!((_.promesa$protocols$IPromise$_thenErr$arity$2 == null)))))){
 return _.promesa$protocols$IPromise$_thenErr$arity$2(_,f);
 } else {
-return promesa$protocols$IPromise$_thenErr$dyn_57411(_,f);
+return promesa$protocols$IPromise$_thenErr$dyn_52134(_,f);
 }
 }));
 
@@ -414,16 +414,16 @@ return promesa$protocols$IPromise$_thenErr$dyn_57411(_,f);
 if((((!((_ == null)))) && ((!((_.promesa$protocols$IPromise$_thenErr$arity$3 == null)))))){
 return _.promesa$protocols$IPromise$_thenErr$arity$3(_,f,executor);
 } else {
-return promesa$protocols$IPromise$_thenErr$dyn_57411(_,f,executor);
+return promesa$protocols$IPromise$_thenErr$dyn_52134(_,f,executor);
 }
 }));
 
 (promesa.protocols._thenErr.cljs$lang$maxFixedArity = 3);
 
 
-var promesa$protocols$IPromise$_handle$dyn_57425 = (function() {
-var G__57426 = null;
-var G__57426__2 = (function (_,f){
+var promesa$protocols$IPromise$_handle$dyn_52141 = (function() {
+var G__52142 = null;
+var G__52142__2 = (function (_,f){
 var x__5393__auto__ = (((_ == null))?null:_);
 var m__5394__auto__ = (promesa.protocols._handle[goog.typeOf(x__5393__auto__)]);
 if((!((m__5394__auto__ == null)))){
@@ -437,7 +437,7 @@ throw cljs.core.missing_protocol("IPromise.-handle",_);
 }
 }
 });
-var G__57426__3 = (function (_,f,executor){
+var G__52142__3 = (function (_,f,executor){
 var x__5393__auto__ = (((_ == null))?null:_);
 var m__5394__auto__ = (promesa.protocols._handle[goog.typeOf(x__5393__auto__)]);
 if((!((m__5394__auto__ == null)))){
@@ -451,18 +451,18 @@ throw cljs.core.missing_protocol("IPromise.-handle",_);
 }
 }
 });
-G__57426 = function(_,f,executor){
+G__52142 = function(_,f,executor){
 switch(arguments.length){
 case 2:
-return G__57426__2.call(this,_,f);
+return G__52142__2.call(this,_,f);
 case 3:
-return G__57426__3.call(this,_,f,executor);
+return G__52142__3.call(this,_,f,executor);
 }
 throw(new Error('Invalid arity: ' + arguments.length));
 };
-G__57426.cljs$core$IFn$_invoke$arity$2 = G__57426__2;
-G__57426.cljs$core$IFn$_invoke$arity$3 = G__57426__3;
-return G__57426;
+G__52142.cljs$core$IFn$_invoke$arity$2 = G__52142__2;
+G__52142.cljs$core$IFn$_invoke$arity$3 = G__52142__3;
+return G__52142;
 })()
 ;
 /**
@@ -470,8 +470,8 @@ return G__57426;
  *  successful and flatten if promise found.
  */
 promesa.protocols._handle = (function promesa$protocols$_handle(var_args){
-var G__57079 = arguments.length;
-switch (G__57079) {
+var G__51961 = arguments.length;
+switch (G__51961) {
 case 2:
 return promesa.protocols._handle.cljs$core$IFn$_invoke$arity$2((arguments[(0)]),(arguments[(1)]));
 
@@ -490,7 +490,7 @@ throw (new Error(["Invalid arity: ",cljs.core.str.cljs$core$IFn$_invoke$arity$1(
 if((((!((_ == null)))) && ((!((_.promesa$protocols$IPromise$_handle$arity$2 == null)))))){
 return _.promesa$protocols$IPromise$_handle$arity$2(_,f);
 } else {
-return promesa$protocols$IPromise$_handle$dyn_57425(_,f);
+return promesa$protocols$IPromise$_handle$dyn_52141(_,f);
 }
 }));
 
@@ -498,16 +498,16 @@ return promesa$protocols$IPromise$_handle$dyn_57425(_,f);
 if((((!((_ == null)))) && ((!((_.promesa$protocols$IPromise$_handle$arity$3 == null)))))){
 return _.promesa$protocols$IPromise$_handle$arity$3(_,f,executor);
 } else {
-return promesa$protocols$IPromise$_handle$dyn_57425(_,f,executor);
+return promesa$protocols$IPromise$_handle$dyn_52141(_,f,executor);
 }
 }));
 
 (promesa.protocols._handle.cljs$lang$maxFixedArity = 3);
 
 
-var promesa$protocols$IPromise$_finally$dyn_57431 = (function() {
-var G__57432 = null;
-var G__57432__2 = (function (_,f){
+var promesa$protocols$IPromise$_finally$dyn_52149 = (function() {
+var G__52150 = null;
+var G__52150__2 = (function (_,f){
 var x__5393__auto__ = (((_ == null))?null:_);
 var m__5394__auto__ = (promesa.protocols._finally[goog.typeOf(x__5393__auto__)]);
 if((!((m__5394__auto__ == null)))){
@@ -521,7 +521,7 @@ throw cljs.core.missing_protocol("IPromise.-finally",_);
 }
 }
 });
-var G__57432__3 = (function (_,f,executor){
+var G__52150__3 = (function (_,f,executor){
 var x__5393__auto__ = (((_ == null))?null:_);
 var m__5394__auto__ = (promesa.protocols._finally[goog.typeOf(x__5393__auto__)]);
 if((!((m__5394__auto__ == null)))){
@@ -535,18 +535,18 @@ throw cljs.core.missing_protocol("IPromise.-finally",_);
 }
 }
 });
-G__57432 = function(_,f,executor){
+G__52150 = function(_,f,executor){
 switch(arguments.length){
 case 2:
-return G__57432__2.call(this,_,f);
+return G__52150__2.call(this,_,f);
 case 3:
-return G__57432__3.call(this,_,f,executor);
+return G__52150__3.call(this,_,f,executor);
 }
 throw(new Error('Invalid arity: ' + arguments.length));
 };
-G__57432.cljs$core$IFn$_invoke$arity$2 = G__57432__2;
-G__57432.cljs$core$IFn$_invoke$arity$3 = G__57432__3;
-return G__57432;
+G__52150.cljs$core$IFn$_invoke$arity$2 = G__52150__2;
+G__52150.cljs$core$IFn$_invoke$arity$3 = G__52150__3;
+return G__52150;
 })()
 ;
 /**
@@ -554,8 +554,8 @@ return G__57432;
  *  successful; the return value is ignored.
  */
 promesa.protocols._finally = (function promesa$protocols$_finally(var_args){
-var G__57081 = arguments.length;
-switch (G__57081) {
+var G__51975 = arguments.length;
+switch (G__51975) {
 case 2:
 return promesa.protocols._finally.cljs$core$IFn$_invoke$arity$2((arguments[(0)]),(arguments[(1)]));
 
@@ -574,7 +574,7 @@ throw (new Error(["Invalid arity: ",cljs.core.str.cljs$core$IFn$_invoke$arity$1(
 if((((!((_ == null)))) && ((!((_.promesa$protocols$IPromise$_finally$arity$2 == null)))))){
 return _.promesa$protocols$IPromise$_finally$arity$2(_,f);
 } else {
-return promesa$protocols$IPromise$_finally$dyn_57431(_,f);
+return promesa$protocols$IPromise$_finally$dyn_52149(_,f);
 }
 }));
 
@@ -582,7 +582,7 @@ return promesa$protocols$IPromise$_finally$dyn_57431(_,f);
 if((((!((_ == null)))) && ((!((_.promesa$protocols$IPromise$_finally$arity$3 == null)))))){
 return _.promesa$protocols$IPromise$_finally$arity$3(_,f,executor);
 } else {
-return promesa$protocols$IPromise$_finally$dyn_57431(_,f,executor);
+return promesa$protocols$IPromise$_finally$dyn_52149(_,f,executor);
 }
 }));
 
@@ -596,7 +596,7 @@ return promesa$protocols$IPromise$_finally$dyn_57431(_,f,executor);
  */
 promesa.protocols.IPromiseFactory = function(){};
 
-var promesa$protocols$IPromiseFactory$_promise$dyn_57446 = (function (_){
+var promesa$protocols$IPromiseFactory$_promise$dyn_52156 = (function (_){
 var x__5393__auto__ = (((_ == null))?null:_);
 var m__5394__auto__ = (promesa.protocols._promise[goog.typeOf(x__5393__auto__)]);
 if((!((m__5394__auto__ == null)))){
@@ -617,7 +617,7 @@ promesa.protocols._promise = (function promesa$protocols$_promise(_){
 if((((!((_ == null)))) && ((!((_.promesa$protocols$IPromiseFactory$_promise$arity$1 == null)))))){
 return _.promesa$protocols$IPromiseFactory$_promise$arity$1(_);
 } else {
-return promesa$protocols$IPromiseFactory$_promise$dyn_57446(_);
+return promesa$protocols$IPromiseFactory$_promise$dyn_52156(_);
 }
 });
 
@@ -628,7 +628,7 @@ return promesa$protocols$IPromiseFactory$_promise$dyn_57446(_);
  */
 promesa.protocols.ICancellable = function(){};
 
-var promesa$protocols$ICancellable$_cancel_BANG_$dyn_57447 = (function (_){
+var promesa$protocols$ICancellable$_cancel_BANG_$dyn_52172 = (function (_){
 var x__5393__auto__ = (((_ == null))?null:_);
 var m__5394__auto__ = (promesa.protocols._cancel_BANG_[goog.typeOf(x__5393__auto__)]);
 if((!((m__5394__auto__ == null)))){
@@ -646,11 +646,11 @@ promesa.protocols._cancel_BANG_ = (function promesa$protocols$_cancel_BANG_(_){
 if((((!((_ == null)))) && ((!((_.promesa$protocols$ICancellable$_cancel_BANG_$arity$1 == null)))))){
 return _.promesa$protocols$ICancellable$_cancel_BANG_$arity$1(_);
 } else {
-return promesa$protocols$ICancellable$_cancel_BANG_$dyn_57447(_);
+return promesa$protocols$ICancellable$_cancel_BANG_$dyn_52172(_);
 }
 });
 
-var promesa$protocols$ICancellable$_cancelled_QMARK_$dyn_57449 = (function (_){
+var promesa$protocols$ICancellable$_cancelled_QMARK_$dyn_52181 = (function (_){
 var x__5393__auto__ = (((_ == null))?null:_);
 var m__5394__auto__ = (promesa.protocols._cancelled_QMARK_[goog.typeOf(x__5393__auto__)]);
 if((!((m__5394__auto__ == null)))){
@@ -668,7 +668,7 @@ promesa.protocols._cancelled_QMARK_ = (function promesa$protocols$_cancelled_QMA
 if((((!((_ == null)))) && ((!((_.promesa$protocols$ICancellable$_cancelled_QMARK_$arity$1 == null)))))){
 return _.promesa$protocols$ICancellable$_cancelled_QMARK_$arity$1(_);
 } else {
-return promesa$protocols$ICancellable$_cancelled_QMARK_$dyn_57449(_);
+return promesa$protocols$ICancellable$_cancelled_QMARK_$dyn_52181(_);
 }
 });
 
@@ -678,7 +678,7 @@ return promesa$protocols$ICancellable$_cancelled_QMARK_$dyn_57449(_);
  */
 promesa.protocols.ICompletable = function(){};
 
-var promesa$protocols$ICompletable$_resolve_BANG_$dyn_57472 = (function (_,v){
+var promesa$protocols$ICompletable$_resolve_BANG_$dyn_52182 = (function (_,v){
 var x__5393__auto__ = (((_ == null))?null:_);
 var m__5394__auto__ = (promesa.protocols._resolve_BANG_[goog.typeOf(x__5393__auto__)]);
 if((!((m__5394__auto__ == null)))){
@@ -699,11 +699,11 @@ promesa.protocols._resolve_BANG_ = (function promesa$protocols$_resolve_BANG_(_,
 if((((!((_ == null)))) && ((!((_.promesa$protocols$ICompletable$_resolve_BANG_$arity$2 == null)))))){
 return _.promesa$protocols$ICompletable$_resolve_BANG_$arity$2(_,v);
 } else {
-return promesa$protocols$ICompletable$_resolve_BANG_$dyn_57472(_,v);
+return promesa$protocols$ICompletable$_resolve_BANG_$dyn_52182(_,v);
 }
 });
 
-var promesa$protocols$ICompletable$_reject_BANG_$dyn_57475 = (function (_,e){
+var promesa$protocols$ICompletable$_reject_BANG_$dyn_52187 = (function (_,e){
 var x__5393__auto__ = (((_ == null))?null:_);
 var m__5394__auto__ = (promesa.protocols._reject_BANG_[goog.typeOf(x__5393__auto__)]);
 if((!((m__5394__auto__ == null)))){
@@ -724,7 +724,7 @@ promesa.protocols._reject_BANG_ = (function promesa$protocols$_reject_BANG_(_,e)
 if((((!((_ == null)))) && ((!((_.promesa$protocols$ICompletable$_reject_BANG_$arity$2 == null)))))){
 return _.promesa$protocols$ICompletable$_reject_BANG_$arity$2(_,e);
 } else {
-return promesa$protocols$ICompletable$_reject_BANG_$dyn_57475(_,e);
+return promesa$protocols$ICompletable$_reject_BANG_$dyn_52187(_,e);
 }
 });
 
@@ -734,7 +734,7 @@ return promesa$protocols$ICompletable$_reject_BANG_$dyn_57475(_,e);
  */
 promesa.protocols.IExecutor = function(){};
 
-var promesa$protocols$IExecutor$_submit_BANG_$dyn_57479 = (function (_,task){
+var promesa$protocols$IExecutor$_submit_BANG_$dyn_52213 = (function (_,task){
 var x__5393__auto__ = (((_ == null))?null:_);
 var m__5394__auto__ = (promesa.protocols._submit_BANG_[goog.typeOf(x__5393__auto__)]);
 if((!((m__5394__auto__ == null)))){
@@ -755,7 +755,7 @@ promesa.protocols._submit_BANG_ = (function promesa$protocols$_submit_BANG_(_,ta
 if((((!((_ == null)))) && ((!((_.promesa$protocols$IExecutor$_submit_BANG_$arity$2 == null)))))){
 return _.promesa$protocols$IExecutor$_submit_BANG_$arity$2(_,task);
 } else {
-return promesa$protocols$IExecutor$_submit_BANG_$dyn_57479(_,task);
+return promesa$protocols$IExecutor$_submit_BANG_$dyn_52213(_,task);
 }
 });
 
@@ -766,7 +766,7 @@ return promesa$protocols$IExecutor$_submit_BANG_$dyn_57479(_,task);
  */
 promesa.protocols.IScheduler = function(){};
 
-var promesa$protocols$IScheduler$_schedule_BANG_$dyn_57481 = (function (_,ms,func){
+var promesa$protocols$IScheduler$_schedule_BANG_$dyn_52242 = (function (_,ms,func){
 var x__5393__auto__ = (((_ == null))?null:_);
 var m__5394__auto__ = (promesa.protocols._schedule_BANG_[goog.typeOf(x__5393__auto__)]);
 if((!((m__5394__auto__ == null)))){
@@ -787,7 +787,7 @@ promesa.protocols._schedule_BANG_ = (function promesa$protocols$_schedule_BANG_(
 if((((!((_ == null)))) && ((!((_.promesa$protocols$IScheduler$_schedule_BANG_$arity$3 == null)))))){
 return _.promesa$protocols$IScheduler$_schedule_BANG_$arity$3(_,ms,func);
 } else {
-return promesa$protocols$IScheduler$_schedule_BANG_$dyn_57481(_,ms,func);
+return promesa$protocols$IScheduler$_schedule_BANG_$dyn_52242(_,ms,func);
 }
 });
 

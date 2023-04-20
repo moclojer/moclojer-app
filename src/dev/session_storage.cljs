@@ -1,4 +1,4 @@
-(ns front.dev.session-storage)
+(ns dev.session-storage)
 
 (defn set-item!
   [key val]

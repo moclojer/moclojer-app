@@ -3,21 +3,21 @@ lambdaisland.uri.uri_regex = /^(([^:\/?#]+):)?(\/\/([^\/?#]*))?([^?#]*)?(\?([^#]
 lambdaisland.uri.authority_regex = /^(([^:]*)(:(.*))?@)?([^:]*)(:(\d*))?$/;
 lambdaisland.uri.authority_string = (function lambdaisland$uri$authority_string(user,password,host,port){
 if(cljs.core.truth_(host)){
-var G__57150 = user;
-var G__57150__$1 = (cljs.core.truth_((function (){var and__5043__auto__ = user;
+var G__51668 = user;
+var G__51668__$1 = (cljs.core.truth_((function (){var and__5043__auto__ = user;
 if(cljs.core.truth_(and__5043__auto__)){
 return password;
 } else {
 return and__5043__auto__;
 }
-})())?[cljs.core.str.cljs$core$IFn$_invoke$arity$1(G__57150),":",cljs.core.str.cljs$core$IFn$_invoke$arity$1(password)].join(''):G__57150);
-var G__57150__$2 = (cljs.core.truth_(user)?[cljs.core.str.cljs$core$IFn$_invoke$arity$1(G__57150__$1),"@"].join(''):G__57150__$1);
-var G__57150__$3 = [cljs.core.str.cljs$core$IFn$_invoke$arity$1(G__57150__$2),cljs.core.str.cljs$core$IFn$_invoke$arity$1(host)].join('')
+})())?[cljs.core.str.cljs$core$IFn$_invoke$arity$1(G__51668),":",cljs.core.str.cljs$core$IFn$_invoke$arity$1(password)].join(''):G__51668);
+var G__51668__$2 = (cljs.core.truth_(user)?[cljs.core.str.cljs$core$IFn$_invoke$arity$1(G__51668__$1),"@"].join(''):G__51668__$1);
+var G__51668__$3 = [cljs.core.str.cljs$core$IFn$_invoke$arity$1(G__51668__$2),cljs.core.str.cljs$core$IFn$_invoke$arity$1(host)].join('')
 ;
 if(cljs.core.truth_(port)){
-return [G__57150__$3,":",cljs.core.str.cljs$core$IFn$_invoke$arity$1(port)].join('');
+return [G__51668__$3,":",cljs.core.str.cljs$core$IFn$_invoke$arity$1(port)].join('');
 } else {
-return G__57150__$3;
+return G__51668__$3;
 }
 } else {
 return null;
@@ -26,28 +26,28 @@ return null;
 /**
  * Convert the URI instance back to a string
  */
-lambdaisland.uri.uri_str = (function lambdaisland$uri$uri_str(p__57152){
-var map__57153 = p__57152;
-var map__57153__$1 = cljs.core.__destructure_map(map__57153);
-var scheme = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__57153__$1,new cljs.core.Keyword(null,"scheme","scheme",90199613));
-var user = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__57153__$1,new cljs.core.Keyword(null,"user","user",1532431356));
-var password = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__57153__$1,new cljs.core.Keyword(null,"password","password",417022471));
-var host = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__57153__$1,new cljs.core.Keyword(null,"host","host",-1558485167));
-var port = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__57153__$1,new cljs.core.Keyword(null,"port","port",1534937262));
-var path = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__57153__$1,new cljs.core.Keyword(null,"path","path",-188191168));
-var query = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__57153__$1,new cljs.core.Keyword(null,"query","query",-1288509510));
-var fragment = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__57153__$1,new cljs.core.Keyword(null,"fragment","fragment",826775688));
+lambdaisland.uri.uri_str = (function lambdaisland$uri$uri_str(p__51669){
+var map__51692 = p__51669;
+var map__51692__$1 = cljs.core.__destructure_map(map__51692);
+var scheme = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__51692__$1,new cljs.core.Keyword(null,"scheme","scheme",90199613));
+var user = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__51692__$1,new cljs.core.Keyword(null,"user","user",1532431356));
+var password = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__51692__$1,new cljs.core.Keyword(null,"password","password",417022471));
+var host = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__51692__$1,new cljs.core.Keyword(null,"host","host",-1558485167));
+var port = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__51692__$1,new cljs.core.Keyword(null,"port","port",1534937262));
+var path = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__51692__$1,new cljs.core.Keyword(null,"path","path",-188191168));
+var query = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__51692__$1,new cljs.core.Keyword(null,"query","query",-1288509510));
+var fragment = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__51692__$1,new cljs.core.Keyword(null,"fragment","fragment",826775688));
 var authority = lambdaisland.uri.authority_string(user,password,host,port);
-var G__57154 = "";
-var G__57154__$1 = (cljs.core.truth_(scheme)?[G__57154,cljs.core.str.cljs$core$IFn$_invoke$arity$1(scheme),":"].join(''):G__57154);
-var G__57154__$2 = (cljs.core.truth_(authority)?[G__57154__$1,"//",authority].join(''):G__57154__$1);
-var G__57154__$3 = [G__57154__$2,cljs.core.str.cljs$core$IFn$_invoke$arity$1(path)].join('')
+var G__51697 = "";
+var G__51697__$1 = (cljs.core.truth_(scheme)?[G__51697,cljs.core.str.cljs$core$IFn$_invoke$arity$1(scheme),":"].join(''):G__51697);
+var G__51697__$2 = (cljs.core.truth_(authority)?[G__51697__$1,"//",authority].join(''):G__51697__$1);
+var G__51697__$3 = [G__51697__$2,cljs.core.str.cljs$core$IFn$_invoke$arity$1(path)].join('')
 ;
-var G__57154__$4 = (cljs.core.truth_(query)?[G__57154__$3,"?",cljs.core.str.cljs$core$IFn$_invoke$arity$1(query)].join(''):G__57154__$3);
+var G__51697__$4 = (cljs.core.truth_(query)?[G__51697__$3,"?",cljs.core.str.cljs$core$IFn$_invoke$arity$1(query)].join(''):G__51697__$3);
 if(cljs.core.truth_(fragment)){
-return [G__57154__$4,"#",cljs.core.str.cljs$core$IFn$_invoke$arity$1(fragment)].join('');
+return [G__51697__$4,"#",cljs.core.str.cljs$core$IFn$_invoke$arity$1(fragment)].join('');
 } else {
-return G__57154__$4;
+return G__51697__$4;
 }
 });
 
@@ -97,12 +97,12 @@ var this__5343__auto____$1 = this;
 return this__5343__auto____$1.cljs$core$ILookup$_lookup$arity$3(null,k__5344__auto__,null);
 }));
 
-(lambdaisland.uri.URI.prototype.cljs$core$ILookup$_lookup$arity$3 = (function (this__5345__auto__,k57156,else__5346__auto__){
+(lambdaisland.uri.URI.prototype.cljs$core$ILookup$_lookup$arity$3 = (function (this__5345__auto__,k51706,else__5346__auto__){
 var self__ = this;
 var this__5345__auto____$1 = this;
-var G__57167 = k57156;
-var G__57167__$1 = (((G__57167 instanceof cljs.core.Keyword))?G__57167.fqn:null);
-switch (G__57167__$1) {
+var G__51752 = k51706;
+var G__51752__$1 = (((G__51752 instanceof cljs.core.Keyword))?G__51752.fqn:null);
+switch (G__51752__$1) {
 case "scheme":
 return self__.scheme;
 
@@ -136,7 +136,7 @@ return self__.fragment;
 
 break;
 default:
-return cljs.core.get.cljs$core$IFn$_invoke$arity$3(self__.__extmap,k57156,else__5346__auto__);
+return cljs.core.get.cljs$core$IFn$_invoke$arity$3(self__.__extmap,k51706,else__5346__auto__);
 
 }
 }));
@@ -144,10 +144,10 @@ return cljs.core.get.cljs$core$IFn$_invoke$arity$3(self__.__extmap,k57156,else__
 (lambdaisland.uri.URI.prototype.cljs$core$IKVReduce$_kv_reduce$arity$3 = (function (this__5363__auto__,f__5364__auto__,init__5365__auto__){
 var self__ = this;
 var this__5363__auto____$1 = this;
-return cljs.core.reduce.cljs$core$IFn$_invoke$arity$3((function (ret__5366__auto__,p__57193){
-var vec__57197 = p__57193;
-var k__5367__auto__ = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__57197,(0),null);
-var v__5368__auto__ = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__57197,(1),null);
+return cljs.core.reduce.cljs$core$IFn$_invoke$arity$3((function (ret__5366__auto__,p__51760){
+var vec__51761 = p__51760;
+var k__5367__auto__ = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__51761,(0),null);
+var v__5368__auto__ = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__51761,(1),null);
 return (f__5364__auto__.cljs$core$IFn$_invoke$arity$3 ? f__5364__auto__.cljs$core$IFn$_invoke$arity$3(ret__5366__auto__,k__5367__auto__,v__5368__auto__) : f__5364__auto__.call(null,ret__5366__auto__,k__5367__auto__,v__5368__auto__));
 }),init__5365__auto__,this__5363__auto____$1);
 }));
@@ -161,10 +161,10 @@ return cljs.core.pr_sequential_writer(writer__5359__auto__,cljs.core.pr_writer,"
 return cljs.core.pr_sequential_writer(writer__5359__auto__,pr_pair__5361__auto__,"#lambdaisland.uri.URI{",", ","}",opts__5360__auto__,cljs.core.concat.cljs$core$IFn$_invoke$arity$2(new cljs.core.PersistentVector(null, 8, 5, cljs.core.PersistentVector.EMPTY_NODE, [(new cljs.core.PersistentVector(null,2,(5),cljs.core.PersistentVector.EMPTY_NODE,[new cljs.core.Keyword(null,"scheme","scheme",90199613),self__.scheme],null)),(new cljs.core.PersistentVector(null,2,(5),cljs.core.PersistentVector.EMPTY_NODE,[new cljs.core.Keyword(null,"user","user",1532431356),self__.user],null)),(new cljs.core.PersistentVector(null,2,(5),cljs.core.PersistentVector.EMPTY_NODE,[new cljs.core.Keyword(null,"password","password",417022471),self__.password],null)),(new cljs.core.PersistentVector(null,2,(5),cljs.core.PersistentVector.EMPTY_NODE,[new cljs.core.Keyword(null,"host","host",-1558485167),self__.host],null)),(new cljs.core.PersistentVector(null,2,(5),cljs.core.PersistentVector.EMPTY_NODE,[new cljs.core.Keyword(null,"port","port",1534937262),self__.port],null)),(new cljs.core.PersistentVector(null,2,(5),cljs.core.PersistentVector.EMPTY_NODE,[new cljs.core.Keyword(null,"path","path",-188191168),self__.path],null)),(new cljs.core.PersistentVector(null,2,(5),cljs.core.PersistentVector.EMPTY_NODE,[new cljs.core.Keyword(null,"query","query",-1288509510),self__.query],null)),(new cljs.core.PersistentVector(null,2,(5),cljs.core.PersistentVector.EMPTY_NODE,[new cljs.core.Keyword(null,"fragment","fragment",826775688),self__.fragment],null))], null),self__.__extmap));
 }));
 
-(lambdaisland.uri.URI.prototype.cljs$core$IIterable$_iterator$arity$1 = (function (G__57155){
+(lambdaisland.uri.URI.prototype.cljs$core$IIterable$_iterator$arity$1 = (function (G__51705){
 var self__ = this;
-var G__57155__$1 = this;
-return (new cljs.core.RecordIter((0),G__57155__$1,8,new cljs.core.PersistentVector(null, 8, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"scheme","scheme",90199613),new cljs.core.Keyword(null,"user","user",1532431356),new cljs.core.Keyword(null,"password","password",417022471),new cljs.core.Keyword(null,"host","host",-1558485167),new cljs.core.Keyword(null,"port","port",1534937262),new cljs.core.Keyword(null,"path","path",-188191168),new cljs.core.Keyword(null,"query","query",-1288509510),new cljs.core.Keyword(null,"fragment","fragment",826775688)], null),(cljs.core.truth_(self__.__extmap)?cljs.core._iterator(self__.__extmap):cljs.core.nil_iter())));
+var G__51705__$1 = this;
+return (new cljs.core.RecordIter((0),G__51705__$1,8,new cljs.core.PersistentVector(null, 8, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"scheme","scheme",90199613),new cljs.core.Keyword(null,"user","user",1532431356),new cljs.core.Keyword(null,"password","password",417022471),new cljs.core.Keyword(null,"host","host",-1558485167),new cljs.core.Keyword(null,"port","port",1534937262),new cljs.core.Keyword(null,"path","path",-188191168),new cljs.core.Keyword(null,"query","query",-1288509510),new cljs.core.Keyword(null,"fragment","fragment",826775688)], null),(cljs.core.truth_(self__.__extmap)?cljs.core._iterator(self__.__extmap):cljs.core.nil_iter())));
 }));
 
 (lambdaisland.uri.URI.prototype.cljs$core$IMeta$_meta$arity$1 = (function (this__5341__auto__){
@@ -201,10 +201,10 @@ return h__5154__auto____$1;
 }
 }));
 
-(lambdaisland.uri.URI.prototype.cljs$core$IEquiv$_equiv$arity$2 = (function (this57157,other57158){
+(lambdaisland.uri.URI.prototype.cljs$core$IEquiv$_equiv$arity$2 = (function (this51707,other51708){
 var self__ = this;
-var this57157__$1 = this;
-return (((!((other57158 == null)))) && ((((this57157__$1.constructor === other57158.constructor)) && (((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(this57157__$1.scheme,other57158.scheme)) && (((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(this57157__$1.user,other57158.user)) && (((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(this57157__$1.password,other57158.password)) && (((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(this57157__$1.host,other57158.host)) && (((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(this57157__$1.port,other57158.port)) && (((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(this57157__$1.path,other57158.path)) && (((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(this57157__$1.query,other57158.query)) && (((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(this57157__$1.fragment,other57158.fragment)) && (cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(this57157__$1.__extmap,other57158.__extmap)))))))))))))))))))));
+var this51707__$1 = this;
+return (((!((other51708 == null)))) && ((((this51707__$1.constructor === other51708.constructor)) && (((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(this51707__$1.scheme,other51708.scheme)) && (((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(this51707__$1.user,other51708.user)) && (((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(this51707__$1.password,other51708.password)) && (((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(this51707__$1.host,other51708.host)) && (((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(this51707__$1.port,other51708.port)) && (((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(this51707__$1.path,other51708.path)) && (((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(this51707__$1.query,other51708.query)) && (((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(this51707__$1.fragment,other51708.fragment)) && (cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(this51707__$1.__extmap,other51708.__extmap)))))))))))))))))))));
 }));
 
 (lambdaisland.uri.URI.prototype.cljs$core$IMap$_dissoc$arity$2 = (function (this__5353__auto__,k__5354__auto__){
@@ -217,12 +217,12 @@ return (new lambdaisland.uri.URI(self__.scheme,self__.user,self__.password,self_
 }
 }));
 
-(lambdaisland.uri.URI.prototype.cljs$core$IAssociative$_contains_key_QMARK_$arity$2 = (function (this__5350__auto__,k57156){
+(lambdaisland.uri.URI.prototype.cljs$core$IAssociative$_contains_key_QMARK_$arity$2 = (function (this__5350__auto__,k51706){
 var self__ = this;
 var this__5350__auto____$1 = this;
-var G__57291 = k57156;
-var G__57291__$1 = (((G__57291 instanceof cljs.core.Keyword))?G__57291.fqn:null);
-switch (G__57291__$1) {
+var G__51814 = k51706;
+var G__51814__$1 = (((G__51814 instanceof cljs.core.Keyword))?G__51814.fqn:null);
+switch (G__51814__$1) {
 case "scheme":
 case "user":
 case "password":
@@ -235,41 +235,41 @@ return true;
 
 break;
 default:
-return cljs.core.contains_QMARK_(self__.__extmap,k57156);
+return cljs.core.contains_QMARK_(self__.__extmap,k51706);
 
 }
 }));
 
-(lambdaisland.uri.URI.prototype.cljs$core$IAssociative$_assoc$arity$3 = (function (this__5351__auto__,k__5352__auto__,G__57155){
+(lambdaisland.uri.URI.prototype.cljs$core$IAssociative$_assoc$arity$3 = (function (this__5351__auto__,k__5352__auto__,G__51705){
 var self__ = this;
 var this__5351__auto____$1 = this;
-var pred__57301 = cljs.core.keyword_identical_QMARK_;
-var expr__57302 = k__5352__auto__;
-if(cljs.core.truth_((pred__57301.cljs$core$IFn$_invoke$arity$2 ? pred__57301.cljs$core$IFn$_invoke$arity$2(new cljs.core.Keyword(null,"scheme","scheme",90199613),expr__57302) : pred__57301.call(null,new cljs.core.Keyword(null,"scheme","scheme",90199613),expr__57302)))){
-return (new lambdaisland.uri.URI(G__57155,self__.user,self__.password,self__.host,self__.port,self__.path,self__.query,self__.fragment,self__.__meta,self__.__extmap,null));
+var pred__51821 = cljs.core.keyword_identical_QMARK_;
+var expr__51822 = k__5352__auto__;
+if(cljs.core.truth_((pred__51821.cljs$core$IFn$_invoke$arity$2 ? pred__51821.cljs$core$IFn$_invoke$arity$2(new cljs.core.Keyword(null,"scheme","scheme",90199613),expr__51822) : pred__51821.call(null,new cljs.core.Keyword(null,"scheme","scheme",90199613),expr__51822)))){
+return (new lambdaisland.uri.URI(G__51705,self__.user,self__.password,self__.host,self__.port,self__.path,self__.query,self__.fragment,self__.__meta,self__.__extmap,null));
 } else {
-if(cljs.core.truth_((pred__57301.cljs$core$IFn$_invoke$arity$2 ? pred__57301.cljs$core$IFn$_invoke$arity$2(new cljs.core.Keyword(null,"user","user",1532431356),expr__57302) : pred__57301.call(null,new cljs.core.Keyword(null,"user","user",1532431356),expr__57302)))){
-return (new lambdaisland.uri.URI(self__.scheme,G__57155,self__.password,self__.host,self__.port,self__.path,self__.query,self__.fragment,self__.__meta,self__.__extmap,null));
+if(cljs.core.truth_((pred__51821.cljs$core$IFn$_invoke$arity$2 ? pred__51821.cljs$core$IFn$_invoke$arity$2(new cljs.core.Keyword(null,"user","user",1532431356),expr__51822) : pred__51821.call(null,new cljs.core.Keyword(null,"user","user",1532431356),expr__51822)))){
+return (new lambdaisland.uri.URI(self__.scheme,G__51705,self__.password,self__.host,self__.port,self__.path,self__.query,self__.fragment,self__.__meta,self__.__extmap,null));
 } else {
-if(cljs.core.truth_((pred__57301.cljs$core$IFn$_invoke$arity$2 ? pred__57301.cljs$core$IFn$_invoke$arity$2(new cljs.core.Keyword(null,"password","password",417022471),expr__57302) : pred__57301.call(null,new cljs.core.Keyword(null,"password","password",417022471),expr__57302)))){
-return (new lambdaisland.uri.URI(self__.scheme,self__.user,G__57155,self__.host,self__.port,self__.path,self__.query,self__.fragment,self__.__meta,self__.__extmap,null));
+if(cljs.core.truth_((pred__51821.cljs$core$IFn$_invoke$arity$2 ? pred__51821.cljs$core$IFn$_invoke$arity$2(new cljs.core.Keyword(null,"password","password",417022471),expr__51822) : pred__51821.call(null,new cljs.core.Keyword(null,"password","password",417022471),expr__51822)))){
+return (new lambdaisland.uri.URI(self__.scheme,self__.user,G__51705,self__.host,self__.port,self__.path,self__.query,self__.fragment,self__.__meta,self__.__extmap,null));
 } else {
-if(cljs.core.truth_((pred__57301.cljs$core$IFn$_invoke$arity$2 ? pred__57301.cljs$core$IFn$_invoke$arity$2(new cljs.core.Keyword(null,"host","host",-1558485167),expr__57302) : pred__57301.call(null,new cljs.core.Keyword(null,"host","host",-1558485167),expr__57302)))){
-return (new lambdaisland.uri.URI(self__.scheme,self__.user,self__.password,G__57155,self__.port,self__.path,self__.query,self__.fragment,self__.__meta,self__.__extmap,null));
+if(cljs.core.truth_((pred__51821.cljs$core$IFn$_invoke$arity$2 ? pred__51821.cljs$core$IFn$_invoke$arity$2(new cljs.core.Keyword(null,"host","host",-1558485167),expr__51822) : pred__51821.call(null,new cljs.core.Keyword(null,"host","host",-1558485167),expr__51822)))){
+return (new lambdaisland.uri.URI(self__.scheme,self__.user,self__.password,G__51705,self__.port,self__.path,self__.query,self__.fragment,self__.__meta,self__.__extmap,null));
 } else {
-if(cljs.core.truth_((pred__57301.cljs$core$IFn$_invoke$arity$2 ? pred__57301.cljs$core$IFn$_invoke$arity$2(new cljs.core.Keyword(null,"port","port",1534937262),expr__57302) : pred__57301.call(null,new cljs.core.Keyword(null,"port","port",1534937262),expr__57302)))){
-return (new lambdaisland.uri.URI(self__.scheme,self__.user,self__.password,self__.host,G__57155,self__.path,self__.query,self__.fragment,self__.__meta,self__.__extmap,null));
+if(cljs.core.truth_((pred__51821.cljs$core$IFn$_invoke$arity$2 ? pred__51821.cljs$core$IFn$_invoke$arity$2(new cljs.core.Keyword(null,"port","port",1534937262),expr__51822) : pred__51821.call(null,new cljs.core.Keyword(null,"port","port",1534937262),expr__51822)))){
+return (new lambdaisland.uri.URI(self__.scheme,self__.user,self__.password,self__.host,G__51705,self__.path,self__.query,self__.fragment,self__.__meta,self__.__extmap,null));
 } else {
-if(cljs.core.truth_((pred__57301.cljs$core$IFn$_invoke$arity$2 ? pred__57301.cljs$core$IFn$_invoke$arity$2(new cljs.core.Keyword(null,"path","path",-188191168),expr__57302) : pred__57301.call(null,new cljs.core.Keyword(null,"path","path",-188191168),expr__57302)))){
-return (new lambdaisland.uri.URI(self__.scheme,self__.user,self__.password,self__.host,self__.port,G__57155,self__.query,self__.fragment,self__.__meta,self__.__extmap,null));
+if(cljs.core.truth_((pred__51821.cljs$core$IFn$_invoke$arity$2 ? pred__51821.cljs$core$IFn$_invoke$arity$2(new cljs.core.Keyword(null,"path","path",-188191168),expr__51822) : pred__51821.call(null,new cljs.core.Keyword(null,"path","path",-188191168),expr__51822)))){
+return (new lambdaisland.uri.URI(self__.scheme,self__.user,self__.password,self__.host,self__.port,G__51705,self__.query,self__.fragment,self__.__meta,self__.__extmap,null));
 } else {
-if(cljs.core.truth_((pred__57301.cljs$core$IFn$_invoke$arity$2 ? pred__57301.cljs$core$IFn$_invoke$arity$2(new cljs.core.Keyword(null,"query","query",-1288509510),expr__57302) : pred__57301.call(null,new cljs.core.Keyword(null,"query","query",-1288509510),expr__57302)))){
-return (new lambdaisland.uri.URI(self__.scheme,self__.user,self__.password,self__.host,self__.port,self__.path,G__57155,self__.fragment,self__.__meta,self__.__extmap,null));
+if(cljs.core.truth_((pred__51821.cljs$core$IFn$_invoke$arity$2 ? pred__51821.cljs$core$IFn$_invoke$arity$2(new cljs.core.Keyword(null,"query","query",-1288509510),expr__51822) : pred__51821.call(null,new cljs.core.Keyword(null,"query","query",-1288509510),expr__51822)))){
+return (new lambdaisland.uri.URI(self__.scheme,self__.user,self__.password,self__.host,self__.port,self__.path,G__51705,self__.fragment,self__.__meta,self__.__extmap,null));
 } else {
-if(cljs.core.truth_((pred__57301.cljs$core$IFn$_invoke$arity$2 ? pred__57301.cljs$core$IFn$_invoke$arity$2(new cljs.core.Keyword(null,"fragment","fragment",826775688),expr__57302) : pred__57301.call(null,new cljs.core.Keyword(null,"fragment","fragment",826775688),expr__57302)))){
-return (new lambdaisland.uri.URI(self__.scheme,self__.user,self__.password,self__.host,self__.port,self__.path,self__.query,G__57155,self__.__meta,self__.__extmap,null));
+if(cljs.core.truth_((pred__51821.cljs$core$IFn$_invoke$arity$2 ? pred__51821.cljs$core$IFn$_invoke$arity$2(new cljs.core.Keyword(null,"fragment","fragment",826775688),expr__51822) : pred__51821.call(null,new cljs.core.Keyword(null,"fragment","fragment",826775688),expr__51822)))){
+return (new lambdaisland.uri.URI(self__.scheme,self__.user,self__.password,self__.host,self__.port,self__.path,self__.query,G__51705,self__.__meta,self__.__extmap,null));
 } else {
-return (new lambdaisland.uri.URI(self__.scheme,self__.user,self__.password,self__.host,self__.port,self__.path,self__.query,self__.fragment,self__.__meta,cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(self__.__extmap,k__5352__auto__,G__57155),null));
+return (new lambdaisland.uri.URI(self__.scheme,self__.user,self__.password,self__.host,self__.port,self__.path,self__.query,self__.fragment,self__.__meta,cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(self__.__extmap,k__5352__auto__,G__51705),null));
 }
 }
 }
@@ -286,10 +286,10 @@ var this__5356__auto____$1 = this;
 return cljs.core.seq(cljs.core.concat.cljs$core$IFn$_invoke$arity$2(new cljs.core.PersistentVector(null, 8, 5, cljs.core.PersistentVector.EMPTY_NODE, [(new cljs.core.MapEntry(new cljs.core.Keyword(null,"scheme","scheme",90199613),self__.scheme,null)),(new cljs.core.MapEntry(new cljs.core.Keyword(null,"user","user",1532431356),self__.user,null)),(new cljs.core.MapEntry(new cljs.core.Keyword(null,"password","password",417022471),self__.password,null)),(new cljs.core.MapEntry(new cljs.core.Keyword(null,"host","host",-1558485167),self__.host,null)),(new cljs.core.MapEntry(new cljs.core.Keyword(null,"port","port",1534937262),self__.port,null)),(new cljs.core.MapEntry(new cljs.core.Keyword(null,"path","path",-188191168),self__.path,null)),(new cljs.core.MapEntry(new cljs.core.Keyword(null,"query","query",-1288509510),self__.query,null)),(new cljs.core.MapEntry(new cljs.core.Keyword(null,"fragment","fragment",826775688),self__.fragment,null))], null),self__.__extmap));
 }));
 
-(lambdaisland.uri.URI.prototype.cljs$core$IWithMeta$_with_meta$arity$2 = (function (this__5342__auto__,G__57155){
+(lambdaisland.uri.URI.prototype.cljs$core$IWithMeta$_with_meta$arity$2 = (function (this__5342__auto__,G__51705){
 var self__ = this;
 var this__5342__auto____$1 = this;
-return (new lambdaisland.uri.URI(self__.scheme,self__.user,self__.password,self__.host,self__.port,self__.path,self__.query,self__.fragment,G__57155,self__.__extmap,self__.__hash));
+return (new lambdaisland.uri.URI(self__.scheme,self__.user,self__.password,self__.host,self__.port,self__.path,self__.query,self__.fragment,G__51705,self__.__extmap,self__.__hash));
 }));
 
 (lambdaisland.uri.URI.prototype.cljs$core$ICollection$_conj$arity$2 = (function (this__5348__auto__,entry__5349__auto__){
@@ -305,8 +305,8 @@ return cljs.core.reduce.cljs$core$IFn$_invoke$arity$3(cljs.core._conj,this__5348
 (lambdaisland.uri.URI.prototype.call = (function (unused__11783__auto__){
 var self__ = this;
 var self__ = this;
-var G__57307 = (arguments.length - (1));
-switch (G__57307) {
+var G__51838 = (arguments.length - (1));
+switch (G__51838) {
 case (1):
 return self__.cljs$core$IFn$_invoke$arity$1((arguments[(1)]));
 
@@ -317,10 +317,10 @@ throw (new Error(["Invalid arity: ",cljs.core.str.cljs$core$IFn$_invoke$arity$1(
 }
 }));
 
-(lambdaisland.uri.URI.prototype.apply = (function (self__,args57160){
+(lambdaisland.uri.URI.prototype.apply = (function (self__,args51750){
 var self__ = this;
 var self____$1 = this;
-return self____$1.call.apply(self____$1,[self____$1].concat(cljs.core.aclone(args57160)));
+return self____$1.call.apply(self____$1,[self____$1].concat(cljs.core.aclone(args51750)));
 }));
 
 (lambdaisland.uri.URI.prototype.cljs$core$IFn$_invoke$arity$1 = (function (kw){
@@ -353,61 +353,61 @@ return (new lambdaisland.uri.URI(scheme,user,password,host,port,path,query,fragm
 /**
  * Factory function for lambdaisland.uri/URI, taking a map of keywords to field values.
  */
-lambdaisland.uri.map__GT_URI = (function lambdaisland$uri$map__GT_URI(G__57159){
-var extmap__5385__auto__ = (function (){var G__57329 = cljs.core.dissoc.cljs$core$IFn$_invoke$arity$variadic(G__57159,new cljs.core.Keyword(null,"scheme","scheme",90199613),cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2([new cljs.core.Keyword(null,"user","user",1532431356),new cljs.core.Keyword(null,"password","password",417022471),new cljs.core.Keyword(null,"host","host",-1558485167),new cljs.core.Keyword(null,"port","port",1534937262),new cljs.core.Keyword(null,"path","path",-188191168),new cljs.core.Keyword(null,"query","query",-1288509510),new cljs.core.Keyword(null,"fragment","fragment",826775688)], 0));
-if(cljs.core.record_QMARK_(G__57159)){
-return cljs.core.into.cljs$core$IFn$_invoke$arity$2(cljs.core.PersistentArrayMap.EMPTY,G__57329);
+lambdaisland.uri.map__GT_URI = (function lambdaisland$uri$map__GT_URI(G__51712){
+var extmap__5385__auto__ = (function (){var G__51858 = cljs.core.dissoc.cljs$core$IFn$_invoke$arity$variadic(G__51712,new cljs.core.Keyword(null,"scheme","scheme",90199613),cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2([new cljs.core.Keyword(null,"user","user",1532431356),new cljs.core.Keyword(null,"password","password",417022471),new cljs.core.Keyword(null,"host","host",-1558485167),new cljs.core.Keyword(null,"port","port",1534937262),new cljs.core.Keyword(null,"path","path",-188191168),new cljs.core.Keyword(null,"query","query",-1288509510),new cljs.core.Keyword(null,"fragment","fragment",826775688)], 0));
+if(cljs.core.record_QMARK_(G__51712)){
+return cljs.core.into.cljs$core$IFn$_invoke$arity$2(cljs.core.PersistentArrayMap.EMPTY,G__51858);
 } else {
-return G__57329;
+return G__51858;
 }
 })();
-return (new lambdaisland.uri.URI(new cljs.core.Keyword(null,"scheme","scheme",90199613).cljs$core$IFn$_invoke$arity$1(G__57159),new cljs.core.Keyword(null,"user","user",1532431356).cljs$core$IFn$_invoke$arity$1(G__57159),new cljs.core.Keyword(null,"password","password",417022471).cljs$core$IFn$_invoke$arity$1(G__57159),new cljs.core.Keyword(null,"host","host",-1558485167).cljs$core$IFn$_invoke$arity$1(G__57159),new cljs.core.Keyword(null,"port","port",1534937262).cljs$core$IFn$_invoke$arity$1(G__57159),new cljs.core.Keyword(null,"path","path",-188191168).cljs$core$IFn$_invoke$arity$1(G__57159),new cljs.core.Keyword(null,"query","query",-1288509510).cljs$core$IFn$_invoke$arity$1(G__57159),new cljs.core.Keyword(null,"fragment","fragment",826775688).cljs$core$IFn$_invoke$arity$1(G__57159),null,cljs.core.not_empty(extmap__5385__auto__),null));
+return (new lambdaisland.uri.URI(new cljs.core.Keyword(null,"scheme","scheme",90199613).cljs$core$IFn$_invoke$arity$1(G__51712),new cljs.core.Keyword(null,"user","user",1532431356).cljs$core$IFn$_invoke$arity$1(G__51712),new cljs.core.Keyword(null,"password","password",417022471).cljs$core$IFn$_invoke$arity$1(G__51712),new cljs.core.Keyword(null,"host","host",-1558485167).cljs$core$IFn$_invoke$arity$1(G__51712),new cljs.core.Keyword(null,"port","port",1534937262).cljs$core$IFn$_invoke$arity$1(G__51712),new cljs.core.Keyword(null,"path","path",-188191168).cljs$core$IFn$_invoke$arity$1(G__51712),new cljs.core.Keyword(null,"query","query",-1288509510).cljs$core$IFn$_invoke$arity$1(G__51712),new cljs.core.Keyword(null,"fragment","fragment",826775688).cljs$core$IFn$_invoke$arity$1(G__51712),null,cljs.core.not_empty(extmap__5385__auto__),null));
 });
 
 lambdaisland.uri.match_uri = (function lambdaisland$uri$match_uri(uri){
 var matches = cljs.core.re_matches(lambdaisland.uri.uri_regex,uri);
-var vec__57339 = matches;
-var _ = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__57339,(0),null);
-var ___$1 = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__57339,(1),null);
-var scheme = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__57339,(2),null);
-var ___$2 = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__57339,(3),null);
-var authority = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__57339,(4),null);
-var path = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__57339,(5),null);
-var ___$3 = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__57339,(6),null);
-var query = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__57339,(7),null);
-var ___$4 = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__57339,(8),null);
-var fragment = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__57339,(9),null);
+var vec__51859 = matches;
+var _ = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__51859,(0),null);
+var ___$1 = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__51859,(1),null);
+var scheme = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__51859,(2),null);
+var ___$2 = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__51859,(3),null);
+var authority = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__51859,(4),null);
+var path = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__51859,(5),null);
+var ___$3 = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__51859,(6),null);
+var query = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__51859,(7),null);
+var ___$4 = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__51859,(8),null);
+var fragment = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__51859,(9),null);
 return new cljs.core.PersistentVector(null, 5, 5, cljs.core.PersistentVector.EMPTY_NODE, [scheme,authority,((cljs.core.seq(path))?path:null),query,fragment], null);
 });
 lambdaisland.uri.match_authority = (function lambdaisland$uri$match_authority(authority){
 var matches = cljs.core.re_matches(lambdaisland.uri.authority_regex,authority);
-var vec__57344 = matches;
-var _ = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__57344,(0),null);
-var ___$1 = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__57344,(1),null);
-var user = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__57344,(2),null);
-var ___$2 = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__57344,(3),null);
-var password = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__57344,(4),null);
-var host = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__57344,(5),null);
-var ___$3 = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__57344,(6),null);
-var port = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__57344,(7),null);
+var vec__51862 = matches;
+var _ = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__51862,(0),null);
+var ___$1 = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__51862,(1),null);
+var user = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__51862,(2),null);
+var ___$2 = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__51862,(3),null);
+var password = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__51862,(4),null);
+var host = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__51862,(5),null);
+var ___$3 = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__51862,(6),null);
+var port = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__51862,(7),null);
 return new cljs.core.PersistentVector(null, 4, 5, cljs.core.PersistentVector.EMPTY_NODE, [user,password,host,port], null);
 });
 /**
  * Parse a URI string into a lambadisland.uri.URI record.
  */
 lambdaisland.uri.parse = (function lambdaisland$uri$parse(uri){
-var vec__57356 = lambdaisland.uri.match_uri(uri);
-var scheme = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__57356,(0),null);
-var authority = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__57356,(1),null);
-var path = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__57356,(2),null);
-var query = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__57356,(3),null);
-var fragment = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__57356,(4),null);
+var vec__51865 = lambdaisland.uri.match_uri(uri);
+var scheme = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__51865,(0),null);
+var authority = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__51865,(1),null);
+var path = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__51865,(2),null);
+var query = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__51865,(3),null);
+var fragment = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__51865,(4),null);
 if(cljs.core.truth_(authority)){
-var vec__57359 = lambdaisland.uri.match_authority(authority);
-var user = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__57359,(0),null);
-var password = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__57359,(1),null);
-var host = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__57359,(2),null);
-var port = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__57359,(3),null);
+var vec__51868 = lambdaisland.uri.match_authority(authority);
+var user = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__51868,(0),null);
+var password = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__51868,(1),null);
+var host = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__51868,(2),null);
+var port = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__51868,(3),null);
 return (new lambdaisland.uri.URI(scheme,user,password,host,port,path,query,fragment,null,null,null));
 } else {
 return (new lambdaisland.uri.URI(scheme,null,null,null,null,path,query,fragment,null,null,null));
@@ -436,44 +436,44 @@ if(cljs.core.truth_(path)){
 var in$ = clojure.string.split.cljs$core$IFn$_invoke$arity$2(path,/(?=\/)/);
 var out = cljs.core.PersistentVector.EMPTY;
 while(true){
-var G__57373 = cljs.core.first(in$);
-if(cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2("/.",G__57373)){
+var G__51875 = cljs.core.first(in$);
+if(cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2("/.",G__51875)){
 if(cljs.core.next(in$)){
-var G__57572 = cljs.core.next(in$);
-var G__57573 = out;
-in$ = G__57572;
-out = G__57573;
+var G__52047 = cljs.core.next(in$);
+var G__52048 = out;
+in$ = G__52047;
+out = G__52048;
 continue;
 } else {
-var G__57574 = null;
-var G__57575 = cljs.core.conj.cljs$core$IFn$_invoke$arity$2(out,"/");
-in$ = G__57574;
-out = G__57575;
+var G__52049 = null;
+var G__52050 = cljs.core.conj.cljs$core$IFn$_invoke$arity$2(out,"/");
+in$ = G__52049;
+out = G__52050;
 continue;
 }
 } else {
-if(cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2("/..",G__57373)){
+if(cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2("/..",G__51875)){
 if(cljs.core.next(in$)){
-var G__57576 = cljs.core.next(in$);
-var G__57577 = cljs.core.vec(cljs.core.butlast(out));
-in$ = G__57576;
-out = G__57577;
+var G__52052 = cljs.core.next(in$);
+var G__52053 = cljs.core.vec(cljs.core.butlast(out));
+in$ = G__52052;
+out = G__52053;
 continue;
 } else {
-var G__57578 = null;
-var G__57579 = cljs.core.conj.cljs$core$IFn$_invoke$arity$2(cljs.core.vec(cljs.core.butlast(out)),"/");
-in$ = G__57578;
-out = G__57579;
+var G__52055 = null;
+var G__52056 = cljs.core.conj.cljs$core$IFn$_invoke$arity$2(cljs.core.vec(cljs.core.butlast(out)),"/");
+in$ = G__52055;
+out = G__52056;
 continue;
 }
 } else {
-if(cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(null,G__57373)){
+if(cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(null,G__51875)){
 return clojure.string.join.cljs$core$IFn$_invoke$arity$1(out);
 } else {
-var G__57580 = cljs.core.next(in$);
-var G__57581 = cljs.core.conj.cljs$core$IFn$_invoke$arity$2(out,cljs.core.first(in$));
-in$ = G__57580;
-out = G__57581;
+var G__52057 = cljs.core.next(in$);
+var G__52058 = cljs.core.conj.cljs$core$IFn$_invoke$arity$2(out,cljs.core.first(in$));
+in$ = G__52057;
+out = G__52058;
 continue;
 
 }
@@ -512,14 +512,14 @@ return cljs.core.assoc.cljs$core$IFn$_invoke$arity$3((cljs.core.truth_(new cljs.
  */
 lambdaisland.uri.join = (function lambdaisland$uri$join(var_args){
 var args__5775__auto__ = [];
-var len__5769__auto___57703 = arguments.length;
-var i__5770__auto___57710 = (0);
+var len__5769__auto___52069 = arguments.length;
+var i__5770__auto___52070 = (0);
 while(true){
-if((i__5770__auto___57710 < len__5769__auto___57703)){
-args__5775__auto__.push((arguments[i__5770__auto___57710]));
+if((i__5770__auto___52070 < len__5769__auto___52069)){
+args__5775__auto__.push((arguments[i__5770__auto___52070]));
 
-var G__57711 = (i__5770__auto___57710 + (1));
-i__5770__auto___57710 = G__57711;
+var G__52071 = (i__5770__auto___52070 + (1));
+i__5770__auto___52070 = G__52071;
 continue;
 } else {
 }
@@ -537,15 +537,15 @@ return cljs.core.reduce.cljs$core$IFn$_invoke$arity$2(lambdaisland.uri.join_STAR
 (lambdaisland.uri.join.cljs$lang$maxFixedArity = (0));
 
 /** @this {Function} */
-(lambdaisland.uri.join.cljs$lang$applyTo = (function (seq57386){
+(lambdaisland.uri.join.cljs$lang$applyTo = (function (seq51898){
 var self__5755__auto__ = this;
-return self__5755__auto__.cljs$core$IFn$_invoke$arity$variadic(cljs.core.seq(seq57386));
+return self__5755__auto__.cljs$core$IFn$_invoke$arity$variadic(cljs.core.seq(seq51898));
 }));
 
 lambdaisland.uri.decode_param_pair = (function lambdaisland$uri$decode_param_pair(param){
-var vec__57388 = clojure.string.split.cljs$core$IFn$_invoke$arity$2(param,/=/);
-var k = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__57388,(0),null);
-var v = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__57388,(1),null);
+var vec__51899 = clojure.string.split.cljs$core$IFn$_invoke$arity$2(param,/=/);
+var k = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__51899,(0),null);
+var v = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__51899,(1),null);
 return new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [(cljs.core.truth_(k)?lambdaisland.uri.normalize.percent_decode(k):""),(cljs.core.truth_(v)?lambdaisland.uri.normalize.percent_decode(clojure.string.replace(v,/\+/," ")):"")], null);
 });
 /**
@@ -566,8 +566,8 @@ return new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMP
  *  string otherwise
  */
 lambdaisland.uri.query_string__GT_map = (function lambdaisland$uri$query_string__GT_map(var_args){
-var G__57403 = arguments.length;
-switch (G__57403) {
+var G__51904 = arguments.length;
+switch (G__51904) {
 case 1:
 return lambdaisland.uri.query_string__GT_map.cljs$core$IFn$_invoke$arity$1((arguments[(0)]));
 
@@ -586,20 +586,20 @@ throw (new Error(["Invalid arity: ",cljs.core.str.cljs$core$IFn$_invoke$arity$1(
 return lambdaisland.uri.query_string__GT_map.cljs$core$IFn$_invoke$arity$2(q,null);
 }));
 
-(lambdaisland.uri.query_string__GT_map.cljs$core$IFn$_invoke$arity$2 = (function (q,p__57407){
-var map__57408 = p__57407;
-var map__57408__$1 = cljs.core.__destructure_map(map__57408);
-var multikeys = cljs.core.get.cljs$core$IFn$_invoke$arity$3(map__57408__$1,new cljs.core.Keyword(null,"multikeys","multikeys",-695183366),new cljs.core.Keyword(null,"duplicates","duplicates",1265485699));
-var keywordize_QMARK_ = cljs.core.get.cljs$core$IFn$_invoke$arity$3(map__57408__$1,new cljs.core.Keyword(null,"keywordize?","keywordize?",-234306912),true);
+(lambdaisland.uri.query_string__GT_map.cljs$core$IFn$_invoke$arity$2 = (function (q,p__51906){
+var map__51907 = p__51906;
+var map__51907__$1 = cljs.core.__destructure_map(map__51907);
+var multikeys = cljs.core.get.cljs$core$IFn$_invoke$arity$3(map__51907__$1,new cljs.core.Keyword(null,"multikeys","multikeys",-695183366),new cljs.core.Keyword(null,"duplicates","duplicates",1265485699));
+var keywordize_QMARK_ = cljs.core.get.cljs$core$IFn$_invoke$arity$3(map__51907__$1,new cljs.core.Keyword(null,"keywordize?","keywordize?",-234306912),true);
 if((!(clojure.string.blank_QMARK_(q)))){
-return cljs.core.reduce.cljs$core$IFn$_invoke$arity$3((function (m,p__57412){
-var vec__57413 = p__57412;
-var k = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__57413,(0),null);
-var v = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__57413,(1),null);
+return cljs.core.reduce.cljs$core$IFn$_invoke$arity$3((function (m,p__51911){
+var vec__51913 = p__51911;
+var k = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__51913,(0),null);
+var v = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__51913,(1),null);
 var k__$1 = (cljs.core.truth_(keywordize_QMARK_)?cljs.core.keyword.cljs$core$IFn$_invoke$arity$1(k):k);
-var G__57418 = multikeys;
-var G__57418__$1 = (((G__57418 instanceof cljs.core.Keyword))?G__57418.fqn:null);
-switch (G__57418__$1) {
+var G__51916 = multikeys;
+var G__51916__$1 = (((G__51916 instanceof cljs.core.Keyword))?G__51916.fqn:null);
+switch (G__51916__$1) {
 case "never":
 return cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(m,k__$1,v);
 
@@ -625,7 +625,7 @@ return cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(m,k__$1,v);
 
 break;
 default:
-throw (new Error(["No matching clause: ",cljs.core.str.cljs$core$IFn$_invoke$arity$1(G__57418__$1)].join('')));
+throw (new Error(["No matching clause: ",cljs.core.str.cljs$core$IFn$_invoke$arity$1(G__51916__$1)].join('')));
 
 }
 }),cljs.core.PersistentArrayMap.EMPTY,cljs.core.map.cljs$core$IFn$_invoke$arity$2(lambdaisland.uri.decode_param_pair,clojure.string.split.cljs$core$IFn$_invoke$arity$2(q,/&/)));
@@ -641,8 +641,8 @@ return null;
  *   with [[uri]]. Takes an options map, see [[query-string->map]] for options.
  */
 lambdaisland.uri.query_map = (function lambdaisland$uri$query_map(var_args){
-var G__57421 = arguments.length;
-switch (G__57421) {
+var G__51940 = arguments.length;
+switch (G__51940) {
 case 1:
 return lambdaisland.uri.query_map.cljs$core$IFn$_invoke$arity$1((arguments[(0)]));
 
@@ -672,14 +672,14 @@ return lambdaisland.uri.query_string__GT_map.cljs$core$IFn$_invoke$arity$2(lambd
  *   reserved in query strings only. Encodes spaces as +.
  */
 lambdaisland.uri.query_encode = (function lambdaisland$uri$query_encode(s){
-var encode_char = (function (p1__57427_SHARP_){
-if(cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(" ",p1__57427_SHARP_)){
+var encode_char = (function (p1__51941_SHARP_){
+if(cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(" ",p1__51941_SHARP_)){
 return "+";
 } else {
-if(cljs.core.truth_(cljs.core.re_find(/[^a-zA-Z0-9\-\._~@\\/]/,p1__57427_SHARP_))){
-return lambdaisland.uri.normalize.percent_encode.cljs$core$IFn$_invoke$arity$1(p1__57427_SHARP_);
+if(cljs.core.truth_(cljs.core.re_find(/[^a-zA-Z0-9\-\._~@\\/]/,p1__51941_SHARP_))){
+return lambdaisland.uri.normalize.percent_encode.cljs$core$IFn$_invoke$arity$1(p1__51941_SHARP_);
 } else {
-return p1__57427_SHARP_;
+return p1__51941_SHARP_;
 
 }
 }
@@ -698,10 +698,10 @@ return [cljs.core.str.cljs$core$IFn$_invoke$arity$1(lambdaisland.uri.query_encod
  */
 lambdaisland.uri.map__GT_query_string = (function lambdaisland$uri$map__GT_query_string(m){
 if(cljs.core.seq(m)){
-return cljs.core.apply.cljs$core$IFn$_invoke$arity$2(cljs.core.str,cljs.core.interpose.cljs$core$IFn$_invoke$arity$2("&",cljs.core.mapcat.cljs$core$IFn$_invoke$arity$variadic((function (p__57467){
-var vec__57468 = p__57467;
-var k = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__57468,(0),null);
-var v = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__57468,(1),null);
+return cljs.core.apply.cljs$core$IFn$_invoke$arity$2(cljs.core.str,cljs.core.interpose.cljs$core$IFn$_invoke$arity$2("&",cljs.core.mapcat.cljs$core$IFn$_invoke$arity$variadic((function (p__51945){
+var vec__51947 = p__51945;
+var k = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__51947,(0),null);
+var v = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__51947,(1),null);
 if((v == null)){
 return cljs.core.PersistentVector.EMPTY;
 } else {
@@ -734,14 +734,14 @@ return cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(u__$1,new cljs.core.Keyword
  */
 lambdaisland.uri.assoc_query = (function lambdaisland$uri$assoc_query(var_args){
 var args__5775__auto__ = [];
-var len__5769__auto___57778 = arguments.length;
-var i__5770__auto___57779 = (0);
+var len__5769__auto___52086 = arguments.length;
+var i__5770__auto___52087 = (0);
 while(true){
-if((i__5770__auto___57779 < len__5769__auto___57778)){
-args__5775__auto__.push((arguments[i__5770__auto___57779]));
+if((i__5770__auto___52087 < len__5769__auto___52086)){
+args__5775__auto__.push((arguments[i__5770__auto___52087]));
 
-var G__57780 = (i__5770__auto___57779 + (1));
-i__5770__auto___57779 = G__57780;
+var G__52088 = (i__5770__auto___52087 + (1));
+i__5770__auto___52087 = G__52088;
 continue;
 } else {
 }
@@ -752,21 +752,21 @@ var argseq__5776__auto__ = ((((1) < args__5775__auto__.length))?(new cljs.core.I
 return lambdaisland.uri.assoc_query.cljs$core$IFn$_invoke$arity$variadic((arguments[(0)]),argseq__5776__auto__);
 });
 
-(lambdaisland.uri.assoc_query.cljs$core$IFn$_invoke$arity$variadic = (function (u,p__57477){
-var map__57478 = p__57477;
-var map__57478__$1 = cljs.core.__destructure_map(map__57478);
-var kvs = map__57478__$1;
+(lambdaisland.uri.assoc_query.cljs$core$IFn$_invoke$arity$variadic = (function (u,p__51964){
+var map__51965 = p__51964;
+var map__51965__$1 = cljs.core.__destructure_map(map__51965);
+var kvs = map__51965__$1;
 return lambdaisland.uri.assoc_query_STAR_(u,kvs);
 }));
 
 (lambdaisland.uri.assoc_query.cljs$lang$maxFixedArity = (1));
 
 /** @this {Function} */
-(lambdaisland.uri.assoc_query.cljs$lang$applyTo = (function (seq57473){
-var G__57474 = cljs.core.first(seq57473);
-var seq57473__$1 = cljs.core.next(seq57473);
+(lambdaisland.uri.assoc_query.cljs$lang$applyTo = (function (seq51958){
+var G__51959 = cljs.core.first(seq51958);
+var seq51958__$1 = cljs.core.next(seq51958);
 var self__5754__auto__ = this;
-return self__5754__auto__.cljs$core$IFn$_invoke$arity$variadic(G__57474,seq57473__$1);
+return self__5754__auto__.cljs$core$IFn$_invoke$arity$variadic(G__51959,seq51958__$1);
 }));
 
 /**

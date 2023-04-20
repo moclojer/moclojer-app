@@ -6,7 +6,7 @@ return helix.experimental.refresh.refresh_BANG_();
 dev.refresh.clear_cache_and_render_BANG_ = (function dev$refresh$clear_cache_and_render_BANG_(){
 refx.alpha.clear_subscription_cache_BANG_();
 
-return app.core.render();
+return front.app.core.render();
 });
 
 //# sourceMappingURL=dev.refresh.js.map

@@ -10,9 +10,9 @@ return null;
 }
 });
 front.dev.core.init = (function front$dev$core$init(){
-return promesa.protocols._bind(promesa.protocols._promise(null),(function (___32147__auto__){
-return promesa.protocols._bind(promesa.protocols._promise(front.dev.msw.core.init_BANG_()),(function (___32146__auto__){
-return promesa.protocols._bind(promesa.protocols._promise(front.dev.core.dev_setup()),(function (___32146__auto____$1){
+return promesa.protocols._bind(promesa.protocols._promise(null),(function (___25326__auto__){
+return promesa.protocols._bind(promesa.protocols._promise(front.dev.msw.core.init_BANG_()),(function (___25325__auto__){
+return promesa.protocols._bind(promesa.protocols._promise(front.dev.core.dev_setup()),(function (___25325__auto____$1){
 return promesa.protocols._promise(front.app.core.init());
 }));
 }));

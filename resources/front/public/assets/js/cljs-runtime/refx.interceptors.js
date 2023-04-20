@@ -10,14 +10,14 @@ var new_db = refx.interceptor.get_effect.cljs$core$IFn$_invoke$arity$3(context,n
 if(cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(new_db,new cljs.core.Keyword("refx.interceptors","not-found","refx.interceptors/not-found",174991419))){
 refx.log.info.cljs$core$IFn$_invoke$arity$variadic(cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2(["No app-db changes in:",event], 0));
 } else {
-var vec__28510_28597 = clojure.data.diff(orig_db,new_db);
-var only_before_28598 = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__28510_28597,(0),null);
-var only_after_28599 = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__28510_28597,(1),null);
-var db_changed_QMARK__28600 = (((!((only_before_28598 == null)))) || ((!((only_after_28599 == null)))));
-if(db_changed_QMARK__28600){
-refx.log.info.cljs$core$IFn$_invoke$arity$variadic(cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2(["only before:",only_before_28598], 0));
+var vec__22279_22350 = clojure.data.diff(orig_db,new_db);
+var only_before_22351 = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__22279_22350,(0),null);
+var only_after_22352 = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__22279_22350,(1),null);
+var db_changed_QMARK__22353 = (((!((only_before_22351 == null)))) || ((!((only_after_22352 == null)))));
+if(db_changed_QMARK__22353){
+refx.log.info.cljs$core$IFn$_invoke$arity$variadic(cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2(["only before:",only_before_22351], 0));
 
-refx.log.info.cljs$core$IFn$_invoke$arity$variadic(cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2(["only after :",only_after_28599], 0));
+refx.log.info.cljs$core$IFn$_invoke$arity$variadic(cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2(["only after :",only_after_22352], 0));
 } else {
 refx.log.info.cljs$core$IFn$_invoke$arity$variadic(cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2(["No app-db changes resulted from:",event], 0));
 }
@@ -26,10 +26,10 @@ refx.log.info.cljs$core$IFn$_invoke$arity$variadic(cljs.core.prim_seq.cljs$core$
 return context;
 })], 0));
 refx.interceptors.unwrap = refx.interceptor.__GT_interceptor.cljs$core$IFn$_invoke$arity$variadic(cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2([new cljs.core.Keyword(null,"id","id",-1388402092),new cljs.core.Keyword(null,"unwrap","unwrap",-1399175462),new cljs.core.Keyword(null,"before","before",-1633692388),(function refx$interceptors$unwrap_before(context){
-var vec__28513 = refx.interceptor.get_coeffect.cljs$core$IFn$_invoke$arity$2(context,new cljs.core.Keyword(null,"event","event",301435442));
-var _ = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__28513,(0),null);
-var payload = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__28513,(1),null);
-var event = vec__28513;
+var vec__22291 = refx.interceptor.get_coeffect.cljs$core$IFn$_invoke$arity$2(context,new cljs.core.Keyword(null,"event","event",301435442));
+var _ = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__22291,(0),null);
+var payload = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__22291,(1),null);
+var event = vec__22291;
 if((!(((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2((2),cljs.core.count(event))) && (cljs.core.map_QMARK_(payload)))))){
 refx.log.warn.cljs$core$IFn$_invoke$arity$variadic(cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2(["\"unwrap\" interceptor requires event to be a 2-vector of [event-id payload-map]. Got ",event], 0));
 
@@ -53,14 +53,14 @@ return refx.interceptor.assoc_coeffect(context,new cljs.core.Keyword(null,"event
 })], 0));
 refx.interceptors.path = (function refx$interceptors$path(var_args){
 var args__5775__auto__ = [];
-var len__5769__auto___28665 = arguments.length;
-var i__5770__auto___28666 = (0);
+var len__5769__auto___22365 = arguments.length;
+var i__5770__auto___22366 = (0);
 while(true){
-if((i__5770__auto___28666 < len__5769__auto___28665)){
-args__5775__auto__.push((arguments[i__5770__auto___28666]));
+if((i__5770__auto___22366 < len__5769__auto___22365)){
+args__5775__auto__.push((arguments[i__5770__auto___22366]));
 
-var G__28667 = (i__5770__auto___28666 + (1));
-i__5770__auto___28666 = G__28667;
+var G__22368 = (i__5770__auto___22366 + (1));
+i__5770__auto___22366 = G__22368;
 continue;
 } else {
 }
@@ -98,9 +98,9 @@ return refx.interceptor.assoc_effect(context_SINGLEQUOTE_,new cljs.core.Keyword(
 (refx.interceptors.path.cljs$lang$maxFixedArity = (0));
 
 /** @this {Function} */
-(refx.interceptors.path.cljs$lang$applyTo = (function (seq28518){
+(refx.interceptors.path.cljs$lang$applyTo = (function (seq22302){
 var self__5755__auto__ = this;
-return self__5755__auto__.cljs$core$IFn$_invoke$arity$variadic(cljs.core.seq(seq28518));
+return self__5755__auto__.cljs$core$IFn$_invoke$arity$variadic(cljs.core.seq(seq22302));
 }));
 
 refx.interceptors.enrich = (function refx$interceptors$enrich(f){
@@ -128,14 +128,14 @@ return context;
 });
 refx.interceptors.on_changes = (function refx$interceptors$on_changes(var_args){
 var args__5775__auto__ = [];
-var len__5769__auto___28672 = arguments.length;
-var i__5770__auto___28673 = (0);
+var len__5769__auto___22382 = arguments.length;
+var i__5770__auto___22383 = (0);
 while(true){
-if((i__5770__auto___28673 < len__5769__auto___28672)){
-args__5775__auto__.push((arguments[i__5770__auto___28673]));
+if((i__5770__auto___22383 < len__5769__auto___22382)){
+args__5775__auto__.push((arguments[i__5770__auto___22383]));
 
-var G__28674 = (i__5770__auto___28673 + (1));
-i__5770__auto___28673 = G__28674;
+var G__22384 = (i__5770__auto___22383 + (1));
+i__5770__auto___22383 = G__22384;
 continue;
 } else {
 }
@@ -150,11 +150,11 @@ return refx.interceptors.on_changes.cljs$core$IFn$_invoke$arity$variadic((argume
 return refx.interceptor.__GT_interceptor.cljs$core$IFn$_invoke$arity$variadic(cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2([new cljs.core.Keyword(null,"id","id",-1388402092),new cljs.core.Keyword(null,"on-changes","on-changes",1345912602),new cljs.core.Keyword(null,"after","after",594996914),(function refx$interceptors$on_change_after(context){
 var new_db = refx.interceptor.get_effect.cljs$core$IFn$_invoke$arity$2(context,new cljs.core.Keyword(null,"db","db",993250759));
 var old_db = refx.interceptor.get_coeffect.cljs$core$IFn$_invoke$arity$2(context,new cljs.core.Keyword(null,"db","db",993250759));
-var new_ins = cljs.core.map.cljs$core$IFn$_invoke$arity$2((function (p1__28536_SHARP_){
-return cljs.core.get_in.cljs$core$IFn$_invoke$arity$2(new_db,p1__28536_SHARP_);
+var new_ins = cljs.core.map.cljs$core$IFn$_invoke$arity$2((function (p1__22325_SHARP_){
+return cljs.core.get_in.cljs$core$IFn$_invoke$arity$2(new_db,p1__22325_SHARP_);
 }),in_paths);
-var old_ins = cljs.core.map.cljs$core$IFn$_invoke$arity$2((function (p1__28537_SHARP_){
-return cljs.core.get_in.cljs$core$IFn$_invoke$arity$2(old_db,p1__28537_SHARP_);
+var old_ins = cljs.core.map.cljs$core$IFn$_invoke$arity$2((function (p1__22326_SHARP_){
+return cljs.core.get_in.cljs$core$IFn$_invoke$arity$2(old_db,p1__22326_SHARP_);
 }),in_paths);
 var changed_ins_QMARK_ = (function (){var and__5043__auto__ = cljs.core.contains_QMARK_(refx.interceptor.get_effect.cljs$core$IFn$_invoke$arity$1(context),new cljs.core.Keyword(null,"db","db",993250759));
 if(and__5043__auto__){
@@ -174,13 +174,13 @@ return context;
 (refx.interceptors.on_changes.cljs$lang$maxFixedArity = (2));
 
 /** @this {Function} */
-(refx.interceptors.on_changes.cljs$lang$applyTo = (function (seq28538){
-var G__28539 = cljs.core.first(seq28538);
-var seq28538__$1 = cljs.core.next(seq28538);
-var G__28540 = cljs.core.first(seq28538__$1);
-var seq28538__$2 = cljs.core.next(seq28538__$1);
+(refx.interceptors.on_changes.cljs$lang$applyTo = (function (seq22328){
+var G__22329 = cljs.core.first(seq22328);
+var seq22328__$1 = cljs.core.next(seq22328);
+var G__22330 = cljs.core.first(seq22328__$1);
+var seq22328__$2 = cljs.core.next(seq22328__$1);
 var self__5754__auto__ = this;
-return self__5754__auto__.cljs$core$IFn$_invoke$arity$variadic(G__28539,G__28540,seq28538__$2);
+return self__5754__auto__.cljs$core$IFn$_invoke$arity$variadic(G__22329,G__22330,seq22328__$2);
 }));
 
 if((typeof refx !== 'undefined') && (typeof refx.interceptors !== 'undefined') && (typeof refx.interceptors.global_interceptors !== 'undefined')){
@@ -193,8 +193,8 @@ refx.interceptors.global_interceptors = cljs.core.atom.cljs$core$IFn$_invoke$ari
  * NOTE: :queue is a Clojure.lang.PersistentQueue and not a vector.
  */
 refx.interceptors.inject_global_interceptors = refx.interceptor.__GT_interceptor.cljs$core$IFn$_invoke$arity$variadic(cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2([new cljs.core.Keyword(null,"id","id",-1388402092),new cljs.core.Keyword(null,"inject-global-interceptors","inject-global-interceptors",-2144129737),new cljs.core.Keyword(null,"before","before",-1633692388),(function refx$interceptors$inject_global_interceptors_before(context){
-return cljs.core.update.cljs$core$IFn$_invoke$arity$3(context,new cljs.core.Keyword(null,"queue","queue",1455835879),(function (p1__28584_SHARP_){
-return cljs.core.into.cljs$core$IFn$_invoke$arity$2(cljs.core.deref(refx.interceptors.global_interceptors),p1__28584_SHARP_);
+return cljs.core.update.cljs$core$IFn$_invoke$arity$3(context,new cljs.core.Keyword(null,"queue","queue",1455835879),(function (p1__22346_SHARP_){
+return cljs.core.into.cljs$core$IFn$_invoke$arity$2(cljs.core.deref(refx.interceptors.global_interceptors),p1__22346_SHARP_);
 }));
 })], 0));
 
