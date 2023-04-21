@@ -1,1 +1,2 @@
-{:hooks {:analyze-call {app.lib/defnc clj-kondo.lilactown.helix/defnc}}}
+{:hooks {:analyze-call 
+         {front.app.lib/defnc clj-kondo.lilactown.helix/defnc}}}
