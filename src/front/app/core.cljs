@@ -43,6 +43,8 @@
    ($ dashboard/Aside)
    ($ Main)))
 
+(defnc rounting [])
+
 (defnc landing-screen [{:keys [user]}]
   (let [current-route (refx/use-sub [:app.routes/current-route])
         route-data (:data current-route)]
