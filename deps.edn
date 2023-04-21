@@ -40,23 +40,28 @@
    :extra-deps {cider/cider-nrepl {:mvn/version "0.28.6"}
                 thheller/shadow-cljs {:mvn/version "2.20.10"}}}
   ;; backend
-  :back-test {:extra-paths ["test/back"]
-              :extra-deps  {org.clojars.bigsy/pg-embedded-clj {:mvn/version "1.0.0"}
-                            lambdaisland/kaocha {:mvn/version "1.70.1086"}
-                            lambdaisland/kaocha-cloverage {:mvn/version "1.0.75"}
-                            nubank/matcher-combinators {:mvn/version "3.5.1"}
-                            nubank/state-flow {:mvn/version "5.14.2"}}
-              :main-opts   ["-m" "kaocha.runner"]}
-  :back-clojure-lsp {:replace-deps {com.github.clojure-lsp/clojure-lsp-standalone {:mvn/version "2022.09.01-15.27.31"}}
-                     :main-opts ["-m" "clojure-lsp.main"]}
-  
-  :back-migratus {:main-opts ["-m" "components.migrations"]}
-
-  :back-uberjar {:replace-deps {com.github.seancorfield/depstar {:mvn/version "2.1.303"}}
-                 :exec-fn hf.depstar/uberjar
-                 :exec-args {:jar "back.jar"
-                             :aot true
-                             :main-class api.server}}
-
-  :back-nrepl {:extra-deps {cider/cider-nrepl {:mvn/version "0.28.6"}}
-               :main-opts ["-m" "nrepl.cmdline" "--middleware" "[cider.nrepl/cider-middleware]"]}}}
+  ;; clj -M:test
+  :test {:extra-paths ["test/back"]
+         :extra-deps  {org.clojars.bigsy/pg-embedded-clj {:mvn/version "1.0.0"}
+                       lambdaisland/kaocha {:mvn/version "1.70.1086"}
+                       lambdaisland/kaocha-cloverage {:mvn/version "1.0.75"}
+                       nubank/matcher-combinators {:mvn/version "3.5.1"}
+                       nubank/state-flow {:mvn/version "5.14.2"}}
+         :main-opts   ["-m" "kaocha.runner"]}
+  ;; clj -M:clojure-lsp
+  :clojure-lsp {:replace-deps {com.github.clojure-lsp/clojure-lsp-standalone {:mvn/version "2022.09.01-15.27.31"}}
+                :main-opts ["-m" "clojure-lsp.main"]}
+  ;; clj -M:migratus
+  :migratus {:main-opts ["-m" "back.components.migrations"]}
+  ;; clj -X:run
+  :run {:main-opts ["-m" "back.api.server"]
+        :exec-fn back.api.server/-main}
+  ;; clj -X:back-uberjar
+  :uberjar {:replace-deps {com.github.seancorfield/depstar {:mvn/version "2.1.303"}}
+            :exec-fn hf.depstar/uberjar
+            :exec-args {:jar "back.jar"
+                        :aot true
+                        :main-class back.api.server}}
+  ;; clj -M:back-nrepl
+  :nrepl {:extra-deps {cider/cider-nrepl {:mvn/version "0.28.6"}}
+          :main-opts ["-m" "nrepl.cmdline" "--middleware" "[cider.nrepl/cider-middleware]"]}}}

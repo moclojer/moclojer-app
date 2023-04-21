@@ -1,1 +1,0 @@
-{"version":3,"sources":["app/routes/subs.cljs"],"mappings":";AAIA,iDAAA,jDAACA,yIAEA,WAAKC;AAAL,AACE,OAAA,qGAAgBA","names":["refx.alpha.reg_sub","db"],"sourcesContent":["(ns app.routes.subs \n  (:require\n    [refx.alpha :as refx]))\n\n(refx/reg-sub\n :app.route/current-route\n (fn [db]\n   (:current-route db)))\n"]}
