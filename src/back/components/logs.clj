@@ -1,4 +1,4 @@
-(ns components.logs
+(ns back.components.logs
   (:require [taoensso.timbre :as timbre]
             [taoensso.timbre.appenders.core :as core-appenders]))
 

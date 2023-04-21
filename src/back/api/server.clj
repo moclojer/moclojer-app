@@ -1,12 +1,12 @@
-(ns api.server
+(ns back.api.server
   (:require
-   [api.routes :as routes]
+   [back.api.routes :as routes]
    [com.stuartsierra.component :as component]
-   [components.config :as config]
-   [components.http :as http]
-   [components.logs :as logs]
-   [components.router :as router]
-   [components.webserver :as webserver])
+   [back.components.config :as config]
+   [back.components.http :as http]
+   [back.components.logs :as logs]
+   [back.components.router :as router]
+   [back.components.webserver :as webserver])
   (:gen-class))
 
 (def system-atom (atom nil))
@@ -16,7 +16,7 @@
    :config (config/new-config)
    :http (http/new-http)
    :router (router/new-router routes/routes)
-   ; #TODO add database component in the future
+   ;; TODO: add database component in the future
    #_#_:database (component/using (database/new-database) [:config])
    :webserver (component/using (webserver/new-webserver) [:config :http :router])))
 
@@ -35,12 +35,11 @@
 (defn -main
   "The entry-point for 'gen-class'"
   [& _args]
-  ; Graceful shutdown
+  ;; Graceful shutdown
   (.addShutdownHook (Runtime/getRuntime)
                     (Thread. ^Runnable stop-system!))
   (start-system! (build-system-map)))
 
 (comment
   (stop-system!)
-  (start-system! (build-system-map))
-  )
+  (start-system! (build-system-map)))

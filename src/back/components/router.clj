@@ -1,7 +1,7 @@
-(ns components.router
+(ns back.components.router
   (:require [com.stuartsierra.component :as component]
             [muuntaja.core :as m]
-            [components.logs :as logs]
+            [back.components.logs :as logs]
             [reitit.coercion.schema :as reitit.schema]
             [reitit.dev.pretty :as pretty]
             [reitit.http :as http]

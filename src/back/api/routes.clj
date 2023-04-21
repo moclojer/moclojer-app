@@ -1,8 +1,8 @@
-(ns api.routes
+(ns back.api.routes
   (:require [reitit.swagger :as swagger]
             [schema.core :as s]
-            [api.healthcheck.ports.http-in :as healthcheck.ports.http-in]
-            [api.healthcheck.schemas.http-in :as healthcheck.schemas.http-in]))
+            [back.api.healthcheck.ports.http-in :as healthcheck.ports.http-in]
+            [back.api.healthcheck.schemas.http-in :as healthcheck.schemas.http-in]))
 
 (def routes
   [["/swagger.json"

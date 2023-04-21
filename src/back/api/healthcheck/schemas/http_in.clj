@@ -1,4 +1,4 @@
-(ns api.healthcheck.schemas.http-in 
+(ns back.api.healthcheck.schemas.http-in 
   (:require [schema.core :as s]))
 
 

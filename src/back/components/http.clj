@@ -1,8 +1,8 @@
-(ns components.http
+(ns back.components.http
   (:require [clj-http.client :as http]
             [clj-http.util :as http-util]
             [com.stuartsierra.component :as component]
-            [components.logs :as logs]
+            [back.components.logs :as logs]
             [schema.core :as s]))
 
 (s/defschema HttpRequestInput
