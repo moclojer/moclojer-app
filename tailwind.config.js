@@ -2,7 +2,7 @@ const defaultTheme = require('tailwindcss/defaultTheme')
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: process.env.NODE_ENV == 'production' ? ["./resources/public/assets/js/core.js"] : ["./resources/public/assets/js/cljs-runtime/*.js"],
+  content: process.env.NODE_ENV == 'production' ? ["./resources/front/public/assets/js/core.js"] : ["./resources/front/public/assets/js/cljs-runtime/*.js"],
   theme: {
     fontSize: {
       xs: ['0.75rem', { lineHeight: '1rem' }],
