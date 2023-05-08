@@ -32,6 +32,7 @@
                                               :body "Response not set in mocks!"})]
       (p/delay (or lag 100) response))))
 
+
 (reg-fx :http (http-effect fetch/request))
 
 (comment

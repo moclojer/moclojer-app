@@ -144,10 +144,10 @@
      [query-params]
      (if-let [error-msg (:error_description query-params)]
        (refx/dispatch [:app.auth/error error-msg])
-       (refx/dispatch [:app.auth/login (select-keys query-params [:code])])))
+       (refx/dispatch [:app.auth/login (select-keys query-params [:access_token])])))
 
     ($ AuthLayout
        (when loading?
          (d/div
           ;; todo better screen for this
-          (str "Validating... " (:code query-params)))))))
+          (str "Validating... " (:access_token query-params)))))))

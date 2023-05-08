@@ -1,5 +1,6 @@
 (ns front.app.auth.events
-  (:require [front.app.http]
+  (:require #_[front.app.http]
+   [front.app.auth.effects]
             [front.app.auth.db :as auth.db]
             [refx.alpha :as refx]
             [refx.interceptors :refer [after]]))
@@ -17,7 +18,7 @@
  [(after set-current-user-cookie!)]
  (fn
    [{db :db} [_ response]]
-   (println :success response)
+   (prn :success-login response)
    {:db (-> db
             (assoc :login-loading? false)
             (assoc :login-error nil)
@@ -52,7 +53,7 @@
  :app.auth/send-email-done
  (fn
    [{db :db} [_ response]]
-   (println :success response)
+   (prn :success-email response)
    {:db (-> db
             (assoc :login-loading? false)
             (assoc :login-error nil)
@@ -62,26 +63,23 @@
  :app.auth/send-email-error
  (fn
    [db [key-error val-error]]
-   (js/console.error key-error val-error)
+   (js/console.error :error-email key-error val-error)
+   (prn :error-email key-error val-error)
    (-> db
        (assoc :login-loading? false)
-       (assoc :login-error [key-error (:body val-error)])
+       (assoc :login-error [key-error (-> val-error :body :error)])
        (assoc :login-email-sent nil))))
 
 (refx/reg-event-fx
  :app.auth/send-email
  (fn
    [{db :db} [_ login]]
-   {:http {:method      :post
-           :url         "/login/send-email"
-           :body        login
-           :accept :json
-           :content-type :json
-           :on-success  [:app.auth/send-email-done]
+   {:auth {:body login
+           :on-success [:app.auth/send-email-done]
            :on-failure  [:app.auth/send-email-error]}
-    :db  (assoc db
-                :login-error nil
-                :login-loading? true)}))
+    :db (assoc db
+               :login-error nil
+               :login-loading? true)}))
 
 (refx/reg-event-db
  :app.auth/send-email-again
