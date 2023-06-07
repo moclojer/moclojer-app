@@ -3,10 +3,8 @@ const defaultTheme = require('tailwindcss/defaultTheme')
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: process.env.NODE_ENV == 'production' ?
-    ["./resources/front/public/assets/js/core.js",
-      "./node_modules/flowbite/**/*.{js,jsx,ts,tsx}"] :
-    ["./resources/front/public/assets/js/cljs-runtime/*.js",
-      "./node_modules/flowbite/**/*.{js,jsx,ts,tsx}"],
+    ["./resources/front/public/assets/js/core.js"] :
+    ["./resources/front/public/assets/js/cljs-runtime/*.js"],
 
   safelist: [
     'w-64',
