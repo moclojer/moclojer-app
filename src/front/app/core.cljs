@@ -46,13 +46,14 @@
 (defnc landing-screen [{:keys [user]}]
   (let [current-route (refx/use-sub [:app.routes/current-route])
         route-data (:data current-route)]
+
     (d/div
-     ($ NavBar {:user user})
-     (if (or user (:public? route-data))
-       (when-let [view (:view route-data)]
-         ($ view {:match current-route}))
-       ($ auth/login-view))
-     ($ FooterComponent))))
+       ($ NavBar {:user user})
+       (if (or user (:public? route-data))
+         (when-let [view (:view route-data)]
+           ($ view {:match current-route}))
+         ($ auth/login-view))
+       ($ FooterComponent))))
 
 (defnc app []
   (let [user (refx/use-sub [:app.auth/current-user])]
