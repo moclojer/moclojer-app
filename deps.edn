@@ -35,10 +35,9 @@
         selmer/selmer {:mvn/version "1.12.55"}}
  :aliases
  {;; frontend
-  :front-dev
-  {:extra-paths ["test/front"]
-   :extra-deps {cider/cider-nrepl {:mvn/version "0.28.6"}
-                thheller/shadow-cljs {:mvn/version "2.20.10"}}}
+  :front-dev {:extra-paths ["test/front"]
+              :extra-deps {cider/cider-nrepl {:mvn/version "0.28.6"}
+                           thheller/shadow-cljs {:mvn/version "2.20.10"}}}
   ;; backend
   ;; clj -M:test
   :test {:extra-paths ["test/back"]

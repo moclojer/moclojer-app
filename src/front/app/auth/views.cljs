@@ -60,7 +60,11 @@
     ($ LogOutBtn)
     ($ SignInBtn)))
 
-#_(defnc login-deprecated []
+(defnc login-deprecated []
+  (let [loading? (refx/use-sub [:app.auth/login-loading])
+        [error error-res] (refx/use-sub [:app.auth/login-error])
+        email-sent? (refx/use-sub [:app.auth/email-sent])
+        [state set-state] (hooks/use-state {:email ""})]
     ($ AuthLayout
        (d/div
         (if email-sent?
@@ -120,7 +124,7 @@
                                (d/span {:class-name "inline-flex"}
                                        ($ LoadingSpinner {})
                                        "Loading...")
-                               (d/span "Sign in"))))))))))
+                               (d/span "Sign in")))))))))))
 
 (defnc login-view []
   (let [loading? (refx/use-sub [:app.auth/login-loading])
@@ -130,7 +134,6 @@
     (d/body {:class-name "bg-gray-50 dark:bg-gray-800"}
             (d/main {:class-name "bg-gray-50 dark:bg-gray-900"}
                     (d/div {:class-name "flex flex-col justify-center items-center px-6 pt-8 mx-auto md:h-screen pt:mt-0 dark:bg-gray-900"}
-                           
 
                            (d/div {:class-name "justify-center items-center w-full bg-white rounded-lg shadow lg:flex md:mt-0 lg:max-w-screen-lg 2xl:max:max-w-screen-lg xl:p-0 dark:bg-gray-800"}
                                   (d/div {:class-name "hidden w-2/3 lg:flex"}
@@ -143,11 +146,13 @@
                                                   (d/label
                                                    {:for "email" :class-name "block mb-2 text-sm font-medium text-gray-900 dark:text-white"} "Your Email")
                                                   (d/input
-                                                   {:for "email" :class-name "
-                                            bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"}))
+                                                   {:for "email" :placeholder "name@company.com" :name "email" :class-name "bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"}))
                                                  (d/div {:class-name "flex items-start"}
                                                         (d/div {:class-name "flex items-center h-5"}))
-                                                 (d/button {:type "submit" :class-name "login-button py-3 px-5 w-full text-base font-medium text-center text-white rounded-lg bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"} "Login to your account")))))))))
+                                                 (d/button {:type "submit" :class-name "login-button py-3 px-5 w-full text-base font-medium text-center text-white rounded-lg bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"}
+                                                           "Login to your account")
+                                                 (d/div {:class-name "text-sm font-medium text-gray-500 dark:text-gray-400"}
+                                                        "if you don't have an account, it is created automatically")))))))))
 
 (defnc login-auth-view []
   (let [{:keys [query-params]} (refx/use-sub [:app.route/current-route])
@@ -164,10 +169,10 @@
       (refx/dispatch [:app.routes/push-state :app.core/login]))
 
     (hooks/use-effect
-     [query-params]
-     (if-let [error-msg (:error_description query-params)]
-       (refx/dispatch [:app.auth/error error-msg])
-       (refx/dispatch [:app.auth/login (select-keys query-params [:code])])))
+      [query-params]
+      (if-let [error-msg (:error_description query-params)]
+        (refx/dispatch [:app.auth/error error-msg])
+        (refx/dispatch [:app.auth/login (select-keys query-params [:code])])))
 
     ($ AuthLayout
        (when loading?

@@ -32,6 +32,12 @@
       :view auth/login-auth-view
       :public? true}]]
 
-   ])
+   ["login-deprecated"
+    [""
+     {:name :app.core/login-deprecated
+      :view auth/login-deprecated 
+      :public? true}]
+
+   ]])
 
 

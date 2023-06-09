@@ -39,9 +39,9 @@
   (d/body
    {:class-name
     "relative bg-yellow-50 overflow-hidden max-h-screen"}
-   ($ Header)
-   ($ dashboard/Aside)
-   ($ Main)))
+   #_($ Header)
+   ($ dashboard/Dash)
+   #_($ Main)))
 
 (defnc landing-screen [{:keys [user]}]
   (let [current-route (refx/use-sub [:app.routes/current-route])
@@ -60,7 +60,8 @@
     (d/div
      (if user
        ($ dashboard-screen {:user user})
-       ($ landing-screen {:user user})))))
+       ($ dashboard-screen {:user user})
+       ))))
 
 ;;; Setup ;;;
 
