@@ -4,7 +4,7 @@
             [front.app.home.views :as home]
             [front.app.pricing.views :as pricing]))
 
-(def routes
+(def routes-landing
   ["/"
    [""
     {:name :app.core/home
@@ -21,17 +21,27 @@
      :view pricing/pricing-page
      :public? true}]
 
-   ["login"
+   ;#TODO remove this, i keep here only for looking some logic for future implementation
+   ; once i added supabase on login i will remove it 
+   ["login-deprecated"
     [""
-     {:name :app.core/login
-      :view auth/login-view
-      :public? true}]
+     {:name :app.core/login-deprecated
+      :view auth/login-deprecated
+      :public? true}]]])
 
-    ["/auth"
-     {:name :app.core/login-auth
-      :view auth/login-auth-view
-      :public? true}]]
+(def routes-dashboard
+  ["login"
+   [""
+    {:name :app.core/login
+     :view auth/login-view
+     :dashboard true
+     :public? true}]
 
-   ])
+   ["/auth"
+    {:name :app.core/login-auth
+     :view auth/login-auth-view
+     :dashboard true
+     :public? true}]])
 
 
+(def routes (merge routes-landing routes-dashboard))

@@ -6,6 +6,10 @@
   min-height: 100%;
 }
 
+.login-button {
+  background: #FF009E;
+}
+
 
 /* chart styles */
 .apexcharts-tooltip {
