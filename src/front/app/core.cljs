@@ -60,8 +60,7 @@
     (d/div
      (if user
        ($ dashboard-screen {:user user})
-       ($ dashboard-screen {:user user})
-       ))))
+       ($ dashboard-screen {:user user})))))
 
 ;;; Setup ;;;
 
