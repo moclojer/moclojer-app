@@ -4,10 +4,7 @@
    [front.app.auth.db]
    [front.app.auth.events]
    [front.app.auth.subs]
-   [front.app.auth.views :as auth]
-   [front.app.components.aside :as dashboard]
-   [front.app.components.dashboard.header :refer [Header]]
-   [front.app.components.dashboard.main :refer [Main]]
+   [front.app.components.dashboard.main :as dash]
    [front.app.components.footer :refer [FooterComponent]]
    [front.app.components.nav :refer [NavBar]]
    [front.app.lib :refer [defnc]]
@@ -39,28 +36,33 @@
   (d/body
    {:class-name
     "relative bg-yellow-50 overflow-hidden max-h-screen"}
-   #_($ Header)
-   ($ dashboard/Dash)
-   #_($ Main)))
+   ($ dash/Index)))
 
 (defnc landing-screen [{:keys [user]}]
   (let [current-route (refx/use-sub [:app.routes/current-route])
-        route-data (:data current-route)]
+        route-data (:data current-route)
+        is-auth-screen? (:dashboard route-data)]
 
+    ;;# TODO this still messing but it was only to remove the headers from login
     (d/div
-       ($ NavBar {:user user})
-       (if (or user (:public? route-data))
-         (when-let [view (:view route-data)]
-           ($ view {:match current-route}))
-         ($ auth/login-view))
-       ($ FooterComponent))))
+     (if is-auth-screen?
+       (when-let [view (:view route-data)]
+         ($ view {:match current-route}))
+       (d/div ($ NavBar {:user user})
+              (when-let [view (:view route-data)]
+                ($ view {:match current-route}))
+              ($ FooterComponent))))))
 
-(defnc app []
+(defnc screens []
   (let [user (refx/use-sub [:app.auth/current-user])]
     (d/div
      (if user
        ($ dashboard-screen {:user user})
-       ($ dashboard-screen {:user user})))))
+       ($ landing-screen {:user user})))))
+
+(defnc app []
+  (d/div
+   ($ screens)))
 
 ;;; Setup ;;;
 

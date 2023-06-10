@@ -21,6 +21,8 @@
      :view pricing/pricing-page
      :public? true}]
 
+   ;#TODO remove this, i keep here only for looking some logic for future implementation
+   ; once i added supabase on login i will remove it 
    ["login-deprecated"
     [""
      {:name :app.core/login-deprecated
@@ -32,11 +34,13 @@
    [""
     {:name :app.core/login
      :view auth/login-view
+     :dashboard true
      :public? true}]
 
    ["/auth"
     {:name :app.core/login-auth
      :view auth/login-auth-view
+     :dashboard true
      :public? true}]])
 
 
