@@ -10,6 +10,10 @@
   background: #FF009E;
 }
 
+.login-button:hover {
+  background-color: rgba(255, 0, 158, 0.4);
+}
+
 
 /* chart styles */
 .apexcharts-tooltip {

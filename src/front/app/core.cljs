@@ -4,7 +4,7 @@
    [front.app.auth.db]
    [front.app.auth.events]
    [front.app.auth.subs]
-   [front.app.components.dashboard.main :as dash]
+   [front.app.dashboard.views :as d.views]
    [front.app.components.footer :refer [FooterComponent]]
    [front.app.components.nav :refer [NavBar]]
    [front.app.lib :refer [defnc]]
@@ -33,10 +33,7 @@
 
 (defnc dashboard-screen
   [{:keys [user]}]
-  (d/body
-   {:class-name
-    "relative bg-yellow-50 overflow-hidden max-h-screen"}
-   ($ dash/Index)))
+  ($ d.views/Index))
 
 (defnc landing-screen [{:keys [user]}]
   (let [current-route (refx/use-sub [:app.routes/current-route])
@@ -56,7 +53,7 @@
 (defnc screens []
   (let [user (refx/use-sub [:app.auth/current-user])]
     (d/div
-     (if user
+     (if true
        ($ dashboard-screen {:user user})
        ($ landing-screen {:user user})))))
 
