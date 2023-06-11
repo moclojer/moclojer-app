@@ -53,7 +53,7 @@
 (defnc screens []
   (let [user (refx/use-sub [:app.auth/current-user])]
     (d/div
-     (if true
+     (if user
        ($ dashboard-screen {:user user})
        ($ landing-screen {:user user})))))
 

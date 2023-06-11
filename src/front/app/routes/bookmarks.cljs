@@ -2,7 +2,8 @@
   (:require [front.app.auth.views :as auth]
             [front.app.features.views :as features]
             [front.app.home.views :as home]
-            [front.app.pricing.views :as pricing]))
+            [front.app.pricing.views :as pricing]
+            [front.app.dashboard.views :as d.views]))
 
 (def routes-landing
   ["/"
@@ -27,6 +28,14 @@
     [""
      {:name :app.core/login-deprecated
       :view auth/login-deprecated
+      :public? true}]]
+
+   ;; Added here only to see the layout http://localhost:8000/#/dashboard"
+   ["dashboard"
+    [""
+     {:name :app.core/dashboard
+      :view d.views/Index
+      :dashboard true
       :public? true}]]])
 
 (def routes-dashboard
@@ -42,6 +51,5 @@
      :view auth/login-auth-view
      :dashboard true
      :public? true}]])
-
 
 (def routes (merge routes-landing routes-dashboard))
