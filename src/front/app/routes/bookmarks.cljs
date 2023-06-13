@@ -5,6 +5,7 @@
             [front.app.pricing.views :as pricing]
             [front.app.dashboard.views :as d.views]))
 
+
 (def routes-landing
   ["/"
    [""

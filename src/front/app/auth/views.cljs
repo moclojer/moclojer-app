@@ -1,5 +1,6 @@
 (ns front.app.auth.views
   (:require
+   [front.app.auth.supabase :as supabase]
    [front.app.components.alerts :refer [Error]]
    [front.app.components.button :refer [Button]]
    [front.app.components.loading :refer [LoadingSpinner]]
@@ -8,6 +9,7 @@
    [helix.core :refer [$]]
    [helix.dom :as d]
    [helix.hooks :as hooks]
+   [promesa.core :as p]
    [refx.alpha :as refx]
    [reitit.frontend.easy :as rfe]))
 
@@ -39,7 +41,6 @@
   (if user
     ($ LogOutBtn)
     ($ SignInBtn)))
-
 
 (defnc login-view []
   (let [loading? (refx/use-sub [:app.auth/login-loading])
@@ -111,28 +112,47 @@
                                                                 :description (:message error-res)})
                                                             "if you don't have an account, it is created automatically")))))))))))
 
+(defn- js->cljs-key [obj]
+  (js->clj obj :keywordize-keys true))
+
+
 (defnc login-auth-view []
-  (let [{:keys [query-params]} (refx/use-sub [:app.route/current-route])
+  (let [[session set-session] (hooks/use-state {})
         loading? (refx/use-sub [:app.auth/login-loading])
         user (refx/use-sub [:app.auth/current-user])
         [error _error-res] (refx/use-sub [:app.auth/login-error])]
 
-    (when user
-      ;; redirects to home when login success
-      (refx/dispatch [:app.routes/push-state :app.core/home]))
+    (hooks/use-effect
+     :once
+     (let [auth (.-auth supabase/client)]
+       (prn :auth auth)
+       (-> (.getSession auth)
+           (p/then
+            (fn [resp]
+              (prn :session (js->cljs-key resp))
+              (set-session (js->cljs-key resp)))))))
 
-    (when error
+    #_(when user
+      ;; redirects to home when login success
+        (refx/dispatch [:app.routes/push-state :app.core/home]))
+
+    #_(when error
       ;; redirects to login when login fails
-      (refx/dispatch [:app.routes/push-state :app.core/login]))
+        (refx/dispatch [:app.routes/push-state :app.core/login]))
 
     (hooks/use-effect
-     [query-params]
-     (if-let [error-msg (:error_description query-params)]
-       (refx/dispatch [:app.auth/error error-msg])
-       (refx/dispatch [:app.auth/login (select-keys query-params [:code])])))
+     :auto-deps
+     (prn :use-effect-before session)
+
+     #_(when (not (nil? session))
+         (let [has-error? (not (nil? (-> session :data :error)))
+               invalid-session? (nil? (-> session :data :session))]
+           (prn :effect-session session)
+           (if (or has-error? invalid-session?)
+             (refx/dispatch [:app.auth/error :error-auth-link])))))
 
     ($ AuthLayout
        (when loading?
          (d/div
           ;; todo better screen for this
-          (str "Validating... " (:code query-params)))))))
+          (str "Validating user data... "))))))
