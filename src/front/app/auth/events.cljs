@@ -1,27 +1,21 @@
 (ns front.app.auth.events
   (:require [front.app.http]
+            [front.app.auth.effects]
             [front.app.auth.db :as auth.db]
             [refx.alpha :as refx]
             [refx.interceptors :refer [after]]))
 
 (defn set-current-user-cookie!
   [{:keys [current-user]}]
-  (auth.db/set-cookie "current-user" (:expires_in current-user) current-user))
+  (let [expires_at (-> current-user :data :session :expires_at)]
+    (prn :set-cookie expires_at)
+    (prn :current-user current-user)
+    (auth.db/set-cookie "current-user" expires_at  current-user)))
 
 (defn remove-current-user-cookie!
   [_]
   (auth.db/remove-cookie "current-user"))
 
-(refx/reg-event-fx
- :app.auth/login-done
- [(after set-current-user-cookie!)]
- (fn
-   [{db :db} [_ response]]
-   (println :success response)
-   {:db (-> db
-            (assoc :login-loading? false)
-            (assoc :login-error nil)
-            (assoc :current-user (:body response)))}))
 
 (refx/reg-event-db
  :app.auth/login-error
@@ -34,25 +28,21 @@
        (assoc :current-user nil))))
 
 (refx/reg-event-fx
- :app.auth/login
+ :app.auth/set-user-session
+ [(after set-current-user-cookie!)]
  (fn
-   [{db :db} [_ login]]
-   {:http {:method      :post
-           :url         "/login/auth"
-           :body        login
-           :accept :json
-           :content-type :json
-           :on-success  [:app.auth/login-done]
-           :on-failure  [:app.auth/login-error]}
-    :db  (assoc db
+   [{db :db} [_ session]]
+   (prn :user-session session)
+   {:db  (assoc db
+                :current-user session
                 :login-error nil
-                :login-loading? true)}))
+                :login-loading? false)}))
 
 (refx/reg-event-fx
  :app.auth/send-email-done
  (fn
    [{db :db} [_ response]]
-   (println :success response)
+   (println :success-email response)
    {:db (-> db
             (assoc :login-loading? false)
             (assoc :login-error nil)
@@ -65,20 +55,16 @@
    (js/console.error key-error val-error)
    (-> db
        (assoc :login-loading? false)
-       (assoc :login-error [key-error (:body val-error)])
+       (assoc :login-error [key-error (-> val-error :body :error)])
        (assoc :login-email-sent nil))))
 
 (refx/reg-event-fx
  :app.auth/send-email
  (fn
    [{db :db} [_ login]]
-   {:http {:method      :post
-           :url         "/login/send-email"
-           :body        login
-           :accept :json
-           :content-type :json
-           :on-success  [:app.auth/send-email-done]
-           :on-failure  [:app.auth/send-email-error]}
+   {:auth {:body login
+           :on-success [:app.auth/send-email-done]
+           :on-failure [:app.auth/send-email-error]}
     :db  (assoc db
                 :login-error nil
                 :login-loading? true)}))

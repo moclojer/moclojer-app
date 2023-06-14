@@ -14,7 +14,9 @@
    [front.app.routes.subs]
    [helix.core :refer [$]]
    [helix.dom :as d]
-   [refx.alpha :as refx]))
+   [refx.alpha :as refx]
+   [helix.hooks :as hooks]
+   [reitit.frontend.easy :as rfe]))
 
 (def default-db
   {:current-route nil
@@ -32,14 +34,18 @@
 ;;; Components ;;;
 
 (defnc dashboard-screen
-  [{:keys [user]}]
-  ($ d.views/Index))
+  [user]
+  ($ d.views/Index user))
 
 (defnc landing-screen [{:keys [user]}]
   (let [current-route (refx/use-sub [:app.routes/current-route])
         route-data (:data current-route)
         is-auth-screen? (:dashboard route-data)]
 
+    (hooks/use-effect 
+      [current-route]
+      (when (nil? current-route)
+        (rfe/push-state :app.core/home)))
     ;;# TODO this still messing but it was only to remove the headers from login
     (d/div
      (if is-auth-screen?
@@ -52,6 +58,7 @@
 
 (defnc screens []
   (let [user (refx/use-sub [:app.auth/current-user])]
+    (prn :user-logged user)
     (d/div
      (if user
        ($ dashboard-screen {:user user})

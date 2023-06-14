@@ -1,15 +1,32 @@
 (ns front.app.auth.supabase
-  (:require ["@supabase/supabase-js" :as sb]
-            [promesa.core :as p]))
+  (:require ["@supabase/supabase-js" :as sb]))
 
-(def auth (sb/createClient
-           "https://tgvdfxurgsddxouxmugs.supabase.co"
-           "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRndmRmeHVyZ3NkZHhvdXhtdWdzIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODE1MDM0NDMsImV4cCI6MTk5NzA3OTQ0M30.7pq4MM_ZldiWvOk_cnQuxlvUF8eFcxlPDB7jMTNMYb0"))
+(defn create-client
+  "creates a supabase client"
+  ([url key]
+   (prn ::create-client)
+   (.createClient sb url key))
+  ([url key options]
+   (.createClient sb url key options)))
 
-(defn signin-with-email
-  [email]
-  ;; (prn :send-magic (.signIn
-  ;;                   auth
-  ;;                   email
-  ;;                   #js {:redirectTo "http://127.0.0.1:8000/#/lerolero"}))
-  )
+(def client
+  (create-client
+   "https://tgvdfxurgsddxouxmugs.supabase.co"
+   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRndmRmeHVyZ3NkZHhvdXhtdWdzIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODE1MDM0NDMsImV4cCI6MTk5NzA3OTQ0M30.7pq4MM_ZldiWvOk_cnQuxlvUF8eFcxlPDB7jMTNMYb0"))
+
+(defn signin-with-email [^js client email]
+  (prn :signin-with-email email)
+  (let [auth (.-auth client)
+        promise (.signInWithOtp auth #js {:email email
+                                          :option #js {:emailRedirectTo "http://localhost:8000/#/"}})]
+    promise))
+
+(comment
+  ; auth supabase with client side using email
+  (def client-test
+    (create-client
+     "url"
+     "token"))
+
+  (prn :client client-test)
+  (signin-with-email client "matheusmachadoufsc@gmail.com"))
