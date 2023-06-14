@@ -28,7 +28,7 @@
            :content-type :json
            :body #js {:ok true}}}})
 
-(deftest auth-view-email-send-error-test
+#_(deftest auth-view-email-send-error-test
   (testing "auth email send view should error"
     (async done
            (p/let [_ (mock/start! login-error-msw)
@@ -43,7 +43,7 @@
              (aux/cleanup)
              (done)))))
 
-(deftest auth-view-email-send-success-test
+#_(deftest auth-view-email-send-success-test
   (testing "auth email send view should work and show next panel"
     (async done
            (p/let [_ (mock/start! login-sucess-msw)

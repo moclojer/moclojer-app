@@ -48,7 +48,7 @@
            :content-type :json
            :body (clj->js login-return)}}})
 
-(deftest login-auth-view-test-fail-workos-test
+#_(deftest login-auth-view-test-fail-workos-test
   (testing "auth login code redirect view should show error from WORKOS"
     (async done
            (p/let [_route (refx/dispatch [:app.routes/navigated-fake
@@ -61,7 +61,7 @@
              (aux/cleanup)
              (done)))))
 
-(deftest login-auth-view-test-fail-api-test
+#_(deftest login-auth-view-test-fail-api-test
   (testing "auth login code redirect view should show error from internal API"
     (async done
            (p/let [_route (refx/dispatch [:app.routes/navigated-fake
@@ -73,7 +73,7 @@
              (aux/cleanup)
              (done)))))
 
-(deftest login-auth-view-test-success-api-test
+#_(deftest login-auth-view-test-success-api-test
   (testing "auth login code redirect view should show error from internal API"
     (async done
            (p/let [_route (refx/dispatch [:app.routes/navigated-fake

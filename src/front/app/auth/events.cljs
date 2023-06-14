@@ -7,22 +7,15 @@
 
 (defn set-current-user-cookie!
   [{:keys [current-user]}]
-  (auth.db/set-cookie "current-user" (:expires_in current-user) current-user))
+  (let [expires_at (-> current-user :data :session :expires_at)]
+    (prn :set-cookie expires_at)
+    (prn :current-user current-user)
+    (auth.db/set-cookie "current-user" expires_at  current-user)))
 
 (defn remove-current-user-cookie!
   [_]
   (auth.db/remove-cookie "current-user"))
 
-(refx/reg-event-fx
- :app.auth/login-done
- [(after set-current-user-cookie!)]
- (fn
-   [{db :db} [_ response]]
-   (println :success-login response)
-   {:db (-> db
-            (assoc :login-loading? false)
-            (assoc :login-error nil)
-            (assoc :current-user (:body response)))}))
 
 (refx/reg-event-db
  :app.auth/login-error
@@ -35,13 +28,15 @@
        (assoc :current-user nil))))
 
 (refx/reg-event-fx
- :app.auth/login
+ :app.auth/set-user-session
+ [(after set-current-user-cookie!)]
  (fn
-   [{db :db} [_ login]]
-   (prn :token-user-rrrr login)
+   [{db :db} [_ session]]
+   (prn :user-session session)
    {:db  (assoc db
+                :current-user session
                 :login-error nil
-                :login-loading? true)}))
+                :login-loading? false)}))
 
 (refx/reg-event-fx
  :app.auth/send-email-done
