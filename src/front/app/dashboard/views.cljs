@@ -2,7 +2,8 @@
   (:require
    [helix.core :refer [defnc $]]
    [helix.dom :as d]
-   [front.app.lib :refer [defnc]]))
+   [front.app.lib :refer [defnc]]
+   [helix.hooks :as hooks]))
 
 (defnc MainBody []
   (d/div
@@ -35,10 +36,12 @@
                        (d/br)
                        "Avelino CEO"))))))
 
-(defnc Aside []
+(defnc Aside [{:keys [is-sidebar-toogle?]}]
   (d/div {:class-name "flex overflow-hidden pt-16 bg-gray-50 dark:bg-gray-900"}
          (d/aside {:id "sidebar"
-                   :class-name "flex hidden fixed top-0 left-0 z-20 flex-col flex-shrink-0 pt-16 w-64 h-full duration-75 lg:flex transition-width"
+                   :class-name (str "flex hidden fixed top-0 left-0 z-20 flex-col flex-shrink-0 pt-16 w-64 h-full duration-75 lg:flex transition-width "
+                                    (when is-sidebar-toogle?
+                                      "lg:w-16"))
                    :aria-label "Sidebar"}
                   (d/div {:class-name "flex relative flex-col flex-1 pt-0 min-h-0 bg-white border-r border-gray-200 dark:bg-gray-800 dark:border-gray-700"}
                          (d/div {:class-name "flex overflow-y-auto flex-col flex-1 pt-5 pb-4"}
@@ -57,15 +60,17 @@
                                                                    :fill-rule "evenodd"
                                                                    :clip-rule "evenodd"
                                                                    :d "M8 12C8 11.4477 8.44772 11 9 11H15C15.5523 11 16 11.4477 16 12V22C16 22.5523 15.5523 23 15 23C14.4477 23 14 22.5523 14 22V13H10V22C10 22.5523 9.55228 23 9 23C8.44772 23 8 22.5523 8 22V12Z"}))
-                                                   (d/span {:class-name "ml-3"} "Home")))
-                                             (d/li
-                                              (d/a {:href "" :class-name "flex items-center p-2 text-base font-normal text-gray-900 rounded-lg hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-gray-700"}
-                                                   (d/svg {:class-name "w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
-                                                           :fill "currentColor" :viewBox "0 0 20 20"}
-                                                          (d/path {:fill-rule "evenodd"
-                                                                   :clip-rule "evenodd"
-                                                                   :d "M0.800049 2.79999C0.800049 2.16347 1.05291 1.55302 1.50299 1.10294C1.95308 0.65285 2.56353 0.399994 3.20005 0.399994H8.70325C9.33972 0.40013 9.95007 0.653075 10.4 1.10319L14.4968 5.19999C14.947 5.64998 15.1999 6.26033 15.2 6.89679V17.2C15.2 17.8365 14.9472 18.447 14.4971 18.8971C14.047 19.3471 13.4366 19.6 12.8 19.6H3.20005C2.56353 19.6 1.95308 19.3471 1.50299 18.8971C1.05291 18.447 0.800049 17.8365 0.800049 17.2V2.79999ZM3.20005 9.99999C3.20005 9.68173 3.32648 9.37651 3.55152 9.15147C3.77656 8.92642 4.08179 8.79999 4.40005 8.79999H11.6C11.9183 8.79999 12.2235 8.92642 12.4486 9.15147C12.6736 9.37651 12.8 9.68173 12.8 9.99999C12.8 10.3183 12.6736 10.6235 12.4486 10.8485C12.2235 11.0736 11.9183 11.2 11.6 11.2H4.40005C4.08179 11.2 3.77656 11.0736 3.55152 10.8485C3.32648 10.6235 3.20005 10.3183 3.20005 9.99999ZM4.40005 13.6C4.08179 13.6 3.77656 13.7264 3.55152 13.9515C3.32648 14.1765 3.20005 14.4817 3.20005 14.8C3.20005 15.1183 3.32648 15.4235 3.55152 15.6485C3.77656 15.8736 4.08179 16 4.40005 16H11.6C11.9183 16 12.2235 15.8736 12.4486 15.6485C12.6736 15.4235 12.8 15.1183 12.8 14.8C12.8 14.4817 12.6736 14.1765 12.4486 13.9515C12.2235 13.7264 11.9183 13.6 11.6 13.6H4.40005Z"}))
-                                                   (d/span {:class-name "ml-3"} "Mocks")))
+                                                   (d/span {:class-name (str "ml-3 "
+                                                                             (when is-sidebar-toogle?
+                                                                               "lg:hidden lg:absolute"))} "Home")))
+                                             #_(d/li
+                                                (d/a {:href "" :class-name "flex items-center p-2 text-base font-normal text-gray-900 rounded-lg hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-gray-700"}
+                                                     (d/svg {:class-name "w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white "
+                                                             :fill "currentColor" :viewBox "0 0 20 20"}
+                                                            (d/path {:fill-rule "evenodd"
+                                                                     :clip-rule "evenodd"
+                                                                     :d "M0.800049 2.79999C0.800049 2.16347 1.05291 1.55302 1.50299 1.10294C1.95308 0.65285 2.56353 0.399994 3.20005 0.399994H8.70325C9.33972 0.40013 9.95007 0.653075 10.4 1.10319L14.4968 5.19999C14.947 5.64998 15.1999 6.26033 15.2 6.89679V17.2C15.2 17.8365 14.9472 18.447 14.4971 18.8971C14.047 19.3471 13.4366 19.6 12.8 19.6H3.20005C2.56353 19.6 1.95308 19.3471 1.50299 18.8971C1.05291 18.447 0.800049 17.8365 0.800049 17.2V2.79999ZM3.20005 9.99999C3.20005 9.68173 3.32648 9.37651 3.55152 9.15147C3.77656 8.92642 4.08179 8.79999 4.40005 8.79999H11.6C11.9183 8.79999 12.2235 8.92642 12.4486 9.15147C12.6736 9.37651 12.8 9.68173 12.8 9.99999C12.8 10.3183 12.6736 10.6235 12.4486 10.8485C12.2235 11.0736 11.9183 11.2 11.6 11.2H4.40005C4.08179 11.2 3.77656 11.0736 3.55152 10.8485C3.32648 10.6235 3.20005 10.3183 3.20005 9.99999ZM4.40005 13.6C4.08179 13.6 3.77656 13.7264 3.55152 13.9515C3.32648 14.1765 3.20005 14.4817 3.20005 14.8C3.20005 15.1183 3.32648 15.4235 3.55152 15.6485C3.77656 15.8736 4.08179 16 4.40005 16H11.6C11.9183 16 12.2235 15.8736 12.4486 15.6485C12.6736 15.4235 12.8 15.1183 12.8 14.8C12.8 14.4817 12.6736 14.1765 12.4486 13.9515C12.2235 13.7264 11.9183 13.6 11.6 13.6H4.40005Z"}))
+                                                     (d/span {:class-name "ml-3 lg:hidden lg:absolute"} "Mocks")))
                                              (d/li
                                               (d/button
                                                {:href ""
@@ -85,7 +90,9 @@
                                                       (d/path {:d "M12 11C12.5523 11 13 11.4477 13 12V22.08C13 22.6323 12.5523 23.08 12 23.08C11.4477 23.08 11 22.6323 11 22.08V12C11 11.4477 11.4477 11 12 11Z"
                                                                :clip-rule "evenodd"
                                                                :fill-rule "evenodd"}))
-                                               (d/span {:class-name "flex-1 ml-3 text-left whitespace-nowrap"} "Mocks")
+                                               (d/span {:class-name (str "flex-1 ml-3 text-left whitespace-nowrap "
+                                                                         (when is-sidebar-toogle?
+                                                                           "lg:hidden lg:absolute"))} "Mocks")
                                                (d/svg {:class-name "w-6 h-6" :fill "currentColor" :viewBox "0 0 20 20"}
                                                       (d/path {:d "M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
                                                                :clip-rule "evenodd"
@@ -110,7 +117,10 @@
                                                           (d/path {:d "M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"})
                                                           (d/path {:d "M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z"
                                                                    :clip-rule "evenodd"}))
-                                                   (d/span {:class-name "ml-3"}
+                                                   (d/span {:class-name
+                                                            (str "ml-3 "
+                                                                 (when is-sidebar-toogle?
+                                                                   "lg:hidden lg:absolute"))}
                                                            "Docs"))
                                               (d/a {:href ""
                                                     :target "_blank"
@@ -134,8 +144,7 @@
                                                            "Logout")))))))))
 
 (defnc Index [{{:keys [user]} :children}]
-  (let []
-    (prn :logged-user user)
+  (let [[toggle-sidebar set-toggle] (hooks/use-state false)]
     (d/body
      {:class-name "bg-gray-50 dark:bg-gray-800"}
      (d/nav
@@ -148,6 +157,8 @@
                (d/button {:id "toggleSidebar"
                           :aria-expanded "true"
                           :aria-controls "sidebar"
+                          :on-click (fn [_e]
+                                      (set-toggle (not toggle-sidebar)))
                           :class-name "hidden p-2 mr-3 text-gray-600 rounded cursor-pointer lg:inline hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-700"}
                          (d/svg
                           {:class-name "w-6 h-6" :fill "currentColor"
@@ -207,7 +218,7 @@
                                           :class-name "block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
                                           :role "menuitem"}
                                          "Settings")))))))))
-     ($ Aside)
+     ($ Aside {:is-sidebar-toogle? toggle-sidebar})
      (d/div {:class-name "hidden fixed inset-0 z-10 bg-gray-900/50 dark:bg-gray-900/90"})
      ($ MainBody))))
 
