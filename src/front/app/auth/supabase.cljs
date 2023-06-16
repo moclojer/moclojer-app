@@ -12,13 +12,20 @@
 (def client
   (create-client
    "https://tgvdfxurgsddxouxmugs.supabase.co"
-   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRndmRmeHVyZ3NkZHhvdXhtdWdzIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODE1MDM0NDMsImV4cCI6MTk5NzA3OTQ0M30.7pq4MM_ZldiWvOk_cnQuxlvUF8eFcxlPDB7jMTNMYb0"))
+   (str "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ"
+        "pc3MiOiJzdXBhYmFzZSIsInJlZiI6InRndmRmeHV"
+        "yZ3NkZHhvdXhtdWdzIiwicm9sZSI6ImFub24iLCJ"
+        "pYXQiOjE2ODE1MDM0NDMsImV4cCI6MTk5NzA3OTQ"
+        "0M30.7pq4MM_ZldiWvOk_cnQuxlvUF8eFcxlPDB7"
+        "jMTNMYb0")))
 
 (defn signin-with-email [^js client email]
   (prn :signin-with-email email)
   (let [auth (.-auth client)
-        promise (.signInWithOtp auth #js {:email email
-                                          :option #js {:emailRedirectTo "http://localhost:8000/#/"}})]
+        promise (.signInWithOtp
+                 auth
+                 (clj->js {:email email
+                           :option {:emailRedirectTo "http://localhost:8000/#/"}}))]
     promise))
 
 (comment
@@ -29,4 +36,4 @@
      "token"))
 
   (prn :client client-test)
-  (signin-with-email client "matheusmachadoufsc@gmail.com"))
+  (signin-with-email client "chicao@cljazz.co"))
