@@ -13,10 +13,6 @@
   (let [expires_at (-> current-user :data :session :expires_at)]
     (auth.db/set-cookie "current-user" expires_at  current-user)))
 
-(defn remove-current-user-cookie!
-  [_e]
-  (auth.db/remove-cookie "current-user"))
-
 (refx/reg-event-db
  :app.auth/login-error
  (fn
@@ -77,10 +73,10 @@
 
 (refx/reg-event-fx
  :app.auth/logout
- [(after remove-current-user-cookie!)]
  (fn
    [{db :db} _]
-   (let [auth (.-auth supabase/client)]
+   (let [_ (auth.db/remove-cookie "current-user")
+         auth (.-auth supabase/client)]
      (-> (.signOut auth)
          (p/then (fn [e]
                    (prn :supabase-logout e))))
