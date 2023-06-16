@@ -1,5 +1,6 @@
 (ns front.app.core
   (:require
+   ["flowbite"]
    ["react-dom/client" :as rdom]
    [front.app.auth.db]
    [front.app.auth.events]
@@ -42,10 +43,10 @@
         route-data (:data current-route)
         is-auth-screen? (:dashboard route-data)]
 
-    (hooks/use-effect 
-      [current-route]
-      (when (nil? current-route)
-        (rfe/push-state :app.core/home)))
+    (hooks/use-effect
+     [current-route]
+     (when (nil? current-route)
+       (rfe/push-state :app.core/home)))
     ;;# TODO this still messing but it was only to remove the headers from login
     (d/div
      (if is-auth-screen?

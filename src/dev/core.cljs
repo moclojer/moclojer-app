@@ -18,8 +18,7 @@
 (comment
   "Start mock service worker"
   (p/do (mock/start!)
-        (.reload js/location)
-        )
+        (.reload js/location))
 
   "Stop mock service worker"
   (p/do (mock/stop!)
