@@ -28,7 +28,8 @@
             (fn [resp]
               (prn :session (js->cljs-key resp))
               ;; user session is nil, redirect to login
-              (if-not resp
+              (if-not (-> (js->cljs-key resp)
+                          :data :session)
                 (rfe/push-state :app.core/login)
                 (rfe/push-state :app.core/dashboard))
               (set-session (js->cljs-key resp)))))))
