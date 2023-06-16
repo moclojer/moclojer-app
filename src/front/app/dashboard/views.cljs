@@ -1,6 +1,5 @@
 (ns front.app.dashboard.views
   (:require
-   [front.app.lib :refer [defnc]]
    [helix.core :refer [$ defnc]]
    [helix.dom :as d]
    [helix.hooks :as hooks]
@@ -205,32 +204,33 @@
                     (d/span {:class-name "self-center text-2xl font-semibold whitespace-nowrap dark:text-white"})))
         (d/div {:class-name "flex items-center lg:gap-3"}
                (d/div {:class-name "hidden lg:block"}
-                (d/button {:type "button"
-                           :class-name "flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
-                           :id "user-menu-button-2"
-                           :aria-expanded "false"
-                           :data-dropdown-toggle "dropdown-2"}
-                          (d/span {:class-name "sr-only"} "Open user menu")
-                          (d/img {:class-name "w-8 h-8 rounded-full" :src "./images/users/avatar.png"}))
-                (d/div {:class-name "hidden z-50 my-4 text-base list-none bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600"
-                        :id "dropdown-2"}
-                       (d/div {:class-name "py-3 px-4" :role "none"}
-                              (d/p {:class-name "text-sm font-medium text-gray-900 truncate dark:text-gray-300" :role "none"}
-                                   (:email user-data)))
-                       (d/ul {:class-name "py-1" :role "none"}
-                             (d/li
-                              (d/a {:href ""
-                                    :class-name "block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
-                                    :role "menuitem"}
-                                   "Settings"))
+                      (d/button {:type "button"
+                                 :class-name "flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
+                                 :id "user-menu-button-2"
+                                 :aria-expanded "false"
+                                 :data-dropdown-toggle "dropdown-2"}
+                                (d/span {:class-name "sr-only"} "Open user menu")
+                                (d/img {:class-name "w-8 h-8 rounded-full" :src "./images/users/avatar.png"}))
+                      (d/div {:class-name "hidden z-50 my-4 text-base list-none bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600"
+                              :id "dropdown-2"}
+                             (d/div {:class-name "py-3 px-4" :role "none"}
+                                    (d/p {:class-name "text-sm font-medium text-gray-900 truncate dark:text-gray-300" :role "none"}
+                                         (:email user-data)))
+                             (d/ul {:class-name "py-1" :role "none"}
+                                   (d/li
+                                    (d/a {:href ""
+                                          :class-name "block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
+                                          :role "menuitem"}
+                                         "Settings"))
 
-                             (d/li
-                              (d/a {:href ""
-                                    :class-name "block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
-                                    :on-click (fn [_e]
-                                                (refx/dispatch [:app.auth/logout]))
-                                    :role "menuitem"}
-                                   "Logout")))))))))
+                                   (d/li
+                                    (d/a {:href "#"
+                                          :class-name "block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
+                                          :on-click (fn [e]
+                                                      (refx/dispatch [:app.auth/logout])
+                                                      (refx/dispatch-sync [:app.routes/push-state :app.core/home]))
+                                          :role "menuitem"}
+                                         "Logout")))))))))
 
      ($ Aside {:is-sidebar-toogle? toggle-sidebar
                :set-toggle set-toggle

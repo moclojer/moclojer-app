@@ -59,7 +59,6 @@
 
 (defnc screens []
   (let [user (refx/use-sub [:app.auth/current-user])]
-    (prn :user-logged user)
     (d/div
      (if user
        ($ dashboard-screen {:user user})
