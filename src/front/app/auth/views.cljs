@@ -1,6 +1,5 @@
 (ns front.app.auth.views
   (:require
-   [front.app.auth.supabase :as supabase]
    [front.app.components.alerts :refer [Error]]
    [front.app.components.button :refer [Button]]
    [front.app.components.loading :refer [LoadingSpinner]]
@@ -9,7 +8,6 @@
    [helix.core :refer [$]]
    [helix.dom :as d]
    [helix.hooks :as hooks]
-   [promesa.core :as p]
    [refx.alpha :as refx]
    [reitit.frontend.easy :as rfe]))
 

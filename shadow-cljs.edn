@@ -3,8 +3,6 @@
  :builds {:app {:target :browser
                 :output-dir "resources/front/public/assets/js"
                 :asset-path "/assets/js"
-                :js-options {:js-package-dirs ["node_modules"
-                                               "../node_modules"]}
                 :devtools {:preloads [dev.refresh]
                            :reload-strategy :full
                            :http-port 8000

@@ -4,7 +4,6 @@
 (defn create-client
   "creates a supabase client"
   ([url key]
-   (prn ::create-client)
    (.createClient sb url key))
   ([url key options]
    (.createClient sb url key options)))
@@ -20,7 +19,6 @@
         "jMTNMYb0")))
 
 (defn signin-with-email [^js client email]
-  (prn :signin-with-email email)
   (let [auth (.-auth client)
         promise (.signInWithOtp
                  auth

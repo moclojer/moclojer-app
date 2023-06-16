@@ -67,7 +67,6 @@
     "react-refresh": "^0.14.0",
     "react-router-dom": "^6.13.0",
     "use-sync-external-store": "1.2.0",
-
     "flowbite": "^1.6.6",
     "flowbite-react": "^0.4.7",
     "svgmap": "^2.10.1"
