@@ -42,6 +42,10 @@
     ($ LogOutBtn)
     ($ SignInBtn)))
 
+(defnc logout-view []
+  (refx/dispatch [:app.core/logout])
+  (rfe/push-state :app.core/login))
+
 (defnc login-view []
   (let [loading? (refx/use-sub [:app.auth/login-loading])
         [error error-res] (refx/use-sub [:app.auth/login-error])

@@ -39,6 +39,16 @@
                 :login-loading? false)}))
 
 (refx/reg-event-fx
+ :app.core/logout
+ [(after remove-current-user-cookie!)]
+ (fn
+   [{db :db} _]
+   {:db (-> db
+            (assoc :current-user nil)
+            (assoc :login-loading? false)
+            (assoc :login-error nil))}))
+
+(refx/reg-event-fx
  :app.auth/send-email-done
  (fn
    [{db :db} [_ response]]
@@ -75,16 +85,6 @@
    [db _]
    (-> db
        (assoc :login-email-sent nil))))
-
-(refx/reg-event-fx
- :app.auth/logout
- [(after remove-current-user-cookie!)]
- (fn
-   [{db :db} _]
-   {:db (-> db
-            (assoc :current-user nil)
-            (assoc :login-loading? false)
-            (assoc :login-error nil))}))
 
 (refx/reg-event-db
  :app.auth/error

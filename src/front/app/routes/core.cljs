@@ -1,9 +1,8 @@
 (ns front.app.routes.core
-  (:require
-   [reitit.frontend :as rf]
-   [reitit.coercion.schema :as rsc]
-   [refx.alpha :as refx]
-   [reitit.frontend.easy :as rfe]))
+  (:require [reitit.coercion.schema :as rsc]
+            [reitit.frontend :as rf]
+            [reitit.frontend.easy :as rfe]
+            [refx.alpha :as refx]))
 
 (defn router [routes]
   (rf/router
