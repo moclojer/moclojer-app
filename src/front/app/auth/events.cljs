@@ -2,9 +2,7 @@
   (:require
    [front.app.auth.db :as auth.db]
    [front.app.auth.effects]
-   [front.app.auth.supabase :as supabase]
    [front.app.http]
-   [promesa.core :as p]
    [refx.alpha :as refx]
    [refx.interceptors :refer [after]]))
 
@@ -75,16 +73,11 @@
  :app.auth/logout
  (fn
    [{db :db} _]
-   (let [_ (auth.db/remove-cookie "current-user")
-         auth (.-auth supabase/client)]
-     (-> (.signOut auth)
-         (p/then (fn [e]
-                   (prn :supabase-logout e))))
-     (prn ::logout)
-     {:db (-> db
-              (assoc :current-user nil)
-              (assoc :login-loading? false)
-              (assoc :login-error nil))})))
+   (auth.db/remove-cookie "current-user")
+   {:db (-> db
+            (assoc :current-user nil)
+            (assoc :login-loading? false)
+            (assoc :login-error nil))}))
 
 (refx/reg-event-db
  :app.auth/error

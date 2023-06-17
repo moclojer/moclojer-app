@@ -28,12 +28,6 @@
      :dashboard true
      :public? true}]
 
-   ["/logout"
-    {:name :app.core/logout
-     :view auth/logout-view
-     :dashboard true
-     :public? true}]
-
    ;; Added here only to see the layout http://localhost:8000/#/dashboard"
    ["/dashboard"
     [""

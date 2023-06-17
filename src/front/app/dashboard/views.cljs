@@ -3,7 +3,8 @@
    [helix.core :refer [$ defnc]]
    [helix.dom :as d]
    [helix.hooks :as hooks]
-   [refx.alpha :as refx]))
+   [refx.alpha :as refx]
+   [front.app.auth.supabase :as supabase]))
 
 (defnc MainBody [{:keys [is-sidebar-toogle?]}]
   (d/div
@@ -109,13 +110,22 @@
                                               (d/ul {:id "dropdown-mocks" :class-name "hidden py-2 space-y-2"}
                                                     (d/li
                                                      (d/a {:href ""
-                                                           :class-name "flex items-center p-2 pl-11 text-base font-normal text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"}
-                                                          "my")))
-                                              (d/ul {:id "dropdown-mocks" :class-name "hidden py-2 space-y-2"}
-                                                    (d/li
-                                                     (d/a {:href ""
-                                                           :class-name "flex items-center p-2 pl-11 text-base font-normal text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"}
-                                                          "my")))))
+                                                           :class-name (str (if is-sidebar-toogle? "px-4 " "pl-11 ")
+                                                                            "flex items-center p-2 text-base font-normal text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700")}
+                                                          (when-not is-sidebar-toogle?
+                                                            (d/svg {:fill "none"
+                                                                    :width "24"
+                                                                    :class-name "flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+                                                                    :height "24"
+                                                                    :viewBox "0 0 25 26"}
+                                                                   (d/path {:d "M13.1765 11.7613C13.1765 16.4911 11.8114 20.9049 9.45182 24.6329M4.79771 21.8894L4.87076 21.7683C6.76829 18.7719 7.77178 15.3019 7.76471 11.7613C7.76471 10.3345 8.33487 8.96627 9.34977 7.95743C10.3647 6.94859 11.7412 6.38183 13.1765 6.38183C14.6118 6.38183 15.9883 6.94859 17.0032 7.95743C18.0181 8.96627 18.5882 10.3345 18.5882 11.7613C18.5882 13.129 18.4935 14.4765 18.3136 15.7958M15.4481 25C16.2831 23.3438 16.959 21.6129 17.4666 19.8304M22.6606 21.3528C23.5332 18.3053 24 15.0871 24 11.7613C24.0004 9.87248 23.5006 8.01687 22.5508 6.38099C21.601 4.7451 20.2347 3.38659 18.5893 2.44201C16.9438 1.49744 15.0772 1.00011 13.1771 1C11.2769 0.999894 9.41027 1.49702 7.76471 2.44141M1 17.6302C1.86588 15.8563 2.35294 13.8646 2.35294 11.7613C2.35294 9.8018 2.88059 7.96473 3.80059 6.38183"
+                                                                            :stroke "#757575"
+                                                                            :stroke-width "2"
+                                                                            :stroke-linecap "round"
+                                                                            :stroke-linejoin "round"})))
+                                                          (if is-sidebar-toogle?
+                                                            (d/span "my")
+                                                            (d/span {:class-name "flex-1 ml-3 text-left whitespace-nowrap"} "my-personal-mock")))))))
                                        (d/div {:class-name "pt-2 space-y-2"}
                                               (d/a {:href ""
                                                     :target "_blank"
@@ -139,19 +149,29 @@
                                                            :viewBox "0 0 20 20"}
                                                           (d/path {:fill-rule "evenodd"
                                                                    :d "M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-2 0c0 .993-.241 1.929-.668 2.754l-1.524-1.525a3.997 3.997 0 00.078-2.183l1.562-1.562C15.802 8.249 16 9.1 16 10zm-5.165 3.913l1.58 1.58A5.98 5.98 0 0110 16a5.976 5.976 0 01-2.516-.552l1.562-1.562a4.006 4.006 0 001.789.027zm-4.677-2.796a4.002 4.002 0 01-.041-2.08l-.08.08-1.53-1.533A5.98 5.98 0 004 10c0 .954.223 1.856.619 2.657l1.54-1.54zm1.088-6.45A5.974 5.974 0 0110 4c.954 0 1.856.223 2.657.619l-1.54 1.54a4.002 4.002 0 00-2.346.033L7.246 4.668zM12 10a2 2 0 11-4 0 2 2 0 014 0z"}))
-                                                   (d/span {:class-name "ml-3"}
-                                                           "Help"))
-                                              (d/a {:href "/#/logout"
-                                                    :target "_blank"
-                                                    :class-name "flex items-center p-2 text-base font-normal text-gray-900 rounded-lg transition duration-75 hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-gray-700"}
-                                                   (d/svg {:class-name "flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
-                                                           :fill "currentColor"
-                                                           :viewBox "0 0 20 20"}
-                                                          (d/path {:fill-rule "evenodd"
-                                                                   :d "M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-2 0c0 .993-.241 1.929-.668 2.754l-1.524-1.525a3.997 3.997 0 00.078-2.183l1.562-1.562C15.802 8.249 16 9.1 16 10zm-5.165 3.913l1.58 1.58A5.98 5.98 0 0110 16a5.976 5.976 0 01-2.516-.552l1.562-1.562a4.006 4.006 0 001.789.027zm-4.677-2.796a4.002 4.002 0 01-.041-2.08l-.08.08-1.53-1.533A5.98 5.98 0 004 10c0 .954.223 1.856.619 2.657l1.54-1.54zm1.088-6.45A5.974 5.974 0 0110 4c.954 0 1.856.223 2.657.619l-1.54 1.54a4.002 4.002 0 00-2.346.033L7.246 4.668zM12 10a2 2 0 11-4 0 2 2 0 014 0z"}))
-                                                   (d/span {:class-name "ml-3"}
-                                                           "Logout")))))))))
-
+                                                   (d/span
+                                                    {:class-name
+                                                     (str "ml-3 "
+                                                          (when is-sidebar-toogle?
+                                                            "lg:hidden lg:absolute"))}
+                                                    "Help")))))
+                         (d/div {:class-name (str  "hidden absolute bottom-0 left-0 justify-center p-4 space-x-4 w-full lg:flex"
+                                                   (when is-sidebar-toogle?
+                                                     " flex-col space-y-4 p-2"))}
+                                (d/button
+                                 {:on-click (fn [e]
+                                              (.preventDefault e)
+                                              (supabase/sign-out
+                                               #(refx/dispatch-sync [:app.auth/logout %])))
+                                  :class-name "flex items-center p-2 text-base font-normal text-gray-900 rounded-lg transition duration-75 hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-gray-700"}
+                                 (d/svg {:class-name "flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+                                         :fill "currentColor"
+                                         :viewBox "0 0 20 20"}
+                                        (d/path {:fill-rule "evenodd"
+                                                 :d "M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-2 0c0 .993-.241 1.929-.668 2.754l-1.524-1.525a3.997 3.997 0 00.078-2.183l1.562-1.562C15.802 8.249 16 9.1 16 10zm-5.165 3.913l1.58 1.58A5.98 5.98 0 0110 16a5.976 5.976 0 01-2.516-.552l1.562-1.562a4.006 4.006 0 001.789.027zm-4.677-2.796a4.002 4.002 0 01-.041-2.08l-.08.08-1.53-1.533A5.98 5.98 0 004 10c0 .954.223 1.856.619 2.657l1.54-1.54zm1.088-6.45A5.974 5.974 0 0110 4c.954 0 1.856.223 2.657.619l-1.54 1.54a4.002 4.002 0 00-2.346.033L7.246 4.668zM12 10a2 2 0 11-4 0 2 2 0 014 0z"}))
+                                 (when (not is-sidebar-toogle?)
+                                   (d/span {:class-name "ml-3"}
+                                           "Logout"))))))))
 
 (defnc Index [{{:keys [user]} :children}]
   (let [[toggle-menu set-toggle-menu] (hooks/use-state false)
@@ -224,13 +244,15 @@
                                          "Settings"))
 
                                    (d/li
-                                    (d/a {:href "#"
-                                          :class-name "block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
-                                          :on-click (fn [e]
-                                                      (refx/dispatch-sync [:app.auth/logout])
-                                                      (refx/dispatch-sync [:app.routes/push-state :app.core/home]))
-                                          :role "menuitem"}
-                                         "Logout")))))))))
+
+                                    (d/button
+                                     {:class-name "block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
+                                      :on-click (fn [e]
+                                                  (.preventDefault e)
+                                                  (supabase/sign-out
+                                                   #(refx/dispatch-sync [:app.auth/logout %])))
+                                      :role "menuitem"}
+                                     "Logout")))))))))
 
      ($ Aside {:is-sidebar-toogle? toggle-sidebar
                :set-toggle set-toggle

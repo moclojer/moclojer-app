@@ -1,5 +1,7 @@
 (ns front.app.auth.supabase
-  (:require ["@supabase/supabase-js" :as sb]))
+  (:require
+   ["@supabase/supabase-js" :as sb]
+   [promesa.core :as p]))
 
 (defn create-client
   "creates a supabase client"
@@ -22,9 +24,21 @@
   (let [auth (.-auth client)
         promise (.signInWithOtp
                  auth
-                 (clj->js {:email email
-                           :option {:emailRedirectTo "http://localhost:8000/#/"}}))]
+                 (clj->js {:email email}))]
     promise))
+
+(defn sign-out [dispatch-fn-logout]
+  (let [auth (.-auth client)]
+    (-> (.signOut auth)
+        (p/then (fn [e]
+                  (prn :supabase-logout e)
+                  (dispatch-fn-logout e))))))
+
+(defn event-changes [invoke]
+  (.onAuthStateChange (.-auth client)
+                      (fn [event new-session]
+                        (prn :event event)
+                        (invoke event new-session))))
 
 (comment
   ; auth supabase with client side using email

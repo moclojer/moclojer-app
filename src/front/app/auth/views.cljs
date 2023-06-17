@@ -11,13 +11,6 @@
    [refx.alpha :as refx]
    [reitit.frontend.easy :as rfe]))
 
-(defnc AuthLayout
-  [{:keys [children]}]
-  (d/div {:class-name "relative flex min-h-full justify-center md:px-12 lg:px-0"}
-         (d/div {:class-name "relative z-10 flex flex-1 flex-col bg-white py-10 px-4 shadow-2xl sm:justify-center md:flex-none md:px-28"}
-                (d/div {:class-name "mx-auto w-full max-w-md sm:px-4 md:w-96 md:max-w-sm md:px-0"}
-                       children))))
-
 (defnc SignInBtn []
   (d/div
    {:class-name "hidden md:block"}
@@ -29,8 +22,8 @@
    {:class-name "hidden md:block"}
    ($ NavLink {:on-click (fn [e]
                            (.preventDefault e)
-                           (refx/dispatch-sync [:app.routes/push-state :app.core/home])
-                           (refx/dispatch [:app.auth/logout]))
+                           (refx/dispatch-sync [:app.auth/logout])
+                           (refx/dispatch-sync [:app.routes/push-state :app.core/home]))
                :children "Logout"
                :href "#"})))
 
@@ -39,10 +32,6 @@
   (if user
     ($ LogOutBtn)
     ($ SignInBtn)))
-
-(defnc logout-view []
-  (refx/dispatch [:app.core/logout])
-  (rfe/push-state :app.core/login))
 
 (defnc login-view []
   (let [loading? (refx/use-sub [:app.auth/login-loading])
