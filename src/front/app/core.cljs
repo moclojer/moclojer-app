@@ -43,11 +43,12 @@
         route-data (:data current-route)
         is-auth-screen? (:dashboard route-data)]
 
+    (prn current-route)
     (hooks/use-effect
      [current-route]
      (when (nil? current-route)
        (rfe/push-state :app.core/home)))
-    ;;# TODO this still messing but it was only to remove the headers from login
+
     (d/div
      (if is-auth-screen?
        (when-let [view (:view route-data)]
@@ -59,8 +60,9 @@
 
 (defnc screens []
   (let [user (refx/use-sub [:app.auth/current-user])]
+    (prn :user (-> user :data :session))
     (d/div
-     (if user
+     (if (-> user :data :session)
        ($ dashboard-screen {:user user})
        ($ landing-screen {:user user})))))
 
