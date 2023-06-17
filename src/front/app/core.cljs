@@ -2,11 +2,10 @@
   (:require
    ["flowbite"]
    ["react-dom/client" :as rdom]
-   [cljs.pprint :as pprint]
    [front.app.auth.db]
    [front.app.auth.events]
    [front.app.auth.subs]
-   [front.app.components.footer :refer [FooterComponent]]
+   [front.app.components.footer :refer [footer-component]]
    [front.app.lib :refer [defnc]]
    [front.app.routes.bookmarks :as routes.bookmarks]
    [front.app.routes.core :as routes]
@@ -16,7 +15,6 @@
    [helix.dom :as d]
    [helix.hooks :as hooks]
    [refx.alpha :as refx]
-   [refx.db :as db]
    [reitit.frontend.easy :as rfe]))
 
 (def default-db
@@ -61,7 +59,7 @@
   (d/div
    ($ routing)
    (when debug
-     ($ FooterComponent))))
+     ($ footer-component))))
 
 ;;; Setup ;;;
 (defonce root
