@@ -2,12 +2,11 @@
   (:require
    ["flowbite"]
    ["react-dom/client" :as rdom]
+   [cljs.pprint :as pprint]
    [front.app.auth.db]
    [front.app.auth.events]
    [front.app.auth.subs]
-   [front.app.dashboard.views :as d.views]
    [front.app.components.footer :refer [FooterComponent]]
-   [front.app.components.nav :refer [NavBar]]
    [front.app.lib :refer [defnc]]
    [front.app.routes.bookmarks :as routes.bookmarks]
    [front.app.routes.core :as routes]
@@ -15,14 +14,16 @@
    [front.app.routes.subs]
    [helix.core :refer [$]]
    [helix.dom :as d]
-   [refx.alpha :as refx]
    [helix.hooks :as hooks]
+   [refx.alpha :as refx]
+   [refx.db :as db]
    [reitit.frontend.easy :as rfe]))
 
 (def default-db
   {:current-route nil
    :current-user nil})
 
+(def debug (goog-define DEBUG false))
 ;;; Events ;;;
 
 (refx/reg-event-fx
@@ -32,46 +33,37 @@
    {:db (assoc default-db
                :current-user cookie-current-user)}))
 
-;;; Components ;;;
-
-(defnc dashboard-screen
-  [user]
-  ($ d.views/Index user))
-
-(defnc landing-screen [{:keys [user]}]
-  (let [current-route (refx/use-sub [:app.routes/current-route])
+(defnc routing []
+  (let [user (refx/use-sub [:app.auth/current-user])
+        current-route (refx/use-sub [:app.routes/current-route])
         route-data (:data current-route)
-        is-auth-screen? (:dashboard route-data)]
+        is-public? (:public? route-data)
+        view (:view route-data)]
 
-    (prn current-route)
     (hooks/use-effect
      [current-route]
      (when (nil? current-route)
-       (rfe/push-state :app.core/home)))
+       (rfe/push-state :app.core/login)))
 
-    (d/div
-     (if is-auth-screen?
-       (when-let [view (:view route-data)]
-         ($ view {:match current-route}))
-       (d/div ($ NavBar {:user user})
-              (when-let [view (:view route-data)]
-                ($ view {:match current-route}))
-              ($ FooterComponent))))))
+    (hooks/use-effect
+     [user]
+     (when (-> user :data :session)
+       (rfe/push-state :app.core/dashboard)))
+    
 
-(defnc screens []
-  (let [user (refx/use-sub [:app.auth/current-user])]
-    (prn :user (-> user :data :session))
-    (d/div
-     (if (-> user :data :session)
-       ($ dashboard-screen {:user user})
-       ($ landing-screen {:user user})))))
+    (if is-public?
+      ($ view {:match current-route})
+      (if (-> user :data :session)
+        ($ view {:user user})
+        (rfe/push-state :app.core/login)))))
 
 (defnc app []
   (d/div
-   ($ screens)))
+   ($ routing)
+   (when debug
+     ($ FooterComponent))))
 
 ;;; Setup ;;;
-
 (defonce root
   (rdom/createRoot (js/document.getElementById "app")))
 

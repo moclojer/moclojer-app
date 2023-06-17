@@ -1,5 +1,7 @@
 (ns front.app.auth.views
   (:require
+   [front.app.auth.db :as auth.db]
+   [front.app.auth.supabase :as supabase]
    [front.app.components.alerts :refer [Error]]
    [front.app.components.button :refer [Button]]
    [front.app.components.loading :refer [LoadingSpinner]]
@@ -8,36 +10,46 @@
    [helix.core :refer [$]]
    [helix.dom :as d]
    [helix.hooks :as hooks]
+   [promesa.core :as p]
    [refx.alpha :as refx]
    [reitit.frontend.easy :as rfe]))
 
-(defnc SignInBtn []
-  (d/div
-   {:class-name "hidden md:block"}
-   ($ NavLink {:children "Sign In"
-               :href (rfe/href :app.core/login)})))
-
-(defnc LogOutBtn []
-  (d/div
-   {:class-name "hidden md:block"}
-   ($ NavLink {:on-click (fn [e]
-                           (.preventDefault e)
-                           (refx/dispatch-sync [:app.auth/logout])
-                           (refx/dispatch-sync [:app.routes/push-state :app.core/home]))
-               :children "Logout"
-               :href "#"})))
-
-(defnc AuthMenu
-  [{:keys [user]}]
-  (if user
-    ($ LogOutBtn)
-    ($ SignInBtn)))
+(defn- js->cljs-key [obj]
+  (js->clj obj :keywordize-keys true))
 
 (defnc login-view []
   (let [loading? (refx/use-sub [:app.auth/login-loading])
         [error error-res] (refx/use-sub [:app.auth/login-error])
         email-sent? (refx/use-sub [:app.auth/email-sent])
-        [state set-state] (hooks/use-state {:email ""})]
+        [state set-state] (hooks/use-state {:email ""})
+        [session set-session] (hooks/use-state nil)]
+
+    (hooks/use-effect
+     [session]
+     (when (and session (not (nil? (-> session :data :session))))
+       (refx/dispatch [:app.auth/set-user-session session])))
+
+    (hooks/use-effect
+     :once
+     (let [auth (.-auth supabase/client)]
+       (-> (.getSession auth)
+           (p/then
+            (fn [resp]
+              (prn :session (js->cljs-key resp))
+              ;; user session is nil, redirect to login
+              (if-not (-> (js->cljs-key resp) :data)
+                (rfe/push-state :app.core/login)
+                (set-session (js->cljs-key resp))))))))
+
+    (hooks/use-effect
+     :once
+     (supabase/event-changes
+      (fn [event s]
+        (when (= event "SIGNOUT")
+          (do
+            (auth.db/remove-cookie "current-user")
+            (set-session s))))))
+
     (d/body {:class-name "bg-gray-50 dark:bg-gray-800"}
             (d/main {:class-name "bg-gray-50 dark:bg-gray-900"}
                     (d/div {:class-name "flex flex-col justify-center items-center px-6 pt-8 mx-auto md:h-screen pt:mt-0 dark:bg-gray-900"}
