@@ -3,7 +3,7 @@
    [front.app.lib :refer [defnc]]
    [helix.dom :as d]))
 
-(defnc NavLink [{:keys [href children on-click]}]
+(defnc nav-link [{:keys [href children on-click]}]
   (d/a
    {:href href
     :on-click on-click
