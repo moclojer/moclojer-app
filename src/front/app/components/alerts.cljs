@@ -8,7 +8,7 @@
    :tittle "block font-medium text-red-700"
    :desc "mt-2 text-sm text-red-700"})
 
-(defnc Error
+(defnc error
   [{:keys [id error description]}]
   (let [{:keys [card tittle desc]} error-styles]
     (d/div

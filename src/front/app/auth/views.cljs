@@ -2,10 +2,10 @@
   (:require
    [front.app.auth.db :as auth.db]
    [front.app.auth.supabase :as supabase]
-   [front.app.components.alerts :refer [Error]]
-   [front.app.components.button :refer [Button]]
-   [front.app.components.loading :refer [LoadingSpinner]]
-   [front.app.components.navlink :refer [NavLink]]
+   [front.app.components.alerts :as alerts]
+   [front.app.components.button :refer [button]]
+   [front.app.components.loading :refer [loading-spinner]]
+   [front.app.components.navlink :refer [nav-link]]
    [front.app.lib :refer [defnc]]
    [helix.core :refer [$]]
    [helix.dom :as d]
@@ -66,7 +66,7 @@
                                             (d/div
                                              {:class-name "ml-3 "}
                                              "Didn't received it?"
-                                             ($ NavLink
+                                             ($ nav-link
                                                 {:children " Try again."
                                                  :on-click (fn [e]
                                                              (.preventDefault e)
@@ -97,19 +97,19 @@
                                                       :class-name "bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"}))
                                                    (d/div {:class-name "flex items-start"}
                                                           (d/div {:class-name "flex items-center h-5"}))
-                                                   ($ Button
+                                                   ($ button
                                                       {:type "submit"
                                                        :disabled loading?
                                                        :variant "solid-blue"
                                                        :color "pink"}
                                                       (if loading?
                                                         (d/span {:class-name "inline-flex"}
-                                                                ($ LoadingSpinner {})
+                                                                ($ loading-spinner {})
                                                                 "Loading...")
                                                         (d/span "Login to your account")))
                                                    (d/div {:class-name "text-sm font-medium text-gray-500 dark:text-gray-400"}
                                                           (if error
-                                                            ($ Error
+                                                            ($ alerts/error
                                                                {:id "login-error"
                                                                 :error "Error... try it again."
                                                                 :description (:message error-res)})

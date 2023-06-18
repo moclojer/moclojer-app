@@ -29,7 +29,7 @@
          (get-in variant-syles [variant color])
          class-name)))
 
-(defnc Button
+(defnc button
   [{:keys [children] :as props}]
   (let [classes (props->classes props)]
     (d/button
