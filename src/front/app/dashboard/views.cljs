@@ -1,10 +1,11 @@
 (ns front.app.dashboard.views
   (:require
+   [front.app.auth.supabase :as supabase]
+   [front.app.components.editor :as editor]
    [helix.core :refer [$ defnc]]
    [helix.dom :as d]
    [helix.hooks :as hooks]
-   [refx.alpha :as refx]
-   [front.app.auth.supabase :as supabase]))
+   [refx.alpha :as refx]))
 
 (defnc MainBody [{:keys [is-sidebar-toogle?]}]
   (d/div
@@ -14,7 +15,9 @@
                        "lg:ml-64")
                      " dark:bg-gray-900")
     :id "main-content"}
-   (d/main
+   (d/div "Editor"
+          ($ editor/editor-view))
+   #_(d/main
     (d/div {:class-name "p-4 bg-white block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-gray-800 dark:border-gray-700"}
            (d/div {:class-name "flex items-center divide-x divide-gray-100 dark:divide-gray-700"}
                   (d/div {:class-name "pl-3 text-sm font-medium text-gray-500"}
