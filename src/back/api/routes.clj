@@ -1,6 +1,5 @@
 (ns back.api.routes
   (:require [reitit.swagger :as swagger]
-            [schema.core :as s]
             [back.api.healthcheck.ports.http-in :as healthcheck.ports.http-in]
             [back.api.healthcheck.schemas.http-in :as healthcheck.schemas.http-in]))
 
@@ -14,6 +13,12 @@
     {:swagger {:tags ["healthcheck"]}
      :get {:summary "Health check api"
            :responses {200 {:body healthcheck.schemas.http-in/HealthResponse}}
-           :handler healthcheck.ports.http-in/say-hello}}]])
+           :handler healthcheck.ports.http-in/health}}]
+
+   ["/healthcheck/live"
+    {:swagger {:tags ["healthcheck"]}
+     :get {:summary "Health check api"
+           :responses {200 {:body healthcheck.schemas.http-in/HealthResponse}}
+           :handler healthcheck.ports.http-in/live}}]])
 
 

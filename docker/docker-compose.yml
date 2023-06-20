@@ -1,7 +1,7 @@
 version: "3.7"
 
 services:
-  db-rolls:
+  db:
     image: postgres:14
     environment:
       POSTGRES_PASSWORD: postgres
@@ -10,9 +10,9 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - db-rolls-data:/var/lib/postgresql/data
+      - db-data:/var/lib/postgresql/data
 
-  db-rolls-admin:
+  db-admin:
     image: dpage/pgadmin4
     environment:
       PGADMIN_DEFAULT_EMAIL: pg@pg.cc
@@ -20,5 +20,5 @@ services:
     ports:
       - "5433:80"
 
-  volumes:
-  db-rolls-data:
+volumes:
+    db-data:

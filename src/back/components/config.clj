@@ -6,7 +6,7 @@
 (def ^:private current-profile (keyword (or (System/getenv "SYSTEM_ENV") "dev")))
 
 (defn- config [profile]
-  (aero/read-config (clojure.java.io/resource "config.edn")
+  (aero/read-config (clojure.java.io/resource "back/config.edn")
                     {:profile profile}))
 
 (defn read-config [extra-inputs]

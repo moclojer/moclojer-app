@@ -1,12 +1,14 @@
 (ns back.api.server
   (:require
    [back.api.routes :as routes]
-   [com.stuartsierra.component :as component]
    [back.components.config :as config]
+   [back.components.database :as database]
    [back.components.http :as http]
    [back.components.logs :as logs]
+   [back.components.migrations :as migrations]
    [back.components.router :as router]
-   [back.components.webserver :as webserver])
+   [back.components.webserver :as webserver]
+   [com.stuartsierra.component :as component])
   (:gen-class))
 
 (def system-atom (atom nil))
@@ -16,12 +18,12 @@
    :config (config/new-config)
    :http (http/new-http)
    :router (router/new-router routes/routes)
-   ;; TODO: add database component in the future
-   #_#_:database (component/using (database/new-database) [:config])
-   :webserver (component/using (webserver/new-webserver) [:config :http :router])))
+   :database (component/using (database/new-database) [:config])
+   :webserver (component/using (webserver/new-webserver) [:config :http :router :database])))
 
 (defn start-system! [system-map]
   (logs/setup [["*" :info]] :auto)
+  (migrations/migrate (migrations/configuration-with-db))
   (->> system-map
        component/start
        (reset! system-atom)))

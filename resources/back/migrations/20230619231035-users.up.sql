@@ -1,0 +1,10 @@
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+--;;
+
+CREATE TABLE IF NOT EXISTS "user" (
+  id uuid UNIQUE NOT NULL PRIMARY KEY,
+  username varchar(255) NULL,
+  email varchar(255) NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
