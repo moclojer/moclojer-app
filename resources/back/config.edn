@@ -1,6 +1,6 @@
 {:webserver/port #long #or [#env PORT 3001]
- ;;need to uncomment when add he db component
- #_#_:database {:dbtype "postgres"
+
+ :database {:dbtype "postgres"
             :dbname #or [#env DB-NAME #env DB_NAME "postgres"]
             :username #or [#env DB-USER #env DB_USER "postgres"]
             :password #or [#env DB-PASS #env DB_PASS "postgres"]
