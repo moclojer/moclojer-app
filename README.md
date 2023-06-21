@@ -106,7 +106,7 @@ clj -M:test:nrepl
 To open a dev nrepl
 
 ```bash
-clj -M:dev:nrepl
+clj -M:back-dev:nrepl
 ```
 
 ## Run tests
