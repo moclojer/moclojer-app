@@ -39,7 +39,12 @@
               :extra-deps {cider/cider-nrepl {:mvn/version "0.28.6"}
                            thheller/shadow-cljs {:mvn/version "2.20.10"}}}
   ;; backend
-  :back-dev {:extra-paths ["test" "dev"]}
+  :back-dev {:extra-paths ["test/back"]
+             :extra-deps  {org.clojars.bigsy/pg-embedded-clj {:mvn/version "1.0.0"}
+                           lambdaisland/kaocha {:mvn/version "1.70.1086"}
+                           lambdaisland/kaocha-cloverage {:mvn/version "1.0.75"}
+                           nubank/matcher-combinators {:mvn/version "3.5.1"}
+                           nubank/state-flow {:mvn/version "5.14.2"}}}
   ;; clj -M:test
   :test {:extra-paths ["test/back"]
          :extra-deps  {org.clojars.bigsy/pg-embedded-clj {:mvn/version "1.0.0"}

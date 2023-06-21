@@ -1,5 +1,7 @@
 # moclojer app
 
+##  Frontend
+
 *Micro SaaS* **moclojer** admin area (dashboard, app.moclojer.com)
 
 We use the [helix](https://github.com/lilactown/helix) framework to develop our dashboard, it's a library that makes it easy to use **React** using **ClojureScript**.
@@ -86,3 +88,82 @@ To enable it you need an active REPL connection with the project and and evaluat
 ```
 
 read more [here](#repl-on-your-terminal)
+
+## Backend
+
+### Repl
+To open a nrepl
+
+```bash
+clj -M:nrepl
+```
+To open a nrepl with all test extra-deps on it
+
+```bash
+clj -M:test:nrepl
+```
+### Run dev
+To open a dev nrepl
+
+```bash
+clj -M:dev:nrepl
+```
+
+## Run tests
+
+To run unit tests inside ./test/back/back/unit
+
+```bash
+clj -M:test :unit
+```
+To run integration tests inside ./test/back/back/integration
+
+```bash
+clj -M:test :integration
+```
+To run all tests inside ./test
+
+```bash
+clj -M:test
+```
+### Migrations
+To create a new migration with a name
+
+```bash
+clj -M:migratus create migration-name
+```
+To execute all pending migrations
+
+```bash
+clj -M:migratus migration
+```
+To rollback the latest migration
+
+```bash
+clj -M:migratus rollback
+```
+See Migratus Usage for documentation on each command https://github.com/yogthos/migratus#usage.
+
+### Docker
+
+Start containers with `postgres user: postgres, password: postgres, hostname: db, port: 5432`
+and pg-admin `email: pg@pg.cc, password: pg, port: 5433`
+
+```bash
+docker-compose -f docker/docker-compose.yml up -d
+```
+Stop containers
+
+```bash
+docker-compose -f docker/docker-compose.yml stop
+```
+
+### Running the server
+First you need to have the database running, for this you can use the docker command in the step above.
+
+Repl
+You can start a repl open and evaluate the file `src/back/api/server.clj` and execute following code:
+
+```clojure
+(start-system! (build-system-map))
+```
