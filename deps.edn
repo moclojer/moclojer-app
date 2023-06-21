@@ -28,7 +28,7 @@
         metosin/reitit-swagger-ui {:mvn/version "0.5.18"}
         migratus/migratus {:mvn/version "1.4.4"}
         org.bouncycastle/bcprov-jdk15on {:mvn/version "1.70"}
-        org.postgresql/postgresql {:mvn/version "42.5.0"}
+        org.postgresql/postgresql {:mvn/version "42.6.0"}
         org.slf4j/slf4j-simple {:mvn/version "2.0.2"}
         prismatic/schema {:mvn/version "1.4.0"}
         prismatic/schema-generators {:mvn/version "0.1.5"}
@@ -39,6 +39,7 @@
               :extra-deps {cider/cider-nrepl {:mvn/version "0.28.6"}
                            thheller/shadow-cljs {:mvn/version "2.20.10"}}}
   ;; backend
+  :back-dev {:extra-paths ["test" "dev"]}
   ;; clj -M:test
   :test {:extra-paths ["test/back"]
          :extra-deps  {org.clojars.bigsy/pg-embedded-clj {:mvn/version "1.0.0"}
@@ -61,6 +62,6 @@
             :exec-args {:jar "back.jar"
                         :aot true
                         :main-class back.api.server}}
-  ;; clj -M:back-nrepl
-  :nrepl {:extra-deps {cider/cider-nrepl {:mvn/version "0.28.6"}}
+  ;; clj -M:nrepl
+  :nrepl {:extra-deps {cider/cider-nrepl {:mvn/version "0.30.0"}}
           :main-opts ["-m" "nrepl.cmdline" "--middleware" "[cider.nrepl/cider-middleware]"]}}}
