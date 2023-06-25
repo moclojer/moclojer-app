@@ -26,6 +26,7 @@
 
     (hooks/use-effect
      [session]
+     (prn "window.location" (.-href (.-location js/window)))
      (when (and session (not (nil? (-> session :data :session))))
        (refx/dispatch [:app.auth/set-user-session session])))
 
@@ -45,10 +46,11 @@
      :once
      (supabase/event-changes
       (fn [event s]
-        (when (= event "SIGNOUT")
-          (do
-            (auth.db/remove-cookie "current-user")
-            (set-session s))))))
+        (case event
+          "SIGNED_IN" (refx/dispatch-sync [:app.auth/save-user s])
+          "SIGNED_OUT" (do
+                         (auth.db/remove-cookie "current-user")
+                         (set-session s))))))
 
     (d/body {:class-name "bg-gray-50 dark:bg-gray-800"}
             (d/main {:class-name "bg-gray-50 dark:bg-gray-900"}
