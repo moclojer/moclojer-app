@@ -20,7 +20,8 @@
   {::server/port port
    ::server/type :jetty
    ::server/host "0.0.0.0"
-   ::server/join? true
+   ;; dev false to not lock repl/thread
+   ::server/join? false
    ;; no pedestal routes
    ::server/routes []
    ;; allow serving the swagger-ui styles & scripts from self

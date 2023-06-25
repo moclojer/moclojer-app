@@ -21,4 +21,3 @@
            :responses {200 {:body healthcheck.schemas.http-in/HealthResponse}}
            :handler healthcheck.ports.http-in/live}}]])
 
-

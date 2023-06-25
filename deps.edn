@@ -32,7 +32,9 @@
         org.slf4j/slf4j-simple {:mvn/version "2.0.2"}
         prismatic/schema {:mvn/version "1.4.0"}
         prismatic/schema-generators {:mvn/version "0.1.5"}
-        selmer/selmer {:mvn/version "1.12.55"}}
+        selmer/selmer {:mvn/version "1.12.55"}
+        io.github.jan-tennert.supabase/gotrue-kt-jvm {:mvn/version "1.0.3"}}
+
  :aliases
  {;; frontend
   :front-dev {:extra-paths ["test/front"]
