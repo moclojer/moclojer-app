@@ -19,5 +19,11 @@
     {:swagger {:tags ["healthcheck"]}
      :get {:summary "Health check api"
            :responses {200 {:body healthcheck.schemas.http-in/HealthResponse}}
+           :handler healthcheck.ports.http-in/live}}]
+
+   ["/login"
+    {:swagger {:tags ["login"]}
+     :post {:summary "Login supabase"
+           :responses {200 {}}
            :handler healthcheck.ports.http-in/live}}]])
 

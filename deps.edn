@@ -33,7 +33,9 @@
         prismatic/schema {:mvn/version "1.4.0"}
         prismatic/schema-generators {:mvn/version "0.1.5"}
         selmer/selmer {:mvn/version "1.12.55"}
-        io.github.jan-tennert.supabase/gotrue-kt-jvm {:mvn/version "1.0.3"}}
+
+        io.github.cljazz/supabase {:git/sha "a850ed47eb0daa8303f206ea60bd4b3bf59e1e0a"
+                                   :git/url "https://github.com/cljazz/supabase-clj"}}
 
  :aliases
  {;; frontend
