@@ -2,9 +2,6 @@
   (:require
    [back.api.auth.ports.http-out :as http-out]))
 
-#_(def c 1#_ (SupabaseClientBuilderKt/createSupabaseClient
-              ""))
-
 (defn login
   [{{{:keys [email]} :body} :parameters
     components :components}]
@@ -12,7 +9,15 @@
   {:status 200
    :body {:content "ok"}})
 
+(defn create-user!
+  [{{{:keys [url]} :query} :parameters
+    components :components}]
+  (let [resp
+        (http-out/verify-token-supabase!
+         (:http components)
+         url)]
+    (prn :here resp)
+    {:status 200
+     :body {:content "oi"}}))
 
-(defn create-user! [arg1]
-  {:status 200
-   :body {:content "oi"}})
+
