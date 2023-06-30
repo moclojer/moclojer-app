@@ -6,10 +6,6 @@
    [back.api.healthcheck.schemas.http-in :as healthcheck.schemas.http-in]
    [reitit.swagger :as swagger]))
 
-(defn testin []
-  {:enter (fn [ctx] 
-            (prn ctx)
-            )})
 (def routes
   [["/swagger.json"
     {:get {:no-doc true
@@ -38,7 +34,7 @@
    ["/auth/login"
     {:swagger {:tags ["login"]}
      :get {:summary "Login supabase"
-           :interceptors [(testin)]
+           :parameters {:query {:url string?}}
            :responses {200 {}}
            :handler auth.ports.http-in/create-user!}}]])
 
