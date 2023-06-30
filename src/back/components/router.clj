@@ -2,7 +2,7 @@
   (:require [com.stuartsierra.component :as component]
             [muuntaja.core :as m]
             [back.components.logs :as logs]
-            [reitit.coercion.schema :as reitit.schema]
+            [reitit.coercion.malli :as reitit.malli]
             [reitit.dev.pretty :as pretty]
             [reitit.http :as http]
             [reitit.http.coercion :as coercion]
@@ -13,9 +13,7 @@
             [reitit.pedestal :as pedestal]
             [reitit.ring :as ring]
             [reitit.swagger :as swagger]
-            [reitit.swagger-ui :as swagger-ui])
-  (:import (java.io ByteArrayOutputStream InputStream)
-           (java.nio ByteBuffer)))
+            [reitit.swagger-ui :as swagger-ui]))
 
 (defn- coercion-error-handler [status]
   (fn [exception _request]
@@ -31,51 +29,16 @@
   {:status 500
    :body   "Internal error."})
 
-(defn- read-all-bytes
-  "Reads all bytes from either an `InputStream` or a `ByteBuffer`.
-  If an `InputStream` is provided, it will be consumed, but not closed.
-  Returns its result as a *new* byte array."
-  ^bytes [input]
-  (condp instance? input
-    InputStream (let [bos (ByteArrayOutputStream.)]
-                  (loop [next (.read ^InputStream input)]
-                    (if (== next -1)
-                      (.toByteArray bos)
-                      (do
-                        (.write bos next)
-                        (recur (.read ^InputStream input))))))
-    ByteBuffer (let [len (.remaining ^ByteBuffer input)
-                     result (byte-array len)]
-                 (.get ^ByteBuffer input result)
-                 result)))
-
-(defn store-raw-body []
-  {:name ::store-raw-body
-   :enter (fn [ctx]
-            (let [body (read-all-bytes (-> ctx :request :body))]
-              (-> ctx
-                  (assoc-in [:request :body] body)
-                  (assoc :raw-body body))))})
-
-(defn read-raw-body []
-  {:name ::store-raw-body
-   :enter (fn [ctx]
-            (let [raw-body (slurp (:raw-body ctx))]
-              (-> ctx
-                  (assoc :raw-body raw-body))))})
-
 (def router-settings
   {;:reitit.interceptor/transform dev/print-context-diffs ;; pretty context diffs
      ;;:validate spec/validate ;; enable spec validation for route data
      ;;:reitit.spec/wrap spell/closed ;; strict top-level validation
    :exception pretty/exception
-   :data {:coercion reitit.schema/coercion
+   :data {:coercion reitit.malli/coercion
           :muuntaja (m/create
                      (-> m/default-options
                          (assoc-in [:formats "application/json" :decoder-opts :bigdecimals] true)))
-          :interceptors [;; store body before parsing/coersion
-                         (store-raw-body)
-                             ;; swagger feature
+          :interceptors [;; swagger feature
                          swagger/swagger-feature
                              ;; query-params & form-params
                          (parameters/parameters-interceptor)
@@ -97,9 +60,7 @@
                              ;; coercing request parameters
                          (coercion/coerce-request-interceptor)
                              ;; multipart
-                         (multipart/multipart-interceptor)
-                             ;; read body after all and store in context
-                         (read-raw-body)]}})
+                         (multipart/multipart-interceptor)]}})
 
 (defn router [routes]
   (pedestal/routing-interceptor

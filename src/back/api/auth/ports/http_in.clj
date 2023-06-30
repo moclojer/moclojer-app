@@ -1,14 +1,18 @@
 (ns back.api.auth.ports.http-in
-  (:require [co.cljazz.supabase-clj.core :as s.core]))
+  (:require
+   [back.api.auth.ports.http-out :as http-out]))
 
-(def c 1#_ (SupabaseClientBuilderKt/createSupabaseClient
-            "https://tgvdfxurgsddxouxmugs.supabase.co"
-            (str "eyJhbGciOiJIUzI1NiIsInRcCI6IkpXVCJ9.eyJ"
-                 "pc3MiOiJzdXBhYmFzZSIsInJlZiI6InRndmRmeHV"
-                 "yZ3NkZHhvdXhtdWdzIiwicm9sZSI6ImFub24iLCJ"
-                 "pYXQiOjE2ODE1MDM0NDMsImV4cCI6MTkNzA3OTQ"
-                 "0M30.7pq4MM_ZldiWvOk_cnQuxlvUF8eFcxlPDB7"
-                 "jMTNMYb0")))
+#_(def c 1#_ (SupabaseClientBuilderKt/createSupabaseClient
+              ""))
 
-(prn (.sendOtpTo c {:email "matheusmachadoufsc@gmail.com"}))
+(defn login
+  [{{{:keys [email]} :body} :parameters
+    components :components}]
+  (http-out/supabase-auth-magic-link! email (:config components))
+  {:status 200
+   :body {:content "ok"}})
 
+
+(defn create-user! [arg1]
+  {:status 200
+   :body {:content "oi"}})

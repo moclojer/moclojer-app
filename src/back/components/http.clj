@@ -2,17 +2,18 @@
   (:require [clj-http.client :as http]
             [clj-http.util :as http-util]
             [com.stuartsierra.component :as component]
-            [back.components.logs :as logs]
-            [schema.core :as s]))
+            [back.components.logs :as logs]))
 
-(s/defschema HttpRequestInput
-  {:url s/Str
-   :method (apply s/enum #{:get :head :post :put :delete :options :copy :move :patch})
-   s/Any s/Any})
+(defn request-fn
+  "Accepts :req which should be a map containing the following keys:
+  :url - string, containing the http address requested
+  :method - keyword, contatining one of the following options:
+    #{:get :head :post :put :delete :options :copy :move :patch}
 
-(s/defn request-fn
-  [{:keys [url] :as req} :- HttpRequestInput
-   & [respond raise]]
+  The following keys make an async HTTP request, like ring's CPS handler.
+  * :respond
+  * :raise"
+  [{:keys [url] :as req} & [respond raise]]
   (http/check-url! url)
   (if (http-util/opt req :async)
     (if (some nil? [respond raise])
@@ -37,7 +38,7 @@
     (let [start-time (System/currentTimeMillis)
           {:keys [status] :as response} (request-fn request-input)
           end-time (System/currentTimeMillis)
-          total-time (- start-time end-time)]
+          total-time (- end-time start-time)]
       (logs/log :info :http-out-message-response :response-time-millis total-time
                 :status status)
       response)))

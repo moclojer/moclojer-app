@@ -6,6 +6,7 @@
                    :deps/root "core"}
         lilactown/helix {:mvn/version "0.1.9"}
         funcool/promesa {:mvn/version "9.0.494"}
+
         metosin/reitit-schema {:mvn/version "0.5.18"}
         metosin/reitit-frontend {:mvn/version "0.5.18"}
         lambdaisland/fetch {:mvn/version "1.1.60"}
@@ -21,6 +22,7 @@
         com.zaxxer/HikariCP {:mvn/version "5.0.1"}
         io.pedestal/pedestal.jetty  {:mvn/version "0.5.10"}
         io.pedestal/pedestal.service  {:mvn/version "0.5.10"}
+        metosin/malli {:mvn/version "0.11.0"}
         metosin/muuntaja {:mvn/version "0.6.8"}
         metosin/reitit {:mvn/version "0.5.18"}
         metosin/reitit-pedestal {:mvn/version "0.5.18"}
@@ -30,8 +32,6 @@
         org.bouncycastle/bcprov-jdk15on {:mvn/version "1.70"}
         org.postgresql/postgresql {:mvn/version "42.6.0"}
         org.slf4j/slf4j-simple {:mvn/version "2.0.2"}
-        prismatic/schema {:mvn/version "1.4.0"}
-        prismatic/schema-generators {:mvn/version "0.1.5"}
         selmer/selmer {:mvn/version "1.12.55"}
 
         io.github.cljazz/supabase {:git/sha "a850ed47eb0daa8303f206ea60bd4b3bf59e1e0a"

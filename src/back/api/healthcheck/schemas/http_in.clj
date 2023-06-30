@@ -1,9 +1,10 @@
-(ns back.api.healthcheck.schemas.http-in 
-  (:require [schema.core :as s]))
+(ns back.api.healthcheck.schemas.http-in)
 
+(def Content
+  [:map
+   [:content string?]])
 
-(s/defschema Content 
-  {:content s/Str})
+(def HealthResponse
+  [:map
+   [:data Content]])
 
-(s/defschema HealthResponse 
-  {:data Content})

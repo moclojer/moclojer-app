@@ -8,7 +8,8 @@
    [back.components.migrations :as migrations]
    [back.components.router :as router]
    [back.components.webserver :as webserver]
-   [com.stuartsierra.component :as component])
+   [com.stuartsierra.component :as component]
+   [pg-embedded-clj.core :as pg-emb])
   (:gen-class))
 
 (def system-atom (atom nil))
@@ -28,6 +29,21 @@
        component/start
        (reset! system-atom)))
 
+(defn start-system-dev! [system-map]
+  (logs/setup [["*" :info]] :auto)
+  (pg-emb/init-pg)
+  (migrations/migrate (migrations/configuration-with-db))
+  (->> system-map
+       component/start
+       (reset! system-atom)))
+
+(defn stop-system-dev! []
+  (logs/log :info :system-stop)
+  (swap!
+   system-atom
+   (fn [s] (when s (component/stop s))))
+  (pg-emb/halt-pg!))
+
 (defn stop-system! []
   (logs/log :info :system-stop)
   (swap!
@@ -41,6 +57,13 @@
   (.addShutdownHook (Runtime/getRuntime)
                     (Thread. ^Runnable stop-system!))
   (start-system! (build-system-map)))
+
+(comment
+
+  (stop-system-dev!)
+  (start-system-dev! (build-system-map))
+
+  )
 
 (comment
   (stop-system!)
