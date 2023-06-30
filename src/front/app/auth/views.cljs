@@ -47,7 +47,7 @@
      (supabase/event-changes
       (fn [event s]
         (case event
-          "SIGNED_IN" (refx/dispatch-sync [:app.auth/save-user s])
+          "SIGNED_IN"  #(prn %) #_(refx/dispatch-sync [:app.auth/save-user s])
           "SIGNED_OUT" (do
                          (auth.db/remove-cookie "current-user")
                          (set-session s))))))

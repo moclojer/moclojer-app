@@ -173,8 +173,9 @@
                                    (d/span {:class-name "ml-3"}
                                            "Logout"))))))))
 
-(defnc Index [{{:keys [user]} :children}]
-  (let [[toggle-menu set-toggle-menu] (hooks/use-state false)
+(defnc Index []
+  (let [user (refx/use-sub [:app.auth/current-user])
+        [toggle-menu set-toggle-menu] (hooks/use-state false)
         [toggle-sidebar set-toggle] (hooks/use-state false)
         user-data (-> user :data :session :user)]
     (d/body
