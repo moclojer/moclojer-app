@@ -11,6 +11,15 @@
   (let [expires_at (-> current-user :data :session :expires_at)]
     (auth.db/set-cookie "current-user" expires_at  current-user)))
 
+#_(refx/reg-event-fx
+ :app.auth/save-user
+ (fn [db [_ user]]
+   {:db db
+    :http {:url "http://localhost:3000/auth/login"
+           :method :post
+           :body user
+           :on-success [:app.auth/success-save]}}))
+
 (refx/reg-event-db
  :app.auth/login-error
  (fn

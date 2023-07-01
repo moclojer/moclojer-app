@@ -1,5 +1,6 @@
 (ns back.api.auth.ports.http-in
   (:require
+   [back.api.auth.logic :as auth.logic]
    [back.api.auth.ports.http-out :as http-out]))
 
 (defn login
@@ -11,13 +12,17 @@
 
 (defn create-user!
   [{{{:keys [url]} :query} :parameters
-    components :components}]
-  (let [resp
-        (http-out/verify-token-supabase!
-         (:http components)
-         url)]
-    (prn :here resp)
+    {:keys [http]} :components}]
+  (let [token (auth.logic/extract-params url)
+        _ (prn token)
+        #_#_resp (http-out/verify-token-supabase! http url token)]
+    (prn :url url)
     {:status 200
      :body {:content "oi"}}))
 
-
+(defn xpto!
+  [{p :parameters
+    {:keys [http]} :components}]
+  (prn p)
+  {:status 200
+   :body {:content "oi"}})

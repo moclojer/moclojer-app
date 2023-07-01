@@ -25,32 +25,55 @@
         [session set-session] (hooks/use-state nil)]
 
     (hooks/use-effect
-     [session]
-     (prn "window.location" (.-href (.-location js/window)))
-     (when (and session (not (nil? (-> session :data :session))))
-       (refx/dispatch [:app.auth/set-user-session session])))
+      [session]
+      (prn "window.location" (.-href (.-location js/window)))
+      (when (and session (not (nil? (-> session :data :session))))
+        (refx/dispatch [:app.auth/set-user-session session])))
 
     (hooks/use-effect
-     :once
-     (let [auth (.-auth supabase/client)]
-       (-> (.getSession auth)
-           (p/then
-            (fn [resp]
-              (prn :session (js->cljs-key resp))
+      :once
+      (let [auth (.-auth supabase/client)]
+        (-> (.getSession auth)
+            (p/then
+             (fn [resp]
+               (prn :resp resp)
+               (prn :session (js->cljs-key resp))
               ;; user session is nil, redirect to login
-              (if-not (-> (js->cljs-key resp) :data)
-                (rfe/push-state :app.core/login)
-                (set-session (js->cljs-key resp))))))))
+               (if-not (-> (js->cljs-key resp) :data)
+                 (rfe/push-state :app.core/login)
+                 (set-session (js->cljs-key resp))))))))
 
     (hooks/use-effect
-     :once
-     (supabase/event-changes
-      (fn [event s]
-        (case event
-          "SIGNED_IN"  #(prn %) #_(refx/dispatch-sync [:app.auth/save-user s])
-          "SIGNED_OUT" (do
-                         (auth.db/remove-cookie "current-user")
-                         (set-session s))))))
+      :auto-deps
+      (supabase/event-changes
+       (fn [event s]
+         (prn :running)
+         (when (= event "SIGNOUT")
+           (do
+             (auth.db/remove-cookie "current-user")
+             (set-session s))))))
+
+    (hooks/use-effect
+      :auto-deps
+      (supabase/event-changes
+       (fn [event s]
+         (prn :running)
+         (prn :event event s)
+
+         (cond
+
+           (= "SIGNED_IN" event) (do (prn s event) #_(refx/dispatch-sync [:app.auth/save-user s]))
+           (= "SIGNED_OUT" event) (do
+                                    (auth.db/remove-cookie "current-user")
+                                    (set-session s))
+           :else (prn :else event s))
+
+         #_(case event
+             :else (prn :else event)
+             "SIGNED_IN"  (do (prn s event)) #_(refx/dispatch-sync [:app.auth/save-user s])
+             "SIGNED_OUT" (do
+                            (auth.db/remove-cookie "current-user")
+                            (set-session s))))))
 
     (d/body {:class-name "bg-gray-50 dark:bg-gray-800"}
             (d/main {:class-name "bg-gray-50 dark:bg-gray-900"}
