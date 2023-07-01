@@ -36,5 +36,10 @@
      :get {:summary "Login supabase"
            :parameters {:query {:url string?}}
            :responses {200 {}}
-           :handler auth.ports.http-in/create-user!}}]])
+           :handler auth.ports.http-in/create-user!}}]
+
+   
+   
+   
+   ])
 

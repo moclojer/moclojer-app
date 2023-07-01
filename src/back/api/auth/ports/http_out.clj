@@ -12,9 +12,10 @@
     :email-redirect-to "http://localhost:3000/auth/login"}))
 
 (defn verify-token-supabase!
-  [http url]
+  [http url {:keys [token auth-type]}]
   (prn :url url)
-  (->> {:url url
+  (->> {:url "https://tgvdfxurgsddxouxmugs.supabase.co/auth/v1/verify"
         :as :json
+        :query-params {:token token :type auth-type}
         :method :get}
        (http/request http)))

@@ -1,4 +1,6 @@
-(ns back.api.auth.logic)
+(ns back.api.auth.logic 
+  (:require
+   [clojure.string :as str]))
 
 (defn extract-params
   [url]
@@ -6,6 +8,6 @@
         [redirect-to token auth-type] (rest params)]
     {:redirect-to redirect-to
      :token token
-     :type auth-type}))
+     :auth-type (str/replace auth-type #"/" "")}))
 
 

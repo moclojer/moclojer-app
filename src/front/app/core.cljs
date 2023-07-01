@@ -52,7 +52,7 @@
     (if is-public?
       ($ view {:match current-route})
       (if (-> user :data :session)
-        ($ view {:user user})
+        ($ view)
         (rfe/push-state :app.core/login)))))
 
 (defnc app []
