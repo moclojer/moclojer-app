@@ -22,7 +22,7 @@
     (d/div {:class-name "p-5"}
            (d/div {:class-name "flex items-center mb-4"}
                   (d/div {:class-name "flex-shrink-0"}
-                         (d/img {:class-name "w-8 h-8 rounded-full" :src "./images/users/avatar.png"}))
+                         (d/img {:class-name "w-8 h-8 rounded-full" :src "/images/users/avatar.png"}))
                   (d/div {:class-name "ml-4"}
                          (d/div {:class-name "text-base font-semibold text-gray-900 truncate dark:text-white"}
                                 "Avelino")
@@ -219,7 +219,7 @@
                                          :d "M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
                                          :clip-rule "evenodd"})))
                (d/a {:href "#" :class-name "flex mr-14"}
-                    (d/img {:src "./images/logo.png"
+                    (d/img {:src "/images/logo.png"
                             :class-name "mr-3 h-8"})
                     (d/span {:class-name "self-center text-2xl font-semibold whitespace-nowrap dark:text-white"})))
         (d/div {:class-name "flex items-center lg:gap-3"}
@@ -230,7 +230,7 @@
                                  :aria-expanded "false"
                                  :data-dropdown-toggle "dropdown-2"}
                                 (d/span {:class-name "sr-only"} "Open user menu")
-                                (d/img {:class-name "w-8 h-8 rounded-full" :src "./images/users/avatar.png"}))
+                                (d/img {:class-name "w-8 h-8 rounded-full" :src "/images/users/avatar.png"}))
                       (d/div {:class-name "hidden z-50 my-4 text-base list-none bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600"
                               :id "dropdown-2"}
                              (d/div {:class-name "py-3 px-4" :role "none"}
