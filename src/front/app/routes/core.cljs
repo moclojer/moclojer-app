@@ -21,5 +21,5 @@
   (rfe/start!
    (router routes)
    on-navigate
-   {:use-fragment true}))
+   {:use-fragment false}))
 

@@ -3,15 +3,14 @@
             [front.app.dashboard.views :as d.views]))
 
 (def routes
-  [""
-   ["/"
+  ["/"
+   ["login"
     {:name :app.core/login
      :view auth/login-view
      :public? true}]
 
-   ["/dashboard"
-    [""
-     {:name :app.core/dashboard
-      :view d.views/Index
-      :public? false}]]])
+   ["dashboard"
+    {:name :app.core/dashboard
+     :view d.views/Index
+     :public? false}]])
 
