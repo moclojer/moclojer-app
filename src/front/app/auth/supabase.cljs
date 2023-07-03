@@ -24,7 +24,8 @@
   (let [auth (.-auth client)
         promise (.signInWithOtp
                  auth
-                 (clj->js {:email email}))]
+                 (clj->js {:email email
+                           :options {:emailRedirectTo "http://localhost:8000/auth/callback"}}))]
     promise))
 
 (defn sign-out [dispatch-fn-logout]
