@@ -1,7 +1,6 @@
 (ns front.app.routes.core
   (:require [reitit.coercion.schema :as rsc]
             [reitit.frontend :as rf]
-            [reitit.frontend.history :as rfh]
             [reitit.frontend.easy :as rfe]
             [refx.alpha :as refx]))
 

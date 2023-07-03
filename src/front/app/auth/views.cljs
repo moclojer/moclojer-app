@@ -17,12 +17,11 @@
 (defn- js->cljs-key [obj]
   (js->clj obj :keywordize-keys true))
 
-(defnc login-view []
+(defnc callback-view []
   (let [loading? (refx/use-sub [:app.auth/login-loading])
-        [error error-res] (refx/use-sub [:app.auth/login-error])
-        email-sent? (refx/use-sub [:app.auth/email-sent])
-        [state set-state] (hooks/use-state {:email ""})
         [session set-session] (hooks/use-state nil)]
+
+    (prn :callback)
 
     (hooks/use-effect
       [session]
@@ -47,33 +46,42 @@
       :auto-deps
       (supabase/event-changes
        (fn [event s]
-         (prn :running)
+         (prn :running event s)
          (when (= event "SIGNOUT")
            (do
              (auth.db/remove-cookie "current-user")
              (set-session s))))))
 
-    (hooks/use-effect
-      :auto-deps
-      (supabase/event-changes
-       (fn [event s]
-         (prn :running)
-         (prn :event event s)
+    #_(hooks/use-effect
+        :auto-deps
+        (supabase/event-changes
+         (fn [event s]
+           (prn :running)
+           (prn :event event s)
 
-         (cond
+           (cond
 
-           (= "SIGNED_IN" event) (do (prn s event) #_(refx/dispatch-sync [:app.auth/save-user s]))
-           (= "SIGNED_OUT" event) (do
-                                    (auth.db/remove-cookie "current-user")
-                                    (set-session s))
-           :else (prn :else event s))
+             (= "SIGNED_IN" event) (do (prn s event) #_(refx/dispatch-sync [:app.auth/save-user s]))
+             (= "SIGNED_OUT" event) (do
+                                      (auth.db/remove-cookie "current-user")
+                                      (set-session s))
+             :else (prn :else event s))
 
-         #_(case event
-             :else (prn :else event)
-             "SIGNED_IN"  (do (prn s event)) #_(refx/dispatch-sync [:app.auth/save-user s])
-             "SIGNED_OUT" (do
-                            (auth.db/remove-cookie "current-user")
-                            (set-session s))))))
+           #_(case event
+               :else (prn :else event)
+               "SIGNED_IN"  (do (prn s event)) #_(refx/dispatch-sync [:app.auth/save-user s])
+               "SIGNED_OUT" (do
+                              (auth.db/remove-cookie "current-user")
+                              (set-session s))))))
+    (d/div
+     ($ loading-spinner)
+     "Loading ...")))
+
+(defnc login-view []
+  (let [loading? (refx/use-sub [:app.auth/login-loading])
+        [error error-res] (refx/use-sub [:app.auth/login-error])
+        email-sent? (refx/use-sub [:app.auth/email-sent])
+        [state set-state] (hooks/use-state {:email ""})]
 
     (d/body {:class-name "bg-gray-50 dark:bg-gray-800"}
             (d/main {:class-name "bg-gray-50 dark:bg-gray-900"}
