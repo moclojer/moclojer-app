@@ -27,20 +27,20 @@
              obj))
 
 (defn- js->cljs-key [obj]
-  (convert-keys (js->clj obj :keywordize-keys true)))
+  (js->clj obj :keywordize-keys true))
 
 (defn do-nothing [event state]
   (js/console.log event state))
 
 (defnc callback-view []
   (let [loading? (refx/use-sub [:app.auth/login-loading])
-        [session set-session] (hooks/use-state nil)]
+        #_#_user (refx/use-sub [:app.auth/user])]
 
-    (hooks/use-effect
-      [session]
-      (prn "window.location" (.-href (.-location js/window)))
-      (when (and session (not (nil? (-> session :data :session))))
-        (refx/dispatch-sync [:app.auth/set-user-session session])))
+    #_(hooks/use-effect
+        [session]
+        (prn "window.location" (.-href (.-location js/window)))
+        (when (and session (not (nil? (-> session :data :session))))
+          (refx/dispatch-sync [:app.auth/set-user-session session])))
 
     (hooks/use-effect
       :once
@@ -48,28 +48,26 @@
         (-> (.getSession auth)
             (p/then
              (fn [resp]
-               (prn :resp resp)
-               (prn :session (js->cljs-key resp))
-              ;; user session is nil, redirect to login
-               (if-not (-> (js->cljs-key resp) :data)
-                 (do
-                   (refx/dispatch-sync [:app.auth/set-user-session session])
-                   (rfe/push-state :app.core/login))
-                 (set-session (js->cljs-key resp))))))))
+               (let [resp (-> (js->cljs-key resp) :data :session convert-keys)]
+                 (prn :session resp)
+                 (refx/dispatch-sync 
+                   [:app.auth/saving-user resp])))))))
 
-    (hooks/use-effect
-      :auto-deps
-      (supabase/event-changes
-       (fn [event session]
-         (cond
-           (= "SIGNED_IN" event) (refx/dispatch-sync
-                                  [:app.auth/save-user (-> (js->cljs-key  session))])
-           (= "SIGNED_OUT" event) (do
-                                    (refx/dispatch-sync
-                                     [:app.auth/logout :current-user])
-                                    (auth.db/remove-cookie "current-user")
-                                    (set-session session))
-           :else (do-nothing event session)))))
+;; user session is nil, redirect to login
+    ; (refx/dispatch-sync [:app.auth/save-user resp])
+    #_(hooks/use-effect
+        :auto-deps
+        (supabase/event-changes
+         (fn [event session]
+           (cond
+             (= "SIGNED_IN" event) (refx/dispatch-sync
+                                    [:app.auth/save-user (-> (js->cljs-key  session))])
+             (= "SIGNED_OUT" event) (do
+                                      (refx/dispatch-sync
+                                       [:app.auth/logout :current-user])
+                                      (auth.db/remove-cookie "current-user")
+                                      (set-session session))
+             :else (do-nothing event session)))))
 
     (d/div
      ($ loading-spinner)

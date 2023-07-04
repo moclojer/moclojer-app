@@ -7,6 +7,13 @@
    (:current-user db)))
 
 (refx/reg-sub
+ :app.auth/user
+ (fn [db]
+   (let [user (:current-user db)
+         user-created (merge user (:user-created db))]
+     {:user-created user-created})))
+
+(refx/reg-sub
  :app.auth/email-sent
  (fn [db]
    (:login-email-sent db)))

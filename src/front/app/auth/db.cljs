@@ -13,7 +13,6 @@
 
 (defn remove-cookie
   [name]
-  (prn :removing)
   (cookie/remove name))
 
 (refx/reg-cofx

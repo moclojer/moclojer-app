@@ -32,7 +32,7 @@
                :current-user cookie-current-user)}))
 
 (defnc routing []
-  (let [user (refx/use-sub [:app.auth/current-user])
+  (let [user (refx/use-sub [:app.auth/user])
         current-route (refx/use-sub [:app.routes/current-route])
         route-data (:data current-route)
         is-public? (:public? route-data)
