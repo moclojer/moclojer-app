@@ -11,17 +11,6 @@
   (let [expires_at (-> current-user :data :session :expires_at)]
     (auth.db/set-cookie "current-user" expires_at  current-user)))
 
-(refx/reg-event-fx
- :app.auth/save-user
- (fn [db [_ user]]
-   (prn "save-user" user)
-   {:db db
-    :http {:url "http://localhost:3000/auth/login"
-           :method :post
-           :body {:access-token (:access-token user)}
-           :on-success [:app.auth/success-save]
-           :on-failure [:app.auth/error-save-user]}}))
-
 (refx/reg-event-db
  :app.auth/success-save
  (fn
@@ -40,7 +29,6 @@
        (assoc :login-error [:http-error "Error login user."])
        (assoc :current-user nil))))
 
-
 (refx/reg-event-db
  :app.auth/login-error
  (fn
@@ -52,22 +40,28 @@
        (assoc :current-user nil))))
 
 (refx/reg-event-fx
- :app.auth/set-user-session
- [(after set-current-user-cookie!)]
+ :app.auth/saving-user
  (fn
    [{db :db} [_ session]]
-   {:db  (assoc db
-                :current-user session
-                :login-error nil
-                :login-loading? false)}))
+   (let [access-token (-> session :data :session :access-token)]
+     (set-current-user-cookie! session)
+     {:http {:url "http://localhost:3000/auth/login"
+             :method :post
+             :body {:access-token access-token}
+             :on-success [:app.auth/success-save]
+             :on-failure [:app.auth/error-save-user]}
+      :db  (assoc db
+                  :current-user session
+                  :login-error nil
+                  :login-loading? false)})))
 
+;; supabase send email
 (refx/reg-event-fx
  :app.auth/send-email-done
  (fn
    [{db :db} [_ response]]
-   (println :success-email response)
+   (println :success-confirmation-email response)
    {:db (-> db
-            (assoc :login-loading? false)
             (assoc :login-error nil)
             (assoc :login-email-sent (-> response :body :ok)))}))
 
@@ -99,6 +93,7 @@
    (-> db
        (assoc :login-email-sent nil))))
 
+;; log
 (refx/reg-event-fx
  :app.auth/logout
  (fn
