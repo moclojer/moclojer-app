@@ -36,6 +36,7 @@
       (merge {:env                     :dev
               ;; do not block thread that starts web server
               ::server/join?           false
+              ::server/allowed-origins {:creds true :allowed-origins (constantly true)}
               ;; Content Security Policy (CSP) is mostly turned off in dev mode
               ::server/secure-headers  {:content-security-policy-settings {:object-src "none"}}})
       ;; Wire up interceptor chains
@@ -55,7 +56,9 @@
     (let [{:webserver/keys [port]
            :keys [env]} (:config config)
           init-fn (if (= env :dev) dev-init prod-init)]
+      (logs/log :info "running webserver config - start")
       (logs/log :info :webserver :start {:env env :port port})
+      (logs/log :info "running webserver config - end")
       (assoc this :webserver
              (-> (base-service port)
                  (init-fn (:router router))

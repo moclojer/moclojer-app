@@ -2,8 +2,8 @@
   (:require
    [back.api.auth.ports.http-in :as auth.ports.http-in]
    [back.api.auth.schemas.wire-in :as auth.schemas.wire-in]
-   [back.api.healthcheck.ports.http-out :as healthcheck.ports.http-out]
-   [back.api.healthcheck.schemas.http-out :as healthcheck.schemas.http-out]
+   [back.api.auth.schemas.wire-out :as auth.schemas.wire-out]
+   [back.api.healthcheck :as healthcheck]
    [reitit.swagger :as swagger]))
 
 (def routes
@@ -15,26 +15,19 @@
    ["/healthcheck"
     {:swagger {:tags ["healthcheck"]}
      :get {:summary "Health check api"
-           :responses {200 {:body healthcheck.schemas.http-out/HealthResponse}}
-           :handler healthcheck.ports.http-out/health}}]
+           :responses {200 {:body healthcheck/HealthResponse}}
+           :handler healthcheck/health}}]
 
    ["/healthcheck/live"
     {:swagger {:tags ["healthcheck"]}
      :get {:summary "Health check api"
-           :responses {200 {:body healthcheck.schemas.http-out/HealthResponse}}
-           :handler healthcheck.ports.http-out/live}}]
-
-   ["/login"
-    {:swagger {:tags ["login"]}
-     :post {:summary "Login supabase"
-            :parameters {:body auth.schemas.wire-in/Login}
-            :responses {200 {}}
-            :handler auth.ports.http-in/login}}]
+           :responses {200 {:body healthcheck/HealthResponse}}
+           :handler healthcheck/live}}]
 
    ["/auth/login"
     {:swagger {:tags ["login"]}
-     :get {:summary "Login supabase"
-           :parameters {:query {:url string?}}
-           :responses {200 {}}
-           :handler auth.ports.http-in/create-user!}}]])
+     :post {:summary "Login supabase retrieve user"
+            :parameters {:body auth.schemas.wire-in/AuthLogin}
+            :responses {201 {:body auth.schemas.wire-out/User}}
+            :handler auth.ports.http-in/create-user!}}]])
 

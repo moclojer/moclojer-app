@@ -18,9 +18,17 @@
    {:db db
     :http {:url "http://localhost:3000/auth/login"
            :method :post
-           :body user
+           :body {:access-token (:access-token user)}
            :on-success [:app.auth/success-save]
            :on-failure [:app.auth/error-save-user]}}))
+
+(refx/reg-event-db
+ :app.auth/success-save
+ (fn
+   [db user]
+   (prn :user-success user)
+   (-> db
+       (assoc :current-user user))))
 
 (refx/reg-event-db
  :app.auth/error-save-user
