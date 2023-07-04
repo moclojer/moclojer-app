@@ -10,4 +10,5 @@
 (defnc footer-component []
   (d/footer {:class-name "bg-slate-50"}
             ($ container
-               (d/pre (with-out-str (pprint/pprint @db/app-db))))))
+               (d/pre (with-out-str 
+                        (pprint/pprint @db/app-db))))))

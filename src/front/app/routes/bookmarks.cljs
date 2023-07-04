@@ -5,18 +5,18 @@
    [front.app.lib :refer [defnc]]))
 
 (def routes
-  ["/"
-   ["login"
+  [""
+   ["/"
     {:name :app.core/login
      :view auth/login-view
      :public? true}]
 
-   ["auth/callback"
+   ["/auth/callback"
     {:name :app.core/callback
      :view auth/callback-view
      :public? true}]
 
-   ["dashboard"
+   ["/dashboard"
     {:name :app.core/dashboard
      :view d.views/Index
      :public? false}]])

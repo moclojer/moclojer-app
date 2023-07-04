@@ -1,4 +1,4 @@
-(ns back.api.healthcheck.schemas.http-in)
+(ns back.api.healthcheck.schemas.http-out)
 
 (def Content
   [:map
