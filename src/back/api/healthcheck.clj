@@ -1,6 +1,14 @@
-(ns back.api.healthcheck.ports.http-in
+(ns back.api.healthcheck
   (:require
    [back.components.database :as database]))
+
+(def Content
+  [:map
+   [:content string?]])
+
+(def HealthResponse
+  [:map
+   [:data Content]])
 
 (defn live-db
   [{:keys [database]}]

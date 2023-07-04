@@ -1,5 +1,5 @@
 (ns back.api.auth.schemas.wire-in)
 
-(def Login
+(def AuthLogin
   [:map
-   [:email :string]])
+   [:access-token :string]])

@@ -20,8 +20,9 @@
 (defn- convert-keys [obj]
   (reduce-kv (fn [m k v]
                (assoc m (-> k
-                            (str)
-                            (replace-str)) v))
+                            (name)
+                            (replace-str)
+                            keyword) v))
              {}
              obj))
 
@@ -62,8 +63,7 @@
        (fn [event session]
          (cond
            (= "SIGNED_IN" event) (refx/dispatch-sync
-                                  [:app.auth/save-user (-> (js->cljs-key  session)
-                                                           (select-keys [:user :access-token :refresh-token]))])
+                                  [:app.auth/save-user (-> (js->cljs-key  session))])
            (= "SIGNED_OUT" event) (do
                                     (refx/dispatch-sync
                                      [:app.auth/logout :current-user])
