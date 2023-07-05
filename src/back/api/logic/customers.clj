@@ -1,4 +1,4 @@
-(ns back.api.logic.users
+(ns back.api.logic.customers
   (:import [java.util UUID]))
 
 (defn uuid-from-string
@@ -12,7 +12,7 @@
   (UUID/randomUUID))
 
 (defn create
-  [user]
-  {:user/uuid (->uuid)
-   :user/email (:email user)
-   :user/external-uuid (:id user)})
+  [{:keys [email id]}]
+  {:customer/uuid (->uuid)
+   :customer/email email
+   :customer/external-uuid id})

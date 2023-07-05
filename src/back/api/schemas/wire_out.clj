@@ -2,5 +2,5 @@
 
 (def User
   [:map
-   [:id string?]
+   [:uuid string?]
    [:email string?]])

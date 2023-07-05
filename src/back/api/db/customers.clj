@@ -1,4 +1,4 @@
-(ns back.api.db.users
+(ns back.api.db.customers
   (:require
    [back.components.database :as database]
    [honey.sql :as sql]
@@ -6,16 +6,16 @@
 
 (defn insert!
   [transaction db]
-  (->> (-> (sql.helpers/insert-into :users)
+  (->> (-> (sql.helpers/insert-into :customer)
            (sql.helpers/values [transaction])
            (sql.helpers/returning :*)
            sql/format)
        (database/execute db)
        first))
 
-(defn get-users [db]
+(defn get-customers [db]
   (database/execute
    db
    (-> (sql.helpers/select :*)
-       (sql.helpers/from :users)
+       (sql.helpers/from :customer)
        sql/format)))

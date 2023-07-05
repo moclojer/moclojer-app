@@ -28,6 +28,6 @@
     {:swagger {:tags ["login"]}
      :post {:summary "Login supabase retrieve user"
             :parameters {:body auth.schemas.wire-in/AuthLogin}
-            :responses {201 {:body auth.schemas.wire-out/User}}
+            :responses {201 {:body {:user auth.schemas.wire-out/User}}}
             :handler auth.ports.http-in/handler-create-user!}}]])
 
