@@ -2,9 +2,9 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 --;;
 
-CREATE TABLE IF NOT EXISTS "user" (
+CREATE TABLE IF NOT EXISTS users (
   uuid uuid UNIQUE NOT NULL PRIMARY KEY,
-  external_uuid uuid UNIQUE NOT NULL PRIMARY KEY,
+  external_uuid uuid UNIQUE NOT NULL,
   username varchar(255) NULL,
   email varchar(255) NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
