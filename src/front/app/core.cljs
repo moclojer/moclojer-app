@@ -32,26 +32,25 @@
                :current-user cookie-current-user)}))
 
 (defnc routing []
-  (let [user (refx/use-sub [:app.auth/user])
+  (let [user (refx/use-sub [:app.auth/current-user])
         current-route (refx/use-sub [:app.routes/current-route])
         route-data (:data current-route)
         is-public? (:public? route-data)
         view (:view route-data)]
 
     (hooks/use-effect
-     [current-route]
-     (when (nil? current-route)
-       (rfe/push-state :app.core/login)))
+      [current-route]
+      (when (nil? current-route)
+        (rfe/push-state :app.core/login)))
 
     (hooks/use-effect
-     [user]
-     (when (-> user :data :session)
-       (rfe/push-state :app.core/dashboard)))
-    
+      [user]
+      (when (-> user :user :valid-user)
+        (rfe/push-state :app.core/dashboard)))
 
     (if is-public?
       ($ view {:match current-route})
-      (if (-> user :data :session)
+      (if (-> user :user :valid-user)
         ($ view)
         (rfe/push-state :app.core/login)))))
 

@@ -39,5 +39,13 @@
   (reg-fx
    :http (http-effect (fetch-request-mock
                        {"/login/send-email" {:status 201
-                                             :body #js {:ok true}}}))
-   ))
+                                             :body #js {:ok true}}})))
+
+  #_(reg-fx
+   :http (http-effect (fetch/request
+                       {"http://localhost:3000/login/auth"
+                        {:status 201
+                         :body #js {:ok true}}})))
+
+;
+  )

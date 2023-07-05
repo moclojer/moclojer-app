@@ -3,31 +3,13 @@
    [front.app.auth.db :as auth.db]
    [front.app.auth.effects]
    [front.app.http]
-   [refx.alpha :as refx]
-   [refx.interceptors :refer [after]]))
+   [refx.alpha :as refx]))
 
 (defn set-current-user-cookie!
-  [{:keys [current-user]}]
+  [current-user]
+  (prn :here-user current-user)
   (let [expires_at (-> current-user :data :session :expires_at)]
     (auth.db/set-cookie "current-user" expires_at  current-user)))
-
-(refx/reg-event-db
- :app.auth/success-save
- (fn
-   [db user]
-   (prn :user-success user)
-   (-> db
-       (assoc :current-user user))))
-
-(refx/reg-event-db
- :app.auth/error-save-user
- (fn
-   [db error]
-   (js/console.error error)
-   (-> db
-       (assoc :login-loading? false)
-       (assoc :login-error [:http-error "Error login user."])
-       (assoc :current-user nil))))
 
 (refx/reg-event-db
  :app.auth/login-error
@@ -44,23 +26,43 @@
  (fn
    [{db :db} [_ session]]
    (let [access-token (-> session :data :session :access-token)]
-     (set-current-user-cookie! session)
-     {:http {:url "http://localhost:3000/auth/login"
+     {:http {:url "http://localhost:3000/login/auth"
              :method :post
              :body {:access-token access-token}
              :on-success [:app.auth/success-save]
-             :on-failure [:app.auth/error-save-user]}
+             :on-failure [:app.auth/falied-save-user]}
       :db  (assoc db
                   :current-user session
-                  :login-error nil
-                  :login-loading? false)})))
+                  :login-error nil)})))
+
+(refx/reg-event-db
+ :app.auth/success-save
+ (fn
+   [db [_ {:keys [body]}]]
+   (let [current-user (-> (:current-user db)
+                          (assoc-in [:user :valid-user] true)
+                          (assoc-in [:user :user-id] (-> body :user :id)))]
+     (set-current-user-cookie! current-user)
+     (-> db
+         (assoc
+          :login-loading? false
+          :current-user current-user)))))
+
+(refx/reg-event-db
+ :app.auth/falied-save-user
+ (fn
+   [db error]
+   (js/console.error error)
+   (-> db
+       (assoc :login-loading? false)
+       (assoc :login-error [:error  "Error with our account, try again."])
+       (assoc :current-user nil))))
 
 ;; supabase send email
 (refx/reg-event-fx
  :app.auth/send-email-done
  (fn
    [{db :db} [_ response]]
-   (println :success-confirmation-email response)
    {:db (-> db
             (assoc :login-error nil)
             (assoc :login-email-sent (-> response :body :ok)))}))
@@ -91,9 +93,10 @@
  (fn
    [db _]
    (-> db
+       (assoc :login-loading? false)
        (assoc :login-email-sent nil))))
 
-;; log
+;; logout
 (refx/reg-event-fx
  :app.auth/logout
  (fn
