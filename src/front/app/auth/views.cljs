@@ -1,6 +1,7 @@
 (ns front.app.auth.views
   (:require
    [front.app.auth.db :as auth.db]
+   [front.app.auth.events :refer [set-current-user-cookie!]]
    [front.app.auth.supabase :as supabase]
    [front.app.components.alerts :as alerts]
    [front.app.components.button :refer [button]]
@@ -33,14 +34,21 @@
   (js/console.log event state))
 
 (defnc callback-view []
-  (let [loading? (refx/use-sub [:app.auth/login-loading])
-        #_#_user (refx/use-sub [:app.auth/user])]
+  (let [user (refx/use-sub [:app.auth/current-user])
+        [error _] (refx/use-sub [:app.auth/login-error])]
 
-    #_(hooks/use-effect
-        [session]
-        (prn "window.location" (.-href (.-location js/window)))
-        (when (and session (not (nil? (-> session :data :session))))
-          (refx/dispatch-sync [:app.auth/set-user-session session])))
+    (prn :user user)
+    (hooks/use-effect
+      [error]
+      (prn :error error)
+      (when error
+        (rfe/push-state :app.core/login)))
+
+    (hooks/use-effect
+      :always
+      ;; user session is not nil, redirect to dashboard
+      (when (and user (not (nil? (-> user :user :valid-user))))
+        (rfe/push-state :app.core/dashboard)))
 
     (hooks/use-effect
       :once
@@ -49,25 +57,8 @@
             (p/then
              (fn [resp]
                (let [resp (-> (js->cljs-key resp) :data :session convert-keys)]
-                 (prn :session resp)
-                 (refx/dispatch-sync 
-                   [:app.auth/saving-user resp])))))))
-
-;; user session is nil, redirect to login
-    ; (refx/dispatch-sync [:app.auth/save-user resp])
-    #_(hooks/use-effect
-        :auto-deps
-        (supabase/event-changes
-         (fn [event session]
-           (cond
-             (= "SIGNED_IN" event) (refx/dispatch-sync
-                                    [:app.auth/save-user (-> (js->cljs-key  session))])
-             (= "SIGNED_OUT" event) (do
-                                      (refx/dispatch-sync
-                                       [:app.auth/logout :current-user])
-                                      (auth.db/remove-cookie "current-user")
-                                      (set-session session))
-             :else (do-nothing event session)))))
+                 (refx/dispatch-sync
+                  [:app.auth/saving-user resp])))))))
 
     (d/div
      ($ loading-spinner)
