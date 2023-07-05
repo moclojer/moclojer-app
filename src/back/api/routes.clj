@@ -1,8 +1,8 @@
 (ns back.api.routes
   (:require
-   [back.api.auth.ports.http-in :as auth.ports.http-in]
-   [back.api.auth.schemas.wire-in :as auth.schemas.wire-in]
-   [back.api.auth.schemas.wire-out :as auth.schemas.wire-out]
+   [back.api.ports.http-in :as auth.ports.http-in]
+   [back.api.schemas.wire-in :as auth.schemas.wire-in]
+   [back.api.schemas.wire-out :as auth.schemas.wire-out]
    [back.api.healthcheck :as healthcheck]
    [reitit.swagger :as swagger]))
 
@@ -24,10 +24,10 @@
            :responses {200 {:body healthcheck/HealthResponse}}
            :handler healthcheck/live}}]
 
-   ["/auth/login"
+   ["/login/auth"
     {:swagger {:tags ["login"]}
      :post {:summary "Login supabase retrieve user"
             :parameters {:body auth.schemas.wire-in/AuthLogin}
             :responses {201 {:body auth.schemas.wire-out/User}}
-            :handler auth.ports.http-in/create-user!}}]])
+            :handler auth.ports.http-in/handler-create-user!}}]])
 

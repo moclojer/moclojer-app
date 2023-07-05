@@ -1,4 +1,4 @@
-(ns back.api.auth.schemas.wire-out)
+(ns back.api.schemas.wire-out)
 
 (def User
   [:map

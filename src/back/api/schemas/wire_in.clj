@@ -1,4 +1,4 @@
-(ns back.api.auth.schemas.wire-in)
+(ns back.api.schemas.wire-in)
 
 (def AuthLogin
   [:map

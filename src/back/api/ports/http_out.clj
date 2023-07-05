@@ -1,4 +1,4 @@
-(ns back.api.auth.ports.http-out
+(ns back.api.ports.http-out
   (:require
    [co.cljazz.supabase-clj.core :as s.core]))
 
