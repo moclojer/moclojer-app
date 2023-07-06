@@ -24,6 +24,7 @@
                                [:config])
     :webserver (component/using (webserver/new-webserver)
                                 [:config :http :router :database]))))
+
 (defflow
   flow-integration-endpoints-test
   {:init (utils/start-system! create-and-start-components!)
@@ -31,13 +32,8 @@
    :fail-fast? true}
 
   (flow "makes a healthcheck request"
-        (match? (matchers/embeds {:status 200
-                                  :body  {:data {:content "Live api"}}})
-                (helpers/request! {:method :get
-                                   :uri    "/healthcheck"
-                                   :body   {:btc -1M}})))
-  
-  (flow ""
-        (match? (matchers/embeds {:status 200
-                                  :body {:a {:a ""}}})
-                (helpers/request! {:method :get}))))
+    (match? (matchers/embeds {:status 200
+                              :body  {:data {:content "Live api"}}})
+            (helpers/request! {:method :get
+                               :uri    "/healthcheck"
+                               :body   {}}))))

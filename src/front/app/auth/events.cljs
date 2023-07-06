@@ -7,7 +7,6 @@
 
 (defn set-current-user-cookie!
   [current-user]
-  (prn :here-user current-user)
   (let [expires_at (-> current-user :data :session :expires_at)]
     (auth.db/set-cookie "current-user" expires_at  current-user)))
 
@@ -25,9 +24,7 @@
  :app.auth/saving-user
  (fn
    [{db :db} [_ session]]
-   (prn :session session)
-   (let [access-token (-> session :access-token)
-         _ (prn :access-token access-token)]
+   (let [access-token (-> session :access-token)]
      {:http {:url "http://localhost:3000/login/auth"
              :method :post
              :body {:access-token access-token}

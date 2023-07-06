@@ -1,7 +1,5 @@
 (ns front.app.auth.views
   (:require
-   [front.app.auth.db :as auth.db]
-   [front.app.auth.events :refer [set-current-user-cookie!]]
    [front.app.auth.supabase :as supabase]
    [front.app.components.alerts :as alerts]
    [front.app.components.button :refer [button]]
@@ -34,10 +32,8 @@
   (let [user (refx/use-sub [:app.auth/current-user])
         [error _] (refx/use-sub [:app.auth/login-error])]
 
-    (prn :user user)
     (hooks/use-effect
       [error]
-      (prn :error error)
       (when error
         (rfe/push-state :app.core/login)))
 
@@ -94,7 +90,6 @@
                                                  "Sign in to moclojer")
                                            (d/form {:disabled loading?
                                                     :on-submit (fn [e]
-                                                                 (prn e)
                                                                  (.preventDefault e)
                                                                  (when (:email state)
                                                                    (refx/dispatch [:app.auth/send-email state])))
