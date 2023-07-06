@@ -32,13 +32,11 @@
   (let [auth (.-auth client)]
     (-> (.signOut auth)
         (p/then (fn [e]
-                  (prn :supabase-logout e)
                   (dispatch-fn-logout e))))))
 
 (defn event-changes [invoke]
   (.onAuthStateChange (.-auth client)
                       (fn [event new-session]
-                        (prn :event event)
                         (invoke event new-session))))
 
 (comment
