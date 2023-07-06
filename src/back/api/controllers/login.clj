@@ -5,8 +5,13 @@
             [back.api.ports.http-out :as http-out]))
 
 (defn create-customer!
-  [token {:keys [database]}]
-  (let [customer (http-out/supabase-get-user! token)
-        entry (logic.customers/create customer)]
-    (adapter.customers/->wire 
-      (db.customers/insert! entry database))))
+  [token {:keys [database config]}]
+  (let [customer (http-out/supabase-get-user! token config)
+        customer-saved (db.customers/get-by-external-id
+                        (parse-uuid (:id customer))
+                        database)]
+    (if customer-saved
+      (adapter.customers/->wire customer-saved)
+      (-> (logic.customers/create customer)
+          (db.customers/insert! database)
+          (adapter.customers/->wire)))))

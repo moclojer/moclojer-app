@@ -6,7 +6,7 @@
   [{{{:keys [access-token]} :body} :parameters
     components :components}]
   (let [user (controllers.login/create-customer!
-               access-token components)]
+              access-token components)]
 
     {:status 201
      :body {:user user}}))

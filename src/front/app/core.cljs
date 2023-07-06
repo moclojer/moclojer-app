@@ -31,6 +31,11 @@
    {:db (assoc default-db
                :current-user cookie-current-user)}))
 
+(refx/reg-sub
+ :app.database/db
+ (fn [db]
+   db))
+
 (defnc routing []
   (let [user (refx/use-sub [:app.auth/current-user])
         current-route (refx/use-sub [:app.routes/current-route])

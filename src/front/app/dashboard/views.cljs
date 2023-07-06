@@ -178,6 +178,7 @@
         [toggle-menu set-toggle-menu] (hooks/use-state false)
         [toggle-sidebar set-toggle] (hooks/use-state false)
         user-data (-> user :user)]
+
     (d/body
      {:class-name "bg-gray-50 dark:bg-gray-800"}
      (d/nav

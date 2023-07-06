@@ -19,3 +19,12 @@
    (-> (sql.helpers/select :*)
        (sql.helpers/from :customer)
        sql/format)))
+
+(defn get-by-external-id [id db]
+  (-> (database/execute
+       db
+       (-> (sql.helpers/select :*)
+           (sql.helpers/from :customer)
+           (sql.helpers/where [:= :external_uuid id])
+           sql/format))
+      first))

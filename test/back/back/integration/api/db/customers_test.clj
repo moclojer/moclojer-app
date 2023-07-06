@@ -26,12 +26,22 @@
 
     (state/invoke
      #(db.customers/insert! {:customer/uuid #uuid "cd989358-af38-4a2f-a1a1-88096aa425a7"
-                         :customer/email "test@gmail.com"
-                         :customer/external-uuid #uuid "dcff4c06-1c9e-4abb-a49b-438e1869ec5b"}
-                        database))
+                             :customer/email "test@gmail.com"
+                             :customer/external-uuid #uuid "dcff4c06-1c9e-4abb-a49b-438e1869ec5b"}
+                            database))
 
-    (flow "then get the user from db"
+    (flow "then get by external id"
       (match? {:customer/uuid #uuid "cd989358-af38-4a2f-a1a1-88096aa425a7"
                :customer/email "test@gmail.com"
                :customer/external_uuid #uuid "dcff4c06-1c9e-4abb-a49b-438e1869ec5b"}
-              (first (db.customers/get-customers database))))))
+              (db.customers/get-by-external-id #uuid "dcff4c06-1c9e-4abb-a49b-438e1869ec5b" database)))
+
+    (flow "then get the user from db"
+      (match? [{:customer/uuid #uuid "cd989358-af38-4a2f-a1a1-88096aa425a7"
+                :customer/email "test@gmail.com"
+                :customer/external_uuid #uuid "dcff4c06-1c9e-4abb-a49b-438e1869ec5b"}]
+              (db.customers/get-customers database)))
+
+    (flow "get a invalid id from db return nil"
+      (match? nil
+              (db.customers/get-by-external-id (java.util.UUID/randomUUID) database)))))

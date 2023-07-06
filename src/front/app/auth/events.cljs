@@ -25,7 +25,9 @@
  :app.auth/saving-user
  (fn
    [{db :db} [_ session]]
-   (let [access-token (-> session :data :session :access-token)]
+   (prn :session session)
+   (let [access-token (-> session :access-token)
+         _ (prn :access-token access-token)]
      {:http {:url "http://localhost:3000/login/auth"
              :method :post
              :body {:access-token access-token}
@@ -41,7 +43,7 @@
    [db [_ {:keys [body]}]]
    (let [current-user (-> (:current-user db)
                           (assoc-in [:user :valid-user] true)
-                          (assoc-in [:user :user-id] (-> body :user :id)))]
+                          (assoc-in [:user :user-id] (-> body :user :uuid)))]
      (set-current-user-cookie! current-user)
      (-> db
          (assoc

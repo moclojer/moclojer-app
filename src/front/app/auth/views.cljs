@@ -30,9 +30,6 @@
 (defn- js->cljs-key [obj]
   (js->clj obj :keywordize-keys true))
 
-(defn do-nothing [event state]
-  (js/console.log event state))
-
 (defnc callback-view []
   (let [user (refx/use-sub [:app.auth/current-user])
         [error _] (refx/use-sub [:app.auth/login-error])]
