@@ -15,4 +15,4 @@
   [{:keys [email id]}]
   {:customer/uuid (->uuid)
    :customer/email email
-   :customer/external-uuid id})
+   :customer/external-uuid (parse-uuid id)})

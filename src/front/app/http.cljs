@@ -10,7 +10,7 @@
   [{:keys [url on-success on-failure] :as request} fn-request]
   (-> (fn-request url request)
       (.then (fn [{:keys [status] :as resp}]
-               (if (> status 400)
+               (if (>= status 400)
                  (dispatch (conj on-failure (js->cljs-key resp)))
                  (dispatch (conj on-success (js->cljs-key resp))))))
       (.catch (fn [resp]
