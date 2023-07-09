@@ -26,10 +26,11 @@
 
 (defn fetch-request-mock [responses]
   (fn [url _request]
-    (let [{:keys [lag] :as response} (get-in responses
-                                             [url]
-                                             {:status 500
-                                              :body "Response not set in mocks!"})]
+    (let [{:keys [lag] :as response}
+          (get-in responses
+                  [url]
+                  {:status 500
+                   :body "Response not set in mocks!"})]
       (p/delay (or lag 100) response))))
 
 (reg-fx :http (http-effect fetch/request))
@@ -42,10 +43,10 @@
                                              :body #js {:ok true}}})))
 
   #_(reg-fx
-   :http (http-effect (fetch/request
-                       {"http://localhost:3000/login/auth"
-                        {:status 201
-                         :body #js {:ok true}}})))
+     :http (http-effect (fetch/request
+                         {"http://localhost:3000/login/auth"
+                          {:status 201
+                           :body #js {:ok true}}})))
 
 ;
   )
