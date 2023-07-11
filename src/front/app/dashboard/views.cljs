@@ -1,10 +1,15 @@
 (ns front.app.dashboard.views
-  (:require
-   [helix.core :refer [$ defnc]]
-   [helix.dom :as d]
-   [helix.hooks :as hooks]
-   [refx.alpha :as refx]
-   [front.app.auth.supabase :as supabase]))
+  (:require [front.app.auth.supabase :as supabase]
+            [front.app.lib :refer [defnc]]
+            [helix.core :refer [$]]
+            [helix.dom :as d]
+            [helix.hooks :as hooks]
+            [refx.alpha :as refx]))
+
+(defnc Mocks []
+  (let [mocks  {:org "my" :mocks [{:enabled false :url "test01.avelino.moclojer.com"}
+                                  {:enabled true  :url "test01.avelino.moclojer.com"}]}]
+    (d/div {:class "relative overflow-x-auto shadow-md sm:rounded-lg"} "test")))
 
 (defnc MainBody [{:keys [is-sidebar-toogle?]}]
   (d/div
@@ -40,7 +45,10 @@
                   (d/p {:class-name "text-base font-normal text-gray-500 dark:text-gray-400"}
                        "Best Regards,"
                        (d/br)
-                       "Avelino CEO"))))))
+
+                       "Avelino CEO"))))
+
+   ($ Mocks)))
 
 (defnc Aside [{:keys
                [is-sidebar-toogle?
@@ -263,4 +271,5 @@
      (d/div {:class-name "hidden fixed inset-0 z-10 bg-gray-900/50 dark:bg-gray-900/90"
              :id "sidebarBackdrop"})
      ($ MainBody {:is-sidebar-toogle? toggle-sidebar}))))
+
 
