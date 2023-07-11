@@ -48,5 +48,9 @@
                           {:status 201
                            :body #js {:ok true}}})))
 
+  #_(-> (fetch/request "http://localhost:3000/login/auth" {:method :post})
+        (.then (fn [e] (prn :e e)))
+        (.catch (fn [e] (prn :e e))))
+
 ;
   )
