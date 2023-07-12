@@ -6,12 +6,7 @@
             [helix.hooks :as hooks]
             [refx.alpha :as refx]))
 
-(defnc Mocks []
-  (let [mocks  {:org "my" :mocks [{:enabled false :url "test01.avelino.moclojer.com"}
-                                  {:enabled true  :url "test01.avelino.moclojer.com"}]}]
-    (d/div {:class "relative overflow-x-auto shadow-md sm:rounded-lg"} "test")))
-
-(defnc MainBody [{:keys [is-sidebar-toogle?]}]
+(defnc container [{:keys [is-sidebar-toogle? children] :as props}]
   (d/div
    {:class-name (str "overflow-y-auto relative w-full h-full bg-gray-50 "
                      (if is-sidebar-toogle?
@@ -19,36 +14,100 @@
                        "lg:ml-64")
                      " dark:bg-gray-900")
     :id "main-content"}
-   (d/main
-    (d/div {:class-name "p-4 bg-white block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-gray-800 dark:border-gray-700"}
-           (d/div {:class-name "flex items-center divide-x divide-gray-100 dark:divide-gray-700"}
-                  (d/div {:class-name "pl-3 text-sm font-medium text-gray-500"}
-                         "Today, 11:01 AM")))
-    (d/div {:class-name "p-5"}
-           (d/div {:class-name "flex items-center mb-4"}
-                  (d/div {:class-name "flex-shrink-0"}
-                         (d/img {:class-name "w-8 h-8 rounded-full" :src "/images/users/avatar.png"}))
-                  (d/div {:class-name "ml-4"}
-                         (d/div {:class-name "text-base font-semibold text-gray-900 truncate dark:text-white"}
-                                "Avelino")
-                         (d/div {:class-name "text-sm text-gray-500 text-normal dark:text-gray-400"}
-                                "avelino@cljazz.co")))
-           (d/h1 {:class-name "mb-4 text-2xl font-bold text-gray-900 dark:text-white"}
-                 "Welcome to moclojer SaaS beta")
-           (d/div {:class-name "space-y-2"}
-                  (d/p {:class-name "text-base font-normal text-gray-500 dark:text-gray-400"}
-                       "Moclojer is an open source project developed by the company cljazz (with input from the Clojure community)." (d/br)
-                       "I'm happy to have you here, we are launching the SaaS version of moclojer, seeking to make it simple for you to put a mock API in the air to develop your projects." (d/br))
-                  (d/p {:class-name "text-base font-normal text-gray-500 dark:text-gray-400"}
-                       "I look forward to your feedback (this is the only way we can improve the product).")
+   children))
 
-                  (d/p {:class-name "text-base font-normal text-gray-500 dark:text-gray-400"}
-                       "Best Regards,"
-                       (d/br)
+(defnc api-mock []
+  (d/div (d/div {:class-name "self-stretch py-4 bg-white border-b border-gray-200 justify-center items-center inline-flex"}
+                (d/div {:class-name "grow shrink basis-0 h-[49px] justify-start items-center gap-2 flex"}
+                       (d/svg {:width "26"
+                               :height "25"
+                               :viewBox "0 0 26 25"
+                               :fill "none"}
+                              (d/path {:d "M3.90967 1.35851C3.63724 1.09539 3.27237 0.949797 2.89363 0.953088C2.5149 0.956379 2.15261 1.10829 1.8848 1.37611C1.61698 1.64392 1.46507 2.00621 1.46178 2.38494C1.45849 2.76368 1.60408 3.12855 1.8672 3.40098L11.8643 13.3995C11.9365 13.4891 12.016 13.57 12.107 13.6408L22.0882 23.6234C22.2223 23.7576 22.3815 23.8641 22.5568 23.9368C22.7321 24.0094 22.9199 24.0469 23.1096 24.0469C23.2994 24.047 23.4873 24.0097 23.6626 23.9372C23.8379 23.8646 23.9972 23.7583 24.1314 23.6241C24.2656 23.49 24.3721 23.3308 24.4447 23.1555C24.5174 22.9803 24.5548 22.7924 24.5549 22.6027C24.555 22.413 24.5177 22.2251 24.4451 22.0498C24.3726 21.8745 24.2662 21.7152 24.1321 21.581L23.1571 20.6059C25.1529 18.1073 26.1578 14.9608 25.9798 11.7679C25.8018 8.57502 24.4534 5.55972 22.1922 3.29842C22.059 3.16046 21.8996 3.05042 21.7233 2.97472C21.5471 2.89901 21.3576 2.85917 21.1658 2.8575C20.974 2.85583 20.7838 2.89238 20.6063 2.96501C20.4287 3.03764 20.2675 3.14489 20.1318 3.28052C19.9962 3.41614 19.889 3.57742 19.8163 3.75494C19.7437 3.93246 19.7071 4.12266 19.7088 4.31446C19.7105 4.50625 19.7503 4.69579 19.826 4.87202C19.9017 5.04825 20.0118 5.20764 20.1497 5.34089C21.8691 7.06045 22.9114 9.34191 23.0857 11.7674C23.26 14.1928 22.5546 16.5999 21.0987 18.5476L19.0259 16.4748C19.9438 15.0856 20.3537 13.422 20.1863 11.7654C20.0189 10.1088 19.2845 8.56084 18.1073 7.38336C17.836 7.11212 17.4682 6.95975 17.0846 6.95975C16.701 6.95975 16.3331 7.11212 16.0619 7.38336C15.7907 7.65459 15.6383 8.02245 15.6383 8.40603C15.6383 8.78961 15.7907 9.15748 16.0619 9.42871C17.3966 10.7619 17.6797 12.751 16.9098 14.3615L14.0324 11.4842C14.0239 11.4754 14.0152 11.4667 14.0064 11.4582L3.90967 1.35995V1.35851ZM3.23222 9.87216C3.33106 9.5019 3.27876 9.10754 3.08684 8.77584C2.89491 8.44413 2.57908 8.20226 2.20882 8.10342C1.83856 8.00458 1.4442 8.05688 1.11249 8.2488C0.780789 8.44073 0.538913 8.75656 0.440075 9.12682C-0.715494 13.4602 0.403963 18.2789 3.80711 21.6835C3.94132 21.8176 4.10062 21.924 4.27593 21.9965C4.45125 22.0691 4.63913 22.1064 4.82886 22.1063C5.01858 22.1062 5.20644 22.0688 5.3817 21.9961C5.55696 21.9235 5.71619 21.817 5.8503 21.6828C5.98441 21.5486 6.09078 21.3893 6.16332 21.214C6.23586 21.0387 6.27317 20.8508 6.2731 20.661C6.27303 20.4713 6.2356 20.2835 6.16293 20.1082C6.09026 19.9329 5.98378 19.7737 5.84958 19.6396C4.59397 18.3848 3.69101 16.8214 3.23154 15.1067C2.77207 13.3921 2.7723 11.5867 3.23222 9.87216V9.87216ZM9.24406 14.6577C9.15376 14.485 9.02948 14.3325 8.87868 14.2091C8.72789 14.0858 8.5537 13.9942 8.3666 13.9399C8.17951 13.8857 7.98336 13.8698 7.78997 13.8933C7.59658 13.9168 7.40994 13.9791 7.24128 14.0766C7.07261 14.1741 6.92541 14.3047 6.80853 14.4606C6.69166 14.6164 6.60751 14.7943 6.56116 14.9835C6.51481 15.1728 6.50722 15.3694 6.53884 15.5616C6.57046 15.7539 6.64063 15.9377 6.74515 16.1021C7.05426 16.638 7.43849 17.1421 7.89349 17.5971C8.16592 17.8603 8.53079 18.0058 8.90953 18.0026C9.28826 17.9993 9.65055 17.8474 9.91836 17.5795C10.1862 17.3117 10.3381 16.9494 10.3414 16.5707C10.3447 16.192 10.1991 15.8271 9.93596 15.5547C9.66007 15.2788 9.4304 14.9769 9.24551 14.6562L9.24406 14.6577Z"
+                                       :fill "#BDBDBD"}))
+                       (d/div {:class-name "justify-start items-start flex"})
+                       (d/div {:class-name "grow shrink basis-0 flex-col justify-start items-start gap-1 inline-flex"}
+                              (d/div {:class-name "w-[1116px] h-6 text-neutral-400 text-base font-semibold leading-normal"} " test01.avelino.moclojer.com")
+                              (d/div {:class-name "w-[1116px] text-gray-500 text-sm font-normal leading-[21px]"} " my frist mock server")))
 
-                       "Avelino CEO"))))
+                (d/div {:class-name "px-3 py-2 rounded-lg border border-gray-200 justify-center items-center gap-2 flex"}
+                       (d/div {:class-name "text-gray-800 text-sm font-medium leading-[21px]"} " remove")))))
 
-   ($ Mocks)))
+(defnc apis-mocks [{:keys [name type apis]}]
+  (d/div {:class-name "w-[1306px] h-[314px] p-8 bg-white rounded-lg shadow flex-col justify-center items-start inline-flex mock-list-margin"}
+         (d/div {:class-name "self-stretch justify-start items-center gap-[15px] inline-flex"}
+                (d/svg {:class-name ""
+                        :fill "none"
+                        :width "22"
+                        :height "23"
+                        :viewBox "0 0 20 22"}
+                       (d/path {:stroke "#111928"
+                                :stroke-width "2"
+                                :stroke-linecap "round"
+                                :stroke-linejoin "round"
+                                :d "M10.5882 9.92283C10.5882 14.0357 9.40118 17.8738 7.34941 21.1155M3.30235 18.7299L3.36588 18.6246C5.0159 16.019 5.8885 13.0016 5.88235 9.92283C5.88235 8.68221 6.37815 7.4924 7.26067 6.61516C8.1432 5.73791 9.34016 5.24507 10.5882 5.24507C11.8363 5.24507 13.0333 5.73791 13.9158 6.61516C14.7983 7.4924 15.2941 8.68221 15.2941 9.92283C15.2941 11.1121 15.2118 12.2839 15.0553 13.4311M12.5635 21.4348C13.2897 19.9946 13.8774 18.4895 14.3188 16.9395M18.8353 18.2633C19.5941 15.6133 20 12.8148 20 9.92283C20.0004 8.28041 19.5658 6.66685 18.7399 5.24434C17.914 3.82183 16.7259 2.64051 15.295 1.81914C13.8642 0.997776 12.2411 0.565308 10.5888 0.565216C8.93648 0.565124 7.31328 0.997411 5.88235 1.81862M0 15.0263C0.752941 13.4838 1.17647 11.7518 1.17647 9.92283C1.17647 8.21895 1.63529 6.6215 2.43529 5.24507"}))
+                (d/div {:class-name "w-[423px] self-stretch text-gray-900 text-xl font-bold leading-[30px]"} name))
+         (for [{:keys [enable url id]} apis]
+           ($ api-mock {:enable enable :url url :id id}))
+         (d/div {:class-name "self-stretch pt-6 justify-start items-start inline-flex"}
+                (d/div {:class-name "px-3 py-2 bg-pink-600 rounded-lg justify-end items-center gap-2 flex"}
+                       (d/div {:class-name "w-4 h-4 relative"})
+                       (d/div {:class-name "text-white text-xs font-bold leading-[18px]"} " new mock")
+                       (d/div {:class-name "w-3 h-3 relative"}))))
+
+  #_(d/div {:class-name "self-stretch py-4 bg-white border-b border-gray-200 justify-center items-center inline-flex"}
+           (d/div {:class-name "grow shrink basis-0 h-[49px] justify-start items-center gap-2 flex"}
+                  (d/div {:class-name "justify-start items-start flex"})
+                  (d/div {:class-name "grow shrink basis-0 flex-col justify-start items-start gap-1 inline-flex"}
+                         (d/div {:class-name "w-[1116px] grow shrink basis-0 text-gray-900 text-base font-semibold leading-normal"} " test01.avelino.moclojer.com")
+                         (d/div {:class-name "w-[1116px] text-gray-500 text-sm font-normal leading-[21px]"} " my frist mock server")))
+
+           (d/div {:class-name "px-3 py-2 rounded-lg border border-gray-200 justify-center items-center gap-2 flex"}
+                  (d/div {:class-name "text-gray-800 text-sm font-medium leading-[21px]"} " remove"))))
+
+(defnc mocks []
+  (let [mocks  [{:type :personal :name "my" :apis [{:enable false :url "test01.avelino.moclojer.com" :id 1}
+                                                   {:enable true  :url "test02.avelino.moclojer.com" :id 2}]}
+                {:type :org :name "cljazz" :apis [{:enable false :url "test01.avelino.moclojer.com" :id 1}
+                                                  {:enable true  :url "test02.avelino.moclojer.com" :id 2}]}]]
+
+    ($ container
+       (d/div {:class-name "mock-list"}
+              (for [{:keys [type name apis]} mocks]
+                ($ apis-mocks {:type type :name name :apis apis}))))))
+
+(defnc MainBody [{:keys [is-sidebar-toogle?]}]
+  ($ mocks)
+  #_($ container
+       {:is-sidebar-toogle? is-sidebar-toogle?}
+       (d/main
+
+        (d/div {:class-name "p-4 bg-white block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-gray-800 dark:border-gray-700"}
+               (d/div {:class-name "flex items-center divide-x divide-gray-100 dark:divide-gray-700"}
+                      (d/div {:class-name "pl-3 text-sm font-medium text-gray-500"}
+                             "Today, 11:01 AM")))
+        (d/div {:class-name "p-5"}
+               (d/div {:class-name "flex items-center mb-4"}
+                      (d/div {:class-name "flex-shrink-0"}
+                             (d/img {:class-name "w-8 h-8 rounded-full" :src "/images/users/avatar.png"}))
+                      (d/div {:class-name "ml-4"}
+                             (d/div {:class-name "text-base font-semibold text-gray-900 truncate dark:text-white"}
+                                    "Avelino")
+                             (d/div {:class-name "text-sm text-gray-500 text-normal dark:text-gray-400"}
+                                    "avelino@cljazz.co")))
+               (d/h1 {:class-name "mb-4 text-2xl font-bold text-gray-900 dark:text-white"}
+                     "Welcome to moclojer SaaS beta")
+               (d/div {:class-name "space-y-2"}
+                      (d/p {:class-name "text-base font-normal text-gray-500 dark:text-gray-400"}
+                           "Moclojer is an open source project developed by the company cljazz (with input from the Clojure community)." (d/br)
+                           "I'm happy to have you here, we are launching the SaaS version of moclojer, seeking to make it simple for you to put a mock API in the air to develop your projects." (d/br))
+                      (d/p {:class-name "text-base font-normal text-gray-500 dark:text-gray-400"}
+                           "I look forward to your feedback (this is the only way we can improve the product).")
+
+                      (d/p {:class-name "text-base font-normal text-gray-500 dark:text-gray-400"}
+                           "Best Regards,"
+                           (d/br)
+                           "Avelino CEO"))))))
 
 (defnc Aside [{:keys
                [is-sidebar-toogle?
