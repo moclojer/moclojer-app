@@ -1,6 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@tailwind style;
 
 #__next {
   min-height: 100%;
@@ -12,6 +13,16 @@
 
 .login-button:hover {
   background-color: rgba(255, 0, 158, 0.4);
+}
+
+/* mock list class*/
+.mock-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.mock-list-margin {
+  margin: 32px;
 }
 
 
