@@ -1,8 +1,7 @@
 (ns front.app.routes.bookmarks
   (:require
    [front.app.auth.views :as auth]
-   [front.app.dashboard.views :as d.views]
-   [front.app.lib :refer [defnc]]))
+   [front.app.dashboard.views :as d.views]))
 
 (def routes
   [""
@@ -18,6 +17,6 @@
 
    ["/dashboard"
     {:name :app.core/dashboard
-     :view d.views/Index
+     :view d.views/index
      :public? false}]])
 
