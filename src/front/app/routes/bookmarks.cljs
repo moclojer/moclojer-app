@@ -18,11 +18,11 @@
 
    ["/dashboard"
     {:name :app.core/dashboard
-     :view d.views/index
+     :view d.views/welcome
      :public? false}]
 
    ["/dashboard/mocks"
     {:name :app.core/mocks
-     :view mocks/index
+     :view mocks/mocks
      :public? false}]])
 

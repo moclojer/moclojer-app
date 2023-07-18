@@ -1,12 +1,7 @@
 (ns front.app.dashboard.views
-  (:require [front.app.components.container :refer [container]]
-            [front.app.dashboard.components :refer [aside nav-bar]]
-            [front.app.dashboard.mocks :refer [mocks]]
-            [front.app.lib :refer [defnc]]
-            [helix.core :refer [$]]
-            [helix.dom :as d]
-            [helix.hooks :as hooks]
-            [refx.alpha :as refx]))
+  (:require
+   [front.app.lib :refer [defnc]]
+   [helix.dom :as d]))
 
 (defnc welcome []
   (d/main
@@ -36,26 +31,3 @@
                       "Best Regards,"
                       (d/br)
                       "Avelino CEO")))))
-
-(defnc index []
-  (let [user (refx/use-sub [:app.auth/current-user])
-        [toggle-sidebar set-toggle] (hooks/use-state false)
-        user-data (-> user :user)]
-
-    (d/body
-     {:class-name "bg-gray-50 dark:bg-gray-800"}
-     ($ nav-bar {:set-toggle set-toggle
-                 :toggle-sidebar toggle-sidebar
-                 :user-data user-data})
-
-     ($ aside {:is-sidebar-toogle? toggle-sidebar
-               :set-toggle set-toggle})
-
-     (d/div {:class-name "hidden fixed inset-0 z-10 bg-gray-900/50 dark:bg-gray-900/90"
-             :id "sidebarBackdrop"})
-
-     ($ container
-        {:is-sidebar-toogle? toggle-sidebar}
-        ($ welcome)))))
-
-

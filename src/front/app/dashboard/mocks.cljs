@@ -1,12 +1,10 @@
 (ns front.app.dashboard.mocks
-  (:require [front.app.components.container :refer [container]]
-            [front.app.components.svg :as svg]
-            [front.app.dashboard.components :refer [aside nav-bar]]
-            [front.app.lib :refer [defnc]]
-            [helix.core :refer [$]]
-            [helix.dom :as d]
-            [helix.hooks :as hooks]
-            [refx.alpha :as refx]))
+  (:require
+   [front.app.components.svg :as svg]
+   [front.app.lib :refer [defnc]]
+   [helix.core :refer [$]]
+   [helix.dom :as d]
+   [refx.alpha :as refx]))
 
 (defnc api-mock [{:keys [enable url id]}]
   (d/div (d/div {:class-name "self-stretch py-4 bg-white border-b border-gray-200 justify-center items-center inline-flex" :id id}
@@ -60,28 +58,10 @@
 
 (defnc mocks [{:keys [is-sidebar-toogle?]}]
   (let [mocks-apis (refx/use-sub [:app.dashboard/mocks-api])]
-    ($ container {:is-sidebar-toogle? is-sidebar-toogle?}
-       (d/div {:class-name "mock-list"}
-              (for [{:keys [type name apis]} mocks-apis]
-                ($ apis-mocks {:type type :name name :apis apis}))))))
+    (d/div {:class-name "mock-list"}
+           (for [{:keys [type name apis]} mocks-apis]
+             ($ apis-mocks {:type type :name name :apis apis})))))
 
-(defnc index []
-  (let [user (refx/use-sub [:app.auth/current-user])
-        [toggle-sidebar set-toggle] (hooks/use-state false)
-        user-data (-> user :user)]
 
-    (d/body
-     {:class-name "bg-gray-50 dark:bg-gray-800"}
-     ($ nav-bar {:set-toggle set-toggle
-                 :toggle-sidebar toggle-sidebar
-                 :user-data user-data})
-
-     ($ aside {:is-sidebar-toogle? toggle-sidebar
-               :set-toggle set-toggle})
-
-     (d/div {:class-name "hidden fixed inset-0 z-10 bg-gray-900/50 dark:bg-gray-900/90"
-             :id "sidebarBackdrop"})
-
-     ($ mocks {:is-sidebar-toogle? toggle-sidebar}))))
 
 
