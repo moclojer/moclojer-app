@@ -1,6 +1,7 @@
 (ns front.app.dashboard.views
   (:require [front.app.components.container :refer [container]]
             [front.app.dashboard.components :refer [aside nav-bar]]
+            [front.app.dashboard.mocks :refer [mocks]]
             [front.app.lib :refer [defnc]]
             [helix.core :refer [$]]
             [helix.dom :as d]
@@ -36,38 +37,25 @@
                       (d/br)
                       "Avelino CEO")))))
 
-(defnc main-body [{:keys [is-sidebar-toogle?]}]
-  ($ container
-     {:is-sidebar-toogle? is-sidebar-toogle?}
-     ($ welcome)))
-
 (defnc index []
   (let [user (refx/use-sub [:app.auth/current-user])
-        [toggle-menu set-toggle-menu] (hooks/use-state false)
         [toggle-sidebar set-toggle] (hooks/use-state false)
-        user-data (-> user :user)
-        apis-mocks [{:type :personal :name "my" :apis [{:enable false :url "test01.avelino.moclojer.com" :id 1}
-                                                       {:enable true  :url "test02.avelino.moclojer.com" :id 2}]}
-                    {:type :org :name "cljazz" :apis [{:enable false :url "test01.avelino.moclojer.com" :id 1}
-                                                      {:enable true  :url "test02.avelino.moclojer.com" :id 2}]}]]
+        user-data (-> user :user)]
 
     (d/body
      {:class-name "bg-gray-50 dark:bg-gray-800"}
-     ($ nav-bar {:set-toggle-menu set-toggle-menu
-                 :toggle-menu toggle-menu
-                 :set-toggle set-toggle
+     ($ nav-bar {:set-toggle set-toggle
                  :toggle-sidebar toggle-sidebar
                  :user-data user-data})
 
      ($ aside {:is-sidebar-toogle? toggle-sidebar
-               :set-toggle set-toggle
-               :set-toggle-menu set-toggle-menu
-               :apis-mocks apis-mocks
-               :toggle-menu toggle-menu})
+               :set-toggle set-toggle})
 
      (d/div {:class-name "hidden fixed inset-0 z-10 bg-gray-900/50 dark:bg-gray-900/90"
              :id "sidebarBackdrop"})
 
-     ($ main-body {:is-sidebar-toogle? toggle-sidebar}))))
+     ($ container
+        {:is-sidebar-toogle? toggle-sidebar}
+        ($ welcome)))))
 
 
