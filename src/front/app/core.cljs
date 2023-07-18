@@ -5,6 +5,8 @@
    [front.app.auth.db]
    [front.app.auth.events]
    [front.app.auth.subs]
+   [front.app.dashboard.subs]
+   [front.app.dashboard.events]
    [front.app.components.footer :refer [footer-component]]
    [front.app.lib :refer [defnc]]
    [front.app.routes.bookmarks :as routes.bookmarks]
@@ -36,9 +38,14 @@
  (fn [db]
    db))
 
+(defn dashboard-routes [{:keys [match]}]
+  (let [route-data (:data match)
+        view (:view route-data)
+        user (refx/use-sub [:app.auth/current-user])]
+    ($ view {:match match})))
+
 (defnc routing []
-  (let [user (refx/use-sub [:app.auth/current-user])
-        current-route (refx/use-sub [:app.routes/current-route])
+  (let [current-route (refx/use-sub [:app.routes/current-route])
         route-data (:data current-route)
         is-public? (:public? route-data)
         view (:view route-data)]
@@ -48,16 +55,9 @@
       (when (nil? current-route)
         (rfe/push-state :app.core/login)))
 
-    (hooks/use-effect
-      [user]
-      (when (-> user :user :valid-user)
-        (rfe/push-state :app.core/dashboard)))
-
     (if is-public?
       ($ view {:match current-route})
-      (if (-> user :user :valid-user)
-        ($ view)
-        (rfe/push-state :app.core/login)))))
+      (dashboard-routes {:match current-route}))))
 
 (defnc app []
   (d/div
