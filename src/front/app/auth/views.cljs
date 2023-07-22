@@ -38,15 +38,13 @@
         (rfe/push-state :app.core/login)))
 
     (hooks/use-effect
-      :always
+      [user]
       ;; user session is not nil, redirect to dashboard
-      (when (and user (not (nil? (-> user :user :valid-user))))
-        (rfe/push-state :app.core/dashboard)))
-
-    (hooks/use-effect
-      :once
-      (let [auth (.-auth supabase/client)]
-        (-> (.getSession auth)
+      (if (-> user :user :valid-user)
+        (do
+          (prn :callback-view :pushing-dashboard)
+          (rfe/push-state :app.core/dashboard))
+        (-> (.getSession (.-auth supabase/client))
             (p/then
              (fn [resp]
                (let [resp (-> (js->cljs-key resp) :data :session convert-keys)]

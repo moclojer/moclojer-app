@@ -33,6 +33,7 @@ lib/styles
 resources/front/test
 resources/front/public/assets
 resources/public/assets
+resources/front/public/mockServiceWorker.js
 
 /src/gen
 
