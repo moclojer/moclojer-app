@@ -39,36 +39,18 @@
  (fn [db]
    db))
 
-(defn dashboard-routes [{:keys [match]}]
-  (let [route-data (:data match)
-        view (:view route-data)
-        user (refx/use-sub [:app.auth/current-user])]
-
-    (let [user (refx/use-sub [:app.auth/current-user])
-          [toggle-sidebar set-toggle] (hooks/use-state false)
-          user-data (-> user :user)]
-
-      (d/body
-       {:class-name "bg-gray-50 dark:bg-gray-800"}
-       ($ nav-bar {:set-toggle set-toggle
-                   :toggle-sidebar toggle-sidebar
-                   :user-data user-data})
-
-       ($ aside {:is-sidebar-toogle? toggle-sidebar
-                 :set-toggle set-toggle})
-
-       (d/div {:class-name "hidden fixed inset-0 z-10 bg-gray-900/50 dark:bg-gray-900/90"
-               :id "sidebarBackdrop"})
-       ($ container
-          {:is-sidebar-toogle? toggle-sidebar}
-          ($ view {:match match
-                   :is-sidebar-toogle? toggle-sidebar}))))))
-
 (defnc routing []
   (let [current-route (refx/use-sub [:app.routes/current-route])
         route-data (:data current-route)
         is-public? (:public? route-data)
-        view (:view route-data)]
+        user (refx/use-sub [:app.auth/current-user])
+        view (:view route-data)
+        [toggle-sidebar set-toggle] (hooks/use-state false)
+        user-data (-> user :user)]
+
+    (hooks/use-effect [user]
+      (when (not (-> user :user :valid-user))
+        (rfe/push-state :app.core/login)))
 
     (hooks/use-effect
       [current-route]
@@ -77,7 +59,25 @@
 
     (if is-public?
       ($ view {:match current-route})
-      (dashboard-routes {:match current-route}))))
+
+      (if  (-> user :user :valid-user)
+        (d/body
+         {:class-name "bg-gray-50 dark:bg-gray-800"}
+         ($ nav-bar {:set-toggle set-toggle
+                     :toggle-sidebar toggle-sidebar
+                     :user-data user-data})
+
+         ($ aside {:is-sidebar-toogle? toggle-sidebar
+                   :set-toggle set-toggle})
+
+         (d/div {:class-name "hidden fixed inset-0 z-10 bg-gray-900/50 dark:bg-gray-900/90"
+                 :id "sidebarBackdrop"})
+         ($ container
+            {:is-sidebar-toogle? toggle-sidebar}
+            ($ view {:match current-route
+                     :is-sidebar-toogle? toggle-sidebar})))
+
+        (rfe/push-state :app.core/login)))))
 
 (defnc app []
   (d/div
