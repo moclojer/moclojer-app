@@ -25,7 +25,7 @@
  (fn
    [{db :db} [_ session]]
    (let [access-token (-> session :access-token)]
-     {:http {:url "http://localhost:3000/login/auth"
+     {:http {:url "/login/auth"
              :method :post
              :body {:access-token access-token}
              :on-success [:app.auth/success-save]

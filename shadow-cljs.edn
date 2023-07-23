@@ -7,13 +7,13 @@
                            :reload-strategy :full
                            :http-port 8000
                            :http-root "resources/front/public/"}
-
+                :closure-defines
+                {front.app.core/DEBUG true
+                 front.app.http/API-URL #shadow/env "API-URL"}
                 :dev      {:modules
-                           {:core {:init-fn dev.core/init}}
-                           :closure-defines
-                           {front.app.core/DEBUG true
-                            front.app.http/API-URL "http://localhost:3000"}}
-                :release  {:modules {:core {:init-fn front.app.core/init}}}}
+                           {:core {:init-fn dev.core/init}}}
+                :release  {:modules {:core {:init-fn front.app.core/init}}
+                           :compiler-options {:optimizations :simple}}}
           :tests    {:target           :browser-test
                      :test-dir         "resources/front/test"
                      :ns-regexp        "-test$"

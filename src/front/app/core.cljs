@@ -22,7 +22,8 @@
   {:current-route nil
    :current-user nil})
 
-(def debug (goog-define DEBUG false))
+(goog-define DEBUG false)
+(def debug DEBUG)
 ;;; Events ;;;
 
 (refx/reg-event-fx
