@@ -8,7 +8,7 @@
                            :http-port 8000
                            :http-root "resources/front/public/"}
                 :closure-defines
-                {front.app.http/API-URL #shadow/env "API-URL"}
+                {front.app.http/API-URL #shadow/env "API_URL"}
                 :dev      {:modules {:core {:init-fn dev.core/init}}
                            :closure-defines {front.app.core/DEBUG true}}
                 :release  {:modules {:core {:init-fn front.app.core/init}}
