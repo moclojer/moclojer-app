@@ -13,7 +13,8 @@
                            :closure-defines {front.app.core/DEBUG true}}
                 :release  {:modules {:core {:init-fn front.app.core/init}}
                            :closure-defines {front.app.core/DEBUG false}
-                           :compiler-options {:optimizations :simple}}}
+                           :compiler-options {:optimizations :advanced
+                                              :infer-externs :auto}}}
           :tests    {:target           :browser-test
                      :test-dir         "resources/front/test"
                      :ns-regexp        "-test$"
