@@ -1,0 +1,13 @@
+alerts:
+- rule: DEPLOYMENT_FAILED
+domains:
+- domain: app.moclojer.com
+  type: PRIMARY
+name: moclojer-app
+services:
+- name: front
+  dockerfile_path: Dockerfile.front
+  envs:
+  - key: API_URL
+    scope: RUN_TIME
+    value: https://
