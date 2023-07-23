@@ -45,17 +45,12 @@
         is-public? (:public? route-data)
         view (:view route-data)]
 
-    (prn :current-route current-route)
 
-    #_(hooks/use-effect
-      [current-route]
+    (hooks/use-effect
+      :once
       (when (nil? current-route)
         (rfe/push-state :app.core/login)))
 
-    #_(hooks/use-effect
-      [user]
-      (when (-> user :user :valid-user)
-        (rfe/push-state :app.core/dashboard)))
     (if is-public?
       ($ view {:match current-route})
       (if (-> user :user :valid-user)
