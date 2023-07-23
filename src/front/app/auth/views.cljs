@@ -38,8 +38,9 @@
         (rfe/push-state :app.core/login)))
 
     (hooks/use-effect
-      :always
+      [user]
       ;; user session is not nil, redirect to dashboard
+      (prn :render-user-callback user)
       (when (and user (not (nil? (-> user :user :valid-user))))
         (rfe/push-state :app.core/dashboard)))
 

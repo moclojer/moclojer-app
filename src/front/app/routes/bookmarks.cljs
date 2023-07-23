@@ -26,9 +26,8 @@
      :view mocks/mocks
      :public? false}]
 
-   ["/dashboard/mocks/:id"
+   ["/dashboard/mocks/:mock-id"
     {:name :app.core/mocks-view
-     :parameters {:path {:id string?}}
      :view editor/index
      :public? false}]])
 
