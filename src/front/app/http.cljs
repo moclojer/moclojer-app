@@ -3,12 +3,16 @@
             [promesa.core :as p]
             [refx.alpha :refer [dispatch reg-fx]]))
 
+(goog-define API-URL "http://localhost:3000")
+(def api-url API-URL)
+
 (defn- js->cljs-key [obj]
   (js->clj obj :keywordize-keys true))
 
 (defn- send-request!
   [{:keys [url on-success on-failure] :as request} fn-request]
-  (-> (fn-request url request)
+  (prn :url (str api-url url))
+  (-> (fn-request (str api-url url) request)
       (.then (fn [{:keys [status] :as resp}]
                (if (>= status 400)
                  (dispatch (conj on-failure (js->cljs-key resp)))
