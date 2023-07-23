@@ -7,10 +7,14 @@
 (defn router [routes]
   (rf/router
    routes
-   {:data {:controllers [{:start (println "start" "root-controller")
-                          :stop (println "stop" "root controller")}]
+   {:data {:controllers [{:start (fn [ctx]
+                                   (println "start" "root controller")
+                                   (prn :ctx ctx))
+                          :stop (fn [ctx]
+                                  (println "stop" "root controller")
+                                  (prn :ctx ctx))}]
            :coercion rsc/coercion
-           :public? false}}))
+           :public? true}}))
 
 (defn on-navigate [new-match]
   (when new-match

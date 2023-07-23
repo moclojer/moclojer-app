@@ -1,10 +1,10 @@
 (ns front.app.dashboard.mocks
-  (:require
-   [front.app.components.svg :as svg]
-   [front.app.lib :refer [defnc]]
-   [helix.core :refer [$]]
-   [helix.dom :as d]
-   [refx.alpha :as refx]))
+  (:require [front.app.components.svg :as svg]
+            [front.app.dashboard.base :as base]
+            [front.app.lib :refer [defnc]]
+            [helix.core :refer [$]]
+            [helix.dom :as d]
+            [refx.alpha :as refx]))
 
 (defnc api-mock [{:keys [enable url id]}]
   (d/div (d/div {:class-name "self-stretch py-4 bg-white border-b border-gray-200 justify-center items-center inline-flex" :id id}
@@ -56,11 +56,12 @@
                        (d/button {:class-name "text-white text-xs font-bold leading-[18px]"} " new mock")
                        ($ svg/box)))))
 
-(defnc mocks [{:keys [is-sidebar-toogle?]}]
-  (let [mocks-apis (refx/use-sub [:app.dashboard/mocks-api])]
-    (d/div {:class-name "mock-list"}
-           (for [{:keys [type name apis]} mocks-apis]
-             ($ apis-mocks {:type type :name name :apis apis})))))
+(defnc mocks []
+  ($ base/index
+     (let [mocks-apis (refx/use-sub [:app.dashboard/mocks-api])]
+       (d/div {:class-name "mock-list"}
+              (for [{:keys [type name apis]} mocks-apis]
+                ($ apis-mocks {:type type :name name :apis apis}))))))
 
 
 

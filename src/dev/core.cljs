@@ -11,7 +11,7 @@
     (println "dev mode")))
 
 (defn ^:export init []
-  (p/do (mock/init!)
+  (p/do #_(mock/init!)
         (dev-setup)
         (app/init)))
 

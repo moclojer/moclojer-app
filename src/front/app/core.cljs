@@ -4,9 +4,7 @@
             [front.app.auth.db]
             [front.app.auth.events]
             [front.app.auth.subs]
-            [front.app.components.container :refer [container]]
             [front.app.components.footer :refer [footer-component]]
-            [front.app.dashboard.components :refer [aside nav-bar]]
             [front.app.dashboard.events]
             [front.app.dashboard.subs]
             [front.app.lib :refer [defnc]]
@@ -40,43 +38,26 @@
    db))
 
 (defnc routing []
-  (let [current-route (refx/use-sub [:app.routes/current-route])
+  (let [user (refx/use-sub [:app.auth/current-user])
+        current-route (refx/use-sub [:app.routes/current-route])
         route-data (:data current-route)
         is-public? (:public? route-data)
-        user (refx/use-sub [:app.auth/current-user])
-        view (:view route-data)
-        [toggle-sidebar set-toggle] (hooks/use-state false)
-        user-data (-> user :user)]
-
-    (hooks/use-effect [user]
-      (when (not (-> user :user :valid-user))
-        (rfe/push-state :app.core/login)))
+        view (:view route-data)]
 
     (hooks/use-effect
       [current-route]
       (when (nil? current-route)
         (rfe/push-state :app.core/login)))
 
+    (hooks/use-effect
+      [user]
+      (when (-> user :user :valid-user)
+        (rfe/push-state :app.core/dashboard)))
+
     (if is-public?
       ($ view {:match current-route})
-
-      (if  (-> user :user :valid-user)
-        (d/body
-         {:class-name "bg-gray-50 dark:bg-gray-800"}
-         ($ nav-bar {:set-toggle set-toggle
-                     :toggle-sidebar toggle-sidebar
-                     :user-data user-data})
-
-         ($ aside {:is-sidebar-toogle? toggle-sidebar
-                   :set-toggle set-toggle})
-
-         (d/div {:class-name "hidden fixed inset-0 z-10 bg-gray-900/50 dark:bg-gray-900/90"
-                 :id "sidebarBackdrop"})
-         ($ container
-            {:is-sidebar-toogle? toggle-sidebar}
-            ($ view {:match current-route
-                     :is-sidebar-toogle? toggle-sidebar})))
-
+      (if (-> user :user :valid-user)
+        ($ view)
         (rfe/push-state :app.core/login)))))
 
 (defnc app []
