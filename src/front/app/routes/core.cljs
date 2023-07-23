@@ -14,7 +14,7 @@
                                   (println "stop" "root controller")
                                   (prn :ctx ctx))}]
            :coercion rsc/coercion
-           :public? true}}))
+           :public? false}}))
 
 (defn on-navigate [new-match]
   (when new-match
