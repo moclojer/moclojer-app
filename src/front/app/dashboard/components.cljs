@@ -53,7 +53,7 @@
                          :class-name "mr-3 h-8"})
                  (d/span {:class-name "self-center text-2xl font-semibold whitespace-nowrap dark:text-white"})))
      (d/div {:class-name "flex items-center lg:gap-3"}
-            (d/div {:class-name "px-3 py-2 bg-pink-600 rounded-lg justify-end items-center gap-2 flex"}
+            (d/div {:class-name "px-3 py-2 bg-pink-600 rounded-lg justify-end items-center gap-2 flex btn-add"}
                    (d/svg {:width "16"
                            :height "17"
                            :viewBox "0 0 16 17"
@@ -172,6 +172,7 @@
                                                                                           "hidden py-2 space-y-2")}
                                                       (for [{:keys [type name]} apis-mocks]
                                                         (d/li
+                                                          {:key name}
                                                          (d/a {:href ""
                                                                :on-click (fn [_e]
                                                                            (rfe/push-state :app.core/mocks))

@@ -11,7 +11,6 @@
 (defnc index [{:keys [children]}]
   (let [[toggle-sidebar set-toggle] (hooks/use-state false)
         user (-> (refx/use-sub [:app.auth/current-user]) :user)]
-    (prn :children children)
     (d/body
      {:class-name "bg-gray-50 dark:bg-gray-800"}
      ($ nav-bar {:set-toggle set-toggle
