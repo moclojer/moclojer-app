@@ -48,6 +48,7 @@
 
     (hooks/use-effect
       :once
+      (prn current-route :current-route)
       (when (nil? current-route)
         (rfe/push-state :app.core/login)))
 
