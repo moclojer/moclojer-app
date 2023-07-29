@@ -1,9 +1,7 @@
 (ns back.api.ports.http-in
   (:require
    [back.api.controllers.login :as controllers.login]
-   [back.api.controllers.mocks :as controllers.mocks]
-   [back.api.controllers.files :as controllers.files]
-   [clojure.java.io :as io]))
+   [back.api.controllers.mocks :as controllers.mocks]))
 
 (defn handler-create-user!
   [{{{:keys [access-token]} :body} :parameters
@@ -13,24 +11,6 @@
 
     {:status 201
      :body {:user user}}))
-
-(defn handler-upload!
-  [{{{:keys [file]} :multipart} :parameters
-    {:keys [user-id]} :session-data
-    components :components}]
-  (let [url (controllers.files/save-file! user-id file components)]
-
-    {:status 200
-     :body {:url url}}))
-
-(defn handler-download
-  [{{:keys [id]} :parameters
-    components :components}]
-  (let [file (controllers.files/get-file! id components)]
-
-    {:status 200
-     :headers {"Content-Type" "application/yaml"}
-     :body (io/input-stream file)}))
 
 ;; TODO: Create an interceptor to get customer-id and org-id from cookies
 ;; TODO: Get customer-id and org-id from interceptor

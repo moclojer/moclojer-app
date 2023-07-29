@@ -16,8 +16,3 @@
 
 (def Mocks
   [:vector Mock])
-
-(def File
-  [:map
-   [:id uuid?]
-   [:url string?]])
