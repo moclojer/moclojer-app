@@ -37,7 +37,6 @@
 
 (defnc index []
   ($ base/index
-
      (d/div
       (d/div {:class-name "flex w-full flex-col bg-white p-5 "}
              (d/div {:class-name "bg-white rounded-br-lg flex-col justify-start  inline-flex"}
@@ -62,6 +61,14 @@
                            (d/button {:class-name "px-3 py-2 bg-pink-600 rounded-lg justify-end items-center gap-2 flex btn-add"}
                                      (d/button {:class-name "text-white text-xs font-bold leading-[18px] "} " save")
                                      ($ svg/save))))
+             (d/div {}
+                    (d/input
+                     {:class-name "block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
+                      :aria-describedby "file_input_help"
+                      :placeholder "Upload a mock file"
+                      :id "file_input"
+                      :type "file"})
+                    (d/p {:class-name "mt-1 text-sm text-gray-500 dark:text-gray-300" :id "file_input_help"} "YAML"))
 
              (d/div {:class-name "w-full  bg-white rounded-bl-lg rounded-br-lg flex-col justify-start items-center gap-5 inline-flex"}
                     (d/div {:class-name "w-full justify-start items-center inline-flex"}
