@@ -45,21 +45,6 @@
            :responses {200 {:body {:user auth.schemas.wire-out/User}}}
            :handler auth.ports.http-in/get-user-by-id}}]
 
-   ;; TODO: Fix malli schema for multipart
-   ["/files/upload"
-    {:swagger {:tags ["files"]}
-     :post {:summary "Upload a file"
-            :parameters {:multipart {:file schemas.wire-in/MultipartFile}}
-            :responses {200 {:body {:file schemas.wire-out/File}}}
-            :handler ports.http-in/handler-upload!}}]
-
-   ["/files/download"
-    {:swagger {:tags ["files"]}
-     :get {:summary "Download a file"
-           :swagger {:produces ["application/yaml"]}
-           :parameters {:query {:uuid string?}}
-           :handler ports.http-in/handler-download}}]
-
    ["/mocks"
     {:swagger {:tags ["mocks"]}
      :post {:summary "Create a mock"
