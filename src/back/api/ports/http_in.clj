@@ -32,24 +32,6 @@
     {:status 200
      :body {:user (adapter.customers/->wire user)}}))
 
-(defn handler-upload!
-  [{{{:keys [file]} :multipart} :parameters
-    {:keys [user-id]} :session-data
-    components :components}]
-  (let [url (controllers.files/save-file! user-id file components)]
-
-    {:status 200
-     :body {:url url}}))
-
-(defn handler-download
-  [{{:keys [id]} :parameters
-    components :components}]
-  (let [file (controllers.files/get-file! id components)]
-
-    {:status 200
-     :headers {"Content-Type" "application/yaml"}
-     :body (io/input-stream file)}))
-
 ;; TODO: Create an interceptor to get customer-id and org-id from cookies
 ;; TODO: Get customer-id and org-id from interceptor
 (defn handler-create-mock!
