@@ -45,18 +45,17 @@
         is-public? (:public? route-data)
         view (:view route-data)]
 
-
-    (hooks/use-effect
-      :once
-      (prn current-route :current-route)
-      (when (nil? current-route)
-        (rfe/push-state :app.core/login)))
-
-    (if is-public?
-      ($ view {:match current-route})
-      (if (-> user :user :valid-user)
-        ($ view)
-        (rfe/push-state :app.core/login)))))
+    ;;#todo this is a hack to match routing properly, need to figure out
+    ;; the navigation logic better
+    (if current-route
+      (if (and is-public? 
+               (not (-> user :user :valid-user)))
+        ($ view {:match current-route})
+        (if (not (= (-> route-data :name)
+                    :app.core/login))
+          ($ view)
+          (rfe/push-state :app.core/dashboard)))
+      (rfe/push-state :app.core/login))))
 
 (defnc app []
   (d/div
