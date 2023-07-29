@@ -28,6 +28,9 @@
 (defn- js->cljs-key [obj]
   (js->clj obj :keywordize-keys true))
 
+(defnc not-found-view []
+  (d/div "404"))
+
 (defnc callback-view []
   (let [user (refx/use-sub [:app.auth/current-user])
         [error _] (refx/use-sub [:app.auth/login-error])]
@@ -127,4 +130,6 @@
                                                                 :error "Error... try it again."
                                                                 :description (:message error-res)})
                                                             "if you don't have an account, it is created automatically")))))))))))
+
+
 

@@ -29,5 +29,10 @@
    ["/dashboard/mocks/:mock-id"
     {:name :app.core/mocks-view
      :view editor/index
-     :public? false}]])
+     :public? false}]
+
+   ["/404"
+    {:name :app.core/not-found
+     :view auth/not-found-view
+     :public? true}]])
 
