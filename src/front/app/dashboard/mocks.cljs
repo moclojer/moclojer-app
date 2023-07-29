@@ -48,15 +48,6 @@
                                (d/div {:class-name "mt-2 text-sm text-gray-500 dark:text-gray-400"}
                                       (d/span {:class-name "text-gray-900 text-base font-semibold "} "<mock-name>")
                                       (d/span  {:class-name "text-gray-900  "} ".<org-name>.moclojer.com")))
-                        (d/div {}
-                               (d/label {:class-name "block mb-2 text-sm font-medium text-gray-900 dark:text-white" :for "file_input"}
-                                        "upload mock ")
-                               (d/input
-                                {:class-name "block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
-                                 :aria-describedby "file_input_help"
-                                 :id "file_input"
-                                 :type "file"})
-                               (d/p {:class-name "mt-1 text-sm text-gray-500 dark:text-gray-300" :id "file_input_help"} "YAML"))
 
                         (d/div {:class-name "divide-y divide-gray-200 dark:divide-gray-700"}
                                (d/div {:class-name "flex justify-between items-center py-4"}
