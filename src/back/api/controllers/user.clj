@@ -4,12 +4,17 @@
             [back.api.logic.customers :as logic.customers]))
 
 (defn get-user-by-id
-  [id {:keys [db]}]
+  [id database]
   (let [user (db.customers/get-by-id
-              id db)]
+              id database)]
     user))
 
-(defn edit-user! [user username {:keys [db]}]
-  (let [user (logic.customers/add-username user username)]
-    (-> (db.customers/update! user db)
+(defn edit-user! [user username database]
+  (let [user (logic.customers/add-username user username)
+        _ (db.customers/update! user database)
+        user-updated (db.customers/get-by-id
+                      (:customer/uuid user)
+                      database)]
+    (-> user-updated
         (adapter.customers/->wire))))
+

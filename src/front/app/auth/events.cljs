@@ -46,14 +46,16 @@
            :on-failure [:app.auth/falied-save-user]}
     :db  (assoc db
                 :login-loading? true
+                :username-sent true
                 :login-error nil)}))
 
 (refx/reg-event-db
  :app.auth/username-saved
  (fn
    [db [_ {:keys [body]}]]
+   (prn :save-user body)
    (let [current-user (-> (:current-user db)
-                          (assoc-in [:user :username] (:username body)))]
+                          (assoc-in [:user :username] (-> body :user :username)))]
 
      (set-current-user-cookie! current-user)
      (-> db
