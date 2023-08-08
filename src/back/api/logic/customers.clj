@@ -16,3 +16,7 @@
   {:customer/uuid (->uuid)
    :customer/email email
    :customer/external-uuid (parse-uuid id)})
+
+(defn add-username [user username]
+  [user username]
+  (assoc user :customer/username username))

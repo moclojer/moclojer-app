@@ -1,7 +1,7 @@
 (ns front.app.auth.supabase
-  (:require
-   ["@supabase/supabase-js" :as sb]
-   [promesa.core :as p]))
+  (:require ["@supabase/supabase-js" :as sb]
+            [promesa.core :as p]
+            [reitit.frontend.easy :as rfe]))
 
 (defn create-client
   "creates a supabase client"
@@ -32,7 +32,8 @@
   (let [auth (.-auth client)]
     (-> (.signOut auth)
         (p/then (fn [e]
-                  (dispatch-fn-logout e))))))
+                  (dispatch-fn-logout e)
+                  (rfe/push-state :app.core/login))))))
 
 (defn event-changes [invoke]
   (.onAuthStateChange (.-auth client)

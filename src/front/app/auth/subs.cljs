@@ -20,3 +20,8 @@
  :app.auth/login-error
  (fn [db]
    (:login-error db)))
+
+(refx/reg-sub
+ :app.auth/username-sent
+ (fn [db]
+   (:username-sent db)))

@@ -14,7 +14,6 @@
             [front.app.routes.subs]
             [helix.core :refer [$]]
             [helix.dom :as d]
-            [helix.hooks :as hooks]
             [refx.alpha :as refx]
             [reitit.frontend.easy :as rfe]))
 
@@ -45,10 +44,23 @@
         is-public? (:public? route-data)
         view (:view route-data)]
 
+    (prn "current-route" current-route)
+    (prn "current-user" user)
+    (prn :here (or
+                (nil? user)
+                (nil? current-route)
+                (not (= (-> route-data :name)
+                        :app.core/login))))
     ;;#todo this is a hack to match routing properly, need to figure out
     ;; the navigation logic better
-    (if current-route
-      (if (and is-public? 
+
+    (if 
+      (or
+         user
+         current-route
+         (not (= (-> route-data :name)
+                 :app.core/login)))
+      (if (and is-public?
                (not (-> user :user :valid-user)))
         ($ view {:match current-route})
         (if (not (= (-> route-data :name)
