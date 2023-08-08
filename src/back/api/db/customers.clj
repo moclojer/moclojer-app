@@ -14,10 +14,10 @@
        first))
 
 (defn update!
-  [user db]
+  [{:customer/keys [uuid] :as user} db]
   (->> (-> (sql.helpers/update :customer)
            (sql.helpers/set user)
-           (sql.helpers/where [:= :uuid (:uuid user)])
+           (sql.helpers/where [:= :uuid uuid])
            (sql/format))
        (database/execute db)
        first))

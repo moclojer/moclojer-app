@@ -37,5 +37,9 @@
             :parameters {:path {:id uuid?}
                          :body {:username string?}}
             :responses {200 {:body {:user auth.schemas.wire-out/User}}}
-            :handler auth.ports.http-in/edit-user!}}]])
+            :handler auth.ports.http-in/edit-user!}
+     :get {:summary "Retrieve user"
+           :parameters {:path {:id uuid?}}
+           :responses {200 {:body {:user auth.schemas.wire-out/User}}}
+           :handler auth.ports.http-in/get-user-by-id}}]])
 
