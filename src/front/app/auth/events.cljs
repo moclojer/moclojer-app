@@ -31,8 +31,35 @@
              :on-success [:app.auth/success-save]
              :on-failure [:app.auth/falied-save-user]}
       :db  (assoc db
+                  :login-loading? true
                   :current-user session
                   :login-error nil)})))
+
+(refx/reg-event-fx
+ :app.auth/save-username
+ (fn
+   [{db :db} [_ {:keys [username]}]]
+   {:http {:url (str "/user/" (-> db :current-user :user :user-id))
+           :method :post
+           :body {:username username}
+           :on-success [:app.auth/username-saved]
+           :on-failure [:app.auth/falied-save-user]}
+    :db  (assoc db
+                :login-loading? true
+                :login-error nil)}))
+
+(refx/reg-event-db
+ :app.auth/username-saved
+ (fn
+   [db [_ {:keys [body]}]]
+   (let [current-user (-> (:current-user db)
+                          (assoc-in [:user :username] (:username body)))]
+
+     (set-current-user-cookie! current-user)
+     (-> db
+         (assoc
+          :login-loading? false
+          :current-user current-user)))))
 
 (refx/reg-event-db
  :app.auth/success-save
@@ -40,7 +67,9 @@
    [db [_ {:keys [body]}]]
    (let [current-user (-> (:current-user db)
                           (assoc-in [:user :valid-user] true)
-                          (assoc-in [:user :user-id] (-> body :user :uuid)))]
+                          (assoc-in [:user :user-id] (-> body :user :uuid))
+                          (assoc-in [:user :username] (-> body :user :username)))]
+
      (set-current-user-cookie! current-user)
      (-> db
          (assoc
@@ -64,6 +93,7 @@
    [{db :db} [_ response]]
    {:db (-> db
             (assoc :login-error nil)
+            (assoc :loading? true)
             (assoc :login-email-sent (-> response :body :ok)))}))
 
 (refx/reg-event-db

@@ -29,5 +29,13 @@
      :post {:summary "Login supabase retrieve user"
             :parameters {:body auth.schemas.wire-in/AuthLogin}
             :responses {201 {:body {:user auth.schemas.wire-out/User}}}
-            :handler auth.ports.http-in/handler-create-user!}}]])
+            :handler auth.ports.http-in/handler-create-user!}}]
+
+   ["/user/:id"
+    {:swagger {:tags ["login"]}
+     :post {:summary "Update user"
+            :parameters {:path {:id uuid?}
+                         :body {:username string?}}
+            :responses {200 {:body {:user auth.schemas.wire-out/User}}}
+            :handler auth.ports.http-in/edit-user!}}]])
 
