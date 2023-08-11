@@ -2,9 +2,7 @@
   (:require [back.api.adapters.customers :as adapter.customers]
             [back.api.controllers.login :as controllers.login]
             [back.api.controllers.user :as controllers.user]
-            [back.api.controllers.mocks :as controllers.mocks]
-            [back.api.controllers.files :as controllers.files]
-            [clojure.java.io :as io]))
+            [back.api.controllers.mocks :as controllers.mocks]))
 
 (defn handler-create-user!
   [{{{:keys [access-token]} :body} :parameters
