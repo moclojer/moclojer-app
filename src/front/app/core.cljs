@@ -54,12 +54,12 @@
     ;;#todo this is a hack to match routing properly, need to figure out
     ;; the navigation logic better
 
-    (if 
-      (or
-         user
-         current-route
-         (not (= (-> route-data :name)
-                 :app.core/login)))
+    (if
+     (or
+      user
+      current-route
+      (not (= (-> route-data :name)
+              :app.core/login)))
       (if (and is-public?
                (not (-> user :user :valid-user)))
         ($ view {:match current-route})

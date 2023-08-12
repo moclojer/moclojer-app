@@ -18,13 +18,9 @@
             [reitit.swagger :as swagger]
             [reitit.swagger-ui :as swagger-ui]))
 
-(add-tap (bound-fn* clojure.pprint/pprint))
-
 (defn- coercion-error-handler [status]
   (fn [exception _request]
     ;; (logs/log :error exception :coercion-errors (:errors (ex-data exception)))
-    (clojure.pprint/pprint exception)
-    (def global-exception exception)
     {:status status
      :body (if (= 400 status)
              (str "Invalid path or request parameters, with the following errors: "
@@ -38,26 +34,23 @@
 
 (defn- session-interceptor []
   {:enter (fn [{:keys [request] :as ctx}]
-            (def global-request request)
             (if-let [auth (get-in request [:headers "authorization"])]
               (let [secret (get-in request [:components :config :config :supabase-jwt-secret])
                     token (second (string/split auth #" "))
-                    decoded (jwt/unsign token secret {:alg :hs256})
+                    decoded (jwt/unsign token secret {:alg :hs26})
                     database (get-in request [:components :database])
                     external-id (-> decoded :sub parse-uuid)
                     user (db.customers/get-by-external-id external-id database)
                     session-data {:user-id (:customer/uuid user)
                                   :org-id (:customer/org_id user)}]
                 (prn "external-id" external-id "user" user "session-data" session-data)
-                (def global-session-data session-data)
-                (def global-user user)
                 (assoc-in ctx [:request :session-data] session-data))
               ctx))})
 
 (def router-settings
   {;:reitit.interceptor/transform dev/print-context-diffs ;; pretty context diffs
-     ;;:validate spec/validate ;; enable spec validation for route data
-     ;;:reitit.spec/wrap spell/closed ;; strict top-level validation
+   ;;:validate spec/validate ;; enable spec validation for route data
+   ;;:reitit.spec/wrap spell/closed ;; strict top-level validation
    :exception pretty/exception
    :data {:coercion reitit.malli/coercion
           :muuntaja (m/create
@@ -65,19 +58,19 @@
                          (assoc-in [:formats "application/json" :decoder-opts :bigdecimals] true)))
           :interceptors [;; swagger feature
                          swagger/swagger-feature
-                             ;; query-params & form-params
+                         ;; query-params & form-params
                          (parameters/parameters-interceptor)
                          (session-interceptor)
-                             ;; content-negotiation
+                         ;; content-negotiation
                          (muuntaja/format-negotiate-interceptor)
-                             ;; encoding response body
+                         ;; encoding response body
                          (muuntaja/format-response-interceptor)
-                             ;; exception handling
+                         ;; exception handling
                          (exception/exception-interceptor
                           (merge
                            exception/default-handlers
                            {:reitit.coercion/request-coercion  (coercion-error-handler 400)
-                            :reitit.coercion/response-coercion (coercion-error-handler 500)
+                            :reitit.coercion/response-coercion (coercion-error-handler 00)
                             clojure.lang.ExceptionInfo exception-info-handler}))
                              ;; decoding request body
                          (muuntaja/format-request-interceptor)

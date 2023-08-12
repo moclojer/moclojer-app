@@ -2,68 +2,9 @@
   (:require [front.app.components.svg :as svg]
             [front.app.dashboard.base :as base]
             [front.app.lib :refer [defnc]]
-            [helix.core :refer [$ <>]]
+            [helix.core :refer [$]]
             [helix.dom :as d]
             [refx.alpha :as refx]))
-
-(defnc edit-modal []
-  (d/div
-   {:id "product-modal"
-    :class-name "hidden overflow-y-auto overflow-x-hidden fixed right-0 left-0 top-4 z-50 justify-center items-center md:inset-0 h-modal sm:h-full"}
-   (d/div {:class-name "relative px-4 w-full max-w-2xl h-full md:h-auto"}
-          (d/div {:class-name "relative bg-white rounded-lg shadow dark:bg-gray-800"}
-                 (d/div {:class-name "flex justify-between items-start p-5 rounded-t border-b dark:border-gray-700"}
-                        (d/h3 {:class-name "text-xl font-semibold dark:text-white"}
-                              "New mock")
-                        (d/button {:type "button"
-                                   :class-name "text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-700"
-                                   :data-modal-toggle "product-modal"}
-                                  (d/svg {:class-name "w-5 h-5"
-                                          :fill "currentColor"
-                                          :viewBox " 0 0 20 20"}
-                                         (d/path
-                                          {:fill-rule "evenodd"
-                                           :d "M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                                           :clip-rule "evenodd"}))))
-
-                 (d/div {:class-name "p-6 space-y-4"}
-                        (d/form
-                         (d/div {:class-name "grid grid-cols-6 gap-4"}
-                                (d/div {:class-name "col-span-6 lm:col-span-3"}
-                                       (d/label {:for "product-name"
-                                                 :class-name "block mb-2 text-sm font-medium text-gray-900 dark:text-white"}
-                                                "mock name")
-                                       (d/input {:class-name "shadow-sm bg-gray-50 focus:ring-pink-500 focus:border-pink-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                                                 :type "text"
-                                                 :name "product-name"
-                                                 :id "product-name"}))))
-                        (d/div {:class-name "mb-4"}
-                               (d/label {:for "settings-language"
-                                         :class-name "block mb-2 text-sm font-medium text-gray-900 dark:text-white"}
-                                        "Org name")
-                               (d/select {:id "settings-language"
-                                          :name "countries"
-                                          :class "bg-gray-50 border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"}
-                                         (d/option "avelino"))
-                               (d/div {:class-name "mt-2 text-sm text-gray-500 dark:text-gray-400"}
-                                      (d/span {:class-name "text-gray-900 text-base font-semibold "} "<mock-name>")
-                                      (d/span  {:class-name "text-gray-900  "} ".<org-name>.moclojer.com")))
-
-                        (d/div {:class-name "divide-y divide-gray-200 dark:divide-gray-700"}
-                               (d/div {:class-name "flex justify-between items-center py-4"}
-                                      (d/div {:class-name "flex flex-col flex-grow"}
-                                             (d/div {:class-name "text-lg font-semibold text-gray-900 dark:text-white"} "public?")
-                                             (d/div {:class-name "text-base font-normal text-gray-500 dark:text-gray-400"} "is this api ready to be published?"))
-                                      (d/label {:for "rating-reminders" :class-name "flex relative items-center cursor-pointer"}
-                                               (d/input {:type "checkbox" :id "rating-reminders" :class-name "sr-only peer"})
-                                               (d/span {:class-name "w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-focus:ring-4 peer-focus:ring-pink-300 dark:peer-focus:ring-pink-800 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-pink-500"}))))
-
-                        (d/div {:class-name "flex justify-between items-center py-4"}
-                               (d/div {:class-name "flex flex-col flex-grow"})
-
-                               (d/button {:class-name "px-3 py-2 bg-pink-600 rounded-lg justify-end items-center gap-2 flex btn-add"}
-                                         (d/button {:class-name "text-white text-xs font-bold leading-[18px] "} " save")
-                                         ($ svg/save))))))))
 
 (defnc api-mock [{:keys [enable url id]}]
   (d/a {:class-name "py-4 bg-white border-b border-gray-200 justify-center items-center inline-flex mouse-cursor" :id id
@@ -83,11 +24,9 @@
                                            "w-[1116px] text-gray-500 text-sm font-normal leading-[21px]")} " my frist mock server")))
 
        (d/div {:class-name "px-3 py-2  rounded-lg border border-gray-200 justify-center items-center gap-2 flex button-remove"}
-
               (d/button {:on-click (fn [e] (prn :click e))
                          :class-name "text-gray-800 text-sm font-medium leading-[21px]"}
                         "remove")
-
               (d/svg {:width "10"
                       :height "20"
                       :viewBox "0 0 10 10"
@@ -107,30 +46,27 @@
                 (d/div {:class-name "w-[423px] self-stretch text-gray-900 text-xl font-bold leading-[30px]"} name))
          (for [{:keys [enable url id]} apis]
            ($ api-mock {:enable enable :url url :id id}))
-         (d/div {:class-name "self-stretch pt-6 justify-start items-start inline-flex"}
-                (d/div {:class-name "px-3 py-2 bg-pink-600 rounded-lg justify-end items-center gap-2 flex btn-add"}
-                       (d/svg {:width "16"
-                               :height "17"
-                               :viewBox "0 0 16 17"
-                               :fill "none"}
-                              (d/path {:fill-rule "evenodd"
-                                       :clip-rule "evenodd"
-                                       :d "M8 4.5C8.21217 4.5 8.41566 4.58429 8.56569 4.73431C8.71571 4.88434 8.8 5.08783 8.8 5.3V7.7H11.2C11.4122 7.7 11.6157 7.78429 11.7657 7.93431C11.9157 8.08434 12 8.28783 12 8.5C12 8.71217 11.9157 8.91566 11.7657 9.06569C11.6157 9.21571 11.4122 9.3 11.2 9.3H8.8V11.7C8.8 11.9122 8.71571 12.1157 8.56569 12.2657C8.41566 12.4157 8.21217 12.5 8 12.5C7.78783 12.5 7.58434 12.4157 7.43431 12.2657C7.28429 12.1157 7.2 11.9122 7.2 11.7V9.3H4.8C4.58783 9.3 4.38434 9.21571 4.23431 9.06569C4.08429 8.91566 4 8.71217 4 8.5C4 8.28783 4.08429 8.08434 4.23431 7.93431C4.38434 7.78429 4.58783 7.7 4.8 7.7H7.2V5.3C7.2 5.08783 7.28429 4.88434 7.43431 4.73431C7.58434 4.58429 7.78783 4.5 8 4.5V4.5Z"
-                                       :fill "white"}))
-                       (d/button {:class-name "text-white text-xs font-bold leading-[18px]"
-                                  :data-modal-toggle "product-modal"}
-                                 " new mock")
-                       ($ svg/box)))))
+         (d/div {:class-name "self-stretch pt-6 justify-start items-start inline-flex text-white text-xs font-bold leading-[18px]"}
+                (d/button {:class-name "px-3 py-2 bg-pink-600 rounded-lg justify-end items-center gap-2 flex btn-add"
+                           :on-click (fn [_] (refx/dispatch [:app.dashboard/toggle-mock-modal]))}
+                          (d/svg {:width "16"
+                                  :height "17"
+                                  :viewBox "0 0 16 17"
+                                  :fill "none"}
+                                 (d/path {:fill-rule "evenodd"
+                                          :clip-rule "evenodd"
+                                          :d "M8 4.5C8.21217 4.5 8.41566 4.58429 8.56569 4.73431C8.71571 4.88434 8.8 5.08783 8.8 5.3V7.7H11.2C11.4122 7.7 11.6157 7.78429 11.7657 7.93431C11.9157 8.08434 12 8.28783 12 8.5C12 8.71217 11.9157 8.91566 11.7657 9.06569C11.6157 9.21571 11.4122 9.3 11.2 9.3H8.8V11.7C8.8 11.9122 8.71571 12.1157 8.56569 12.2657C8.41566 12.4157 8.21217 12.5 8 12.5C7.78783 12.5 7.58434 12.4157 7.43431 12.2657C7.28429 12.1157 7.2 11.9122 7.2 11.7V9.3H4.8C4.58783 9.3 4.38434 9.21571 4.23431 9.06569C4.08429 8.91566 4 8.71217 4 8.5C4 8.28783 4.08429 8.08434 4.23431 7.93431C4.38434 7.78429 4.58783 7.7 4.8 7.7H7.2V5.3C7.2 5.08783 7.28429 4.88434 7.43431 4.73431C7.58434 4.58429 7.78783 4.5 8 4.5V4.5Z"
+                                          :fill "white"}))
+                          (d/span
+                           " new mock")
+                          ($ svg/box)))))
 
 (defnc mocks []
   ($ base/index
      (let [mocks-apis (refx/use-sub [:app.dashboard/mocks-api])]
-       (<>
-        (d/div {:class-name "mock-list"}
-               (for [{:keys [type name apis]} mocks-apis]
-                 ($ apis-mocks {:type type :name name :apis apis})))
-
-        ($ edit-modal)))))
+       (d/div {:class-name "mock-list"}
+              (for [{:keys [type name apis]} mocks-apis]
+                ($ apis-mocks {:type type :name name :apis apis}))))))
 
 
 
