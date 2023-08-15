@@ -63,10 +63,12 @@
       (if (and is-public?
                (not (-> user :user :valid-user)))
         ($ view {:match current-route})
-        (if (not (= (-> route-data :name)
-                    :app.core/login))
-          ($ view)
-          (rfe/push-state :app.core/dashboard)))
+        (do
+          (refx/dispatch-sync [:app.dashboard/get-mocks user])
+          (if (not (= (-> route-data :name)
+                      :app.core/login))
+            ($ view)
+            (rfe/push-state :app.core/dashboard))))
       (rfe/push-state :app.core/login))))
 
 (defnc app []
