@@ -9,7 +9,8 @@
             [refx.alpha :as refx]))
 
 (defnc edit-modal []
-  (let [is-mock-modal (refx/use-sub [:app.dashboard/is-modal-open?])]
+  (let [is-mock-modal (refx/use-sub [:app.dashboard/is-modal-open?])
+        [new-mock set-mock] (hooks/use-state {})]
     (<>
      (when is-mock-modal
        (d/div {:modal-backdrop "" :class "bg-gray-900 bg-opacity-50 dark:bg-opacity-80 fixed inset-0 z-40"}))
@@ -44,7 +45,12 @@
                                                     :class-name "block mb-2 text-sm font-medium text-gray-900 dark:text-white"}
                                                    "mock name")
                                           (d/input {:class-name "shadow-sm bg-gray-50 focus:ring-pink-500 focus:border-pink-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                                                    :value (:name new-mock)
                                                     :type "text"
+                                                    :on-change (fn [e]
+                                                                 (prn :e e)
+                                                                 (prn new-mock)
+                                                                 (set-mock assoc :name (.. e -target -value)))
                                                     :name "product-name"
                                                     :id "product-name"}))))
                            (d/div {:class-name "mb-4"}
@@ -56,7 +62,11 @@
                                              :class "bg-gray-50 border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"}
                                             (d/option "avelino"))
                                   (d/div {:class-name "mt-2 text-sm text-gray-500 dark:text-gray-400"}
-                                         (d/span {:class-name "text-gray-900 text-base font-semibold "} "<mock-name>")
+                                         (d/span {:class-name "text-gray-900 text-base font-semibold "} (if
+                                                                                                         (and (not (nil? (:name new-mock)))
+                                                                                                              (seq (:name new-mock)))
+                                                                                                          (:name new-mock)
+                                                                                                          "<mock-name>"))
                                          (d/span  {:class-name "text-gray-900  "} ".<org-name>.moclojer.com")))
 
                            (d/div {:class-name "divide-y divide-gray-200 dark:divide-gray-700"}
@@ -71,7 +81,9 @@
                            (d/div {:class-name "flex justify-between items-center py-4"}
                                   (d/div {:class-name "flex flex-col flex-grow"})
 
-                                  (d/button {:class-name "px-3 py-2 bg-pink-600 rounded-lg justify-end items-center gap-2 flex btn-add"}
+                                  (d/button {:class-name "px-3 py-2 bg-pink-600 rounded-lg justify-end items-center gap-2 flex btn-add"
+                                             :on-click (fn [_]
+                                                         (refx/dispatch [:app.dashboard/create-mock]))}
                                             (d/button {:class-name "text-white text-xs font-bold leading-[18px] "} " save")
                                             ($ svg/save))))))))))
 (defnc index [{:keys [children]}]

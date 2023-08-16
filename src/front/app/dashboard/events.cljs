@@ -51,3 +51,9 @@
            :on-success [:app.dashboard/get-mocks-success]
            :on-failure [:app.dashboard/get-mocks-failure]}
     :db db}))
+
+(refx/reg-event-fx
+  :app.dashboard/create-mock
+  (fn [{db :db} [_ mock]]
+    {:db (-> db (assoc :mocks 
+                       (conj (:mocks db) mock)))}))
