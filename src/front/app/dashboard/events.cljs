@@ -34,13 +34,14 @@
  :app.dashboard/get-mocks-failure
  (fn [{db :db} [_ response]]
    (prn :get-mocks-failure response)
-   {:db (assoc db
-               :error-fetch-mocks false
-               :mocks
-               [{:type :personal :name "my" :apis [{:enable false :url "test01.avelino.moclojer.com" :id 1}
+   {:db
+    (assoc db
+           :error-fetch-mocks false
+           :mocks
+           [#_#_{:type :personal :name "my" :apis [{:enable false :url "test01.avelino.moclojer.com" :id 1}
                                                    {:enable true  :url "test02.avelino.moclojer.com" :id 2}]}
-                {:type :org :name "cljazz" :apis [{:enable false :url "test01.avelino.moclojer.com" :id 1}
-                                                  {:enable true  :url "test02.avelino.moclojer.com" :id 2}]}])}))
+              {:type :org :name "cljazz" :apis [{:enable false :url "test01.avelino.moclojer.com" :id 1}
+                                                {:enable true  :url "test02.avelino.moclojer.com" :id 2}]}])}))
 
 (refx/reg-event-fx
  :app.dashboard/get-mocks
@@ -53,7 +54,8 @@
     :db db}))
 
 (refx/reg-event-fx
-  :app.dashboard/create-mock
-  (fn [{db :db} [_ mock]]
-    {:db (-> db (assoc :mocks 
-                       (conj (:mocks db) mock)))}))
+ :app.dashboard/create-mock
+ (fn [{db :db} [_ mock]]
+   (let [api (str (:name mock) "." (:org mock) ".moclojer.com")]
+     {:db (assoc db :mocks
+                 (conj (:mocks db) (assoc mock :apis [{:enable true :url api}])))})))
