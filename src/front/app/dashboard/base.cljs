@@ -10,7 +10,12 @@
 
 (defnc edit-modal []
   (let [is-mock-modal (refx/use-sub [:app.dashboard/is-modal-open?])
-        [new-mock set-mock] (hooks/use-state {})]
+        user-orgs (refx/use-sub [:app.user/orgs])
+        [new-mock set-mock] (hooks/use-state {})
+        allow-save? (and (:org new-mock)
+                         (seq (:org new-mock))
+                         (:name new-mock))]
+
     (<>
      (when is-mock-modal
        (d/div {:modal-backdrop "" :class "bg-gray-900 bg-opacity-50 dark:bg-opacity-80 fixed inset-0 z-40"}))
@@ -28,7 +33,8 @@
                                       :class-name "text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-700"
                                       :on-click (fn [_]
                                                   (prn ">>toogle-modal-create-mock")
-                                                  (refx/dispatch [:app.dashboard/toggle-mock-modal]))}
+                                                  (set-mock dissoc {} :org :name)
+                                                  (refx/dispatch-sync [:app.dashboard/toggle-mock-modal]))}
                                      (d/svg {:class-name "w-5 h-5"
                                              :fill "currentColor"
                                              :viewBox " 0 0 20 20"}
@@ -45,11 +51,9 @@
                                                     :class-name "block mb-2 text-sm font-medium text-gray-900 dark:text-white"}
                                                    "mock name")
                                           (d/input {:class-name "shadow-sm bg-gray-50 focus:ring-pink-500 focus:border-pink-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                                                    :value (:name new-mock)
+                                                    :value (or (:name new-mock) "")
                                                     :type "text"
                                                     :on-change (fn [e]
-                                                                 (prn :e e)
-                                                                 (prn new-mock)
                                                                  (set-mock assoc :name (.. e -target -value)))
                                                     :name "product-name"
                                                     :id "product-name"}))))
@@ -59,15 +63,26 @@
                                            "Org name")
                                   (d/select {:id "settings-language"
                                              :name "countries"
+                                             :value (or (:org new-mock) "")
+                                             :on-change (fn [e]
+                                                          (prn :e (.. e -target -value))
+                                                          (set-mock assoc :org (.. e -target -value)))
+
                                              :class "bg-gray-50 border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"}
-                                            (d/option "avelino"))
+                                            (d/option {:value ""} "Select an org-name")
+                                            (mapv
+                                             #(d/option {:value %} %)
+                                             user-orgs))
                                   (d/div {:class-name "mt-2 text-sm text-gray-500 dark:text-gray-400"}
                                          (d/span {:class-name "text-gray-900 text-base font-semibold "} (if
                                                                                                          (and (not (nil? (:name new-mock)))
                                                                                                               (seq (:name new-mock)))
                                                                                                           (:name new-mock)
                                                                                                           "<mock-name>"))
-                                         (d/span  {:class-name "text-gray-900  "} ".<org-name>.moclojer.com")))
+                                         (d/span  {:class-name "text-gray-900  "} (str "." (if (and (not (nil? (:org new-mock)))
+                                                                                                    (seq (:org new-mock)))
+                                                                                             (:org new-mock)
+                                                                                             "<org-name>") ".moclojer.com"))))
 
                            (d/div {:class-name "divide-y divide-gray-200 dark:divide-gray-700"}
                                   (d/div {:class-name "flex justify-between items-center py-4"}
@@ -81,10 +96,15 @@
                            (d/div {:class-name "flex justify-between items-center py-4"}
                                   (d/div {:class-name "flex flex-col flex-grow"})
 
-                                  (d/button {:class-name "px-3 py-2 bg-pink-600 rounded-lg justify-end items-center gap-2 flex btn-add"
+                                  (d/button {:class-name
+                                             (if allow-save?
+                                               "px-3 py-2 bg-pink-600 rounded-lg justify-end items-center gap-2 flex btn-add"
+                                               "px-3 py-2 bg-gray-600 rounded-lg justify-end items-center gap-2 flex btn-add")
                                              :on-click (fn [_]
-                                                         (refx/dispatch [:app.dashboard/create-mock]))}
+                                                         (when allow-save?
+                                                           (refx/dispatch [:app.dashboard/create-mock new-mock])))}
                                             (d/button {:class-name "text-white text-xs font-bold leading-[18px] "} " save")
+
                                             ($ svg/save))))))))))
 (defnc index [{:keys [children]}]
   (let [[toggle-sidebar set-toggle] (hooks/use-state false)

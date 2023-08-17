@@ -64,6 +64,7 @@
 (defnc mocks []
   ($ base/index
      (let [mocks-apis (refx/use-sub [:app.dashboard/mocks-api])]
+       (prn :mocks mocks-apis)
        (d/div {:class-name "mock-list"}
               (for [{:keys [type name apis]} mocks-apis]
                 ($ apis-mocks {:type type :name name :apis apis}))))))
