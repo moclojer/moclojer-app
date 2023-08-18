@@ -1,5 +1,6 @@
 (ns front.app.dashboard.base
   (:require [front.app.components.container :refer [container]]
+            [front.app.components.loading :refer [loading-spinner]]
             [front.app.components.svg :as svg]
             [front.app.dashboard.components :refer [aside nav-bar]]
             [front.app.lib :refer [defnc]]
@@ -8,8 +9,14 @@
             [helix.hooks :as hooks]
             [refx.alpha :as refx]))
 
+(defnc loading-creating-mock []
+  (d/span {:class-name "inline-flex"}
+          ($ loading-spinner {})
+          "Loading..."))
+
 (defnc edit-modal []
   (let [is-mock-modal (refx/use-sub [:app.dashboard/is-modal-open?])
+        loading? (refx/use-sub [:app.dashboard/loading-creating-mock?])
         user-orgs (refx/use-sub [:app.user/orgs])
         [new-mock set-mock] (hooks/use-state {})
         allow-save? (and (:org new-mock)
@@ -24,7 +31,9 @@
        :class-name (if is-mock-modal
                      "flex overflow-y-auto overflow-x-hidden fixed right-0 left-0 top-4 z-50 justify-center items-center md:inset-0 h-modal sm:h-full"
                      "hidden overflow-y-auto overflow-x-hidden fixed right-0 left-0 top-4 z-50 justify-center items-center md:inset-0 h-modal sm:h-full")}
-      (d/div {:class-name "relative px-4 w-full max-w-2xl h-full md:h-auto"}
+      (if loading?
+        ($ loading-creating-mock)
+        (d/div {:class-name "relative px-4 w-full max-w-2xl h-full md:h-auto"}
              (d/div {:class-name "relative bg-white rounded-lg shadow dark:bg-gray-800"}
                     (d/div {:class-name "flex justify-between items-start p-5 rounded-t border-b dark:border-gray-700"}
                            (d/h3 {:class-name "text-xl font-semibold dark:text-white"}
@@ -105,7 +114,7 @@
                                                            (refx/dispatch [:app.dashboard/create-mock new-mock])))}
                                             (d/button {:class-name "text-white text-xs font-bold leading-[18px] "} " save")
 
-                                            ($ svg/save))))))))))
+                                            ($ svg/save)))))))))))
 (defnc index [{:keys [children]}]
   (let [[toggle-sidebar set-toggle] (hooks/use-state false)
         user (-> (refx/use-sub [:app.auth/current-user]) :user)]

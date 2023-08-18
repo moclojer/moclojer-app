@@ -144,8 +144,10 @@
                                                 (d/button
                                                  {:href ""
                                                   :on-click (fn [_e]
-                                                              (refx/dispatch-sync [:app.dashboard/toggle-menu])
-                                                              (rfe/push-state :app.core/mocks))
+                                                              (if (empty? apis-mocks)
+                                                                (refx/dispatch-sync [:app.dashboard/toggle-mock-modal])
+                                                                (do (refx/dispatch-sync [:app.dashboard/toggle-menu])
+                                                                    (rfe/push-state :app.core/mocks))))
                                                   :class-name "flex items-center p-2 w-full text-base font-normal text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
                                                   :aria-controls "dropdown-mocks"
                                                   :aria-expanded  is-menu-open?

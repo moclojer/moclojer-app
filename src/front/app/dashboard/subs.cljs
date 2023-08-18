@@ -31,3 +31,9 @@
  (fn [db _]
    (:is-modal-open? db)))
 
+
+(refx/reg-sub
+ :app.dashboard/loading-creating-mock?
+ (fn [db _]
+   (:loading-creating-mock? db)))
+
