@@ -6,5 +6,10 @@
 
 (def Mock
   [:map
+   [:org string?]
    [:subdomain string?]
-   [:url string?]])
+   [:content {:optional true} string?]])
+
+(def MockUpdate
+  [:map
+   [:content {:optional true} string?]])

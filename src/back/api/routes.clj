@@ -1,11 +1,10 @@
 (ns back.api.routes
   (:require
+   [back.api.healthcheck :as healthcheck]
    [back.api.ports.http-in :as ports.http-in]
    [back.api.schemas.wire-in :as schemas.wire-in]
    [back.api.schemas.wire-out :as schemas.wire-out]
-   [back.api.healthcheck :as healthcheck]
-   [reitit.swagger :as swagger]
-   [reitit.ring.middleware.multipart :as multipart]))
+   [reitit.swagger :as swagger]))
 
 (def routes
   [["/swagger.json"
@@ -41,17 +40,24 @@
             :handler ports.http-in/handler-create-mock!}
      :get {:summary "Get mocks"
            :responses {200 {:body {:mocks schemas.wire-out/Mocks}}}
-           :handler ports.http-in/handler-get-mocks}}]
+           :handler ports.http-in/handler-get-mocks}}
 
-   ["/mocks/:id/enable"
-    {:post {:summary "Enable a mock"
+    ["/:id"
+     {:patch {:summary "Update a mock"
+              :parameters {:path {:id uuid?}
+                           :body schemas.wire-in/MockUpdate}
+              :responses {200 {:body {:mock schemas.wire-out/Mock}}}
+              :handler ports.http-in/handler-update-mock!}}]]
+
+   ["/mocks/:id/publish"
+    {:post {:summary "Publish mock"
             :parameters {:path {:id uuid?}}
             :responses {200 {:body {}}}
-            :handler ports.http-in/handler-enable-mock!}}]
+            :handler ports.http-in/handler-publish-mock!}}]
 
-   ["/mocks/:id/disable"
-    {:post {:summary "Disable a mock"
+   ["/mocks/:id/unpublish"
+    {:post {:summary "Unpublish mock"
             :parameters {:path {:id uuid?}}
             :responses {200 {:body {}}}
-            :handler ports.http-in/handler-disable-mock!}}]])
+            :handler ports.http-in/handler-unpublish-mock!}}]])
 

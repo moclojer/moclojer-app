@@ -1,30 +1,25 @@
 (ns back.components.router
-  (:require [back.api.db.customers :as db.customers]
-            [back.components.logs :as logs]
-            [buddy.sign.jwt :as jwt]
-            [clojure.string :as string]
-            [com.stuartsierra.component :as component]
-            [muuntaja.core :as m]
-            [reitit.coercion.malli :as reitit.malli]
-            [reitit.dev.pretty :as pretty]
-            [reitit.http :as http]
-            [reitit.http.coercion :as coercion]
-            [reitit.http.interceptors.exception :as exception]
-            [reitit.http.interceptors.multipart :as multipart]
-            [reitit.http.interceptors.muuntaja :as muuntaja]
-            [reitit.http.interceptors.parameters :as parameters]
-            [reitit.pedestal :as pedestal]
-            [reitit.ring :as ring]
-            [reitit.swagger :as swagger]
-            [reitit.swagger-ui :as swagger-ui]))
-
-(add-tap (bound-fn* clojure.pprint/pprint))
+  (:require
+   [back.api.interceptors.extract-user :refer [extract-user-interceptor]]
+   [back.components.logs :as logs]
+   [com.stuartsierra.component :as component]
+   [muuntaja.core :as m]
+   [reitit.coercion.malli :as reitit.malli]
+   [reitit.dev.pretty :as pretty]
+   [reitit.http :as http]
+   [reitit.http.coercion :as coercion]
+   [reitit.http.interceptors.exception :as exception]
+   [reitit.http.interceptors.multipart :as multipart]
+   [reitit.http.interceptors.muuntaja :as muuntaja]
+   [reitit.http.interceptors.parameters :as parameters]
+   [reitit.pedestal :as pedestal]
+   [reitit.ring :as ring]
+   [reitit.swagger :as swagger]
+   [reitit.swagger-ui :as swagger-ui]))
 
 (defn- coercion-error-handler [status]
   (fn [exception _request]
     ;; (logs/log :error exception :coercion-errors (:errors (ex-data exception)))
-    (clojure.pprint/pprint exception)
-    (def global-exception exception)
     {:status status
      :body (if (= 400 status)
              (str "Invalid path or request parameters, with the following errors: "
@@ -35,24 +30,6 @@
   (logs/log :error exception "Server exception:" :exception exception)
   {:status 500
    :body   "Internal error."})
-
-(defn- session-interceptor []
-  {:enter (fn [{:keys [request] :as ctx}]
-            (def global-request request)
-            (if-let [auth (get-in request [:headers "authorization"])]
-              (let [secret (get-in request [:components :config :config :supabase-jwt-secret])
-                    token (second (string/split auth #" "))
-                    decoded (jwt/unsign token secret {:alg :hs256})
-                    database (get-in request [:components :database])
-                    external-id (-> decoded :sub parse-uuid)
-                    user (db.customers/get-by-external-id external-id database)
-                    session-data {:user-id (:customer/uuid user)
-                                  :org-id (:customer/org_id user)}]
-                (prn "external-id" external-id "user" user "session-data" session-data)
-                (def global-session-data session-data)
-                (def global-user user)
-                (assoc-in ctx [:request :session-data] session-data))
-              ctx))})
 
 (def router-settings
   {;:reitit.interceptor/transform dev/print-context-diffs ;; pretty context diffs
@@ -67,7 +44,7 @@
                          swagger/swagger-feature
                              ;; query-params & form-params
                          (parameters/parameters-interceptor)
-                         (session-interceptor)
+                         (extract-user-interceptor)
                              ;; content-negotiation
                          (muuntaja/format-negotiate-interceptor)
                              ;; encoding response body
