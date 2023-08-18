@@ -9,11 +9,10 @@
 (def Mock
   [:map
    [:id uuid?]
-   [:org-id [:maybe uuid?]]
-   [:user-id [:maybe uuid?]]
+   [:name string?]
+   [:org string?]
    [:subdomain string?]
-   [:url string?]
-   [:enabled boolean?]])
+   [:published boolean?]])
 
 (def Mocks
   [:vector Mock])

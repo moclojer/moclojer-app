@@ -5,17 +5,11 @@
   (UUID/randomUUID))
 
 (defn create
-  [{:keys [org-id user-id subdomain url]}]
-
-  (when (and (nil? org-id)
-             (nil? user-id))
-    (throw (Exception. "org-id or user-id must be provided")))
-
+  [{:keys [org subdomain content]}]
   {:mock/id (->uuid)
-   :mock/org-id org-id
-   :mock/user-id user-id
+   :mock/org org
    :mock/subdomain subdomain
-   :mock/url url
+   :mock/content content
    :mock/enabled true})
 
 (defn enable [mock]
@@ -23,3 +17,13 @@
 
 (defn disable [mock]
   (assoc mock :mock/enabled false))
+
+(defn update
+  [mock {:keys [content]}]
+  (assoc mock :mock/content content))
+
+(defn publish [mock]
+  (assoc mock :mock/published true))
+
+(defn unpublish [mock]
+  (assoc mock :mock/published false))

@@ -3,8 +3,8 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 --;;
 
 CREATE TABLE IF NOT EXISTS customer (
-  uuid uuid UNIQUE NOT NULL PRIMARY KEY,
-  external_uuid uuid UNIQUE NOT NULL,
+  uuid uuid UNIQUE NOT NULL,
+  external_uuid uuid UNIQUE NOT NULL PRIMARY KEY,
   org_id uuid NULL,
   username varchar(255) NULL,
   email varchar(255) NOT NULL,

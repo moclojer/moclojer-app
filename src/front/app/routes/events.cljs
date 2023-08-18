@@ -24,3 +24,9 @@
  :app.routes/current-route
  (fn [db]
    (:current-route db)))
+
+(refx/reg-event-fx
+ :app.routes/push-state-params
+ (fn [_ [_ & {:keys [route params]}]]
+   (prn "push-state-params" route params)
+   (rfe/push-state route params)))

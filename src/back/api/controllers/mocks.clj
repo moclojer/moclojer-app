@@ -5,12 +5,18 @@
    [back.api.logic.mocks :as logic.mocks]))
 
 (defn create-mock!
-  [org-id user-id subdomain url {:keys [database]}]
-  (-> (logic.mocks/create {:org-id org-id
-                           :user-id user-id
+  [org subdomain content {:keys [database]}]
+  (-> (logic.mocks/create {:org org
                            :subdomain subdomain
-                           :url url})
+                           :content content})
       (db.mocks/insert! database)
+      (adapter.mocks/->wire)))
+
+(defn update-mock!
+  [id content {:keys [database]}]
+  (-> (db.mocks/get-mock-by-id id database)
+      (logic.mocks/update {:content content})
+      (db.mocks/update! database)
       (adapter.mocks/->wire)))
 
 (defn get-mocks
@@ -18,16 +24,16 @@
   (->> (db.mocks/get-mocks filter database)
        (map adapter.mocks/->wire)))
 
-(defn enable-mock!
+(defn publish-mock!
   [id {:keys [database]}]
   (-> (db.mocks/get-mock-by-id id database)
-      logic.mocks/enable
+      logic.mocks/publish
       (db.mocks/update! database))
   true)
 
-(defn disable-mock!
+(defn unpublish-mock!
   [id {:keys [database]}]
   (-> (db.mocks/get-mock-by-id id database)
-      logic.mocks/disable
+      logic.mocks/unpublish
       (db.mocks/update! database))
   true)
