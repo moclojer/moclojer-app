@@ -17,9 +17,9 @@ pom.xml.asc
 ## application
 node_modules
 .shadow-cljs
-.lsp
 .lsp/.cache
 .clj-kondo/.cache
+.cpcache/
 .calva
 .idea
 .lein-*
