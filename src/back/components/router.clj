@@ -43,7 +43,6 @@
                          swagger/swagger-feature
                          ;; query-params & form-params
                          (parameters/parameters-interceptor)
-                         (extract-user-interceptor)
                          ;; content-negotiation
                          (muuntaja/format-negotiate-interceptor)
                          ;; encoding response body
