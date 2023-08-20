@@ -1,8 +1,6 @@
 (ns back.components.router
-  (:require [back.api.db.customers :as db.customers]
+  (:require [back.api.interceptors.extract-user :refer [extract-user-interceptor]]
             [back.components.logs :as logs]
-            [buddy.sign.jwt :as jwt]
-            [clojure.string :as string]
             [com.stuartsierra.component :as component]
             [muuntaja.core :as m]
             [reitit.coercion.malli :as reitit.malli]
@@ -32,21 +30,6 @@
   {:status 500
    :body   "Internal error."})
 
-(defn- session-interceptor []
-  {:enter (fn [{:keys [request] :as ctx}]
-            (if-let [auth (get-in request [:headers "authorization"])]
-              (let [secret (get-in request [:components :config :config :supabase-jwt-secret])
-                    token (second (string/split auth #" "))
-                    decoded (jwt/unsign token secret {:alg :hs26})
-                    database (get-in request [:components :database])
-                    external-id (-> decoded :sub parse-uuid)
-                    user (db.customers/get-by-external-id external-id database)
-                    session-data {:user-id (:customer/uuid user)
-                                  :org-id (:customer/org_id user)}]
-                (prn "external-id" external-id "user" user "session-data" session-data)
-                (assoc-in ctx [:request :session-data] session-data))
-              ctx))})
-
 (def router-settings
   {;:reitit.interceptor/transform dev/print-context-diffs ;; pretty context diffs
    ;;:validate spec/validate ;; enable spec validation for route data
@@ -60,7 +43,7 @@
                          swagger/swagger-feature
                          ;; query-params & form-params
                          (parameters/parameters-interceptor)
-                         (session-interceptor)
+                         (extract-user-interceptor)
                          ;; content-negotiation
                          (muuntaja/format-negotiate-interceptor)
                          ;; encoding response body
@@ -70,7 +53,7 @@
                           (merge
                            exception/default-handlers
                            {:reitit.coercion/request-coercion  (coercion-error-handler 400)
-                            :reitit.coercion/response-coercion (coercion-error-handler 00)
+                            :reitit.coercion/response-coercion (coercion-error-handler 500)
                             clojure.lang.ExceptionInfo exception-info-handler}))
                              ;; decoding request body
                          (muuntaja/format-request-interceptor)
