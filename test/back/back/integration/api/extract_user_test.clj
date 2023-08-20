@@ -1,7 +1,7 @@
 (ns back.integration.api.extract-user-test
-  (:require
-   [back.api.interceptors.extract-user :refer [extract-user-interceptor]]
-   [clojure.test :refer [deftest is testing]]))
+  (:require [back.api.interceptors.extract-user :refer [extract-user-interceptor]]
+            [clojure.test :refer [deftest is testing]])
+  (:import [clojure.lang ExceptionInfo]))
 
 (defn- run-with-context [context]
   (let [{:keys [enter]} (extract-user-interceptor)]
@@ -14,4 +14,4 @@
 
   (testing "returns unauthorized when authorization header is missing"
     (let [context {:request {:headers {}}}]
-      (is (= (run-with-context context) {:status 401 :body "Unauthorized"})))))
+      (is (thrown? ExceptionInfo (run-with-context context))))))
