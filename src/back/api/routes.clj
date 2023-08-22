@@ -56,7 +56,7 @@
            :responses {200 {:body {:mocks schemas.wire-out/Mocks}}}
            :handler ports.http-in/handler-get-mocks}}
 
-    ["/:id"
+    #_["/:id"
      {:patch {:summary "Update a mock"
               :interceptors [(extract-user-interceptor)]
               :parameters {:path {:id uuid?}

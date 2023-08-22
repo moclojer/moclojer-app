@@ -11,5 +11,5 @@
    {:uuid (str uuid)
     :email email
     :external-id external_uuid}
-    :username username))
+   :username username))
 
