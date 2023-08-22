@@ -27,6 +27,7 @@
    (let [access-token (-> session :access-token)]
      {:http {:url "/login/auth"
              :method :post
+             :headers {"authorization" (str "Bearer " access-token)}
              :body {:access-token access-token}
              :on-success [:app.auth/success-save]
              :on-failure [:app.auth/falied-save-user]}
@@ -42,6 +43,7 @@
    {:http {:url (str "/user/" (-> db :current-user :user :user-id))
            :method :post
            :body {:username username}
+           :headers {"authorization" (str "Bearer " (-> db :current-user :access-token))}
            :on-success [:app.auth/username-saved]
            :on-failure [:app.auth/falied-save-user]}
     :db  (assoc db
