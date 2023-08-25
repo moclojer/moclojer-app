@@ -21,7 +21,7 @@
         [new-mock set-mock] (hooks/use-state {})
         allow-save? (and (:org new-mock)
                          (seq (:org new-mock))
-                         (:name new-mock))]
+                         (:subdomain new-mock))]
 
     (<>
      (when is-mock-modal
@@ -42,7 +42,7 @@
                                       :class-name "text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-700"
                                       :on-click (fn [_]
                                                   (prn ">>toogle-modal-create-mock")
-                                                  (set-mock dissoc {} :org :name)
+                                                  (set-mock dissoc {} :org :subdomain)
                                                   (refx/dispatch-sync [:app.dashboard/toggle-mock-modal]))}
                                      (d/svg {:class-name "w-5 h-5"
                                              :fill "currentColor"
@@ -60,10 +60,10 @@
                                                     :class-name "block mb-2 text-sm font-medium text-gray-900 dark:text-white"}
                                                    "mock name")
                                           (d/input {:class-name "shadow-sm bg-gray-50 focus:ring-pink-500 focus:border-pink-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                                                    :value (or (:name new-mock) "")
+                                                    :value (or (:subdomain new-mock) "")
                                                     :type "text"
                                                     :on-change (fn [e]
-                                                                 (set-mock assoc :name (.. e -target -value)))
+                                                                 (set-mock assoc :subdomain (.. e -target -value)))
                                                     :name "product-name"
                                                     :id "product-name"}))))
                            (d/div {:class-name "mb-4"}
@@ -84,9 +84,9 @@
                                              user-orgs))
                                   (d/div {:class-name "mt-2 text-sm text-gray-500 dark:text-gray-400"}
                                          (d/span {:class-name "text-gray-900 text-base font-semibold "} (if
-                                                                                                         (and (not (nil? (:name new-mock)))
-                                                                                                              (seq (:name new-mock)))
-                                                                                                          (:name new-mock)
+                                                                                                         (and (not (nil? (:subdomain new-mock)))
+                                                                                                              (seq (:subdomain new-mock)))
+                                                                                                          (:subdomain new-mock)
                                                                                                           "<mock-name>"))
                                          (d/span  {:class-name "text-gray-900  "} (str "." (if (and (not (nil? (:org new-mock)))
                                                                                                     (seq (:org new-mock)))

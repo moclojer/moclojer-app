@@ -58,6 +58,7 @@
 (refx/reg-event-fx
  :app.dashboard/create-mock
  (fn [{db :db} [_ mock]]
+   (prn :mock mock)
    {:http {:url "/mocks"
            :method :post
            :headers {"authorization" (str "Bearer " (:access-token (-> db :current-user)))}
