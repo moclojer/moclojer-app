@@ -14,7 +14,7 @@
 
 (def system-atom (atom nil))
 
-(defn- build-system-map []
+(defn build-system-map []
   (component/system-map
    :config (config/new-config)
    :http (http/new-http)
