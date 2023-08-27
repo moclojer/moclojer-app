@@ -6,7 +6,6 @@
 
 (def Mock
   [:map
-   [:org string?]
    [:subdomain string?]
    [:content {:optional true} string?]])
 

@@ -32,12 +32,11 @@
             sql/format))
        first))
 
-(defn get-mocks [{:keys [org-id user-id]} db]
+(defn get-mocks [{:keys [user-id]} db]
   (->> (database/execute
         db
         (-> (sql.helpers/select :*)
             (sql.helpers/from :mock)
             (sql.helpers/where [:or
-                                [:= :org_id org-id]
                                 [:= :user_id user-id]])
             sql/format))))

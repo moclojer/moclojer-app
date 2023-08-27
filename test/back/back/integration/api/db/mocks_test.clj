@@ -27,19 +27,14 @@
 
     (state/invoke
      #(db.mocks/insert! {:mock/id #uuid "41571d31-d9c2-4216-b6f6-d3c7bcc27570"
-                         :mock/org_id #uuid "e8b85087-dbc8-4fc8-bd60-67eda8d1c2d1"
                          :mock/user_id #uuid "916d0b8b-af1b-4178-8aa1-0531c582dcd1"
                          :mock/subdomain "test"
-                         :mock/url "https://api.moclojer.com/files/download?id=c36c798d-879e-4da0-9182-74da0a87ac1a"
                          :mock/enabled true}
                         database))
 
     (flow "then get by uuid"
       (match? [{:mock/id #uuid "41571d31-d9c2-4216-b6f6-d3c7bcc27570"
-                :mock/org_id #uuid "e8b85087-dbc8-4fc8-bd60-67eda8d1c2d1"
                 :mock/user_id #uuid "916d0b8b-af1b-4178-8aa1-0531c582dcd1"
                 :mock/subdomain "test"
-                :mock/url "https://api.moclojer.com/files/download?id=c36c798d-879e-4da0-9182-74da0a87ac1a"
                 :mock/enabled true}]
-              (db.mocks/get-mocks {:org-id #uuid "e8b85087-dbc8-4fc8-bd60-67eda8d1c2d1"
-                                   :user-id #uuid "916d0b8b-af1b-4178-8aa1-0531c582dcd1"} database)))))
+              (db.mocks/get-mocks {:user-id #uuid "916d0b8b-af1b-4178-8aa1-0531c582dcd1"} database)))))

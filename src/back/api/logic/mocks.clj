@@ -7,7 +7,6 @@
 (defn create
   [{:keys [org subdomain content]}]
   {:mock/id (->uuid)
-   :mock/org org
    :mock/subdomain subdomain
    :mock/content content
    :mock/enabled true})
