@@ -5,9 +5,8 @@
    [back.api.logic.mocks :as logic.mocks]))
 
 (defn create-mock!
-  [org subdomain content {:keys [database]}]
-  (-> (logic.mocks/create {:org org
-                           :subdomain subdomain
+  [subdomain content {:keys [database]}]
+  (-> (logic.mocks/create {:subdomain subdomain
                            :content content})
       (db.mocks/insert! database)
       (adapter.mocks/->wire)))
@@ -20,8 +19,8 @@
       (adapter.mocks/->wire)))
 
 (defn get-mocks
-  [filter {:keys [database]}]
-  (->> (db.mocks/get-mocks filter database)
+  [filters {:keys [database]}]
+  (->> (db.mocks/get-mocks filters database)
        (map adapter.mocks/->wire)))
 
 (defn publish-mock!

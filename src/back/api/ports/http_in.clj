@@ -37,7 +37,6 @@
     {:keys [org]} :session-data
     components :components}]
   (let [mock (controllers.mocks/create-mock!
-              org
               subdomain
               content
               components)]
