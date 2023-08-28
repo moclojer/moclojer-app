@@ -18,7 +18,8 @@
                       database (get-in request [:components :database])
                       external-id (-> decoded :sub parse-uuid)
                       user (db.customers/get-by-external-id external-id database)
-                      session-data {:org (:customer/username user)}]
+                      session-data {:org (:customer/username user)
+                                    :user-id (:customer/uuid user)}]
                   (assoc-in ctx [:request :session-data] session-data))
                 (throw (ex-info "Unauthorized" {:status 401 :body "Unauthorized"})))))})
 

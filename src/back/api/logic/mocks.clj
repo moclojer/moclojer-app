@@ -1,15 +1,17 @@
 (ns back.api.logic.mocks
+  (:require [back.api.utils :refer [assoc-if]]) 
   (:import [java.util UUID]))
 
 (defn ->uuid []
   (UUID/randomUUID))
 
 (defn create
-  [{:keys [org subdomain content]}]
-  {:mock/id (->uuid)
-   :mock/subdomain subdomain
-   :mock/content content
-   :mock/enabled true})
+  [{:keys [subdomain content user-id]}]
+  (-> {:mock/id (->uuid)
+       :mock/subdomain subdomain
+       :mock/user_id user-id
+       :mock/enabled true}
+      (assoc-if :mock/content content)))
 
 (defn enable [mock]
   (assoc mock :mock/enabled true))
