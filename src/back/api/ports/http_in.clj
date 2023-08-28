@@ -9,8 +9,6 @@
     components :components}]
   (let [user (controllers.login/create-customer!
               access-token components)]
-
-    (prn :here-user user)
     {:status 201
      :body {:user user}}))
 
@@ -34,9 +32,10 @@
 ;; TODO: Get customer-id and org-id from interceptor
 (defn handler-create-mock!
   [{{{:keys [subdomain content]} :body} :parameters
-    {:keys [org]} :session-data
+    {:keys [user-id]} :session-data
     components :components}]
   (let [mock (controllers.mocks/create-mock!
+              user-id
               subdomain
               content
               components)]

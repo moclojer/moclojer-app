@@ -5,8 +5,9 @@
    [back.api.logic.mocks :as logic.mocks]))
 
 (defn create-mock!
-  [subdomain content {:keys [database]}]
+  [user-id subdomain content {:keys [database]}]
   (-> (logic.mocks/create {:subdomain subdomain
+                           :user-id user-id
                            :content content})
       (db.mocks/insert! database)
       (adapter.mocks/->wire)))
