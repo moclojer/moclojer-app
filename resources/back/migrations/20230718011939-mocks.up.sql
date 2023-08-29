@@ -1,6 +1,7 @@
 CREATE TABLE IF NOT EXISTS mock (
   id uuid NOT NULL PRIMARY KEY,
   user_id uuid NOT NULL,
+  wildcard VARCHAR(255) NOT NULL,
   subdomain VARCHAR(255) NOT NULL,
   content VARCHAR(255) NULL,
   enabled BOOLEAN NOT NULL,
