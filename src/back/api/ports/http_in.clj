@@ -31,14 +31,10 @@
 ;; TODO: Create an interceptor to get customer-id and org-id from cookies
 ;; TODO: Get customer-id and org-id from interceptor
 (defn handler-create-mock!
-  [{{{:keys [subdomain content]} :body} :parameters
+  [{{body :body} :parameters
     {:keys [user-id]} :session-data
     components :components}]
-  (let [mock (controllers.mocks/create-mock!
-              user-id
-              subdomain
-              content
-              components)]
+  (let [mock (controllers.mocks/create-mock! user-id body components)]
     {:status 201
      :body {:mock mock}}))
 

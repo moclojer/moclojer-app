@@ -6,9 +6,10 @@
   (UUID/randomUUID))
 
 (defn create
-  [{:keys [subdomain content user-id]}]
+  [{:keys [subdomain content user-id wildcard]}]
   (-> {:mock/id (->uuid)
        :mock/subdomain subdomain
+       :mock/wildcard wildcard 
        :mock/user_id user-id
        :mock/enabled true}
       (assoc-if :mock/content content)))

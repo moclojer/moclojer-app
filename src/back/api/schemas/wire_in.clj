@@ -7,6 +7,7 @@
 (def Mock
   [:map
    [:subdomain string?]
+   [:wildcard string?]
    [:content {:optional true} string?]])
 
 (def MockUpdate

@@ -28,13 +28,15 @@
     (state/invoke
      #(db.mocks/insert! {:mock/id #uuid "41571d31-d9c2-4216-b6f6-d3c7bcc27570"
                          :mock/user_id #uuid "916d0b8b-af1b-4178-8aa1-0531c582dcd1"
-                         :mock/subdomain "test"
+                         :mock/wildcard "test"
+                         :mock/subdomain "chico"
                          :mock/enabled true}
                         database))
 
     (flow "then get by uuid"
       (match? [{:mock/id #uuid "41571d31-d9c2-4216-b6f6-d3c7bcc27570"
                 :mock/user_id #uuid "916d0b8b-af1b-4178-8aa1-0531c582dcd1"
-                :mock/subdomain "test"
+                :mock/subdomain "chico"
+                :mock/wildcard "test"
                 :mock/enabled true}]
               (db.mocks/get-mocks {:user-id #uuid "916d0b8b-af1b-4178-8aa1-0531c582dcd1"} database)))))

@@ -10,6 +10,7 @@
   [:map
    [:id uuid?]
    [:user-id uuid?]
+   [:wildcard string?]
    [:subdomain string?]
    [:enabled boolean?]])
 
@@ -32,6 +33,7 @@
 
   (def mock  {:id #uuid "19b3a076-8fd6-4b46-94fa-3650419b2a8f",
               :user-id #uuid "cd989358-af38-4a2f-a1a1-88096aa425a7",
+              :wildcard "test"
               :subdomain "chico",
               :enabled true})
   

@@ -48,11 +48,13 @@
       [resp (helpers/request! {:method :post
                                :headers {"authorization" token}
                                :uri "/mocks"
-                               :body {:subdomain "chico"}})]
+                               :body {:subdomain "chico"
+                                      :wildcard "test"}})]
       (match?
        (matchers/embeds {:status 201
                          :body {:mock {:subdomain "chico"
                                        :id string?
+                                       :wildcard "test"
                                        :user-id "cd989358-af38-4a2f-a1a1-88096aa425a7"
                                        :enabled true}}})
        resp))))
