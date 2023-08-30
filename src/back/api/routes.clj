@@ -53,17 +53,9 @@
             :responses {201 {:body {:mock schemas.wire-out/Mock}}}
             :handler ports.http-in/handler-create-mock!}
      :get {:summary "Get mocks"
-            :interceptors [(extract-user-interceptor)]
+           :interceptors [(extract-user-interceptor)]
            :responses {200 {:body {:mocks schemas.wire-out/Mocks}}}
-           :handler ports.http-in/handler-get-mocks}}
-
-    #_["/:id"
-     {:patch {:summary "Update a mock"
-              :interceptors [(extract-user-interceptor)]
-              :parameters {:path {:id uuid?}
-                           :body schemas.wire-in/MockUpdate}
-              :responses {200 {:body {:mock schemas.wire-out/Mock}}}
-              :handler ports.http-in/handler-update-mock!}}]]
+           :handler ports.http-in/handler-get-mocks}}]
 
    ["/mocks/:id/publish"
     {:post {:summary "Publish mock"
