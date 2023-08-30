@@ -19,9 +19,9 @@
         loading? (refx/use-sub [:app.dashboard/loading-creating-mock?])
         user-orgs (refx/use-sub [:app.user/orgs])
         [new-mock set-mock] (hooks/use-state {})
-        allow-save? (and (:org new-mock)
-                         (seq (:org new-mock))
-                         (:subdomain new-mock))]
+        allow-save? (and (:subdomain new-mock)
+                         (seq (:subdomain new-mock))
+                         (:wildcard new-mock))]
 
     (<>
      (when is-mock-modal
@@ -42,7 +42,7 @@
                                       :class-name "text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-700"
                                       :on-click (fn [_]
                                                   (prn ">>toogle-modal-create-mock")
-                                                  (set-mock dissoc {} :org :subdomain)
+                                                  (set-mock dissoc {} :wildcard :subdomain)
                                                   (refx/dispatch-sync [:app.dashboard/toggle-mock-modal]))}
                                      (d/svg {:class-name "w-5 h-5"
                                              :fill "currentColor"
@@ -60,10 +60,10 @@
                                                     :class-name "block mb-2 text-sm font-medium text-gray-900 dark:text-white"}
                                                    "mock name")
                                           (d/input {:class-name "shadow-sm bg-gray-50 focus:ring-pink-500 focus:border-pink-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                                                    :value (or (:subdomain new-mock) "")
+                                                    :value (or (:wildcard new-mock) "")
                                                     :type "text"
                                                     :on-change (fn [e]
-                                                                 (set-mock assoc :subdomain (.. e -target -value)))
+                                                                 (set-mock assoc :wildcard (.. e -target -value)))
                                                     :name "product-name"
                                                     :id "product-name"}))))
                            (d/div {:class-name "mb-4"}
@@ -71,11 +71,11 @@
                                             :class-name "block mb-2 text-sm font-medium text-gray-900 dark:text-white"}
                                            "Org name")
                                   (d/select {:id "settings-language"
-                                             :name "countries"
-                                             :value (or (:org new-mock) "")
+                                             :name "subdomain"
+                                             :value (or (:subdomain new-mock) "")
                                              :on-change (fn [e]
                                                           (prn :e (.. e -target -value))
-                                                          (set-mock assoc :org (.. e -target -value)))
+                                                          (set-mock assoc :subdomain (.. e -target -value)))
 
                                              :class "bg-gray-50 border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"}
                                             (d/option {:value ""} "Select an org-name")
@@ -84,13 +84,13 @@
                                              user-orgs))
                                   (d/div {:class-name "mt-2 text-sm text-gray-500 dark:text-gray-400"}
                                          (d/span {:class-name "text-gray-900 text-base font-semibold "} (if
-                                                                                                         (and (not (nil? (:subdomain new-mock)))
-                                                                                                              (seq (:subdomain new-mock)))
-                                                                                                          (:subdomain new-mock)
+                                                                                                         (and (not (nil? (:wildcard new-mock)))
+                                                                                                              (seq (:wildcard new-mock)))
+                                                                                                          (:wildcard new-mock)
                                                                                                           "<mock-name>"))
-                                         (d/span  {:class-name "text-gray-900  "} (str "." (if (and (not (nil? (:org new-mock)))
-                                                                                                    (seq (:org new-mock)))
-                                                                                             (:org new-mock)
+                                         (d/span  {:class-name "text-gray-900  "} (str "." (if (and (not (nil? (:subdomain new-mock)))
+                                                                                                    (seq (:subdomain new-mock)))
+                                                                                             (:subdomain new-mock)
                                                                                              "<org-name>") ".moclojer.com"))))
 
                            (d/div {:class-name "divide-y divide-gray-200 dark:divide-gray-700"}
