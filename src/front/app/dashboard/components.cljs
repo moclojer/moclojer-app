@@ -100,7 +100,7 @@
 (defnc aside [{:keys
                [is-sidebar-toogle?
                 set-toggle]}]
-  (let [apis-mocks (refx/use-sub [:app.dashboard/mocks-api])
+  (let [apis-mocks (refx/use-sub [:app.dashboard/mocks-api-raw])
         is-menu-open? (refx/use-sub [:app.dashboard/is-menu-open?])]
     (d/div {:class-name "flex overflow-hidden pt-16 bg-gray-50 dark:bg-gray-900"}
            (d/aside {:id "sidebar"
@@ -175,21 +175,22 @@
                                                 (d/ul {:id "dropdown-mocks" :class-name (if is-menu-open?
                                                                                           (str "py-2 space-y-2")
                                                                                           "hidden py-2 space-y-2")}
-                                                      (for [{:keys [type name]} apis-mocks]
+                                                      (for [{:keys [mock-type wildcard]
+                                                             :or {mock-type :personal}} apis-mocks]
                                                         (d/li
-                                                         {:key name}
+                                                         {:key wildcard}
                                                          (d/a {:href ""
                                                                :on-click (fn [_e]
                                                                            (rfe/push-state :app.core/mocks))
                                                                :class-name (str (if is-sidebar-toogle? "px-4 " "pl-11 ")
                                                                                 "flex items-center p-2 text-base font-normal text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700")}
                                                               (when-not is-sidebar-toogle?
-                                                                (if (= type :personal)
+                                                                (if (= mock-type :personal)
                                                                   ($ svg/personal-mock)
                                                                   ($ svg/org-mock)))
                                                               (if is-sidebar-toogle?
-                                                                (d/span (first name))
-                                                                (d/span {:class-name "flex-1 ml-3 text-left whitespace-nowrap"} name))))))))
+                                                                (d/span (first wildcard))
+                                                                (d/span {:class-name "flex-1 ml-3 text-left whitespace-nowrap"} wildcard))))))))
 
                                          (d/div {:class-name "pt-2 space-y-2"}
                                                 (d/a {:href ""
