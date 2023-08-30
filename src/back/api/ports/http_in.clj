@@ -49,8 +49,8 @@
      :body {:mock mock}}))
 
 (defn handler-get-mocks
-  [{filter :session-data components :components}]
-  (let [mocks (controllers.mocks/get-mocks filter components)]
+  [{filters :session-data components :components}]
+  (let [mocks (controllers.mocks/get-mocks filters components)]
     {:status 200
      :body {:mocks mocks}}))
 

@@ -57,4 +57,16 @@
                                        :wildcard "test"
                                        :user-id "cd989358-af38-4a2f-a1a1-88096aa425a7"
                                        :enabled true}}})
-       resp))))
+       resp)
+      (flow "retreive the mock"
+        [resp-get (helpers/request! {:method :get
+                                     :headers {"authorization" token}
+                                     :uri "/mocks"
+                                     :body {}})]
+        (match?
+         (matchers/embeds {:mocks [{:id #(uuid? (java.util.UUID/fromString %))
+                                    :subdomain "chico"
+                                    :wildcard "test"
+                                    :user-id "cd989358-af38-4a2f-a1a1-88096aa425a7"
+                                    :enabled true}]})
+         (-> resp-get :body))))))
