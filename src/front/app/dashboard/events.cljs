@@ -18,18 +18,46 @@
      {:db  (assoc db
                   :is-modal-open? (not toggle))})))
 
+; #TODO move this to backend on get function
+; this is to not change the frontend structure that we 
+; already have
+(defn make-api-type [mocks]
+  (->> mocks
+       (reduce (fn [mocks-by-domain
+                    {:keys [wildcard subdomain enabled id]}]
+                 (let [exist-domain (get mocks-by-domain (keyword subdomain))
+                       url (str wildcard "." subdomain ".moclojer.com")]
+                   (if exist-domain
+                     (let [apis (:apis exist-domain)
+                           new-mock {:mock-type :personal
+                                     :subdomain subdomain
+                                     :apis (conj apis {:wildcard wildcard
+                                                       :subdomain subdomain
+                                                       :url url
+                                                       :enable enabled
+                                                       :id id})}]
+                       (assoc mocks-by-domain
+                              (keyword subdomain)
+                              new-mock))
+                     (assoc mocks-by-domain
+                            (keyword subdomain)
+                            {:subdomain subdomain
+                             :mock-type :personal
+                             :apis [{:wildcard wildcard
+                                     :subdomain subdomain
+                                     :url url
+                                     :enable enabled
+                                     :id id}]}))))
+               {})
+       vals))
+
 (refx/reg-event-fx
  :app.dashboard/get-mocks-success
  (fn [{db :db} [_ {:keys [body]}]]
-   (prn :get-mocks-success body)
-   {:db (assoc db
-               :mocks (:mocks body)
-
-               #_[{:type :personal :name "my" :apis [{:enable false :url "test01.avelino.moclojer.com" :id 1}
-                                                     {:enable true  :url "test02.avelino.moclojer.com" :id 2}]}
-                  {:type :org :name "cljazz" :apis [{:enable false :url "test01.avelino.moclojer.com" :id 1}
-                                                    {:enable true  :url "test02.avelino.moclojer.com" :id 2}]}]
-               #_(-> response :body))}))
+   (let [m (make-api-type (:mocks body))]
+     {:db (assoc db
+                 :mocks-raw (:mocks body)
+                 :mocks m)})))
 
 (refx/reg-event-fx
  :app.dashboard/get-mocks-failure
@@ -39,10 +67,7 @@
     (assoc db
            :error-fetch-mocks false
            :mocks
-           [#_#_{:type :personal :name "my" :apis [{:enable false :url "test01.avelino.moclojer.com" :id 1}
-                                                   {:enable true  :url "test02.avelino.moclojer.com" :id 2}]}
-              {:type :org :name "cljazz" :apis [{:enable false :url "test01.avelino.moclojer.com" :id 1}
-                                                {:enable true  :url "test02.avelino.moclojer.com" :id 2}]}])}))
+           [])}))
 
 (refx/reg-event-fx
  :app.dashboard/get-mocks
