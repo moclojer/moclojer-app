@@ -18,7 +18,7 @@
 
 (defn- coercion-error-handler [status]
   (fn [exception _request]
-    ;; (logs/log :error exception :coercion-errors (:errors (ex-data exception)))
+    (logs/log :error exception :coercion-errors (:errors (ex-data exception)))
     {:status status
      :body (if (= 400 status)
              (str "Invalid path or request parameters, with the following errors: "
