@@ -91,22 +91,15 @@
            :on-success [:app.dashboard/created-mock-success]
            :on-failure [:app.dashboard/created-mock-failure]}
     :db (-> db
-            (assoc :loading-creating-mock? true))
-    :dispatch [:app.dashboard/created-mock-success mock]}))
+            (assoc :loading-creating-mock? true))}))
 
 (refx/reg-event-fx
  :app.dashboard/created-mock-failure
  (fn [{db :db} [_ err]]
    (prn :error err)
-   {:db db}
-   #_(let [api (str (:name mock) "." (:org mock) ".moclojer.com")]
-       {:db (-> db
-                (assoc
-                 :is-modal-open? false
-                 :loading-creating-mock? false
-                 :mocks (conj (:mocks db) (assoc mock :apis [{:enable true :url api :id 1}]))))
-        :dispatch [:app.routes/push-state-params  {:route  :app.core/mocks-view
-                                                   :params {:mock-id 1}}]})))
+   {:db (-> db
+            (assoc :loading-creating-mock? false
+                   :error-creating-mock? true))}))
 
 (refx/reg-event-fx
  :app.dashboard/created-mock-success
