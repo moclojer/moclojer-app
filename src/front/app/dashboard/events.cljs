@@ -72,7 +72,7 @@
 (refx/reg-event-fx
  :app.dashboard/get-mocks
  (fn [{db :db} [_ user]]
-   (prn :user-get-mocks user)
+   #_(prn :user-get-mocks user)
    {:http {:url "/mocks"
            :method :get
            :headers {"authorization" (str "Bearer " (:access-token user))}

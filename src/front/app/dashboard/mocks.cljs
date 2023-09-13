@@ -2,14 +2,16 @@
   (:require [front.app.components.svg :as svg]
             [front.app.dashboard.base :as base]
             [front.app.lib :refer [defnc]]
-            [helix.core :refer [$]]
+            [helix.core :refer [$ <>]]
             [helix.dom :as d]
-            [refx.alpha :as refx]))
+            [refx.alpha :as refx]
+            [reitit.frontend.easy :as rfe]))
 
 (defnc api-mock [{:keys [enable url id]}]
   (d/a {:class-name "py-4 bg-white border-b border-gray-200 justify-center items-center inline-flex mouse-cursor" :id id
         :key id
-        :href (str "/dashboard/mocks/" id)}
+        :on-click (fn [_] (rfe/push-state :app.core/mocks-view {:mock-id id}))
+        #_#_:href (str "/dashboard/mocks/" id)}
        (d/div {:class-name "grow shrink basis-0 h-[49px] justify-start items-center gap-2 flex"}
               (if enable
                 ($ svg/mock-enable)
@@ -46,7 +48,8 @@
                   ($ svg/org-mock))
                 (d/div {:class-name "w-[423px] self-stretch text-gray-900 text-xl font-bold leading-[30px]"} subdomain))
          (for [{:keys [enable url id]} apis]
-           ($ api-mock {:enable enable :url url :id id}))
+           (<> {:key id} 
+             ($ api-mock {:enable enable :url url :id id})))
          (d/div {:class-name "self-stretch pt-6 justify-start items-start inline-flex text-white text-xs font-bold leading-[18px]"}
                 (d/button {:class-name "px-3 py-2 bg-pink-600 rounded-lg justify-end items-center gap-2 flex btn-add"
                            :on-click (fn [_] (refx/dispatch [:app.dashboard/toggle-mock-modal]))}
@@ -67,7 +70,8 @@
      (let [mocks-apis (refx/use-sub [:app.dashboard/mocks-api])]
        (d/div {:class-name "mock-list"}
               (for [{:keys [mock-type subdomain apis] :or {mock-type :personal}} mocks-apis]
-                ($ apis-mocks {:mock-type mock-type :subdomain subdomain :apis apis}))))))
+                (<> {:key subdomain} 
+                    ($ apis-mocks {:mock-type mock-type :subdomain subdomain :apis apis})))))))
 
 
 

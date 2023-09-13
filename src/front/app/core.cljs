@@ -45,8 +45,8 @@
         view (:view route-data)]
 
     (prn "current-route" current-route)
-    (prn "current-user" user)
-    (prn :here (or
+    #_(prn "current-user" user)
+    #_(prn :here (or
                 (nil? user)
                 (nil? current-route)
                 (not (= (-> route-data :name)
@@ -62,12 +62,12 @@
               :app.core/login)))
       (if (and is-public?
                (not (-> user :user :valid-user)))
-        ($ view {:match current-route})
+        ($ view {:route current-route})
         (do
           (refx/dispatch-sync [:app.dashboard/get-mocks user])
           (if (not (= (-> route-data :name)
                       :app.core/login))
-            ($ view)
+            ($ view {:route current-route})
             (rfe/push-state :app.core/dashboard))))
       (rfe/push-state :app.core/login))))
 
