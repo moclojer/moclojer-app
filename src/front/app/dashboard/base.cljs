@@ -80,7 +80,7 @@
                                              :class "bg-gray-50 border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"}
                                             (d/option {:value ""} "Select an org-name")
                                             (mapv
-                                             #(d/option {:value %} %)
+                                             #(d/option {:key % :value %} %)
                                              user-orgs))
                                   (d/div {:class-name "mt-2 text-sm text-gray-500 dark:text-gray-400"}
                                          (d/span {:class-name "text-gray-900 text-base font-semibold "} (if
@@ -112,7 +112,7 @@
                                              :on-click (fn [_]
                                                          (when allow-save?
                                                            (refx/dispatch [:app.dashboard/create-mock new-mock])))}
-                                            (d/button {:class-name "text-white text-xs font-bold leading-[18px] "} " save")
+                                            (d/div {:class-name "text-white text-xs font-bold leading-[18px] "} " save")
 
                                             ($ svg/save)))))))))))
 (defnc index [{:keys [children]}]

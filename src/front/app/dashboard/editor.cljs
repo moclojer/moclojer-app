@@ -7,7 +7,8 @@
             [front.app.lib :refer [defnc]]
             [helix.core :refer [$]]
             [helix.dom :as d]
-            [helix.hooks :as hooks]))
+            [helix.hooks :as hooks]
+            [refx.alpha :as refx]))
 
 (defnc editor
   [{:keys [value]}]
@@ -49,12 +50,15 @@
                                    (set! (.-onload reader) on-load)
                                    (.readAsText reader file)))}))))
 
-(defnc index []
+(defnc index [{:keys [route]}]
   (let [on-load (fn [e fnstate]
                   (let [f (-> e .-target .-result)]
                     (js/console.log f)
                     (fnstate f)))
-        [spec set-state] (hooks/use-state "")]
+        [spec set-state] (hooks/use-state "")
+        mock-id (-> route :parameters :path :mock-id)
+        data (refx/use-sub [:app.dashboard/mock mock-id])]
+    
     ($ base/index
        (d/div
         (d/div {:class-name "flex w-full flex-col bg-white p-5 "}
@@ -70,7 +74,7 @@
                       (d/div {:class-name " bg-white  gap-4 flex "}
                              (d/div {:class-name " rounded-md  items-center gap-4 inline-flex"}
                                     ($ svg/mock-enable)
-                                    (d/div {:class-name "text-zinc-500 text-xl font-medium leading-[30px]"} "test01.avelino.moclojer.com")))
+                                    (d/div {:class-name "text-zinc-500 text-xl font-medium leading-[30px]"} (str (:url data)))))
 
                       (d/div {:class-name "flex gap-2.5 p-2 bg-white"}
                              (d/button {:class-name "px-3 py-2 rounded-lg border border-gray-200 justify-center items-center gap-2 flex"}
@@ -91,6 +95,6 @@
                (d/div {:class-name "w-full  bg-white rounded-bl-lg rounded-br-lg flex-col justify-start items-center gap-5 inline-flex"}
                       (d/div {:class-name "w-full justify-start items-center inline-flex"}
                              (d/div {:class-name "grow shrink basis-0 h-px bg-gray-200"}))))
-        ($ editor {:value spec})))))
+        ($ editor {:value spec :data data})))))
 
 
