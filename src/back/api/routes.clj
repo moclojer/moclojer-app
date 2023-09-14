@@ -55,7 +55,12 @@
      :get {:summary "Get mocks"
            :interceptors [(extract-user-interceptor)]
            :responses {200 {:body {:mocks schemas.wire-out/Mocks}}}
-           :handler ports.http-in/handler-get-mocks}}]
+           :handler ports.http-in/handler-get-mocks}
+     :put {:summary "Update a mock"
+           :interceptors [(extract-user-interceptor)]
+           :parameters {:body schemas.wire-in/MockUpdate}
+           :responses {200 {:body {:mock schemas.wire-out/Mock}}}
+           :handler ports.http-in/handler-update-mock!}}]
 
    ["/mocks/:id/publish"
     {:post {:summary "Publish mock"

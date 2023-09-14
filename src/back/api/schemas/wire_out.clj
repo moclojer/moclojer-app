@@ -11,6 +11,7 @@
    [:id uuid?]
    [:user-id uuid?]
    [:wildcard string?]
+   [:content {:optional true} string?]
    [:subdomain string?]
    [:enabled boolean?]])
 
