@@ -39,7 +39,7 @@
      :body {:mock mock}}))
 
 (defn handler-update-mock!
-  [{{{:keys [id]} :path {:keys [content]} :body} :parameters
+  [{{{:keys [id content]} :body} :parameters
     components :components}]
   (let [mock (controllers.mocks/update-mock!
               id

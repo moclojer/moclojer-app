@@ -1,4 +1,4 @@
-(ns back.integration.api.create-mock-test
+(ns back.integration.api.update-mock-test
   (:require [back.api.db.customers :as db.customers]
             [back.api.routes :as routes]
             [back.components.config :as config]
@@ -29,7 +29,7 @@
 (def token "Beare eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJkY2ZmNGMwNi0xYzllLTRhYmItYTQ5Yi00MzhlMTg2OWVjNWIifQ.Gd42MG5EQCVvQwsvlhRQWHuEr-BBo4GB7Pd9di8w_No")
 
 (defflow
-  flow-save-mock
+  flow-update-mock
   {:init (utils/start-system! create-and-start-components!)
    :cleanup utils/stop-system!
    :fail-fast? true}
@@ -44,7 +44,7 @@
                              :customer/external-uuid #uuid "dcff4c06-1c9e-4abb-a49b-438e1869ec5b"}
                             database))
 
-    (flow "it will send a mock"
+    (flow "it will send a mock and save it"
       [resp (helpers/request! {:method :post
                                :headers {"authorization" token}
                                :uri "/mocks"
@@ -58,15 +58,17 @@
                                        :user-id "cd989358-af38-4a2f-a1a1-88096aa425a7"
                                        :enabled true}}})
        resp)
-      (flow "retreive the mock"
-        [resp-get (helpers/request! {:method :get
+      (flow "then will update the content"
+        [resp-get (helpers/request! {:method :put
                                      :headers {"authorization" token}
                                      :uri "/mocks"
-                                     :body {}})]
+                                     :body {:id (-> resp :body :mock :id)
+                                            :content "test chico string"}})]
         (match?
-         (matchers/embeds {:mocks [{:id #(uuid? (java.util.UUID/fromString %))
-                                    :subdomain "chico"
-                                    :wildcard "test"
-                                    :user-id "cd989358-af38-4a2f-a1a1-88096aa425a7"
-                                    :enabled true}]})
+         (matchers/embeds {:mock {:id #(uuid? (java.util.UUID/fromString %))
+                                  :subdomain "chico"
+                                  :wildcard "test"
+                                  :content "test chico string"
+                                  :user-id "cd989358-af38-4a2f-a1a1-88096aa425a7"
+                                  :enabled true}})
          (-> resp-get :body))))))

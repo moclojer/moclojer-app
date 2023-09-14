@@ -12,4 +12,5 @@
 
 (def MockUpdate
   [:map
+   [:id uuid?]
    [:content {:optional true} string?]])
