@@ -42,7 +42,7 @@
   [{{{:keys [id content]} :body} :parameters
     components :components}]
   (let [mock (controllers.mocks/update-mock!
-              id
+              (java.util.UUID/fromString id)
               content
               components)]
     {:status 200

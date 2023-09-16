@@ -11,13 +11,13 @@
             [refx.alpha :as refx]))
 
 (defnc editor
-  [{:keys [value]}]
+  [{{:keys [content]} :data}]
+  (prn :data content)
   ($ c/default
-     {:value value
+     {:value  (if content content "")
       :height "400px"
-      #_#_:width "500px"
       :extensions #js [(.define language/StreamLanguage yaml/yaml)]
-      :onChange (fn [e] (prn :test e))}))
+      :onChange (fn [e] (prn "editor" e))}))
 
 (defnc drag-drop [{:keys [on-load]}]
   (d/div {:class-name "flex items-center justify-center w-full"}
@@ -46,19 +46,17 @@
                                  (.preventDefault e)
                                  (let [^js file (-> e .-target .-files (aget 0))
                                        reader (js/FileReader.)
-                                       filename (.-name file)]
+                                       #_#_filename (.-name file)]
                                    (set! (.-onload reader) on-load)
                                    (.readAsText reader file)))}))))
 
 (defnc index [{:keys [route]}]
   (let [on-load (fn [e fnstate]
                   (let [f (-> e .-target .-result)]
-                    (js/console.log f)
                     (fnstate f)))
-        [spec set-state] (hooks/use-state "")
         mock-id (-> route :parameters :path :mock-id)
         data (refx/use-sub [:app.dashboard/mock mock-id])]
-    
+
     ($ base/index
        (d/div
         (d/div {:class-name "flex w-full flex-col bg-white p-5 "}
@@ -82,19 +80,19 @@
                                        ($ svg/trash))
 
                              (d/button {:class-name "px-3 py-2 bg-pink-600 rounded-lg justify-end items-center gap-2 flex btn-add"}
-                                       (d/button {:class-name "text-white text-xs font-bold leading-[18px] "} " save")
+                                       (d/button {:class-name "text-white text-xs font-bold leading-[18px] "
+                                                  :on-click (fn [_] (refx/dispatch [:app.dashboard/save-mock mock-id]))} " save")
                                        ($ svg/save))))
                (d/div {}
                       ($ drag-drop
                          {:on-load (fn [e]
                                      (on-load e
-                                              #(set-state
-                                                (fn [_]
-                                                  %))))}))
+                                              #(refx/dispatch [:app.dashboard/edit-mock {:mock-id mock-id
+                                                                                         :content %}])))}))
 
                (d/div {:class-name "w-full  bg-white rounded-bl-lg rounded-br-lg flex-col justify-start items-center gap-5 inline-flex"}
                       (d/div {:class-name "w-full justify-start items-center inline-flex"}
                              (d/div {:class-name "grow shrink basis-0 h-px bg-gray-200"}))))
-        ($ editor {:value spec :data data})))))
+        ($ editor {:data data})))))
 
 
