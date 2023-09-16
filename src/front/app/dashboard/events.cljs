@@ -18,24 +18,31 @@
      {:db  (assoc db
                   :is-modal-open? (not toggle))})))
 
+(defn assoc-if
+  [xs k v]
+  (if v
+    (assoc xs k v)
+    xs))
+
 ; #TODO move this to backend on get function
 ; this is to not change the frontend structure that we 
 ; already have
 (defn make-api-type [mocks]
   (->> mocks
        (reduce (fn [mocks-by-domain
-                    {:keys [wildcard subdomain enabled id]}]
+                    {:keys [wildcard subdomain enabled id content]}]
                  (let [exist-domain (get mocks-by-domain (keyword subdomain))
                        url (str wildcard "." subdomain ".moclojer.com")]
                    (if exist-domain
                      (let [apis (:apis exist-domain)
                            new-mock {:mock-type :personal
                                      :subdomain subdomain
-                                     :apis (conj apis {:wildcard wildcard
-                                                       :subdomain subdomain
-                                                       :url url
-                                                       :enable enabled
-                                                       :id id})}]
+                                     :apis (conj apis (-> {:wildcard wildcard
+                                                           :subdomain subdomain
+                                                           :url url
+                                                           :enable enabled
+                                                           :id id}
+                                                          (assoc-if :content content)))}]
                        (assoc mocks-by-domain
                               (keyword subdomain)
                               new-mock))
@@ -43,11 +50,13 @@
                             (keyword subdomain)
                             {:subdomain subdomain
                              :mock-type :personal
-                             :apis [{:wildcard wildcard
-                                     :subdomain subdomain
-                                     :url url
-                                     :enable enabled
-                                     :id id}]}))))
+                             :apis [(-> {:wildcard wildcard
+                                         :subdomain subdomain
+                                         :url url
+                                         :enable enabled
+                                         :id id}
+                                        (assoc-if :content content))]}))))
+
                {})
        vals))
 
@@ -112,3 +121,59 @@
                :mocks (conj (:mocks db) (assoc mock :apis [{:enable true :url api :id 1}]))))
       :dispatch [:app.routes/push-state-params  {:route  :app.core/mocks-view
                                                  :params {:mock-id 1}}]})))
+(refx/reg-event-fx
+ :app.dashboard/save-mock
+ (fn [{db :db} [_ id]]
+   (let [content (->> db :mocks-raw
+                      (filter
+                       (fn [mock]
+                         (= (str (:id mock)) id)))
+
+                      first
+                      :content)]
+     {:http  {:url "/mocks"
+              :method :put
+              :headers {"authorization" (str "Bearer " (:access-token (-> db :current-user)))}
+              :body {:id id
+                     :content content}
+              :on-success [:app.dashboard/get-mocks]
+              :on-failure [:app.dashboard/edit-mock-failed]}
+      :db (-> db
+              (assoc :loading-edit-mock true))})))
+
+(refx/reg-event-fx
+ :app.dashboard/edit-mock
+ (fn [{db :db} [_ {:keys [content mock-id]}]]
+   (let [mock-raw (-> db :mocks-raw)
+         mock (assoc
+               (->>  mock-raw
+                     (filter
+                      (fn [{:keys [id]}]
+                        (= (str id) mock-id)))
+                     first)
+               :content content)
+         new-mocks (conj (->> db :mocks-raw
+                              (filter
+                               (fn [{:keys [id]}]
+                                 (not (= (str id) mock-id)))))
+                         mock)]
+
+     {:dispatch [:app.dashboard/edit-mock-success {:body {:mocks new-mocks}}]
+      :db (-> db
+              (assoc :loading-edit-mock true))})))
+
+(refx/reg-event-fx
+ :app.dashboard/edit-mock-failed
+ (fn [{db :db} [_ err]]
+   (prn :error err)
+   {:db (-> db
+            (assoc :failed-edit-mock true))}))
+
+(refx/reg-event-fx
+ :app.dashboard/edit-mock-success
+ (fn [{db :db} [_ {:keys [body]}]]
+   (prn :mocks "raw" body)
+   (let [m (make-api-type (:mocks body))]
+     {:db (assoc db
+                 :mocks-raw (:mocks body)
+                 :mocks m)})))

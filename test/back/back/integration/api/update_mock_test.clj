@@ -62,7 +62,7 @@
         [resp-get (helpers/request! {:method :put
                                      :headers {"authorization" token}
                                      :uri "/mocks"
-                                     :body {:id (-> resp :body :mock :id)
+                                     :body {:id (-> resp :body :mock :id str)
                                             :content "test chico string"}})]
         (match?
          (matchers/embeds {:mock {:id #(uuid? (java.util.UUID/fromString %))
