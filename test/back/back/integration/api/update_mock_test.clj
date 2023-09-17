@@ -28,6 +28,22 @@
 
 (def token "Beare eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJkY2ZmNGMwNi0xYzllLTRhYmItYTQ5Yi00MzhlMTg2OWVjNWIifQ.Gd42MG5EQCVvQwsvlhRQWHuEr-BBo4GB7Pd9di8w_No")
 
+(def yml "
+- endpoint:
+    # Note: the method could be omitted because GET is the default
+    method: GET
+    path: /hello/:username
+    response:
+      # Note: the status could be omitted because 200 is the default
+      status: 200
+      headers:
+        Content-Type: application/json
+      # Note: the body will receive the value passed in the url using the
+      # :username placeholder
+      body: >
+        {
+          \"hello\": \"{{path-params.username}}!\"
+        }")
 (defflow
   flow-update-mock
   {:init (utils/start-system! create-and-start-components!)
@@ -63,12 +79,26 @@
                                      :headers {"authorization" token}
                                      :uri "/mocks"
                                      :body {:id (-> resp :body :mock :id str)
-                                            :content "test chico string"}})]
+                                            :content yml}})]
         (match?
          (matchers/embeds {:mock {:id #(uuid? (java.util.UUID/fromString %))
                                   :subdomain "chico"
                                   :wildcard "test"
-                                  :content "test chico string"
+                                  :content yml
                                   :user-id "cd989358-af38-4a2f-a1a1-88096aa425a7"
                                   :enabled true}})
-         (-> resp-get :body))))))
+         (-> resp-get :body))
+
+        (flow "then retreive all mocks"
+          [resp-get (helpers/request! {:method :get
+                                       :headers {"authorization" token}
+                                       :uri "/mocks"
+                                       :body {}})]
+          (match?
+           (matchers/embeds {:mocks [{:id #(uuid? (java.util.UUID/fromString %))
+                                      :subdomain "chico"
+                                      :content yml
+                                      :wildcard "test"
+                                      :user-id "cd989358-af38-4a2f-a1a1-88096aa425a7"
+                                      :enabled true}]})
+           (-> resp-get :body)))))))
