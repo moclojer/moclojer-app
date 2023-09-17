@@ -174,7 +174,9 @@
       (when (and user
                  (not (nil? (-> user :user :valid-user)))
                  (-> user :user :username))
-        (rfe/push-state :app.core/dashboard)))
+        (do
+          (refx/dispatch-sync [:app.dashboard/get-mocks user])
+          (rfe/push-state :app.core/dashboard))))
 
     (hooks/use-effect
       :once

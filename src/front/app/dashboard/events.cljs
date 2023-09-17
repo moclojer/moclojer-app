@@ -63,6 +63,7 @@
 (refx/reg-event-fx
  :app.dashboard/get-mocks-success
  (fn [{db :db} [_ {:keys [body]}]]
+   (prn :mocks-success body)
    (let [m (make-api-type (:mocks body))]
      {:db (assoc db
                  :mocks-raw (:mocks body)
@@ -81,7 +82,7 @@
 (refx/reg-event-fx
  :app.dashboard/get-mocks
  (fn [{db :db} [_ user]]
-   #_(prn :user-get-mocks user)
+   (prn :user-get-mocks user)
    {:http {:url "/mocks"
            :method :get
            :headers {"authorization" (str "Bearer " (:access-token user))}
@@ -113,14 +114,12 @@
 (refx/reg-event-fx
  :app.dashboard/created-mock-success
  (fn [{db :db} [_ mock]]
-   (let [api (str (:name mock) "." (:org mock) ".moclojer.com")]
-     {:db (-> db
-              (assoc
-               :is-modal-open? false
-               :loading-creating-mock? false
-               :mocks (conj (:mocks db) (assoc mock :apis [{:enable true :url api :id 1}]))))
-      :dispatch [:app.routes/push-state-params  {:route  :app.core/mocks-view
-                                                 :params {:mock-id 1}}]})))
+   {:db (-> db
+            (assoc
+             :is-modal-open? false
+             :loading-creating-mock? false))
+    :dispatch [:app.routes/push-state :app.core/mocks]}))
+
 (refx/reg-event-fx
  :app.dashboard/save-mock
  (fn [{db :db} [_ id]]
@@ -136,7 +135,7 @@
               :headers {"authorization" (str "Bearer " (:access-token (-> db :current-user)))}
               :body {:id id
                      :content content}
-              :on-success [:app.dashboard/get-mocks]
+              :on-success [:app.dashboard/get-mocks (-> db :current-user)]
               :on-failure [:app.dashboard/edit-mock-failed]}
       :db (-> db
               (assoc :loading-edit-mock true))})))
