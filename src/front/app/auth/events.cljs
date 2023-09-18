@@ -55,7 +55,6 @@
  :app.auth/username-saved
  (fn
    [db [_ {:keys [body]}]]
-   (prn :save-user body)
    (let [current-user (-> (:current-user db)
                           (assoc-in [:user :username] (-> body :user :username)))]
 

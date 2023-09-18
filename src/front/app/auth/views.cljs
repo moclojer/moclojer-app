@@ -170,7 +170,6 @@
     (hooks/use-effect
       [user]
       ;; user session is not nil, redirect to dashboard
-      (prn :render-user-callback user)
       (when (and user
                  (not (nil? (-> user :user :valid-user)))
                  (-> user :user :username))

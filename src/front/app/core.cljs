@@ -45,12 +45,6 @@
         view (:view route-data)]
 
     (prn "current-route" current-route)
-    #_(prn "current-user" user)
-    #_(prn :here (or
-                (nil? user)
-                (nil? current-route)
-                (not (= (-> route-data :name)
-                        :app.core/login))))
     ;;#todo this is a hack to match routing properly, need to figure out
     ;; the navigation logic better
 

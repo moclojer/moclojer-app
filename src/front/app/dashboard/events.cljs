@@ -63,7 +63,6 @@
 (refx/reg-event-fx
  :app.dashboard/get-mocks-success
  (fn [{db :db} [_ {:keys [body]}]]
-   (prn :mocks-success body)
    (let [m (make-api-type (:mocks body))]
      {:db (assoc db
                  :mocks-raw (:mocks body)
@@ -72,7 +71,6 @@
 (refx/reg-event-fx
  :app.dashboard/get-mocks-failure
  (fn [{db :db} [_ response]]
-   (prn :get-mocks-failure response)
    {:db
     (assoc db
            :error-fetch-mocks false
@@ -82,7 +80,6 @@
 (refx/reg-event-fx
  :app.dashboard/get-mocks
  (fn [{db :db} [_ user]]
-   (prn :user-get-mocks user)
    {:http {:url "/mocks"
            :method :get
            :headers {"authorization" (str "Bearer " (:access-token user))}
@@ -93,7 +90,6 @@
 (refx/reg-event-fx
  :app.dashboard/create-mock
  (fn [{db :db} [_ mock]]
-   (prn :mock mock)
    {:http {:url "/mocks"
            :method :post
            :headers {"authorization" (str "Bearer " (:access-token (-> db :current-user)))}
@@ -144,18 +140,20 @@
  :app.dashboard/edit-mock
  (fn [{db :db} [_ {:keys [content mock-id]}]]
    (let [mock-raw (-> db :mocks-raw)
-         mock (assoc
-               (->>  mock-raw
-                     (filter
-                      (fn [{:keys [id]}]
-                        (= (str id) mock-id)))
-                     first)
-               :content content)
-         new-mocks (conj (->> db :mocks-raw
-                              (filter
-                               (fn [{:keys [id]}]
-                                 (not (= (str id) mock-id)))))
-                         mock)]
+         mock (assoc (->> mock-raw
+                          (filter
+                           (fn [{:keys [id]}]
+                             (= (str id) (str mock-id))))
+                          first)
+                     :content content)
+         mocks (->> db :mocks-raw
+                    (filter
+                     (fn [{:keys [id]}]
+                       (prn id mock-id)
+                       (not (= id mock-id)))))
+         new-mocks (conj
+                    mocks
+                    mock)]
 
      {:dispatch [:app.dashboard/edit-mock-success {:body {:mocks new-mocks}}]
       :db (-> db
@@ -171,7 +169,6 @@
 (refx/reg-event-fx
  :app.dashboard/edit-mock-success
  (fn [{db :db} [_ {:keys [body]}]]
-   (prn :mocks "raw" body)
    (let [m (make-api-type (:mocks body))]
      {:db (assoc db
                  :mocks-raw (:mocks body)
