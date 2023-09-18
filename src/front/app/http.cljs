@@ -11,7 +11,6 @@
 
 (defn- send-request!
   [{:keys [url on-success on-failure headers] :as request} fn-request]
-  (prn :headers headers)
   (prn :url (str api-url url))
   (-> (fn-request (str api-url url) request)
       (.then (fn [{:keys [status] :as resp}]

@@ -11,13 +11,20 @@
             [refx.alpha :as refx]))
 
 (defnc editor
-  [{{:keys [content]} :data}]
-  (prn :data content)
-  ($ c/default
-     {:value  (if content content "")
-      :height "400px"
-      :extensions #js [(.define language/StreamLanguage yaml/yaml)]
-      :onChange (fn [e] (prn "editor" e))}))
+  [props]
+  (let [{:keys [data]} props
+        {:keys [content id]} data
+        ref-fn (hooks/use-callback [content]
+                 (fn [e]
+                   (js/console.log e)
+                   (refx/dispatch-sync [:app.dashboard/edit-mock {:mock-id id
+                                                                  :content e}])))]
+    ($ c/default
+       {:value  (if content content "")
+        :height "400px"
+        :extensions #js [(.define language/StreamLanguage yaml/yaml)]
+        :onChange (fn [e]
+                    (ref-fn e))})))
 
 (defnc drag-drop [{:keys [on-load]}]
   (d/div {:class-name "flex items-center justify-center w-full"}
@@ -79,9 +86,9 @@
                                        (d/div {:class-name "text-gray-800 text-sm font-medium leading-[21px]"} "remove")
                                        ($ svg/trash))
 
-                             (d/button {:class-name "px-3 py-2 bg-pink-600 rounded-lg justify-end items-center gap-2 flex btn-add"}
-                                       (d/button {:class-name "text-white text-xs font-bold leading-[18px] "
-                                                  :on-click (fn [_] (refx/dispatch [:app.dashboard/save-mock mock-id]))} " save")
+                             (d/button {:class-name "px-3 py-2 bg-pink-600 rounded-lg justify-end items-center gap-2 flex btn-add"
+                                        :on-click (fn [_] (refx/dispatch [:app.dashboard/save-mock mock-id]))}
+                                       (d/div {:class-name "text-white text-xs font-bold leading-[18px] "} " save")
                                        ($ svg/save))))
                (d/div {}
                       ($ drag-drop
