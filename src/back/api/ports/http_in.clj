@@ -65,3 +65,10 @@
     components :components}]
   (controllers.mocks/unpublish-mock! id components)
   {:status 200 :body {}})
+
+(defn username-available?
+  [{{{:keys [username]} :path} :parameters
+    {:keys [database]} :components}]
+  (let [available (controllers.user/username-available? username database)]
+    {:status 200
+     :body available}))

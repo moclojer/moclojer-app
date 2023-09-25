@@ -46,3 +46,13 @@
            (sql.helpers/where [:= :uuid id])
            sql/format))
       first))
+
+
+(defn get-by-username [username db]
+  (-> (database/execute
+       db
+       (-> (sql.helpers/select :*)
+           (sql.helpers/from :customer)
+           (sql.helpers/where [:= :username username])
+           sql/format))
+      first))

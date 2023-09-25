@@ -1,5 +1,9 @@
 (ns back.api.schemas.wire-out)
 
+(def UsernameAvailable 
+  [:map 
+   [:available boolean?]])
+
 (def User
   [:map
    [:uuid string?]

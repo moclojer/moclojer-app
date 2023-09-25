@@ -3,6 +3,14 @@
             [back.api.db.customers :as db.customers]
             [back.api.logic.customers :as logic.customers]))
 
+(defn username-available?
+  [username database]
+  (let [user (db.customers/get-by-username
+              username database)]
+    (if user
+      {:available false}
+      {:available true})))
+
 (defn get-user-by-id
   [id database]
   (let [user (db.customers/get-by-id

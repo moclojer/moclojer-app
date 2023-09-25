@@ -45,6 +45,15 @@
            :interceptors [(extract-user-interceptor)]
            :responses {200 {:body {:user schemas.wire-out/User}}}
            :handler ports.http-in/get-user-by-id}}]
+
+   ["/user/username/:username"
+    {:swagger {:tags ["get username"]}
+     :get {:summary "Check if username is available"
+           :parameters {:path {:username string?}}
+           :interceptors [(extract-user-interceptor)]
+           :responses {200 {:body schemas.wire-out/UsernameAvailable}}
+           :handler ports.http-in/username-available?}}]
+
    ["/mocks"
     {:swagger {:tags ["mocks"]}
      :post {:summary "Create a mock"
