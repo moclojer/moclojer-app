@@ -96,11 +96,10 @@
                                               :description (:message error-res)})
                                           "if you don't have an account, it is created automatically"))))))))
 
-(defnc first-login [{:keys [sent? loading?
-                            state set-state]}]
+(defnc first-login [{:keys [sent? loading?]}]
 
-  (let [username (-> (refx/use-sub [:app.auth/current-user])
-                     :current-user :user :username)]
+  (let [username (refx/use-sub [:app.auth/username-to-save])
+        available? (refx/use-sub [:app.auth/is-username-available?])]
     (d/div {:class-name "flex flex-col justify-center items-center px-6 pt-8 mx-auto md:h-screen pt:mt-0 dark:bg-gray-900"}
            (d/div {:class-name "justify-center items-center w-full bg-white rounded-lg shadow lg:flex md:mt-0 lg:max-w-screen-lg 2xl:max:max-w-screen-lg xl:p-0 dark:bg-gray-800"}
                   (d/div {:class-name "hidden w-2/3 lg:flex"}
@@ -119,8 +118,8 @@
                               (d/form {:disabled loading?
                                        :on-submit (fn [e]
                                                     (.preventDefault e)
-                                                    (when (:username state)
-                                                      (refx/dispatch [:app.auth/save-username state])))
+                                                    (when username
+                                                      (refx/dispatch [:app.auth/save-username username])))
                                        :class-name "mt-8 space-y-6"}
                                       (d/div
                                        (d/label
@@ -131,9 +130,13 @@
                                         {:for "username"
                                          :placeholder "username"
                                          :name "username"
-                                         :value (:username state)
+                                         :value username
                                          :required true
-                                         :on-change #(set-state assoc :username (.. % -target -value))
+                                         :on-change (fn [e]
+                                                      (.preventDefault e)
+                                                      (refx/dispatch-sync [:app.auth/username-available?
+                                                                           (.. e -target -value)]))
+
                                          :class-name "bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"}))
                                       (d/div {:class-name "text-sm font-medium text-gray-500 dark:text-gray-400"}
                                              (d/b {:class-name "text-gray-900"} "*.<username>.")
@@ -143,7 +146,9 @@
                                          {:type "submit"
                                           :disabled loading?
                                           :variant "solid-blue"
-                                          :color "pink"}
+                                          :color (if available?
+                                                   "pink"
+                                                   "grey")}
                                          (if loading?
                                            (d/span {:class-name "inline-flex"}
                                                    ($ loading-spinner {})
@@ -159,8 +164,7 @@
   (let [user (refx/use-sub [:app.auth/current-user])
         loading? (refx/use-sub [:app.auth/login-loading])
         [error error-res] (refx/use-sub [:app.auth/login-error])
-        sent? (refx/use-sub [:app.auth/username-sent])
-        [state set-state] (hooks/use-state {:username ""})]
+        sent? (refx/use-sub [:app.auth/username-sent])]
 
     (hooks/use-effect
       [error]
@@ -191,8 +195,6 @@
      ($ container
         ($ first-login {:sent? sent?
                         :loading? loading?
-                        :state state
-                        :set-state set-state
                         :error error
                         :error-res error-res})))))
 

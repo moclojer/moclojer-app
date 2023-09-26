@@ -15,9 +15,14 @@
   background-color: rgba(255, 0, 158, 0.4);
 }
 
+.login-button-block {
+  background: #808080;
+}
+
 #custom-mock {
   height: 100%;
 }
+
 /* mock list class*/
 .mock-list {
   display: flex;

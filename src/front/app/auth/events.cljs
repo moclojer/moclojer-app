@@ -21,6 +21,38 @@
        (assoc :current-user nil))))
 
 (refx/reg-event-fx
+ :app.auth/username-available?
+ (fn [{db :db}
+      [_ username]]
+   (let [access-token (-> db :current-user :access-token)]
+     {:http {:url (str "/user/username/" username)
+             :method :get
+             :headers {"authorization" (str "Bearer " access-token)}
+             :on-success [:app.auth/username-available]
+             :on-failure [:app.auth/username-not-available]}
+      :db (-> db
+              (assoc :username-available? false
+                     :username-to-save username))})))
+
+(refx/reg-event-fx
+ :app.auth/username-available
+ (fn [{db :db}
+      [_ {:keys [body]}]]
+   (let [{:keys [available]} body]
+     (prn :body-available body)
+     {:db (-> db
+              (assoc
+               :username-available? available))})))
+
+(refx/reg-event-fx
+ :app.auth/username-not-available
+ (fn [{db :db}
+      [_ body]]
+   (prn :body-available-error body)
+   {:db (assoc db
+               :username-available? false)}))
+
+(refx/reg-event-fx
  :app.auth/saving-user
  (fn
    [{db :db} [_ session]]
@@ -39,7 +71,7 @@
 (refx/reg-event-fx
  :app.auth/save-username
  (fn
-   [{db :db} [_ {:keys [username]}]]
+   [{db :db} [_ username]]
    {:http {:url (str "/user/" (-> db :current-user :user :user-id))
            :method :post
            :body {:username username}

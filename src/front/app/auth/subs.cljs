@@ -25,3 +25,13 @@
  :app.auth/username-sent
  (fn [db]
    (:username-sent db)))
+
+(refx/reg-sub
+ :app.auth/is-username-available?
+ (fn [db]
+   (:username-available? db)))
+
+(refx/reg-sub
+  :app.auth/username-to-save
+ (fn [db]
+   (:username-to-save db)))
