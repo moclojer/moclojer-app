@@ -17,7 +17,7 @@
         com.github.seancorfield/honeysql {:mvn/version "2.3.928"}
         com.github.seancorfield/next.jdbc {:mvn/version "1.3.834"}
         com.stuartsierra/component {:mvn/version "1.1.0"}
-        com.taoensso/timbre {:mvn/version "5.2.1"}
+        com.taoensso/timbre {:mvn/version "6.3.1"}
         com.zaxxer/HikariCP {:mvn/version "5.0.1"}
         io.pedestal/pedestal.jetty  {:mvn/version "0.5.10"}
         io.pedestal/pedestal.service  {:mvn/version "0.5.10"}
@@ -32,6 +32,8 @@
         org.postgresql/postgresql {:mvn/version "42.6.0"}
         org.slf4j/slf4j-simple {:mvn/version "2.0.2"}
         selmer/selmer {:mvn/version "1.12.55"}
+        com.taoensso/carmine {:mvn/version "3.3.0"
+                              :exclusions [com.taoensso/timbre]}
 
         io.github.cljazz/supabase {:git/sha "a850ed47eb0daa8303f206ea60bd4b3bf59e1e0a"
                                    :git/url "https://github.com/cljazz/supabase-clj"}}
