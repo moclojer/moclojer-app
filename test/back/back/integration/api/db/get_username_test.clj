@@ -1,7 +1,7 @@
 (ns back.integration.api.db.get-username-test
   (:require [back.api.db.customers :as db.customers]
-            [back.components.config :as config]
-            [back.components.database :as database]
+            [components.config :as config]
+            [components.database :as database]
             [state-flow.assertions.matcher-combinators :refer [match?]]
             [back.integration.components.utils :as utils]
             [com.stuartsierra.component :as component]

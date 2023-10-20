@@ -1,16 +1,18 @@
-(ns back.components.redis-queue
-  (:require [back.components.config :as config]
+(ns components.redis-queue
+  (:require [components.config :as config]
             [com.stuartsierra.component :as component]
             [taoensso.carmine.message-queue :as mq]))
 
-(defrecord RedisWorkers [config workers]
+(defrecord RedisWorkers [config database workers]
   component/Lifecycle
   (start [this]
     (let [{:keys [password host port]} (-> config :config :redis-worker)
           conn {:spec {:password password
                        :host host
                        :port port}}
-          components {:database 1}
+          components  (-> {}
+                          (assoc :database database
+                                 :config config))
           _ (println "Starting redis workers ")
           ws (doall (for [{:keys [queue-name handler]} workers]
                       (do
@@ -18,6 +20,7 @@
                         (mq/worker conn queue-name
                                    {:handler (fn [{:keys [message attempt]}]
                                                (try
+                                                 (println "Received" (:event message) "attempt" attempt)
                                                  (handler message components)
                                                  {:status :success}
                                                  (catch Throwable e
@@ -34,7 +37,7 @@
     (assoc this :conn nil :workers nil)))
 
 (defn new-redis-queue [workers]
-  (->RedisWorkers {} workers))
+  (->RedisWorkers {} {} workers))
 
 (comment
   (def workers [{:handler (fn [{:keys [message attempt]} components]

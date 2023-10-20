@@ -1,8 +1,8 @@
-(ns back.components.http
+(ns components.http
   (:require [clj-http.client :as http]
             [clj-http.util :as http-util]
             [com.stuartsierra.component :as component]
-            [back.components.logs :as logs]))
+            [components.logs :as logs]))
 
 (defn request-fn
   "Accepts :req which should be a map containing the following keys:

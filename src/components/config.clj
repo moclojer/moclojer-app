@@ -1,4 +1,4 @@
-(ns back.components.config
+(ns components.config
   (:require [aero.core :as aero]
             [clojure.java.io :as io]
             [com.stuartsierra.component :as component]))

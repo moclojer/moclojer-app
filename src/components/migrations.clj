@@ -1,7 +1,7 @@
-(ns back.components.migrations
+(ns components.migrations
   (:require [migratus.core :as migratus]
             [next.jdbc :as jdbc]
-            [back.components.config :as config.aero])
+            [components.config :as config.aero])
   (:gen-class))
 
 (defn get-connection []

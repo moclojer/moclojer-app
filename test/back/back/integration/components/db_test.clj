@@ -1,7 +1,7 @@
 (ns back.integration.components.db-test
   (:require
-   [back.components.config :as config]
-   [back.components.database :as database]
+   [components.config :as config]
+   [components.database :as database]
    [back.integration.components.utils :as utils]
    [state-flow.assertions.matcher-combinators :refer [match?]]
    [com.stuartsierra.component :as component]

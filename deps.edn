@@ -62,7 +62,7 @@
   :clojure-lsp {:replace-deps {com.github.clojure-lsp/clojure-lsp-standalone {:mvn/version "2022.09.01-15.27.31"}}
                 :main-opts ["-m" "clojure-lsp.main"]}
   ;; clj -M:migratus
-  :migratus {:main-opts ["-m" "back.components.migrations"]}
+  :migratus {:main-opts ["-m" "components.migrations"]}
   ;; clj -X:run
   :run {:main-opts ["-m" "back.api.server"]
         :exec-fn back.api.server/-main}
