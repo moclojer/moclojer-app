@@ -1,7 +1,6 @@
 (ns back.components.redis-queue
   (:require [back.components.config :as config]
             [com.stuartsierra.component :as component]
-            [taoensso.carmine :as carmine]
             [taoensso.carmine.message-queue :as mq]))
 
 (defrecord RedisWorkers [config workers]
@@ -18,9 +17,14 @@
                         (println "Starting worker:" queue-name)
                         (mq/worker conn queue-name
                                    {:handler (fn [{:keys [message attempt]}]
-                                               ;#TODO add error handling
-                                               (handler message components)
-                                               {:status :success})}))))]
+                                               (try
+                                                 (handler message components)
+                                                 {:status :success}
+                                                 (catch Throwable e
+                                                   (println "Error in worker" e)
+                                                   {:status :error
+                                                    :throwable e})))}))))]
+
       (println "Started redis workers")
       (assoc this :workers ws :conn conn)))
   (stop [this]

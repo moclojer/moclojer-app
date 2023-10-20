@@ -1,9 +1,13 @@
 (ns back.components.redis-publisher
-  (:require [com.stuartsierra.component :as component]
+  (:require [back.components.config :as config]
+            [com.stuartsierra.component :as component]
             [taoensso.carmine :as carmine]
             [taoensso.carmine.message-queue :as mq]))
 
-(defrecord RedisPublisher [config workers]
+(defprotocol IPublisher
+  (publish! [this queue-name message]))
+
+(defrecord RedisPublisher [config]
   component/Lifecycle
   (start [this]
     (let [{:keys [password host port]} (-> config :config :redis-worker)
@@ -14,9 +18,41 @@
   (stop [this]
     (assoc this :publish-conn nil))
 
+  IPublisher
   (publish! [this queue-name message]
     (carmine/wcar (:publish-conn this)
                   queue-name
                   (mq/enqueue
                    queue-name
                    message))))
+
+(defn new-redis-publisher []
+  (->RedisPublisher {}))
+
+(comment
+
+  #_(carmine/wcar {:spec {:password "redislocal"}} :mock.changed
+                  (mq/enqueue :mock.changed {:event (name (gensym)) :iter "1"}))
+  (defn map-s []
+    (component/system-map
+     :config (config/new-config)
+     :publisher (component/using
+                 (new-redis-publisher)
+                 [:config])))
+
+  (def system-atom (atom nil))
+  (def s (->>  (map-s)
+               component/start
+               (reset! system-atom)))
+
+  (publish!
+   (:publisher @system-atom)
+   :mock.changed
+   {:event (name (gensym)) :iter "1"})
+  #_(swap!
+     system-atom
+     (fn [s] (when s (component/stop s))))
+
+;
+  )
+
