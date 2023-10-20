@@ -1,7 +1,7 @@
 (ns back.integration.components.utils
   (:require [com.stuartsierra.component :as component]
-            [back.components.logs :as logs]
-            [back.components.migrations :as migrations]
+            [components.logs :as logs]
+            [components.migrations :as migrations]
             [pg-embedded-clj.core :as pg-emb]))
 
 (defn start-system!

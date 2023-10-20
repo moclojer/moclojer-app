@@ -1,8 +1,8 @@
 (ns back.integration.api.db.mocks-test
   (:require
    [back.api.db.mocks :as db.mocks]
-   [back.components.config :as config]
-   [back.components.database :as database]
+   [components.config :as config]
+   [components.database :as database]
    [back.integration.components.utils :as utils]
    [com.stuartsierra.component :as component]
    [state-flow.api :refer [defflow]]

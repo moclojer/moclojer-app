@@ -1,6 +1,6 @@
 (ns back.api.healthcheck
   (:require
-   [back.components.database :as database]))
+   [components.database :as database]))
 
 (def Content
   [:map

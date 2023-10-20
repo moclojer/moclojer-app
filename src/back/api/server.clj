@@ -1,13 +1,13 @@
 (ns back.api.server
   (:require
    [back.api.routes :as routes]
-   [back.components.config :as config]
-   [back.components.database :as database]
-   [back.components.http :as http]
-   [back.components.logs :as logs]
-   [back.components.migrations :as migrations]
-   [back.components.router :as router]
-   [back.components.webserver :as webserver]
+   [components.config :as config]
+   [components.database :as database]
+   [components.http :as http]
+   [components.logs :as logs]
+   [components.migrations :as migrations]
+   [components.router :as router]
+   [components.webserver :as webserver]
    [com.stuartsierra.component :as component]
    [pg-embedded-clj.core :as pg-emb])
   (:gen-class))

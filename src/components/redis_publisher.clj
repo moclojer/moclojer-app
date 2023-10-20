@@ -1,5 +1,5 @@
-(ns back.components.redis-publisher
-  (:require [back.components.config :as config]
+(ns components.redis-publisher
+  (:require [components.config :as config]
             [com.stuartsierra.component :as component]
             [taoensso.carmine :as carmine]
             [taoensso.carmine.message-queue :as mq]))

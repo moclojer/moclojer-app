@@ -1,8 +1,8 @@
-(ns back.components.database
+(ns components.database
   (:require [com.stuartsierra.component :as component]
             [next.jdbc :as jdbc]
             [next.jdbc.connection :as connection]
-            [back.components.logs :as logs])
+            [components.logs :as logs])
   (:import (com.zaxxer.hikari HikariDataSource)))
 
 (defprotocol DatabaseProvider

@@ -1,20 +1,20 @@
-(ns back.components.router
-  (:require [back.api.interceptors.extract-user :refer [extract-user-interceptor]]
-            [back.components.logs :as logs]
-            [com.stuartsierra.component :as component]
-            [muuntaja.core :as m]
-            [reitit.coercion.malli :as reitit.malli]
-            [reitit.dev.pretty :as pretty]
-            [reitit.http :as http]
-            [reitit.http.coercion :as coercion]
-            [reitit.http.interceptors.exception :as exception]
-            [reitit.http.interceptors.multipart :as multipart]
-            [reitit.http.interceptors.muuntaja :as muuntaja]
-            [reitit.http.interceptors.parameters :as parameters]
-            [reitit.pedestal :as pedestal]
-            [reitit.ring :as ring]
-            [reitit.swagger :as swagger]
-            [reitit.swagger-ui :as swagger-ui]))
+(ns components.router
+  (:require
+   [components.logs :as logs]
+   [com.stuartsierra.component :as component]
+   [muuntaja.core :as m]
+   [reitit.coercion.malli :as reitit.malli]
+   [reitit.dev.pretty :as pretty]
+   [reitit.http :as http]
+   [reitit.http.coercion :as coercion]
+   [reitit.http.interceptors.exception :as exception]
+   [reitit.http.interceptors.multipart :as multipart]
+   [reitit.http.interceptors.muuntaja :as muuntaja]
+   [reitit.http.interceptors.parameters :as parameters]
+   [reitit.pedestal :as pedestal]
+   [reitit.ring :as ring]
+   [reitit.swagger :as swagger]
+   [reitit.swagger-ui :as swagger-ui]))
 
 (defn- coercion-error-handler [status]
   (fn [exception _request]

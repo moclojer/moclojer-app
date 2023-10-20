@@ -1,8 +1,8 @@
-(ns back.components.webserver
+(ns components.webserver
   (:require [com.stuartsierra.component :as component]
             [io.pedestal.http :as server]
             [io.pedestal.interceptor.helpers :refer [before]]
-            [back.components.logs :as logs]
+            [components.logs :as logs]
             [reitit.pedestal :as pedestal]))
 
 (defn- add-system [service]

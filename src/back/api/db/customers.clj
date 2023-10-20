@@ -1,6 +1,6 @@
 (ns back.api.db.customers
   (:require
-   [back.components.database :as database]
+   [components.database :as database]
    [honey.sql :as sql]
    [honey.sql.helpers :as sql.helpers]))
 
