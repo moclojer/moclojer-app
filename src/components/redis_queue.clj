@@ -40,11 +40,3 @@
 (defn new-redis-queue [workers]
   (->RedisWorkers {} {} workers))
 
-(comment
-
-  #_(carmine/wcar {:spec {:password "redislocal"}} :mock.changed
-                  (mq/enqueue :mock.changed {:event (name (gensym)) :iter "1"})))
-
-
-
-
