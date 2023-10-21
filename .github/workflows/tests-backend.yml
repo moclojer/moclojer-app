@@ -42,5 +42,11 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/deps.edn') }}
           restore-keys: ${{ runner.os }}-m2
 
+      - name: Start Redis
+        uses: supercharge/redis-github-action@1.7.0
+        with:
+          redis-version: 7
+          redis-password: 'redislocal'
+
       - name: Execute clojure code
         run: clojure -M:test ${{ matrix.namespace }}
