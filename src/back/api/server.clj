@@ -1,15 +1,15 @@
 (ns back.api.server
-  (:require
-   [back.api.routes :as routes]
-   [components.config :as config]
-   [components.database :as database]
-   [components.http :as http]
-   [components.logs :as logs]
-   [components.migrations :as migrations]
-   [components.router :as router]
-   [components.webserver :as webserver]
-   [com.stuartsierra.component :as component]
-   [pg-embedded-clj.core :as pg-emb])
+  (:require [back.api.routes :as routes]
+            [com.stuartsierra.component :as component]
+            [components.config :as config]
+            [components.database :as database]
+            [components.http :as http]
+            [components.logs :as logs]
+            [components.migrations :as migrations]
+            [components.redis-publisher :as redis-publisher]
+            [components.router :as router]
+            [components.webserver :as webserver]
+            [pg-embedded-clj.core :as pg-emb])
   (:gen-class))
 
 (def system-atom (atom nil))
@@ -20,7 +20,8 @@
    :http (http/new-http)
    :router (router/new-router routes/routes)
    :database (component/using (database/new-database) [:config])
-   :webserver (component/using (webserver/new-webserver) [:config :http :router :database])))
+   :publisher (component/using (redis-publisher/new-redis-publisher) [:config])
+   :webserver (component/using (webserver/new-webserver) [:config :http :router :database :publisher])))
 
 (defn start-system! [system-map]
   (logs/setup [["*" :info]] :auto)
@@ -62,10 +63,8 @@
 
   (stop-system-dev!)
   (start-system-dev! (build-system-map))
-
   )
 
 (comment
   (stop-system!)
-  (start-system! (build-system-map))
-  )
+  (start-system! (build-system-map)))

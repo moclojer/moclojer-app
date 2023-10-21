@@ -1,14 +1,15 @@
 (ns back.integration.api.update-mock-test
   (:require [back.api.db.customers :as db.customers]
             [back.api.routes :as routes]
-            [components.config :as config]
-            [components.database :as database]
-            [components.http :as http]
-            [components.router :as router]
-            [components.webserver :as webserver]
             [back.integration.api.helpers :as helpers]
             [back.integration.components.utils :as utils]
             [com.stuartsierra.component :as component]
+            [components.config :as config]
+            [components.database :as database]
+            [components.http :as http]
+            [components.redis-publisher :as redis-publisher]
+            [components.router :as router]
+            [components.webserver :as webserver]
             [matcher-combinators.matchers :as matchers]
             [state-flow.api :refer [defflow]]
             [state-flow.assertions.matcher-combinators :refer [match?]]
@@ -23,8 +24,10 @@
     :router (router/new-router routes/routes)
     :database (component/using (database/new-database)
                                [:config])
+    :publisher (component/using (redis-publisher/mock-redis-publisher)
+                                [:config])
     :webserver (component/using (webserver/new-webserver)
-                                [:config :http :router :database]))))
+                                [:config :http :router :database :publisher]))))
 
 (def token "Beare eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJkY2ZmNGMwNi0xYzllLTRhYmItYTQ5Yi00MzhlMTg2OWVjNWIifQ.Gd42MG5EQCVvQwsvlhRQWHuEr-BBo4GB7Pd9di8w_No")
 
@@ -101,4 +104,14 @@
                                       :wildcard "test"
                                       :user-id "cd989358-af38-4a2f-a1a1-88096aa425a7"
                                       :enabled true}]})
-           (-> resp-get :body)))))))
+           (-> resp-get :body)))
+
+        (flow "should have publish a mock calling publisher"
+          (match? (matchers/embeds (first (:mock.changed @redis-publisher/mock-publisher)))
+                  {:event
+                   {:user-id #uuid "cd989358-af38-4a2f-a1a1-88096aa425a7",
+                    :id  (-> resp-get :body :mock :id (java.util.UUID/fromString))
+                    :wildcard "test",
+                    :subdomain "chico",
+                    :enabled true,
+                    :content yml}}))))))

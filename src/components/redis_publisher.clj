@@ -29,19 +29,28 @@
 (defn new-redis-publisher []
   (->RedisPublisher {}))
 
-(comment
+;; mock in memory publisher for testing 
+(def mock-publisher (atom {}))
 
-  #_(carmine/wcar {:spec {:password "redislocal"}} :mock.changed
-                  (mq/enqueue :mock.changed {:event (name (gensym)) :iter "1"}))
+(defrecord MockRedisPublisher [config]
 
-  #_(publish!
-   (:publisher @system-atom)
-   :mock.changed
-   {:event (name (gensym)) :iter "1"})
-  #_(swap!
-     system-atom
-     (fn [s] (when s (component/stop s))))
+  component/Lifecycle
+  (start [this]
+    (assoc this :publish-conn nil))
 
-;
-  )
+  (stop [this]
+    (dissoc this :publish-conn)
+    (reset! mock-publisher {}))
+
+  IPublisher
+  (publish! [_this queue-name message]
+    (let [state (get @mock-publisher queue-name)]
+      (if state
+        (swap! mock-publisher assoc queue-name (conj state message))
+        (swap! mock-publisher assoc queue-name [message])))))
+
+(defn mock-redis-publisher []
+  (->MockRedisPublisher {}))
+
+
 
