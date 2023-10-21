@@ -33,19 +33,8 @@
 
   #_(carmine/wcar {:spec {:password "redislocal"}} :mock.changed
                   (mq/enqueue :mock.changed {:event (name (gensym)) :iter "1"}))
-  (defn map-s []
-    (component/system-map
-     :config (config/new-config)
-     :publisher (component/using
-                 (new-redis-publisher)
-                 [:config])))
 
-  (def system-atom (atom nil))
-  (def s (->>  (map-s)
-               component/start
-               (reset! system-atom)))
-
-  (publish!
+  #_(publish!
    (:publisher @system-atom)
    :mock.changed
    {:event (name (gensym)) :iter "1"})
