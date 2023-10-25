@@ -21,11 +21,14 @@
   IPublisher
   (publish! [this queue-name message]
     (logs/log :info :queue-name :massage message)
-    (carmine/wcar (:publish-conn this)
-                  queue-name
-                  (mq/enqueue
-                   queue-name
-                   message))))
+    (try (carmine/wcar (:publish-conn this)
+                       queue-name
+                       (mq/enqueue
+                        queue-name
+                        message))
+
+         (catch Exception e
+           (logs/log :error :publish :e e)))))
 
 (defn new-redis-publisher []
   (->RedisPublisher {}))

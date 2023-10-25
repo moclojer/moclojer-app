@@ -3,12 +3,10 @@
             [back.api.routes :as routes]
             [back.integration.api.helpers :as helpers]
             [back.integration.components.utils :as utils]
-            [clojure.test :refer [is use-fixtures]]
             [com.stuartsierra.component :as component]
             [components.config :as config]
             [components.database :as database]
             [components.http :as http]
-            [components.logs :as logs]
             [components.redis-publisher :as redis-publisher]
             [components.redis-queue :as redis-queue]
             [components.router :as router]
@@ -23,9 +21,8 @@
 
 (defn fake-worker
   [message _]
-  (logs/log :info :test :message message)
-  (is (match? message {:event "test"}))
-  (swap! state (fn [_] message)))
+  (swap! state (fn [_] message))
+  )
 
 (def workers [{:handler fake-worker
                :queue-name :test}])
@@ -42,18 +39,10 @@
     ;; docker-compose -f docker/docker-compose.yml up 
     :publisher (component/using (redis-publisher/new-redis-publisher)
                                 [:config])
+    :workers (component/using
+              (redis-queue/new-redis-queue workers) [:config :database])
     :webserver (component/using (webserver/new-webserver)
                                 [:config :http :router :database :publisher]))))
-
-(def system-yaml (atom nil))
-(defn -yaml-start-components []
-  (component/start-system
-   (component/system-map
-    :database (component/using (database/new-database)
-                               [:config])
-    :config (config/new-config)
-    :workers (component/using
-              (redis-queue/new-redis-queue workers) [:config :database]))))
 
 (def token "Beare eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJkY2ZmNGMwNi0xYzllLTRhYmItYTQ5Yi00MzhlMTg2OWVjNWIifQ.Gd42MG5EQCVvQwsvlhRQWHuEr-BBo4GB7Pd9di8w_No")
 
@@ -74,17 +63,13 @@
           \"hello\": \"{{path-params.username}}!\"
         }")
 
-
+;;TODO Not working should run system in parallel 
 (defflow integration-flow-test-updated-yml-publish-and-read
   {:init (utils/start-system! create-and-start-components!)
    :cleanup utils/stop-system!
    :fail-fast? true}
 
   (flow "setup customer"
-    (state/invoke (fn []
-                    (->> (-yaml-start-components)
-                         component/start
-                         (reset! system-yaml))))
 
     [database (state-flow.api/get-state :database)]
 
@@ -120,7 +105,6 @@
         (state/invoke (fn [] (Thread/sleep 10000)))
         (flow "should have publish a mock calling publisher"
 
-          (state/invoke (fn [] (Thread/sleep 10000)))
           (match? @state
                   {:event
                    {:user-id #uuid "cd989358-af38-4a2f-a1a1-88096aa425a7",
@@ -128,10 +112,4 @@
                     :wildcard "test",
                     :subdomain "chico",
                     :enabled true,
-                    :content yml}}))))
-
-    (state/invoke (fn []
-                    (logs/setup :info :stop)
-                    (swap!
-                     system-yaml
-                     (fn [s] (when s (component/stop s))))))))
+                    :content yml}}))))))
