@@ -1,6 +1,6 @@
 (ns components.redis-publisher
-  (:require [components.config :as config]
-            [com.stuartsierra.component :as component]
+  (:require [com.stuartsierra.component :as component]
+            [components.logs :as logs]
             [taoensso.carmine :as carmine]
             [taoensso.carmine.message-queue :as mq]))
 
@@ -20,6 +20,7 @@
 
   IPublisher
   (publish! [this queue-name message]
+    (logs/log :info :queue-name :massage message)
     (carmine/wcar (:publish-conn this)
                   queue-name
                   (mq/enqueue
