@@ -4,10 +4,11 @@
             [com.stuartsierra.component :as component]
             [components.config :as config]))
 
-;;improve protocol
 (defprotocol IStorage
-  (file [this])
-  (save! [this]))
+  (get-bucket [this bucket-name])
+  (list-buckets [this])
+  (create-bucket! [this bucket-name])
+  (upload! [this bucket-name key value encoding]))
 
 (defrecord Storage [config]
   component/Lifecycle
@@ -27,14 +28,36 @@
     (assoc this :storage nil))
 
   IStorage
-  (file [])
+  (get-bucket [this bucket-name]
 
-  (save []))
+    (prn (-> this :storage))
+    (prn bucket-name)
+    (-> (-> this :storage)
+        (aws/invoke {:op :ListObjects
+                     :request {:Bucket bucket-name}})
+        :Contents))
 
-(defn new-storage []
-  (map->Storage {}))
+  (list-buckets [this]
+    (-> (-> this :storage)
+        (aws/invoke {:op :ListBuckets})
+        :Buckets))
+
+  (create-bucket! [this bucket-name]
+    (-> (-> this :storage)
+        (aws/invoke {:op :CreateBucket
+                     :request {:Bucket bucket-name}})))
+
+  (upload! [this bucket-name key value encoding]
+    (-> (-> this :storage)
+        (aws/invoke {:op :PutObject
+                     :request {:Bucket bucket-name
+                               :Key key
+                               :Body (encoding value)}}))))
 
 (comment
+
+  (defn new-storage []
+    (map->Storage {}))
 
   (def system-map
     (component/system-map
@@ -43,14 +66,16 @@
                (new-storage) [:config])))
 
   (def system-atom (atom {}))
-  (let [s (->> system-map
-               component/start
-               (reset! system-atom))])
+  (->> system-map
+       component/start
+       (reset! system-atom))
   (def storage
     (:storage @system-atom))
 
-  (:storage storage)
+  (get-bucket storage "moclojer")
 
+  (list-buckets storage)
+  #_(create-bucket! storage "moclojer")
   ;
   )
 
