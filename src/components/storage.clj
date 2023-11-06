@@ -17,10 +17,10 @@
     (let [s3 (aws/client {:api :s3
                           :region (or (System/getenv "S3_REGION") "us-east-2")
                           :credentials-provider (cred/basic-credentials-provider
-                                                 {:access-key-id (-> config :config :aws :access-key-id)
-                                                  :secret-access-key (-> config :config :aws :secret-access-key)})
+                                                 {:access-key-id (-> config :config :storage :access-key-id)
+                                                  :secret-access-key (-> config :config :storage :secret-access-key)})
                           :endpoint-override {:protocol :https
-                                              :hostname (-> config :config :aws :host)}})]
+                                              :hostname (-> config :config :storage :host)}})]
 
       (assoc this :storage s3)))
   (stop [this]
@@ -30,8 +30,6 @@
   IStorage
   (get-bucket [this bucket-name]
 
-    (prn (-> this :storage))
-    (prn bucket-name)
     (-> (-> this :storage)
         (aws/invoke {:op :ListObjects
                      :request {:Bucket bucket-name}})
