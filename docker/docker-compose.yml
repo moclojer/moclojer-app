@@ -28,5 +28,14 @@ services:
     volumes:
       - ./redis:/redis
 
+  #localstack to test bucket code
+  localstack:
+    image: localstack/localstack
+    environment:
+      - SERVICES=s3
+    ports:
+      - "4566:4566"
+      - "8080:8080" # dashboard
+
 volumes:
     db-data:
