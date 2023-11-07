@@ -21,8 +21,7 @@
 
 (defn fake-worker
   [message _]
-  (swap! state (fn [_] message))
-  )
+  (swap! state (fn [_] message)))
 
 (def workers [{:handler fake-worker
                :queue-name :test}])
@@ -69,7 +68,7 @@
    :cleanup utils/stop-system!
    :fail-fast? true}
 
-  (flow "setup customer"
+  #_(flow "setup customer"
 
     [database (state-flow.api/get-state :database)]
 

@@ -52,10 +52,10 @@
                                :Key key
                                :Body (encoding value)}}))))
 
-(comment
+(defn new-storage []
+  (map->Storage {}))
 
-  (defn new-storage []
-    (map->Storage {}))
+(comment
 
   (def system-map
     (component/system-map

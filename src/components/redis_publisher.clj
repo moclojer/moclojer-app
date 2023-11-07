@@ -21,6 +21,7 @@
   IPublisher
   (publish! [this queue-name message]
     (logs/log :info :queue-name :massage message)
+    (logs/log :info :conn (:publish-conn this))
     (try (carmine/wcar (:publish-conn this)
                        queue-name
                        (mq/enqueue
@@ -56,5 +57,14 @@
 (defn mock-redis-publisher []
   (->MockRedisPublisher {}))
 
-
-
+(comment
+  ;;invoke stop system 
+  (carmine/wcar {:spec {:password "redislocal"
+                        :host "localhost"
+                        :port 6379}}
+                :mock.changed
+                (mq/enqueue
+                 :mock.changed
+                 "test"))
+  ;
+  )

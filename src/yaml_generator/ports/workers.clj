@@ -3,8 +3,7 @@
             [yaml-generator.controllers.yml :as controller.yml]))
 
 (defn generate-yml-handler
-  [{:keys [message]}
-   components]
+  [message components]
   (logs/log :info :generate-yml :received message)
   (controller.yml/generate message components))
 

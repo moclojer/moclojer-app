@@ -5,8 +5,9 @@
             [components.logs :as logs]
             [components.migrations :as migrations]
             [components.redis-queue :as redis-queue]
-            [yaml-generator.ports.workers :as p.workers]
-            [pg-embedded-clj.core :as pg-emb])
+            [components.storage :as storage]
+            [pg-embedded-clj.core :as pg-emb]
+            [yaml-generator.ports.workers :as p.workers])
   (:gen-class))
 
 (def system-atom (atom nil))
@@ -15,8 +16,9 @@
   (component/system-map
    :config (config/new-config)
    :database (component/using (database/new-database) [:config])
+   :storage (component/using (storage/new-storage) [:config])
    :workers (component/using
-             (redis-queue/new-redis-queue p.workers/workers) [:config :database])))
+             (redis-queue/new-redis-queue p.workers/workers) [:config :database :storage])))
 
 (defn start-system! [system-map]
   (logs/setup [["*" :info]] :auto)
