@@ -35,7 +35,7 @@
   (start [this]
     (println "Starting storage component")
     (let [s3 (aws/client {:api :s3
-                          :region (or (System/getenv "S3_REGION") "us-east-2")
+                          :region (or (-> config :config :storage :region) "us-east-1")
                           :credentials-provider (cred/basic-credentials-provider
                                                  {:access-key-id (-> config :config :storage :access-key-id)
                                                   :secret-access-key (-> config :config :storage :secret-access-key)})
