@@ -67,12 +67,13 @@
         }")
 
 (-> publisher
-    (redis-publisher/publish! :mock.changed {:user-id #uuid "cd989358-af38-4a2f-a1a1-88096aa425a7",
-                                             :id (random-uuid)
-                                             :wildcard "test",
-                                             :subdomain "chico",
-                                             :enabled true,
-                                             :content yml}))
+    (redis-publisher/publish! :mock.changed {:event
+                                             {:user-id #uuid "cd989358-af38-4a2f-a1a1-88096aa425a7",
+                                              :id (random-uuid)
+                                              :wildcard "test",
+                                              :subdomain "chico",
+                                              :enabled true,
+                                              :content yml}}))
 
 (comment
   (stop-system-dev!)

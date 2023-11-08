@@ -2,9 +2,16 @@
  :supabase-api-key #or [#env SUPABASE_API_KEY "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRndmRmeHVyZ3NkZHhvdXhtdWdzIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODE1MDM0NDMsImV4cCI6MTk5NzA3OTQ0M30.7pq4MM_ZldiWvOk_cnQuxlvUF8eFcxlPDB7jMTNMYb0"]
  :supabase-url #or [#env SUPABASE_URL "https://tgvdfxurgsddxouxmugs.supabase.co"]
  :supabase-jwt-secret #or [#env SUPABASE_JWT_SECRET "OP6cAnR4J7im0KH2sWeeTlwf4xQOZTuYtoO1mJ3vpON/szjCMpixe4r+9X3HvhZphxV79wl+2amIxo/AkfR28g=="]
- :storage {:access-key-id #or [#env AWS_ACCESS_KEY_ID ""]
-           :secret-access-key #or [#env AWS_SECRET_ACCESS_KEY ""]
-           :host #or [#env AWS_HOST "localhost"]}
+ :storage {:access-key-id #or [#env AWS_ACCESS_KEY_ID "foo"]
+           :secret-access-key #or [#env AWS_SECRET_ACCESS_KEY "bar"]
+           :protocol #profile {:dev :http
+                               :default :http
+                               :prod :https}
+           :port #profile {:default 4572
+                           :dev 4572}
+           :host #profile {:dev "localhost"
+                           :default "localhost"
+                           :prod #or [#env AWS_HOST "localhost"]}}
  :redis-worker  {:host "localhost"
                  :port 6379
                  :password #or [#env REDIS-PASSWORD #env REDIS_PASSWORD "redislocal"]}

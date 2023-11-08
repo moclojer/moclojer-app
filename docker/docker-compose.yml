@@ -30,12 +30,16 @@ services:
 
   #localstack to test bucket code
   localstack:
-    image: localstack/localstack
-    environment:
-      - SERVICES=s3
+    image: localstack/localstack:latest
     ports:
-      - "4566:4566"
-      - "8080:8080" # dashboard
+      - "4566-4583:4566-4583"
+    environment:
+      - SERVICES=s3,lambda,sqs,apigateway,cloudformation
+      - AWS_DEFAULT_REGION=us-east-1
+      - EDGE_PORT=4566
+      - DEBUG=1
+    volumes:
+      - "./.localstack:/localstack"
 
 volumes:
     db-data:
