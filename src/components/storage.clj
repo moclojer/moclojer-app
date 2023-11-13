@@ -14,7 +14,9 @@
   (delete-file! [this bucket-name filename])
   (get-file [this bucket-name filename])
   (list-files [this bucket-name])
-  (upload! [this bucket-name key value]))
+  (upload!
+    [this bucket-name k value]
+    [this bucket-name k value cp]))
 
 (defn assoc-if [m k v]
   (if v
@@ -22,12 +24,11 @@
     m))
 
 (defn ^:private endpoint-override [{:keys [config]}]
-  (let [port (-> config :config :storage :port)
+  (let [port (-> config :storage :port)
         config-override (->
                          {:protocol :http
                           :hostname (-> config :storage :host)}
                          (assoc-if :port port))]
-    (clojure.pprint/pprint config-override)
     config-override))
 
 (defrecord Storage [config]
@@ -72,8 +73,13 @@
 
   (upload! [this bucket-name filename value]
     (logs/log :info :upload filename value)
+    (upload! this bucket-name filename value "application/yml"))
+
+  (upload! [this bucket-name filename value content-type]
+    (logs/log :info :upload filename value)
     (-> (-> this :storage)
         (aws/invoke {:op :PutObject
+                     :Content-Type content-type 
                      :request {:Bucket bucket-name
                                :Key filename
                                :Body (.getBytes value)}})))
@@ -138,9 +144,11 @@
 
   (list-files storage "moclojer")
 
+  #_(get-file storage "moclojer" "1/2/test.yml")
+
   (slurp (io/reader (get-file storage "moclojer" "test.yml")))
 
-  (upload! storage "moclojer" "test.yml" yml)
+  (upload! storage "moclojer" "1/2/testt.yml" yml)
 
   #_(list-buckets storage)
   (create-bucket! storage "moclojer")
