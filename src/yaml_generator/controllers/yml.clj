@@ -10,5 +10,5 @@
     (logs/log :info :upload :path path :file-exist? file-exist?)
     ;; every time the message is received, it will be uploaded to the storage
     ;;and will overwrite the previous one
-    (when enable
-      (storage/upload! storage "moclojer" path content))))
+    (storage/upload! storage "moclojer" path content)
+    (logs/log :info :upload-success :path path)))

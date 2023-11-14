@@ -29,8 +29,6 @@
 
 (defn start-system-dev! [system-map]
   (logs/setup [["*" :info]] :auto)
-  (pg-emb/init-pg)
-  (migrations/migrate (migrations/configuration-with-db))
   (->> system-map
        component/start
        (reset! system-atom)))
@@ -64,4 +62,7 @@
   (start-system-dev! (build-system-map))
   ;with db
   (stop-system!)
-  (start-system! (build-system-map)))
+  (start-system! (build-system-map))
+  ;;
+  
+  )

@@ -46,10 +46,13 @@
 ;;invoke start system 
 (start-system-dev! system-map)
 
-;;invoke stop system 
-(def publisher (:publisher @system-atom))
+(comment
 
-(def yml "
+
+;;invoke stop system 
+  (def publisher (:publisher @system-atom))
+
+  (def yml "
 - endpoint:
     # Note: the method could be omitted because GET is the default
     method: GET
@@ -65,17 +68,15 @@
         {
           \"hello\": \"{{path-params.username}}!\"
         }")
-
-(-> publisher
-    (redis-publisher/publish! :mock.changed {:event
-                                             {:user-id #uuid "cd989358-af38-4a2f-a1a1-88096aa425a7",
-                                              :id (random-uuid)
-                                              :wildcard "test",
-                                              :subdomain "chico",
-                                              :enabled true,
-                                              :content yml}}))
-
-(comment
+  ;;publish msg
+  (-> publisher
+      (redis-publisher/publish! :mock.changed {:event
+                                               {:user-id #uuid "cd989358-af38-4a2f-a1a1-88096aa425a7",
+                                                :id (random-uuid)
+                                                :wildcard "test",
+                                                :subdomain "chico",
+                                                :enabled true,
+                                                :content yml}}))
   (stop-system-dev!)
   ;
   )

@@ -1,8 +1,7 @@
 (ns back.integration.yaml-generator.integration-flow-test
-  (:require [back.api.db.customers :as db.customers]
-            [back.api.routes :as routes]
-            [back.integration.api.helpers :as helpers]
+  (:require [back.api.routes :as routes]
             [back.integration.components.utils :as utils]
+            [clojure.java.io :as io]
             [com.stuartsierra.component :as component]
             [components.config :as config]
             [components.database :as database]
@@ -10,21 +9,41 @@
             [components.redis-publisher :as redis-publisher]
             [components.redis-queue :as redis-queue]
             [components.router :as router]
-            [components.webserver :as webserver]
-            [matcher-combinators.matchers :as matchers]
+            [components.storage :as storage]
             [state-flow.api :refer [defflow]]
             [state-flow.assertions.matcher-combinators :refer [match?]]
+            [state-flow.cljtest]
             [state-flow.core :refer [flow]]
-            [state-flow.state :as state]))
+            [state-flow.state :as state]
+            [yaml-generator.ports.workers :as p.workers]))
 
-(def state (atom nil))
+(defn publish-message [msg queue-name]
+  (flow "publish a message"
+    [publisher (state-flow.api/get-state :publisher)]
 
-(defn fake-worker
-  [message _]
-  (swap! state (fn [_] message)))
+    (-> publisher
+        (redis-publisher/publish!
+         queue-name
+         msg)
+        state-flow.api/return)))
 
-(def workers [{:handler fake-worker
-               :queue-name :test}])
+(defn create-bucket-on-localstack [n]
+  (flow "create a bucket on localstack"
+    [storage (state-flow.api/get-state :storage)]
+
+    (-> storage
+        (storage/create-bucket! n)
+        state-flow.api/return)))
+
+(defn get-file-on-localstack [n k]
+  (flow "get a file on localstack"
+    [storage (state-flow.api/get-state :storage)]
+
+    (-> storage
+        (storage/get-file n k)
+        io/reader
+        slurp
+        state-flow.api/return)))
 
 (defn- create-and-start-components! []
   (component/start-system
@@ -35,15 +54,14 @@
     :database (component/using (database/new-database)
                                [:config])
     ;; this test should have redis up to run!
-    ;; docker-compose -f docker/docker-compose.yml up 
+    ;; docker-compose -f docker/docker-compose.yml redis up 
     :publisher (component/using (redis-publisher/new-redis-publisher)
                                 [:config])
+    ;; docker-compose -f docker/docker-compose.yml localstack up 
+    :storage (component/using (storage/new-storage)
+                              [:config])
     :workers (component/using
-              (redis-queue/new-redis-queue workers) [:config :database])
-    :webserver (component/using (webserver/new-webserver)
-                                [:config :http :router :database :publisher]))))
-
-(def token "Beare eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJkY2ZmNGMwNi0xYzllLTRhYmItYTQ5Yi00MzhlMTg2OWVjNWIifQ.Gd42MG5EQCVvQwsvlhRQWHuEr-BBo4GB7Pd9di8w_No")
+              (redis-queue/new-redis-queue p.workers/workers) [:config :database :storage]))))
 
 (def yml "
 - endpoint:
@@ -62,54 +80,28 @@
           \"hello\": \"{{path-params.username}}!\"
         }")
 
-;;TODO Not working should run system in parallel 
-#_(defflow integration-flow-test-updated-yml-publish-and-read
+(def mock-id (random-uuid))
+(defflow integration-flow-test-updated-yml-publish-and-read
   {:init (utils/start-system! create-and-start-components!)
    :cleanup utils/stop-system!
    :fail-fast? true}
-  
+  (flow "creates a table and insert a row and retreive"
 
-  #_(flow "setup customer"
+    [create (create-bucket-on-localstack "moclojer")
+     _ (publish-message {:event
+                         {:user-id #uuid "cd989358-af38-4a2f-a1a1-88096aa425a7",
+                          :id mock-id
+                          :wildcard "test",
+                          :subdomain "chico",
+                          :enabled true,
+                          :content yml}} :mock.changed)]
+    (match? create {:Location "/moclojer"})
 
-    [database (state-flow.api/get-state :database)]
+    ;;
+    (flow "sleeping and check the state"
 
-    (state/invoke
-     #(db.customers/insert! {:customer/uuid #uuid "cd989358-af38-4a2f-a1a1-88096aa425a7"
-                             :customer/email "test@gmail.com"
-                             :customer/username "chico"
-                             :customer/external-uuid #uuid "dcff4c06-1c9e-4abb-a49b-438e1869ec5b"}
-                            database))
+      (state/invoke (fn [] (Thread/sleep 10000)))
+      [file-result (get-file-on-localstack "moclojer" (str "cd989358-af38-4a2f-a1a1-88096aa425a7/" mock-id "/mock.yml"))]
 
-    (flow "it will send a mock and save it"
-      [resp (helpers/request! {:method :post
-                               :headers {"authorization" token}
-                               :uri "/mocks"
-                               :body {:subdomain "chico"
-                                      :wildcard "test"}})]
-
-      (flow "then will update the content"
-        [resp-get (helpers/request! {:method :put
-                                     :headers {"authorization" token}
-                                     :uri "/mocks"
-                                     :body {:id (-> resp :body :mock :id str)
-                                            :content yml}})]
-        (match?
-         (matchers/embeds {:mock {:id #(uuid? (java.util.UUID/fromString %))
-                                  :subdomain "chico"
-                                  :wildcard "test"
-                                  :content yml
-                                  :user-id "cd989358-af38-4a2f-a1a1-88096aa425a7"
-                                  :enabled true}})
-         (-> resp-get :body))
-
-        (state/invoke (fn [] (Thread/sleep 10000)))
-        (flow "should have publish a mock calling publisher"
-
-          (match? @state
-                  {:event
-                   {:user-id #uuid "cd989358-af38-4a2f-a1a1-88096aa425a7",
-                    :id  (-> resp-get :body :mock :id (java.util.UUID/fromString))
-                    :wildcard "test",
-                    :subdomain "chico",
-                    :enabled true,
-                    :content yml}}))))))
+      (match? file-result
+              yml))))

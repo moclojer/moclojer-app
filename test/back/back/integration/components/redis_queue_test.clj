@@ -6,6 +6,7 @@
             [components.database :as database]
             [components.redis-publisher :as redis-publisher]
             [components.redis-queue :as redis-queue]
+            [components.storage :as storage]
             [state-flow.api :refer [defflow]]
             [state-flow.assertions.matcher-combinators :refer [match?]]
             [state-flow.core :refer [flow]]
@@ -40,8 +41,9 @@
     :database (component/using (database/new-database) [:config])
     :publisher (component/using
                 (redis-publisher/new-redis-publisher) [:config])
+    :storage (component/using (storage/new-storage) [:config])
     :workers (component/using
-              (redis-queue/new-redis-queue workers) [:config :database]))))
+              (redis-queue/new-redis-queue workers) [:config :database :storage]))))
 
 (defflow flow-integration-db-test
   {:init (utils/start-system! create-and-start-system)
