@@ -146,7 +146,7 @@
 
   #_(get-file storage "moclojer" "1/2/test.yml")
 
-  (slurp (io/reader (get-file storage "moclojer" "test.yml")))
+  (slurp (io/reader (get-file storage "moclojer" "cd989358-af38-4a2f-a1a1-88096aa425a7/accb6ceb-db5b-4033-98e5-8878ad8eff86/mock.yml")))
 
   (upload! storage "moclojer" "1/2/testt.yml" yml)
 

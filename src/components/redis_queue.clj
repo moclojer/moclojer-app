@@ -4,7 +4,7 @@
    [com.stuartsierra.component :as component]
    [taoensso.carmine.message-queue :as mq]))
 
-(defrecord RedisWorkers [config database workers]
+(defrecord RedisWorkers [config database storage workers]
   component/Lifecycle
   (start [this]
     (let [{:keys [password host port]} (-> config :config :redis-worker)
@@ -13,6 +13,7 @@
                        :port port}}
           components  (-> {}
                           (assoc :database database
+                                 :storage storage
                                  :config config))
           _ (logs/log :info :redis-worker :start-workers)
           ws (doall (for [{:keys [queue-name handler]} workers]
@@ -38,5 +39,5 @@
     (assoc this :conn nil :workers nil)))
 
 (defn new-redis-queue [workers]
-  (->RedisWorkers {} {} workers))
+  (->RedisWorkers {} {} {} workers))
 
