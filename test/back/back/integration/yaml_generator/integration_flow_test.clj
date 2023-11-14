@@ -85,7 +85,7 @@
   {:init (utils/start-system! create-and-start-components!)
    :cleanup utils/stop-system!
    :fail-fast? true}
-  (flow "creates a table and insert a row and retreive"
+  (flow "create a bucket and consuming message"
 
     [create (create-bucket-on-localstack "moclojer")
      _ (publish-message {:event
@@ -98,7 +98,7 @@
     (match? create {:Location "/moclojer"})
 
     ;;
-    (flow "sleeping and check the state"
+    (flow "sleeping and check get the file inside the bucket"
 
       (state/invoke (fn [] (Thread/sleep 10000)))
       [file-result (get-file-on-localstack "moclojer" (str "cd989358-af38-4a2f-a1a1-88096aa425a7/" mock-id "/mock.yml"))]
