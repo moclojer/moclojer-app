@@ -81,5 +81,4 @@
   ;
   )
 
-#_(create-bucket! storage "moclojer")
 
