@@ -12,3 +12,10 @@
     ;;and will overwrite the previous one
     (storage/upload! storage "moclojer" path content)
     (logs/log :info :upload-success :path path)))
+
+(defn generate-unified-yml [{:keys [path]} {:keys [storage]}]
+  (let [file (storage/get-file storage "moclojer" path)
+        unified-mock (storage/get-file storage "moclojer" "moclojer.yml")]
+    :not-implemented))
+
+
