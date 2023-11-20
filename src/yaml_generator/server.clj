@@ -4,6 +4,7 @@
             [components.database :as database]
             [components.logs :as logs]
             [components.migrations :as migrations]
+            [components.redis-publisher :as redis-publisher]
             [components.redis-queue :as redis-queue]
             [components.storage :as storage]
             [pg-embedded-clj.core :as pg-emb]
@@ -17,8 +18,10 @@
    :config (config/new-config)
    :database (component/using (database/new-database) [:config])
    :storage (component/using (storage/new-storage) [:config])
+   :publisher (component/using 
+                (redis-publisher/new-redis-publisher) [:config])
    :workers (component/using
-             (redis-queue/new-redis-queue p.workers/workers) [:config :database :storage])))
+             (redis-queue/new-redis-queue p.workers/workers) [:config :database :storage :publisher])))
 
 (defn start-system! [system-map]
   (logs/setup [["*" :info]] :auto)

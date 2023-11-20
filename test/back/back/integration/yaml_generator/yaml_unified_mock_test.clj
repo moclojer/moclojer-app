@@ -1,4 +1,4 @@
-(ns back.integration.yaml-generator.integration-flow-test
+(ns back.integration.yaml-generator.yaml-unified-mock-test
   (:require [back.api.routes :as routes]
             [back.integration.components.utils :as utils]
             [clj-yaml.core :as yaml]
@@ -36,6 +36,14 @@
         (storage/create-bucket! n)
         state-flow.api/return)))
 
+(defn setup-file-on-localstack [bucket k v]
+  (flow "setup a file on localstack"
+    [storage (state-flow.api/get-state :storage)]
+
+    (-> storage
+        (storage/upload! bucket k v)
+        state-flow.api/return)))
+
 (defn get-file-on-localstack [n k]
   (flow "get a file on localstack"
     [storage (state-flow.api/get-state :storage)]
@@ -69,6 +77,7 @@
     # Note: the method could be omitted because GET is the default
     method: GET
     path: /hello/:username
+    hots: test.chico.moclojer.com
     response:
       # Note: the status could be omitted because 200 is the default
       status: 200
@@ -85,7 +94,7 @@
 - endpoint:
     method: GET
     path: /hello/:username
-    host: test.chico.moclojer.com
+    hots: test.chico.moclojer.com
     response:
       status: 200
       headers:
@@ -101,26 +110,25 @@
   {:init (utils/start-system! create-and-start-components!)
    :cleanup utils/stop-system!
    :fail-fast? true}
-  (flow "create a bucket and consuming message"
 
-    [create (create-bucket-on-localstack "moclojer")
-     _ (publish-message {:event
-                         {:user-id #uuid "cd989358-af38-4a2f-a1a1-88096aa425a7",
-                          :id mock-id
-                          :wildcard "test",
-                          :subdomain "chico",
-                          :enabled true,
-                          :content yml}} :mock.changed)]
+  (flow "create a bucket"
+    [create (create-bucket-on-localstack "moclojer")]
+
     (match? create {:Location "/moclojer"})
 
-    ;;
-    (flow "sleeping and check get the file inside the bucket"
+    (flow "setup mock on bucket for path"
+      [_ (setup-file-on-localstack "moclojer"
+                                             (str "cd989358-af38-4a2f-a1a1-88096aa425a7/" mock-id "/mock.yml")
+                                             yml)
+       _ (publish-message {:event
+                           {:path (str "cd989358-af38-4a2f-a1a1-88096aa425a7/" mock-id "/mock.yml")}} :mock-unified)]
+      (flow "sleeping and check get the file inside the bucket unified"
 
-      (state/invoke (fn [] (Thread/sleep 10000)))
-      [file-result (get-file-on-localstack "moclojer" (str "cd989358-af38-4a2f-a1a1-88096aa425a7/" mock-id "/mock.yml"))]
+        (state/invoke (fn [] (Thread/sleep 10000)))
+        [file-result (get-file-on-localstack "moclojer" (str "cd989358-af38-4a2f-a1a1-88096aa425a7/" mock-id "/mock.yml"))]
 
       ; #TODO for now we are parsing to check the content
-      (match? (yaml/parse-string 
-                expected-yml-with-host)
-              (yaml/parse-string
-                file-result)))))
+        (match? (yaml/parse-string
+                 expected-yml-with-host)
+                (yaml/parse-string
+                 file-result))))))
