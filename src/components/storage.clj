@@ -26,9 +26,10 @@
 (defn ^:private endpoint-override [{:keys [config]}]
   (let [port (-> config :storage :port)
         config-override (->
-                         {:protocol :http
+                         {:protocol (-> config :storage :protocol)
                           :hostname (-> config :storage :host)}
                          (assoc-if :port port))]
+    (println "config-override" config-override)
     config-override))
 
 (defrecord Storage [config]
@@ -79,7 +80,7 @@
     (logs/log :info :upload filename value)
     (-> (-> this :storage)
         (aws/invoke {:op :PutObject
-                     :Content-Type content-type 
+                     :Content-Type content-type
                      :request {:Bucket bucket-name
                                :Key filename
                                :Body (.getBytes value)}})))
@@ -146,7 +147,8 @@
 
   #_(get-file storage "moclojer" "1/2/test.yml")
 
-  (slurp (io/reader (get-file storage "moclojer" "cd989358-af38-4a2f-a1a1-88096aa425a7/accb6ceb-db5b-4033-98e5-8878ad8eff86/mock.yml")))
+  (slurp (io/reader 
+           (get-file storage "moclojer" "cd989358-af38-4a2f-a1a1-88096aa425a7/accb6ceb-db5b-4033-98e5-8878ad8eff86/mock.yml")))
 
   (upload! storage "moclojer" "1/2/testt.yml" yml)
 
