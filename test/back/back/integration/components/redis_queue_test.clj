@@ -43,7 +43,7 @@
                 (redis-publisher/new-redis-publisher) [:config])
     :storage (component/using (storage/new-storage) [:config])
     :workers (component/using
-              (redis-queue/new-redis-queue workers) [:config :database :storage]))))
+              (redis-queue/new-redis-queue workers) [:config :database :storage :publisher]))))
 
 (defflow flow-integration-db-test
   {:init (utils/start-system! create-and-start-system)
