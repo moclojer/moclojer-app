@@ -1,33 +1,39 @@
-(ns dev.yaml-generator.dev
-  (:require [com.stuartsierra.component :as component]
+(ns dev.api.dev
+  (:require [back.api.routes :as routes]
+            [com.stuartsierra.component :as component]
             [components.config :as config]
             [components.database :as database]
+            [components.http :as http]
             [components.logs :as logs]
             [components.migrations :as migrations]
             [components.redis-publisher :as redis-publisher]
-            [components.redis-queue :as redis-queue]
-            [components.storage :as storage]
-            [pg-embedded-clj.core :as pg-emb]
-            [yaml-generator.ports.workers :as p.workers])
+            [components.router :as router]
+            [components.webserver :as webserver]
+            [pg-embedded-clj.core :as pg-emb])
   (:gen-class))
 
+;;this namespace is used for development purposes only
+;;it is not included in the uberjar
+;;refactoring to reuse components
 (def system-atom (atom nil))
 
 (defn build-system-map []
   (component/system-map
    :config (config/new-config)
+   :http (http/new-http)
+   :router (router/new-router routes/routes)
    :database (component/using (database/new-database) [:config])
-   :storage (component/using (storage/new-storage) [:config])
-   :publisher (component/using 
-                (redis-publisher/new-redis-publisher) [:config])
-   :workers (component/using
-             (redis-queue/new-redis-queue p.workers/workers) [:config :database :storage :publisher])))
+   :publisher (component/using (redis-publisher/new-redis-publisher) [:config])
+   :webserver (component/using (webserver/new-webserver) [:config :http :router :database :publisher])))
 
 (defn start-system-dev! [system-map]
   (logs/setup [["*" :info]] :auto)
+  (pg-emb/init-pg)
+  (migrations/migrate (migrations/configuration-with-db))
   (->> system-map
        component/start
        (reset! system-atom)))
+
 
 (defn stop-system-dev! []
   (logs/log :info :system-stop)
@@ -38,10 +44,6 @@
 
 (comment
 
-  ;in memory
   (stop-system-dev!)
   (start-system-dev! (build-system-map))
-  ;with db
-  ;
-  
   )
