@@ -1,0 +1,17 @@
+FROM clojure:temurin-17-alpine AS builder
+
+RUN mkdir -p /build
+WORKDIR /build
+
+# Cache and install Clojure dependencies
+# Add before copying code to cache the layer even if code changes
+COPY deps.edn Makefile /build/
+RUN make deps
+
+# Copy project to working directory
+# .dockerignore file excludes all but essential files
+COPY ./ /build
+
+# - uses command `clojure -T:build uberjar :uber-file api`
+RUN make dist-api
+
