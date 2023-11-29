@@ -1,0 +1,19 @@
+FROM clojure:latest
+
+RUN apt-get update && apt-get upgrade -y && \
+    curl -sL https://deb.nodesource.com/setup_18.x | bash - && \
+    apt-get -y install git-core curl gnupg nodejs
+
+WORKDIR /app
+COPY . .
+
+ENV DEBUG=false
+
+RUN npm i . && \
+    npm run postinstall && \
+    npm run release
+
+ENV API_URL $API_URL
+EXPOSE 8000
+
+CMD npx shadow-cljs server

@@ -8,8 +8,7 @@
             [components.migrations :as migrations]
             [components.redis-publisher :as redis-publisher]
             [components.router :as router]
-            [components.webserver :as webserver]
-            [pg-embedded-clj.core :as pg-emb])
+            [components.webserver :as webserver])
   (:gen-class))
 
 (def system-atom (atom nil))
@@ -30,21 +29,6 @@
        component/start
        (reset! system-atom)))
 
-(defn start-system-dev! [system-map]
-  (logs/setup [["*" :info]] :auto)
-  (pg-emb/init-pg)
-  (migrations/migrate (migrations/configuration-with-db))
-  (->> system-map
-       component/start
-       (reset! system-atom)))
-
-(defn stop-system-dev! []
-  (logs/log :info :system-stop)
-  (swap!
-   system-atom
-   (fn [s] (when s (component/stop s))))
-  (pg-emb/halt-pg!))
-
 (defn stop-system! []
   (logs/log :info :system-stop)
   (swap!
@@ -60,13 +44,5 @@
   (start-system! (build-system-map)))
 
 (comment
-
-  (stop-system-dev!)
-  (start-system-dev! (build-system-map))
-  )
-
-(comment
   (stop-system!)
-  (start-system! (build-system-map))
-  
-  )
+  (start-system! (build-system-map)))
