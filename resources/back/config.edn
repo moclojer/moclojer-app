@@ -13,16 +13,16 @@
            :host #profile {:dev "localhost"
                            :default "localhost"
                            :prod "sfo3.digitaloceanspaces.com"}}
- :redis-worker  {:host "localhost"
-                 :port 6379
-                 :password #or [#env REDIS-PASSWORD #env REDIS_PASSWORD "redislocal"]}
- :redis-publisher {:host "localhost"
-                   :port 6379
-                   :password #or [#env REDIS-PASSWORD #env REDIS_PASSWORD "redislocal"]}
+ :redis-worker  {:host #or [#env REDIS_HOST "localhost"]
+                 :port #or [#env REDIS_PORT 6379]
+                 :password #or [#env REDIS_PASSWORD "redislocal"]}
+ :redis-publisher {:host #or [#env REDIS_HOST "localhost"]
+                   :port #or [#env REDIS_PORT 6379]
+                   :password #or [#env REDIS_PASSWORD "redislocal"]}
  :database {:dbtype "postgres"
-            :dbname #or [#env DB-NAME #env DB_NAME "postgres"]
-            :username #or [#env DB-USER #env DB_USER "postgres"]
-            :password #or [#env DB-PASS #env DB_PASS "postgres"]
-            :host #or [#env DB-HOST #env DB_HOST "localhost"]
-            :port #or [#env DB-PORT #env DB_PORT 5432]}}
+            :dbname #or [#env DB_NAME "postgres"]
+            :username #or [#env DB_USER "postgres"]
+            :password #or [#env DB_PASS "postgres"]
+            :host #or [#env DB_HOST "localhost"]
+            :port #or [#env DB_PORT 5432]}}
 

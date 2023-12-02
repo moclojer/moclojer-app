@@ -1,0 +1,85 @@
+alerts:
+- rule: DEPLOYMENT_FAILED
+domains:
+- domain: app.moclojer.com
+  type: PRIMARY
+name: moclojer-app
+services:
+- name: front
+  dockerfile_path: docker/Dockerfile.front
+  envs:
+  - key: API_URL
+    scope: RUN_TIME
+    value: https://
+- name: api
+  dockerfile_path: docker/Dockerfile.api
+  envs:
+  - key: DB_NAME
+    scope: RUN_TIME
+    value: "postgres"
+  - key: DB_USER
+    scope: RUN_TIME
+    value: "postgres"
+  - key: DB_PASS
+    scope: RUN_TIME
+    value: "postgres"
+  - key: DB_HOST
+    scope: RUN_TIME
+    value: "localhost"
+  - key: DB_PORT
+    scope: RUN_TIME
+    value: 5432
+  - key: AWS_ACCESS_KEY_ID
+    scope: RUN_TIME
+    value: "foo"
+  - key: AWS_SECRET_ACCESS_KEY
+    scope: RUN_TIME
+    value: "bar"
+  - key: REDIS-PASSWORD
+    scope: RUN_TIME
+    value: "pass"
+  - key: REDIS-HOST
+    scope: RUN_TIME
+    value: "localhost"
+  - key: REDIS_PORT
+    scope: RUN_TIME
+    value: 6379
+  - key: PROFILE
+    scope: RUN_TIME
+    value: "prod"
+- name: yaml-generator
+  dockerfile_path: docker/Dockerfile.yaml-generator
+  envs:
+  - key: DB_NAME
+    scope: RUN_TIME
+    value: "postgres"
+  - key: DB_USER
+    scope: RUN_TIME
+    value: "postgres"
+  - key: DB_PASS
+    scope: RUN_TIME
+    value: "postgres"
+  - key: DB_HOST
+    scope: RUN_TIME
+    value: "localhost"
+  - key: DB_PORT
+    scope: RUN_TIME
+    value: 5432
+  - key: AWS_ACCESS_KEY_ID
+    scope: RUN_TIME
+    value: "foo"
+  - key: AWS_SECRET_ACCESS_KEY
+    scope: RUN_TIME
+    value: "bar"
+  - key: REDIS-PASSWORD
+    scope: RUN_TIME
+    value: "pass"
+  - key: REDIS-HOST
+    scope: RUN_TIME
+    value: "localhost"
+  - key: REDIS_PORT
+    scope: RUN_TIME
+    value: 6379
+  - key: PROFILE
+    scope: RUN_TIME
+    value: "prod"

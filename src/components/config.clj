@@ -3,7 +3,7 @@
             [clojure.java.io :as io]
             [com.stuartsierra.component :as component]))
 
-(def ^:private current-profile (keyword (or (System/getenv "SYSTEM_ENV") "dev")))
+(def ^:private current-profile (keyword (or (System/getenv "PROFILE") "dev")))
 
 (defn- config [profile]
   (aero/read-config (clojure.java.io/resource "back/config.edn")

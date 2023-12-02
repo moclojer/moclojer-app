@@ -14,3 +14,63 @@ COPY ./ /build
 
 # - uses command `clojure -T:build uberjar :uber-file yaml-service`
 RUN make dist-yml
+
+# Setup Run-time Container
+
+# Official OpenJDK Image
+FROM eclipse-temurin:17-alpine
+
+LABEL org.opencontainers.image.authors="moclojer@moclojer.com"
+
+# Add operating system packages
+# - dumb-init to ensure SIGTERM sent to java process running Clojure service
+# - Curl and jq binaries for manual running of system integration scripts
+RUN apk add --no-cache \
+    dumb-init~=1.2.5 \
+    curl~=7.83.1 \
+    jq~=1.6
+
+# Create Non-root group and user to run service securely
+RUN addgroup -S moclojer && adduser -S moclojer -G moclojer
+
+# Create directory to contain service archive, owned by non-root user
+RUN mkdir -p /service && chown -R moclojer. /service
+
+# Tell docker that all future commands should run as the appuser user
+USER moclojer
+
+# Copy service archive file from Builder image
+WORKDIR /service
+COPY --from=builder /build/target/yaml-service.jar /service/yaml-service.jar
+
+# ------------------------
+# Set Service Environment variables
+
+# optional over-rides for Integrant configuration
+# ENV HTTP_SERVER_PORT=
+# ENV MYSQL_DATABASE=
+ENV PROFILE=prod
+
+# Expose port of HTTP Server
+EXPOSE 3001
+
+# ------------------------
+# Run service
+
+# JDK_JAVA_OPTIONS environment variable for setting JVM options
+# Use JVM options that optomise running in a container
+# For very low latency, use the Z Garbage collector "-XX:+UseZGC"
+ENV JDK_JAVA_OPTIONS "-XshowSettings:system -XX:+UseContainerSupport -XX:MaxRAMPercentage=90"
+
+# Start service using dumb-init and java run-time
+# (overrides `jshell` entrypoint - default in eclipse-temuring image)
+ENTRYPOINT ["/usr/bin/dumb-init", "--"]
+CMD ["java", "-jar", "/service/yaml-service.jar"]
+
+
+# Docker Entrypoint documentation
+# https://docs.docker.com/engine/reference/builder/#entrypoint
+
+# $kill PID For Graceful Shutdown(SIGTERM) - can be caught for graceful shutdown
+# $kill -9 PID For Forceful Shutdown(SIGKILL) - process ends immeciately
+# SIGSTOP cannot be intercepted, process ends immediately
