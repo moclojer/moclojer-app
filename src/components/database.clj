@@ -12,11 +12,11 @@
 (defrecord Database [config ^HikariDataSource datasource]
   component/Lifecycle
   (start [this]
-    (let [{:keys [host port dbtype] :as db-spec} (get-in config [:config :database])]
-      (logs/log :info :database :start {:host host :port port :dbtype dbtype})
+    (let [{:keys [jdbc-url]} (get-in config [:config :database])]
+      (logs/log :info :database :start {:jdbc-url jdbc-url})
       (if datasource
         this
-        (assoc this :datasource (connection/->pool HikariDataSource db-spec)))))
+        (assoc this :datasource (connection/->pool HikariDataSource {:jdbcUrl jdbc-url})))))
   (stop [this]
     (logs/log :info :database :stop)
     (if datasource

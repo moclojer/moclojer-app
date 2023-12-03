@@ -14,21 +14,15 @@ services:
 - name: api
   dockerfile_path: docker/Dockerfile.api
   envs:
-  - key: DB_NAME
+  - key: DB_URL 
     scope: RUN_TIME
-    value: "postgres"
+    value: "jdbc:postgresql://localhost:5432/postgres?user=postgres&password=postgres"
   - key: DB_USER
     scope: RUN_TIME
     value: "postgres"
   - key: DB_PASS
     scope: RUN_TIME
     value: "postgres"
-  - key: DB_HOST
-    scope: RUN_TIME
-    value: "localhost"
-  - key: DB_PORT
-    scope: RUN_TIME
-    value: 5432
   - key: AWS_ACCESS_KEY_ID
     scope: RUN_TIME
     value: "foo"
@@ -50,21 +44,15 @@ services:
 - name: yaml-generator
   dockerfile_path: docker/Dockerfile.yaml-generator
   envs:
-  - key: DB_NAME
+  - key: DB_URL 
     scope: RUN_TIME
-    value: "postgres"
+    value: "jdbc:postgresql://localhost:5432/postgres?user=postgres&password=postgres"
   - key: DB_USER
     scope: RUN_TIME
     value: "postgres"
   - key: DB_PASS
     scope: RUN_TIME
     value: "postgres"
-  - key: DB_HOST
-    scope: RUN_TIME
-    value: "localhost"
-  - key: DB_PORT
-    scope: RUN_TIME
-    value: 5432
   - key: AWS_ACCESS_KEY_ID
     scope: RUN_TIME
     value: "foo"
