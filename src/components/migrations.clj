@@ -1,11 +1,13 @@
 (ns components.migrations
-  (:require [migratus.core :as migratus]
-            [next.jdbc :as jdbc]
-            [components.config :as config.aero])
+  (:require [components.config :as config.aero]
+            [components.logs :as logs]
+            [migratus.core :as migratus]
+            [next.jdbc :as jdbc])
   (:gen-class))
 
 (defn get-connection []
   (let [{:keys [jdbc-url] :as db} (-> (config.aero/read-config {}) :database)]
+    (logs/log "Connecting to " jdbc-url)
     (jdbc/get-connection (assoc db :jdbcUrl (str "jdbc:" jdbc-url)))))
 
 (def configuration
