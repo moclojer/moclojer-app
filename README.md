@@ -6,20 +6,11 @@
 
 We use the [helix](https://github.com/lilactown/helix) framework to develop our dashboard, it's a library that makes it easy to use **React** using **ClojureScript**.
 
-## Documents
-
-- [Authentication](docs/auth.md)
-
 ## Commands
-
-before you can upload the development environment with `watch` or `ci:tests` you must install the packages as `npm`:
 
 ```sh
 npm i # install
 ```
-
-### Watch
-
 Start shadow-cljs watching and serving main in [`localhost:8000`](http://localhost:8000) and tests in [`localhost:8100`](http://localhost:8100):
 
 ```sh
@@ -75,20 +66,6 @@ In your neovim run
 ```vim
 :ConjureShadowSelect app
 ```
-
-## MSW
-
-I decided to start the app (even on development) with [MSW](https://mswjs.io/) turned off.  
-
-To enable it you need an active REPL connection with the project and and evaluate the start expression on the block comment at the end of the following file: [`src/dev/core.cljs`](src/dev/core.cljs)
-
-```clj
-(p/do (mock/start!)
-      (.reload js/location))
-```
-
-read more [here](#repl-on-your-terminal)
-
 ## Backend
 
 ### Repl
