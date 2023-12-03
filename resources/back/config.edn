@@ -13,8 +13,8 @@
            :host #profile {:dev "localhost"
                            :default "localhost"
                            :prod "sfo3.digitaloceanspaces.com"}}
- :redis-worker  {:uri #or [#env REDIS_DATABASE "redis://localhost:6379"]}
- :redis-publisher {:uri #or [#env REDIS_DATABASE "redis://localhost:6379"]}
+ :redis-worker  {:uri #or [#env REDIS_URL "redis://localhost:6379"]}
+ :redis-publisher {:uri #or [#env REDIS_URL "redis://localhost:6379"]}
  :database {:dbtype "postgres"
             :jdbc-url #or [#env DATABASE_URL "jdbc:postgresql://localhost:5432/postgres?user=postgres&password=postgres"]}}
 

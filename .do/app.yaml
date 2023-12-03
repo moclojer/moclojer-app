@@ -23,7 +23,7 @@ services:
   - key: AWS_SECRET_ACCESS_KEY
     scope: RUN_TIME
     value: "bar"
-  - key: REDIS_DATABASE
+  - key: REDIS_URL
     scope: RUN_TIME
     value: "redis://localhost:6379"
   - key: PROFILE
@@ -41,7 +41,7 @@ services:
   - key: AWS_SECRET_ACCESS_KEY
     scope: RUN_TIME
     value: "bar"
-  - key: REDIS_DATABASE
+  - key: REDIS_URL
     scope: RUN_TIME
     value: "redis://localhost:6379"
   - key: PROFILE
