@@ -53,4 +53,4 @@ EXPOSE 3000
 ENV JDK_JAVA_OPTIONS "-XshowSettings:system -XX:+UseContainerSupport -XX:MaxRAMPercentage=90"
 
 # (overrides `jshell` entrypoint - default in eclipse-temuring image)
-CMD ["java", "-jar", "/service/api.jar"]
+ENTRYPOINT ["java", "-jar", "/service/api.jar"]

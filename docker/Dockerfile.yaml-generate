@@ -55,8 +55,7 @@ EXPOSE 3001
 ENV JDK_JAVA_OPTIONS "-XshowSettings:system -XX:+UseContainerSupport -XX:MaxRAMPercentage=90"
 
 # (overrides `jshell` entrypoint - default in eclipse-temuring image)
-CMD ["java", "-jar", "/service/yaml-service.jar"]
-
+ENTRYPOINT ["java", "-jar", "/service/yaml-service.jar"]
 
 # Docker Entrypoint documentation
 # https://docs.docker.com/engine/reference/builder/#entrypoint
