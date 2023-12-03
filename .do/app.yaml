@@ -23,15 +23,9 @@ services:
   - key: AWS_SECRET_ACCESS_KEY
     scope: RUN_TIME
     value: "bar"
-  - key: REDIS-PASSWORD
+  - key: REDIS_DATABASE
     scope: RUN_TIME
-    value: "pass"
-  - key: REDIS-HOST
-    scope: RUN_TIME
-    value: "localhost"
-  - key: REDIS_PORT
-    scope: RUN_TIME
-    value: 6379
+    value: "redis://localhost:6379"
   - key: PROFILE
     scope: RUN_TIME
     value: "prod"
@@ -47,15 +41,9 @@ services:
   - key: AWS_SECRET_ACCESS_KEY
     scope: RUN_TIME
     value: "bar"
-  - key: REDIS-PASSWORD
+  - key: REDIS_DATABASE
     scope: RUN_TIME
-    value: "pass"
-  - key: REDIS-HOST
-    scope: RUN_TIME
-    value: "localhost"
-  - key: REDIS_PORT
-    scope: RUN_TIME
-    value: 6379
+    value: "redis://localhost:6379"
   - key: PROFILE
     scope: RUN_TIME
     value: "prod"
