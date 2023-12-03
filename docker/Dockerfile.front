@@ -16,4 +16,4 @@ RUN npm i . && \
 ENV API_URL $API_URL
 EXPOSE 8000
 
-CMD npx shadow-cljs server
+ENTRYPOINT ["npx shadow-cljs server"]
