@@ -16,7 +16,7 @@
       (logs/log :info :database :start {:jdbc-url (str "jdbc:" jdbc-url)})
       (if datasource
         this
-        (assoc this :datasource (connection/->pool HikariDataSource {:jdbcUrl jdbc-url})))))
+        (assoc this :datasource (connection/->pool HikariDataSource {:jdbcUrl (str "jdbc:" jdbc-url)})))))
   (stop [this]
     (logs/log :info :database :stop)
     (if datasource
