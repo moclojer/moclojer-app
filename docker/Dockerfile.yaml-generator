@@ -43,9 +43,6 @@ COPY --from=builder /build/target/yaml-service.jar /service/yaml-service.jar
 # ENV MYSQL_DATABASE=
 ENV PROFILE=prod
 
-# Expose port of HTTP Server
-EXPOSE 3001
-
 # ------------------------
 # Run service
 

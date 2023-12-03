@@ -15,7 +15,7 @@ dist-yml: build-uberjar-yml ## Build and package Clojure service
 
 build-uberjar-yml: ## Build a uberjar archive of Clojure project & Clojure runtime
 	$(info --------- Build service Uberjar  ---------)
-	clojure -T:build uberjar :uber-file yml-service
+	clojure -T:build uberjar :uber-file yaml-service
 
 # to build the api service
 dist-api: build-uberjar-api ## Build and package Clojure service
