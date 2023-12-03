@@ -22,7 +22,6 @@ services:
 
   redis:
     image: redis:latest
-    command: /bin/sh -c "redis-server --requirepass redislocal"
     ports:
       - "6379:6379"
     volumes:

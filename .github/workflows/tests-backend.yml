@@ -46,7 +46,6 @@ jobs:
         uses: supercharge/redis-github-action@1.7.0
         with:
           redis-version: 7
-          redis-password: 'redislocal'
       - name: Star localsta
         run: |
           pip install localstack awscli-local[ver1] # install LocalStack cli and awslocal
