@@ -6,7 +6,7 @@
 
 (defn get-connection []
   (let [{:keys [jdbc-url] :as db} (-> (config.aero/read-config {}) :database)]
-    (jdbc/get-connection (assoc db :jdbcUrl jdbc-url))))
+    (jdbc/get-connection (assoc db :jdbcUrl (str "jdbc:" jdbc-url)))))
 
 (def configuration
   {:store         :database
