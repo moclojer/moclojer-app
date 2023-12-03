@@ -5,8 +5,8 @@
   (:gen-class))
 
 (defn get-connection []
-  (let [{:keys [username] :as db} (-> (config.aero/read-config {}) :database)]
-    (jdbc/get-connection (assoc db :user username))))
+  (let [{:keys [jdbc-url] :as db} (-> (config.aero/read-config {}) :database)]
+    (jdbc/get-connection (assoc db :jdbcUrl jdbc-url))))
 
 (def configuration
   {:store         :database

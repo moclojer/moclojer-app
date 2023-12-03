@@ -7,10 +7,8 @@
 (defrecord RedisWorkers [config database storage publisher workers]
   component/Lifecycle
   (start [this]
-    (let [{:keys [password host port]} (-> config :config :redis-worker)
-          conn {:spec {:password password
-                       :host host
-                       :port port}}
+    (let [{:keys [uri]} (-> config :config :redis-worker)
+          conn {:spec {:uri uri}}
           components  (-> {}
                           (assoc :database database
                                  :storage storage
