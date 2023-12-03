@@ -13,7 +13,7 @@
   component/Lifecycle
   (start [this]
     (let [{:keys [jdbc-url]} (get-in config [:config :database])]
-      (logs/log :info :database :start {:jdbc-url jdbc-url})
+      (logs/log :info :database :start {:jdbc-url (str "jdbc:" jdbc-url)})
       (if datasource
         this
         (assoc this :datasource (connection/->pool HikariDataSource {:jdbcUrl jdbc-url})))))
