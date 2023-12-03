@@ -1,18 +1,30 @@
+name: moclojer-app
+
 alerts:
 - rule: DEPLOYMENT_FAILED
+
 domains:
 - domain: app.moclojer.com
   type: PRIMARY
-name: moclojer-app
+
 services:
 - name: front
   dockerfile_path: docker/Dockerfile.front
+  github:
+    branch: main
+    deploy_on_push: true
+    repo: moclojer/moclojer-app
   envs:
   - key: API_URL
     scope: RUN_TIME
     value: https://
+
 - name: api
   dockerfile_path: docker/Dockerfile.api
+  github:
+    branch: main
+    deploy_on_push: true
+    repo: moclojer/moclojer-app
   envs:
   - key: DATABASE_URL 
     scope: RUN_TIME
@@ -29,8 +41,14 @@ services:
   - key: PROFILE
     scope: RUN_TIME
     value: "prod"
+
+workers:
 - name: yaml-generator
   dockerfile_path: docker/Dockerfile.yaml-generator
+  github:
+    branch: main
+    deploy_on_push: true
+    repo: moclojer/moclojer-app
   envs:
   - key: DATABASE_URL
     scope: RUN_TIME
