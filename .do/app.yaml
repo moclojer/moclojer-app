@@ -37,6 +37,7 @@ services:
   instance_count: 1
   instance_size_slug: professional-xs
   source_dir: /
+  output_dir: /resources/front/public
   github:
     branch: main
     deploy_on_push: true
@@ -44,7 +45,7 @@ services:
   envs:
   - key: API_URL
     scope: RUN_TIME
-    value: https://
+    value: https://app.moclojer.com/api
 
 - dockerfile_path: docker/Dockerfile.api
   name: moclojer-api
