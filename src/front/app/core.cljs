@@ -23,9 +23,6 @@
 
 (goog-define DEBUG false)
 (def debug DEBUG)
-
-(goog-define SUPABASE "http://localhost:8000/auth/callback")
-(def supabase SUPABASE)
 ;;; Events ;;;
 
 (refx/reg-event-fx
