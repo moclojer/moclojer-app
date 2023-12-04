@@ -1,5 +1,6 @@
 (ns components.migrations
   (:require [components.config :as config.aero]
+            [components.db-utils :refer [to-jdbc-uri]]
             [components.logs :as logs]
             [migratus.core :as migratus]
             [next.jdbc :as jdbc])
@@ -8,7 +9,7 @@
 (defn get-connection []
   (let [{:keys [jdbc-url] :as db} (-> (config.aero/read-config {}) :database)]
     (logs/log "Connecting to " jdbc-url)
-    (jdbc/get-connection (assoc db :jdbcUrl (str "jdbc:" jdbc-url)))))
+    (jdbc/get-connection (assoc db :jdbcUrl (to-jdbc-uri jdbc-url)))))
 
 (def configuration
   {:store         :database
