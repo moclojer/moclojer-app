@@ -1,28 +1,27 @@
-# moclojer app
+# Moclojer App
 
-##  Frontend
+**Moclojer App** é um produto *Micro SaaS* construído em cima do produto Open Source [Moclojer](https://github.com/moclojer/moclojer). Apesar de ser um *monorepo*, este produto é composto por 3 serviços menores:
 
-*Micro SaaS* **moclojer** admin area (dashboard, app.moclojer.com)
+- [Front](./src/front/README.md)
+- [Back](./src/back/README.md)
+- [Yaml Generator](./src/yaml_generator/README.md)
 
-We use the [helix](https://github.com/lilactown/helix) framework to develop our dashboard, it's a library that makes it easy to use **React** using **ClojureScript**.
+## Como rodar localmente
 
-## Commands
+Siga os passos de cada um dos elementos a seguir:
 
-```sh
-npm i # install
-```
-Start shadow-cljs watching and serving main in [`localhost:8000`](http://localhost:8000) and tests in [`localhost:8100`](http://localhost:8100):
+1. [Docker](./docker/README.md#como-rodar-localmente)
+2. [Back](./docker/README.md#como-rodar-localmente)
+3. [Front](./docker/README.md#como-rodar-localmente)
 
-```sh
+Em suma, rode o seguinte script se estiver com pressa :)
+
+```bash
+docker-compose -f docker/docker-compose.yml up localstack -d
+docker-compose -f docker/docker-compose.yml up redis -d
+
+clj -M:back-dev:nrepl
 npm run watch
-```
-
-### Tests
-
-Run **Karma** tests targeted for running CI tests with *Headless Chromium Driver*:
-
-```sh
-npm run ci:tests
 ```
 
 ### Repl
@@ -121,21 +120,8 @@ clj -M:migratus rollback
 ```
 See Migratus Usage for documentation on each command https://github.com/yogthos/migratus#usage.
 
-### Docker
-
-Start containers with `postgres user: postgres, password: postgres, hostname: db, port: 5432`
-and pg-admin `email: pg@pg.cc, password: pg, port: 5433`
-
-```bash
-docker-compose -f docker/docker-compose.yml up -d
-```
-Stop containers
-
-```bash
-docker-compose -f docker/docker-compose.yml stop
-```
-
 ### Running the server
+
 First you need to have the database running, for this you can use the docker command in the step above.
 
 Repl
