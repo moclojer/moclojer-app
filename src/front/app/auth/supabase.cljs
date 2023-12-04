@@ -1,5 +1,6 @@
 (ns front.app.auth.supabase
   (:require ["@supabase/supabase-js" :as sb]
+            [front.app.core :as app]
             [promesa.core :as p]
             [reitit.frontend.easy :as rfe]))
 
@@ -25,7 +26,10 @@
         promise (.signInWithOtp
                  auth
                  (clj->js {:email email
-                           :options {:emailRedirectTo "http://localhost:8000/auth/callback"}}))]
+                           :options {:emailRedirectTo (if app/debug
+                                                        "http://localhost:8000/auth/callback"
+                                                        app/supabase)}}))]
+
     promise))
 
 (defn sign-out [dispatch-fn-logout]
