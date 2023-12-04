@@ -10,9 +10,13 @@
                 :closure-defines
                 {front.app.http/API-URL #shadow/env "API-URL"}
                 :dev      {:modules {:core {:init-fn dev.core/init}}
-                           :closure-defines {front.app.core/DEBUG true}}
+                           ;; since we are running for now with npm start watch:app in production we should change it to release
+                           ;;because ne need to get the env vars correclty for front
+                           :closure-defines {front.app.core/DEBUG false
+                                             front.app.core/SUPABASE "http://localhost:8000/auth/callback"}}
                 :release  {:modules {:core {:init-fn front.app.core/init}}
-                           :closure-defines {front.app.core/DEBUG false}
+                           :closure-defines {front.app.core/DEBUG false
+                                             front.app.core/SUPABASE "http://app.moclojer.com/auth/callback"}
                            :compiler-options {:optimizations :advanced
                                               :infer-externs :auto}}}
           :tests    {:target           :browser-test
