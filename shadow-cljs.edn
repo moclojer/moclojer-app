@@ -7,7 +7,6 @@
                            :reload-strategy :full
                            :http-port 8000
                            :http-root "resources/front/public/"}
-                :closure-defines {front.app.http/API-URL #shadow/env "API-URL"}
                 :dev      {:modules {:core {:init-fn dev.core/init}}
                            ;; since we are running for now with npm start watch:app in production we should change it to release
                            ;;because ne need to get the env vars correclty for front
