@@ -11,11 +11,11 @@
                            ;; since we are running for now with npm start watch:app in production we should change it to release
                            ;;because ne need to get the env vars correclty for front
                            :closure-defines {front.app.core/DEBUG false
-                                             front.app.http/API-URL #shadow/env "https://app.moclojer.com/api"
+                                             front.app.http/API-URL "https://app.moclojer.com/api"
                                              front.app.auth.supabase/SUPABASE "https://app.moclojer.com/auth/callback"}}
                 :release  {:modules {:core {:init-fn front.app.core/init}}
                            :closure-defines {front.app.core/DEBUG false
-                                             front.app.http/API-URL #shadow/env "https://app.moclojer.com/api"
+                                             front.app.http/API-URL "https://app.moclojer.com/api"
                                              front.app.auth.supabase/SUPABASE "https://app.moclojer.com/auth/callback"}
                            :compiler-options {:optimizations :advanced
                                               :infer-externs :auto}}}
