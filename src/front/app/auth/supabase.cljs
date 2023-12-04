@@ -4,6 +4,9 @@
             [promesa.core :as p]
             [reitit.frontend.easy :as rfe]))
 
+(goog-define SUPABASE "http://localhost:8000/auth/callback")
+(def supabase SUPABASE)
+
 (defn create-client
   "creates a supabase client"
   ([url key]
