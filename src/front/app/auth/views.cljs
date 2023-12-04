@@ -1,17 +1,16 @@
 (ns front.app.auth.views
-  (:require
-   [front.app.auth.supabase :as supabase]
-   [front.app.components.alerts :as alerts]
-   [front.app.components.button :refer [button]]
-   [front.app.components.loading :refer [loading-spinner]]
-   [front.app.components.navlink :refer [nav-link]]
-   [front.app.lib :refer [defnc]]
-   [helix.core :refer [$]]
-   [helix.dom :as d]
-   [helix.hooks :as hooks]
-   [promesa.core :as p]
-   [refx.alpha :as refx]
-   [reitit.frontend.easy :as rfe]))
+  (:require [front.app.auth.supabase :as supabase]
+            [front.app.components.alerts :as alerts]
+            [front.app.components.button :refer [button]]
+            [front.app.components.loading :refer [loading-spinner]]
+            [front.app.components.navlink :refer [nav-link]]
+            [front.app.lib :refer [defnc]]
+            [helix.core :refer [$]]
+            [helix.dom :as d]
+            [helix.hooks :as hooks]
+            [promesa.core :as p]
+            [refx.alpha :as refx]
+            [reitit.frontend.easy :as rfe]))
 
 (defn replace-str [^String s]
   (.replace s "_" "-"))
@@ -56,7 +55,7 @@
                                :href "#"}))))
                   (d/div {:class-name "p-6 space-y-8 w-full sm:p-8 lg:p-16 lg:py-0"}
                          (d/h2 {:class-name "text-2xl font-bold text-gray-900 lg:text-3xl dark:text-white"}
-                               "Sign in to moclojer")
+                               "sign in to moclojer")
                          (d/form {:disabled loading?
                                   :on-submit (fn [e]
                                                (.preventDefault e)
@@ -67,7 +66,7 @@
                                   (d/label
                                    {:for "email"
                                     :class-name "block mb-2 text-sm font-medium text-gray-900 dark:text-white"}
-                                   "Your Email")
+                                   "your email")
                                   (d/input
                                    {:for "email"
                                     :placeholder "name@company.com"
@@ -86,8 +85,8 @@
                                     (if loading?
                                       (d/span {:class-name "inline-flex"}
                                               ($ loading-spinner {})
-                                              "Loading...")
-                                      (d/span "Login to your account")))
+                                              "loading...")
+                                      (d/span "login to your account")))
                                  (d/div {:class-name "text-sm font-medium text-gray-500 dark:text-gray-400"}
                                         (if error
                                           ($ alerts/error
@@ -106,15 +105,15 @@
                          (d/img {:src "/images/authentication/login.svg" :class-name "rounded-l-lg"}))
                   (if sent?
                     (d/div ($ loading-spinner)
-                           "Loading ...")
+                           "loading ...")
                     (d/div {:class-name "p-6 space-y-8 w-full sm:p-8 lg:p-16 lg:py-0"}
                            (if (and loading?
                                     (nil? username))
                              (d/div ($ loading-spinner)
-                                    "Loading ...")
+                                    "loading ...")
                              (d/div
                               (d/h2 {:class-name "text-2xl font-bold text-gray-900 lg:text-3xl dark:text-white"}
-                                    "Welcome, enter your username.")
+                                    "welcome, enter your username.")
                               (d/form {:disabled loading?
                                        :on-submit (fn [e]
                                                     (.preventDefault e)
@@ -152,7 +151,7 @@
                                          (if loading?
                                            (d/span {:class-name "inline-flex"}
                                                    ($ loading-spinner {})
-                                                   "Loading...")
+                                                   "loading...")
                                            (d/span "Save"))))))))))))
 
 (defnc container [{:keys [children]}]
@@ -167,29 +166,29 @@
         sent? (refx/use-sub [:app.auth/username-sent])]
 
     (hooks/use-effect
-      [error]
-      (when error
-        (rfe/push-state :app.core/login)))
+     [error]
+     (when error
+       (rfe/push-state :app.core/login)))
 
     (hooks/use-effect
-      [user]
+     [user]
       ;; user session is not nil, redirect to dashboard
-      (when (and user
-                 (not (nil? (-> user :user :valid-user)))
-                 (-> user :user :username))
-        (do
-          (refx/dispatch-sync [:app.dashboard/get-mocks user])
-          (rfe/push-state :app.core/dashboard))))
+     (when (and user
+                (not (nil? (-> user :user :valid-user)))
+                (-> user :user :username))
+       (do
+         (refx/dispatch-sync [:app.dashboard/get-mocks user])
+         (rfe/push-state :app.core/dashboard))))
 
     (hooks/use-effect
-      :once
-      (let [auth (.-auth supabase/client)]
-        (-> (.getSession auth)
-            (p/then
-             (fn [resp]
-               (let [resp (-> (js->cljs-key resp) :data :session convert-keys)]
-                 (refx/dispatch-sync
-                  [:app.auth/saving-user resp])))))))
+     :once
+     (let [auth (.-auth supabase/client)]
+       (-> (.getSession auth)
+           (p/then
+            (fn [resp]
+              (let [resp (-> (js->cljs-key resp) :data :session convert-keys)]
+                (refx/dispatch-sync
+                 [:app.auth/saving-user resp])))))))
 
     (d/div
      ($ container
