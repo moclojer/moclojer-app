@@ -1,6 +1,5 @@
 (ns front.app.auth.supabase
   (:require ["@supabase/supabase-js" :as sb]
-            [front.app.core :as app]
             [promesa.core :as p]
             [reitit.frontend.easy :as rfe]))
 
@@ -31,7 +30,7 @@
                  (clj->js {:email email
                            :options {:emailRedirectTo (if app/debug
                                                         "http://localhost:8000/auth/callback"
-                                                        app/supabase)}}))]
+                                                        supabase)}}))]
 
     promise))
 
