@@ -15,7 +15,7 @@ RUN npm i . && \
     npm run postinstall && \
     npm run release
 
-ENV API-URL $API-URL
+ENV API_URL $API_URL
 EXPOSE 8000
 
 ENTRYPOINT ["npm", "run", "app:watch"]

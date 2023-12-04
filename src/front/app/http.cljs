@@ -3,8 +3,8 @@
             [promesa.core :as p]
             [refx.alpha :refer [dispatch reg-fx]]))
 
-(goog-define API-URL "http://localhost:3000")
-(def api-url API-URL)
+(goog-define API_URL "http://localhost:3000")
+(def api-url API_URL)
 
 (defn- js->cljs-key [obj]
   (js->clj obj :keywordize-keys true))
