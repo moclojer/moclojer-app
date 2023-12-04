@@ -8,7 +8,7 @@
 
 (defn get-connection []
   (let [{:keys [jdbc-url] :as db} (-> (config.aero/read-config {}) :database)]
-    (logs/log "Connecting to " jdbc-url)
+    (logs/log :info :url :url (to-jdbc-uri jdbc-url))
     (jdbc/get-connection (assoc db :jdbcUrl (to-jdbc-uri jdbc-url)))))
 
 (def configuration
