@@ -6,6 +6,8 @@
 - [Yaml Generator](./src/yaml_generator/README.md)
 - [Front](./src/front/README.md)
 
+Tanto [Back](./src/back/README.md) e [Yaml Generator](./src/yaml_generator/README.md) dependem de [./src/components](./src/components/README.md). Leia sobre, caso queira entender como lidamos com lifecycle and gerenciamento de estado.
+
 ## Como rodar localmente
 
 Siga os passos de cada um dos elementos a seguir:
@@ -14,13 +16,3 @@ Siga os passos de cada um dos elementos a seguir:
 2. [Back](./src/back/README.md#como-rodar-localmente)
 3. [Yaml Generator](./src/back/README.md#como-rodar-localmente)
 4. [Front](./src/front/README.md#como-rodar-localmente)
-
-Se você estiver com pressa:
-
-```bash
-docker compose -f docker/docker-compose.yml up localstack -d
-docker compose -f docker/docker-compose.yml up redis -d
-
-clj -M:back-dev:nrepl
-npm run watch
-```
