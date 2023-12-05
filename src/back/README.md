@@ -37,11 +37,11 @@ clj -M:back-dev:nrepl # dev
 # clj -M:nrepl
 ```
 
-Após aberto, conecte seu TODO [editor](TODO) ao nrepl, e rode o seguinte:
+Após aberto, conecte seu [editor](TODO) ao nrepl, e rode o seguinte:
 
 ```clj
 (in-ns 'back.api.server)
-(start-system! (build-system-map))
+(start-system-dev! (build-system-map))
 ```
 
 ### Testes
