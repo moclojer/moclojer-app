@@ -18,10 +18,10 @@ RUN npm i . && \
 FROM node:16.13.2-alpine as release
 
 RUN addgroup -S moclojer && adduser -S moclojer -G moclojer
-RUN mkdir -p /front && chown -R moclojer. /front
+RUN mkdir -p /dist && chown -R moclojer. /dist
 
 USER moclojer
-COPY --from=builder /app/resources/front/ /front
+COPY --from=builder /app/resources/front/ /dist
 
 ENV DEBUG=false
 ENV API_URL $API_URL
