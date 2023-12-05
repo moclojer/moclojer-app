@@ -1,4 +1,4 @@
-FROM clojure:latest
+FROM clojure:latest AS builder
 
 RUN apt-get update
 RUN apt-get -y install git-core
@@ -7,7 +7,7 @@ RUN curl -sL https://deb.nodesource.com/setup_18.x   | bash -
 RUN apt-get -y install nodejs
 
 WORKDIR /app
-COPY . .
+COPY ./ /app
 
 ENV DEBUG=false
 
@@ -15,7 +15,16 @@ RUN npm i . && \
     npm run postinstall && \
     npm run release
 
+FROM node:16.13.2-alpine as release
+
+RUN addgroup -S moclojer && adduser -S moclojer -G moclojer
+RUN mkdir -p /front && chown -R moclojer. /front
+
+USER moclojer
+COPY --from=builder /app/resources/front/ /front
+
+ENV DEBUG=false
 ENV API_URL $API_URL
+
 EXPOSE 8000
 
-ENTRYPOINT ["npm", "run", "app:watch"]
