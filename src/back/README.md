@@ -2,8 +2,6 @@
 
 O serviço de backend serve a API de entrada, criando ponte entre o [Frontend](../front/README.md), o serviço [gerador de yaml](../yaml_generator/README.md) e os serviços terceiros de [persistẽncia](../../docker/README.md) (pg, redis, aws/localstack, etc).
 
-## Dependências
-
 ## Hierarquia
 
 A hierarquia de arquivos segue o seguinte padrão:
@@ -20,7 +18,7 @@ A hierarquia de arquivos segue o seguinte padrão:
 
 ### PostgreSQL
 
-Caso você rodou `clj -M:back-dev:nrepl` pode pular esta parte. O ambiente de desenvolvimento utiliza do `pg-embedded-clj`, criando uma instância in-memory do Postgres. Caso você não esteja em ambiente `dev`, e já tenha [*uppado* o container do PG](../../docker/README.md#como-rodar-localmente), você precisa fazer a migração:
+O ambiente de desenvolvimento utiliza do `pg-embedded-clj`, criando uma instância in-memory do Postgres. Caso você não esteja em ambiente `dev`, e já tenha [*uppado* o container do PG](../../docker/README.md#como-rodar-localmente), você precisa fazer a migração:
 
 ```bash
 clj -M:migratus migrate
@@ -30,7 +28,7 @@ Veja mais sobre como usar migratus: https://github.com/yogthos/migratus#usage
 
 ### REPL
 
-Abra um servidor de LSP com o nrepl:
+Abra um servidor nrepl:
 
 ```bash
 clj -M:back-dev:nrepl # dev
