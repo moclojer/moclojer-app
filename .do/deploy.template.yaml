@@ -33,13 +33,14 @@ spec:
         path:
           prefix: /api
 
-  services:
+static_sites:
   - dockerfile_path: docker/Dockerfile.front
     name: moclojer-front
     http_port: 8000
     instance_count: 1
     instance_size_slug: professional-xs
     source_dir: /
+    output_dir: /dist/public/
     github:
       branch: main
       deploy_on_push: true
@@ -49,6 +50,7 @@ spec:
       scope: RUN_TIME
       value: https://app.moclojer.com/api
 
+services:
   - dockerfile_path: docker/Dockerfile.api
     name: moclojer-api
     http_port: 3000
