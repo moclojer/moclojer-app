@@ -2,6 +2,8 @@
 
 O serviço de backend serve a API de entrada, criando ponte entre o [Frontend](../front/README.md), o serviço [gerador de yaml](../yaml_generator/README.md) e os serviços terceiros de [persistẽncia](../../docker/README.md) (pg, redis, aws/localstack, etc).
 
+## Dependências
+
 ## Hierarquia
 
 A hierarquia de arquivos segue o seguinte padrão:
@@ -35,7 +37,7 @@ clj -M:back-dev:nrepl # dev
 # clj -M:nrepl
 ```
 
-Após aberto, conecte seu TODO [editor](../../docs/FAQ.md#editor) ao nrepl, e rode o seguinte:
+Após aberto, conecte seu TODO [editor](TODO) ao nrepl, e rode o seguinte:
 
 ```clj
 (in-ns 'back.api.server)
