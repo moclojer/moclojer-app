@@ -9,6 +9,8 @@ databases:
 - engine: PG
   name: moclojer-db
   version: "12"
+- engine: REDIS
+  name: moclojer-redis
 
 features:
 - buildpack-stack=ubuntu-22
@@ -68,7 +70,7 @@ services:
     value: "bar"
   - key: REDIS_URL
     scope: RUN_TIME
-    value: ${moclojer-db.REDIS_URL}
+    value: ${moclojer-redis.REDIS_URL}
   - key: PROFILE
     scope: RUN_TIME
     value: "prod"
@@ -95,7 +97,7 @@ workers:
     value: "bar"
   - key: REDIS_URL
     scope: RUN_TIME
-    value: ${moclojer-db.REDIS_URL}
+    value: ${moclojer-redis.REDIS_URL}
   - key: PROFILE
     scope: RUN_TIME
     value: "prod"
