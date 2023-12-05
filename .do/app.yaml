@@ -50,7 +50,6 @@ static_sites:
     value: https://app.moclojer.com/api
 
 services:
-- dockerfile_path: docker/Dockerfile.front
 - dockerfile_path: docker/Dockerfile.api
   name: moclojer-api
   http_port: 3000
