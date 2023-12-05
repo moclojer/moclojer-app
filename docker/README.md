@@ -1,13 +1,13 @@
 # Docker
 
-O arquivo `docker-compose.yml` contem as dependências necessárias:
+## Dependências
 
-| serviço    | produto    | porta       |
-| ---------- | ---------- | ----------- |
-| db         | PostgreSQL | 5432        |
-| db-admin   | pgAdmin4   | 5433        | 
-| localstack | LocalStack | 4566...4583 |
-| redis      | Redis      | 6379        |
+As ferramentas que fazem parte do moclojer são:
+
+- *db*: Postgres | ::5432
+- *db-admin*: pgAdmin4 | ::5433
+- *localstack*: LocalStack | ::4566 ... ::4583
+- *redis*: Redis | 6379
 
 ## Como rodar localmente
 
