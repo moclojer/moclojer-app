@@ -1,5 +1,6 @@
 ;;shadow clj config
 {:deps {:aliases [:front-dev]}
+ :nrepl {:port 8777}
  :builds {:app {:target :browser
                 :output-dir "resources/front/public/assets/js"
                 :asset-path "/assets/js"
