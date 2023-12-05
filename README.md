@@ -11,8 +11,8 @@
 Siga os passos de cada um dos elementos a seguir:
 
 1. [Docker](./docker/README.md#como-rodar-localmente)
-2. [Back](./docker/README.md#como-rodar-localmente)
-3. [Front](./docker/README.md#como-rodar-localmente)
+2. [Back](./src/back/README.md#como-rodar-localmente)
+4. [Front](./src/front/README.md#como-rodar-localmente)
 
 Se você estiver com pressa:
 
