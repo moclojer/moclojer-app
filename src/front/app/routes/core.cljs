@@ -28,7 +28,7 @@
   (rfe/start!
    (router routes)
    on-navigate
-   {:use-fragment false
+   {:use-fragment true
     :ignore-anchor-click? (fn [router e el uri]
                             (prn :calling router e el uri)
                            ;; Add additional check on top of the default checks
