@@ -45,12 +45,3 @@ Após aberto, conecte seu [editor](TODO) ao nrepl, e rode o seguinte:
 (in-ns 'back.api.server)
 (start-system-dev! (build-system-map))
 ```
-
-### Testes
-
-Existem tanto testes unitários quanto de integração, e você pode rodá-los da seguinte maneira:
-
-```bash
-clj -M:test :unit # unitários
-clj -M:test :integration # integração
-```

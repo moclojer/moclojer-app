@@ -16,3 +16,8 @@ Siga os passos de cada um dos elementos a seguir:
 2. [Back](./src/back/README.md#como-rodar-localmente)
 3. [Yaml Generator](./src/back/README.md#como-rodar-localmente)
 4. [Front](./src/front/README.md#como-rodar-localmente)
+
+## Testes
+
+- [Back & Yaml Generator](./test/README.md#back-&-yaml-generator)
+- [Front](./test/README.MD#front)
