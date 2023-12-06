@@ -16,6 +16,10 @@ A hierarquia de arquivos segue o seguinte padrão:
 
 ## Como rodar localmente
 
+### Docker
+
+Caso não tenha *uppado* antes, volte às instruções dos containers do [Docker](../../docker/README.md) e rode-os antes.
+
 ### PostgreSQL
 
 O ambiente de desenvolvimento utiliza do `pg-embedded-clj`, criando uma instância in-memory do Postgres. Caso você não esteja em ambiente `dev`, e já tenha [*uppado* o container do PG](../../docker/README.md#como-rodar-localmente), você precisa fazer a migração:
