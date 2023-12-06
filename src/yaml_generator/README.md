@@ -10,6 +10,10 @@ O serviço de geração de yaml é responsável por realizar pub/sub de updates 
 
 ## Como rodar localmente
 
+### Docker
+
+Caso não tenha *uppado* antes, volte às instruções dos containers do [Docker](../../docker/README.md) e rode-os antes.
+
 ### REPL
 
 Abra um servidor nrepl:
