@@ -32,6 +32,6 @@
    (:username-available? db)))
 
 (refx/reg-sub
-  :app.auth/username-to-save
+ :app.auth/username-to-save
  (fn [db]
    (:username-to-save db)))

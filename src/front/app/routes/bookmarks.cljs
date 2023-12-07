@@ -7,13 +7,13 @@
 (def routes
   [""
    ["/"
-    {:name :app.core/login
-     :view auth/login-view
+    {:name :app.core/auth
+     :view auth/auth-view
      :public? true}]
 
-   ["/auth/callback"
-    {:name :app.core/callback
-     :view auth/callback-view
+   ["/login"
+    {:name :app.core/login
+     :view auth/login-view
      :public? true}]
 
    ["/dashboard"

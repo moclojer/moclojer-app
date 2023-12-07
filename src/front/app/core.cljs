@@ -52,8 +52,8 @@
      (or
       user
       current-route
-      (not (= (-> route-data :name)
-              :app.core/login)))
+      (not= (:name route-data)
+            :app.core/login))
       (if (and is-public?
                (not (-> user :user :valid-user)))
         ($ view {:route current-route})
