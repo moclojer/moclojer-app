@@ -3,7 +3,7 @@
             [promesa.core :as p]
             [reitit.frontend.easy :as rfe]))
 
-(goog-define SUPABASE "http://localhost:8000/auth/callback")
+(goog-define SUPABASE "http://localhost:8000/#/")
 (def supabase SUPABASE)
 
 (defn create-client
@@ -29,7 +29,7 @@
                  auth
                  (clj->js {:email email
                            :options {:emailRedirectTo (if app/debug
-                                                        "http://localhost:8000/auth/callback"
+                                                        "http://localhost:8000/#/"
                                                         supabase)}}))]
 
     promise))
