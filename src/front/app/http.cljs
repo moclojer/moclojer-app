@@ -1,8 +1,9 @@
 (ns front.app.http
-  (:require [lambdaisland.fetch :as fetch]
-            [promesa.core :as p]
-            [refx.alpha :refer [dispatch reg-fx]]
-            [front.app.utils :as utils]))
+  (:require
+   [front.app.utils :as utils]
+   [lambdaisland.fetch :as fetch]
+   [promesa.core :as p]
+   [refx.alpha :refer [dispatch reg-fx]]))
 
 (goog-define API_URL "http://localhost:3000")
 (def api-url API_URL)

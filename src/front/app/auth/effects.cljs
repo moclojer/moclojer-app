@@ -1,9 +1,9 @@
 (ns front.app.auth.effects
   (:require
    [front.app.auth.supabase :as supabase]
+   [front.app.utils :as utils]
    [promesa.core :as p]
-   [refx.alpha :refer [dispatch reg-fx]]
-   [front.app.utils :as utils]))
+   [refx.alpha :refer [dispatch reg-fx]]))
 
 (defn send-email [{:keys [body on-success on-failure]}]
   (.log js/console :sending-email)
