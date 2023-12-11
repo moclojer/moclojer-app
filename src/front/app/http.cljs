@@ -1,24 +1,22 @@
 (ns front.app.http
   (:require [lambdaisland.fetch :as fetch]
             [promesa.core :as p]
-            [refx.alpha :refer [dispatch reg-fx]]))
+            [refx.alpha :refer [dispatch reg-fx]]
+            [front.app.utils :as utils]))
 
 (goog-define API_URL "http://localhost:3000")
 (def api-url API_URL)
 
-(defn- js->cljs-key [obj]
-  (js->clj obj :keywordize-keys true))
-
 (defn- send-request!
-  [{:keys [url on-success on-failure headers] :as request} fn-request]
+  [{:keys [url on-success on-failure _] :as request} fn-request]
   (prn :url (str api-url url))
   (-> (fn-request (str api-url url) request)
       (.then (fn [{:keys [status] :as resp}]
                (if (>= status 400)
-                 (dispatch (conj on-failure (js->cljs-key resp)))
-                 (dispatch (conj on-success (js->cljs-key resp))))))
+                 (dispatch (conj on-failure (utils/js->cljs-key resp)))
+                 (dispatch (conj on-success (utils/js->cljs-key resp))))))
       (.catch (fn [resp]
-                (dispatch (conj on-failure (js->cljs-key resp)))))))
+                (dispatch (conj on-failure (utils/js->cljs-key resp)))))))
 
 (defn http-effect
   [fn-request]
