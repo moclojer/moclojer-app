@@ -1,17 +1,18 @@
 (ns front.app.auth.views
-  (:require [front.app.auth.supabase :as supabase]
-            [front.app.components.alerts :as alerts]
-            [front.app.components.button :refer [button]]
-            [front.app.components.loading :refer [loading-spinner]]
-            [front.app.components.navlink :refer [nav-link]]
-            [front.app.lib :refer [defnc]]
-            [front.app.utils :as utils]
-            [helix.core :refer [$]]
-            [helix.dom :as d]
-            [helix.hooks :as hooks]
-            [promesa.core :as p]
-            [refx.alpha :as refx]
-            [reitit.frontend.easy :as rfe]))
+  (:require
+   [front.app.auth.supabase :as supabase]
+   [front.app.components.alerts :as alerts]
+   [front.app.components.button :refer [button]]
+   [front.app.components.loading :refer [loading-spinner]]
+   [front.app.components.navlink :refer [nav-link]]
+   [front.app.lib :refer [defnc]]
+   [front.app.utils :as utils]
+   [helix.core :refer [$]]
+   [helix.dom :as d]
+   [helix.hooks :as hooks]
+   [promesa.core :as p]
+   [refx.alpha :as refx]
+   [reitit.frontend.easy :as rfe]))
 
 (defnc not-found-view []
   (d/div "404"))

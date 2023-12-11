@@ -1,5 +1,6 @@
 (ns back.api.adapters.customers
-  (:require [back.api.utils :refer [assoc-if]]))
+  (:require
+   [back.api.utils :refer [assoc-if]]))
 
 (defn ->wire
   [{:customer/keys [uuid email external_uuid username]}]
@@ -9,5 +10,3 @@
     :external-id external_uuid}
    (assoc-if
     :username username)))
-
-
