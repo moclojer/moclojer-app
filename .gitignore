@@ -38,3 +38,4 @@ resources/front/public/mockServiceWorker.js
 /src/gen
 
 .DS_Store
+.dir-locals.el
