@@ -1,5 +1,6 @@
 ;;shadow clj config
 {:deps {:aliases [:front-dev]}
+ :nrepl {:port 8777}
  :builds {:app {:target :browser
                 :output-dir "resources/front/public/assets/js"
                 :asset-path "/assets/js"
@@ -16,7 +17,7 @@
                 :release  {:modules {:core {:init-fn front.app.core/init}}
                            :closure-defines {front.app.core/DEBUG false
                                              front.app.http/API_URL "https://app.moclojer.com/api"
-                                             front.app.auth.supabase/SUPABASE "https://app.moclojer.com/auth/callback"}
+                                             front.app.auth.supabase/SUPABASE "https://app.moclojer.com/#/"}
                            :compiler-options {:optimizations :advanced
                                               :infer-externs :auto}}}
           :tests    {:target           :browser-test

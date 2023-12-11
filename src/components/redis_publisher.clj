@@ -18,7 +18,7 @@
 
   IPublisher
   (publish! [this queue-name message]
-    (logs/log :info :queue-name :massage message)
+    (logs/log :info :queue-name :message message)
     (logs/log :info :conn (:publish-conn this))
     (try (carmine/wcar (:publish-conn this)
                        queue-name

@@ -1,11 +1,10 @@
 (ns front.app.routes.core
-  (:require
-   [refx.alpha :as refx]
-   [reitit.coercion.schema :as rsc]
-   [reitit.frontend :as rf]
-   [reitit.frontend.easy :as rfe]
-   [goog.object :as gobj]
-   [reitit.frontend.history :refer [ignore-anchor-click?]]))
+  (:require [goog.object :as gobj]
+            [refx.alpha :as refx]
+            [reitit.coercion.schema :as rsc]
+            [reitit.frontend :as rf]
+            [reitit.frontend.easy :as rfe]
+            [reitit.frontend.history :refer [ignore-anchor-click?]]))
 
 (defn router [routes]
   (rf/router
@@ -28,7 +27,7 @@
   (rfe/start!
    (router routes)
    on-navigate
-   {:use-fragment false
+   {:use-fragment true
     :ignore-anchor-click? (fn [router e el uri]
                             (prn :calling router e el uri)
                            ;; Add additional check on top of the default checks

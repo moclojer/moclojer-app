@@ -1,18 +1,17 @@
 (ns front.app.auth.views
-  (:require
-   [front.app.auth.supabase :as supabase]
-   [front.app.components.alerts :as alerts]
-   [front.app.components.button :refer [button]]
-   [front.app.components.loading :refer [loading-spinner]]
-   [front.app.components.navlink :refer [nav-link]]
-   [front.app.lib :refer [defnc]]
-   [front.app.utils :as utils]
-   [helix.core :refer [$]]
-   [helix.dom :as d]
-   [helix.hooks :as hooks]
-   [promesa.core :as p]
-   [refx.alpha :as refx]
-   [reitit.frontend.easy :as rfe]))
+  (:require [front.app.auth.supabase :as supabase]
+            [front.app.components.alerts :as alerts]
+            [front.app.components.button :refer [button]]
+            [front.app.components.loading :refer [loading-spinner]]
+            [front.app.components.navlink :refer [nav-link]]
+            [front.app.lib :refer [defnc]]
+            [front.app.utils :as utils]
+            [helix.core :refer [$]]
+            [helix.dom :as d]
+            [helix.hooks :as hooks]
+            [promesa.core :as p]
+            [refx.alpha :as refx]
+            [reitit.frontend.easy :as rfe]))
 
 (defnc not-found-view []
   (d/div "404"))
@@ -83,7 +82,6 @@
                                           "if you don't have an account, it is created automatically"))))))))
 
 (defnc first-login [{:keys [sent? loading?]}]
-
   (let [username (refx/use-sub [:app.auth/username-to-save])
         available? (refx/use-sub [:app.auth/is-username-available?])]
     (d/div {:class-name "flex flex-col justify-center items-center px-6 pt-8 mx-auto md:h-screen pt:mt-0 dark:bg-gray-900"}
@@ -145,44 +143,6 @@
   (d/body {:class-name "bg-gray-50 dark:bg-gray-800"}
           (d/main {:class-name "bg-gray-50 dark:bg-gray-900"})
           children))
-
-(defnc callback-view []
-  (let [user (refx/use-sub [:app.auth/current-user])
-        loading? (refx/use-sub [:app.auth/login-loading])
-        [error error-res] (refx/use-sub [:app.auth/login-error])
-        sent? (refx/use-sub [:app.auth/username-sent])]
-
-    (hooks/use-effect
-     [error]
-     (when error
-       (rfe/push-state :app.core/login)))
-
-    (hooks/use-effect
-     [user]
-      ;; user session is not nil, redirect to dashboard
-     (when (and user
-                (not (nil? (-> user :user :valid-user)))
-                (-> user :user :username))
-       (do
-         (refx/dispatch-sync [:app.dashboard/get-mocks user])
-         (rfe/push-state :app.core/dashboard))))
-
-    (hooks/use-effect
-     :once
-     (let [auth (.-auth supabase/client)]
-       (-> (.getSession auth)
-           (p/then
-            (fn [resp]
-              (let [resp (-> (js->cljs-key resp) :data :session convert-keys)]
-                (refx/dispatch-sync
-                 [:app.auth/saving-user resp])))))))
-
-    (d/div
-     ($ container
-        ($ first-login {:sent? sent?
-                        :loading? loading?
-                        :error error
-                        :error-res error-res})))))
 
 (defnc login-view []
   (let [loading? (refx/use-sub [:app.auth/login-loading])
