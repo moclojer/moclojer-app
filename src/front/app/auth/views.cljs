@@ -1,31 +1,18 @@
 (ns front.app.auth.views
-  (:require [front.app.auth.supabase :as supabase]
-            [front.app.components.alerts :as alerts]
-            [front.app.components.button :refer [button]]
-            [front.app.components.loading :refer [loading-spinner]]
-            [front.app.components.navlink :refer [nav-link]]
-            [front.app.lib :refer [defnc]]
-            [helix.core :refer [$]]
-            [helix.dom :as d]
-            [helix.hooks :as hooks]
-            [promesa.core :as p]
-            [refx.alpha :as refx]
-            [reitit.frontend.easy :as rfe]))
-
-(defn replace-str [^String s]
-  (.replace s "_" "-"))
-
-(defn- convert-keys [obj]
-  (reduce-kv (fn [m k v]
-               (assoc m (-> k
-                            (name)
-                            (replace-str)
-                            keyword) v))
-             {}
-             obj))
-
-(defn- js->cljs-key [obj]
-  (js->clj obj :keywordize-keys true))
+  (:require
+   [front.app.auth.supabase :as supabase]
+   [front.app.components.alerts :as alerts]
+   [front.app.components.button :refer [button]]
+   [front.app.components.loading :refer [loading-spinner]]
+   [front.app.components.navlink :refer [nav-link]]
+   [front.app.lib :refer [defnc]]
+   [front.app.utils :as utils]
+   [helix.core :refer [$]]
+   [helix.dom :as d]
+   [helix.hooks :as hooks]
+   [promesa.core :as p]
+   [refx.alpha :as refx]
+   [reitit.frontend.easy :as rfe]))
 
 (defnc not-found-view []
   (d/div "404"))
@@ -210,5 +197,45 @@
                  :state state
                  :set-state set-state}))))
 
+(defnc auth-view []
+  (let [in-callback? (hooks/use-ref false)
+        user (refx/use-sub [:app.auth/current-user])
+        loading? (refx/use-sub [:app.auth/login-loading])
+        sent? (refx/use-sub [:app.auth/username-sent])
+        [error error-res] (refx/use-sub [:app.auth/login-error])]
+    (hooks/use-effect
+     :always
+     (reset! in-callback? (utils/check-in-callback?)))
 
+    (hooks/use-effect
+     [error]
+     (when error
+       (rfe/push-state :app.core/login)))
 
+    (hooks/use-effect
+     [user]
+     (when (every? some? [user
+                          (-> user :user :valid-user)
+                          (-> user :user :username)])
+       (refx/dispatch-sync [:app.dashboard/get-mocks user])
+       (rfe/push-state :app.core/dashboard)))
+
+    (hooks/use-effect
+     :always
+     (if @in-callback?
+       (-> (.. supabase/client -auth getSession)
+           (p/then
+            (fn [resp] (let [session (-> (utils/js->cljs-key resp)
+                                         (get-in [:data :session])
+                                         utils/convert-keys)]
+                         (refx/dispatch-sync [:app.auth/saving-user session]))))
+           (p/catch (fn [err] (refx/dispatch-sync [:app.auth/login-error err]))))
+       (when (nil? user)
+         (rfe/push-state :app.core/login))))
+
+    (d/div
+     ($ container
+        ($ first-login {:sent? sent?
+                        :loading? loading?
+                        :error error
+                        :error-res error-res})))))
