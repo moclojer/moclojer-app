@@ -5,15 +5,13 @@
    [clojure.string :as string]))
 
 (defn get-user-sub [auth secret]
-  (try
-    (let [token (second (string/split auth #" "))]
-      (jwt/unsign token secret {:alg :hs256}))
-    (catch Exception _ nil)))
+  (let [token (second (string/split auth #" "))]
+    (jwt/unsign token secret {:alg :hs256})))
 
 (defn throw-unauthorized
   ([] (throw-unauthorized "unauthorized"))
   ([body]
-   (throw (ex-info "unauthorized" {:status 401 :body body}))))
+   (throw (ex-info "Unauthorized" {:cause body}))))
 
 (defn extract-user-interceptor []
   {:enter
@@ -36,6 +34,8 @@
    ;; http://pedestal.io/pedestal/0.6/reference/error-handling.html
    :error
    (fn [ctx ex]
+     (prn :exception ex)
      (-> ctx
          (dissoc :error)
-         (assoc :response (:data ex))))})
+         (assoc :response {:status 401
+                           :body (-> ex .getData :cause)})))})
