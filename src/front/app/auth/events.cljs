@@ -62,7 +62,7 @@
              :headers {"authorization" (str "Bearer " access-token)}
              :body {:access-token access-token}
              :on-success [:app.auth/success-save]
-             :on-failure [:app.auth/falied-save-user]}
+             :on-failure [:app.auth/failed-save-user]}
       :db  (assoc db
                   :login-loading? true
                   :current-user session
@@ -77,7 +77,7 @@
            :body {:username username}
            :headers {"authorization" (str "Bearer " (-> db :current-user :access-token))}
            :on-success [:app.auth/username-saved]
-           :on-failure [:app.auth/falied-save-user]}
+           :on-failure [:app.auth/failed-save-user]}
     :db  (assoc db
                 :login-loading? true
                 :username-sent true
@@ -112,7 +112,7 @@
           :current-user current-user)))))
 
 (refx/reg-event-db
- :app.auth/falied-save-user
+ :app.auth/failed-save-user
  (fn
    [db error]
    (js/console.error error)
