@@ -14,7 +14,7 @@
    since Pedestal doesn't know how to transform a keyword
    to a writeable response message."
   [ex]
-  (let [cause (-> ex .getData :cause)]
+  (let [cause (-> ex ex-data :cause)]
     (if (or (keyword? cause) (nil? cause))
       (.getMessage ex)
       cause)))
@@ -37,7 +37,6 @@
    ;; http://pedestal.io/pedestal/0.6/reference/error-handling.html
    :error
    (fn [ctx ex]
-     (prn :exception ex)
      (-> ctx
          (dissoc :error)
          (assoc :response {:status 401
