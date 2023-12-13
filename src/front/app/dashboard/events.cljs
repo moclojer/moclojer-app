@@ -133,8 +133,7 @@
                      :content content}
               :on-success [:app.dashboard/get-mocks (-> db :current-user)]
               :on-failure [:app.dashboard/edit-mock-failed]}
-      :db (-> db
-              (assoc :loading-edit-mock true))})))
+      :db (assoc db :loading-edit-mock true)})))
 
 (refx/reg-event-fx
  :app.dashboard/edit-mock
@@ -149,15 +148,12 @@
          mocks (->> db :mocks-raw
                     (filter
                      (fn [{:keys [id]}]
-                       (prn id mock-id)
                        (not (= id mock-id)))))
          new-mocks (conj
                     mocks
                     mock)]
-
      {:dispatch [:app.dashboard/edit-mock-success {:body {:mocks new-mocks}}]
-      :db (-> db
-              (assoc :loading-edit-mock true))})))
+      :db (assoc db :loading-edit-mock true)})))
 
 (refx/reg-event-fx
  :app.dashboard/edit-mock-failed

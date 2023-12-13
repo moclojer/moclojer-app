@@ -1,30 +1,46 @@
 (ns front.app.dashboard.editor
-  (:require ["@codemirror/language" :as language]
-            ["@codemirror/legacy-modes/mode/yaml" :as yaml]
-            ["@uiw/react-codemirror" :as c]
-            [front.app.components.svg :as svg]
-            [front.app.dashboard.base :as base]
-            [front.app.lib :refer [defnc]]
-            [helix.core :refer [$]]
-            [helix.dom :as d]
-            [helix.hooks :as hooks]
-            [refx.alpha :as refx]))
+  (:require
+   ["@codemirror/language" :as language]
+   ["@codemirror/legacy-modes/mode/yaml" :as yaml]
+   ["@codemirror/lint" :as clint]
+   ["@uiw/react-codemirror" :as c]
+   ["js-yaml" :as parser]
+   [front.app.components.svg :as svg]
+   [front.app.dashboard.base :as base]
+   [front.app.lib :refer [defnc]]
+   [helix.core :refer [$]]
+   [helix.dom :as d]
+   [helix.hooks :as hooks]
+   [refx.alpha :as refx]))
 
-(defnc editor
-  [props]
+(defn yaml-linter [view]
+  (try
+    (.load parser (.. view -state -doc))
+    #js []
+    (catch :default err
+      (let [loc (.-mark err)
+            from (if loc (.-position loc) 1)
+            to ((fnil + 0) from (.. loc -snippet -length))]
+        #js [{:from from
+              :to to
+              :message (.-message err)
+              :severity "error"}]))))
+
+(defnc editor [props]
   (let [{:keys [data]} props
         {:keys [content id]} data
         ref-fn (hooks/use-callback [content]
-                 (fn [e]
-                   (js/console.log e)
-                   (refx/dispatch-sync [:app.dashboard/edit-mock {:mock-id id
-                                                                  :content e}])))]
+                                   (fn [e]
+                                     (.log js/console e)
+                                     (refx/dispatch-sync
+                                      [:app.dashboard/edit-mock {:mock-id id
+                                                                 :content e}])))]
     ($ c/default
        {:value  (if content content "")
         :height "400px"
-        :extensions #js [(.define language/StreamLanguage yaml/yaml)]
-        :onChange (fn [e]
-                    (ref-fn e))})))
+        :extensions #js [(.define language/StreamLanguage yaml/yaml)
+                         (clint/lintGutter) (clint/linter yaml-linter)]
+        :onChange (fn [e] (ref-fn e))})))
 
 (defnc drag-drop [{:keys [on-load]}]
   (d/div {:class-name "flex items-center justify-center w-full"}
