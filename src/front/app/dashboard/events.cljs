@@ -1,5 +1,6 @@
 (ns front.app.dashboard.events
   (:require
+   ["js-yaml" :as js-yaml]
    [refx.alpha :as refx]))
 
 (refx/reg-event-db
@@ -136,6 +137,30 @@
       :db (-> db
               (assoc :loading-edit-mock true))})))
 
+(defn inspect [a]
+  (prn :a a)
+  a)
+
+(refx/reg-event-fx
+ :app.dashboard/verify-mock
+ (fn [{db :db} [_ {:keys [new-mocks mock]}]]
+   (inspect
+    (try
+      (.load js-yaml (or (:content mock) ""))
+      {:dispatch [:app.dashboard/edit-mock-success {:body {:mocks new-mocks}}]}
+      (catch :default err
+        {:db (assoc db :mock-content-err {:reason (.-reason err)
+                                          :mark (js->clj (.-mark err)
+                                                         :keywordize-keys true)})})))))
+
+(refx/reg-event-fx
+ :app.dashboard/verify-mock-failed
+ (fn [{db :db} [_ err]]
+   (prn :eitaaaaa)
+   {:db (assoc db :mock-content-err {:reason (.-reason err)
+                                     :mark (js->clj (.-mark err)
+                                                    :keywordize-keys true)})}))
+
 (refx/reg-event-fx
  :app.dashboard/edit-mock
  (fn [{db :db} [_ {:keys [content mock-id]}]]
@@ -155,7 +180,8 @@
                     mocks
                     mock)]
 
-     {:dispatch [:app.dashboard/edit-mock-success {:body {:mocks new-mocks}}]
+     {:dispatch [:app.dashboard/verify-mock {:new-mocks new-mocks
+                                             :mock mock}]
       :db (-> db
               (assoc :loading-edit-mock true))})))
 
