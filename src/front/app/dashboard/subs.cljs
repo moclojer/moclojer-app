@@ -1,5 +1,6 @@
 (ns front.app.dashboard.subs
-  (:require [refx.alpha :as refx]))
+  (:require
+   [refx.alpha :as refx]))
 
 (defn conj-if [xs & ys]
   (reduce (fn [xs y]
@@ -40,6 +41,12 @@
  :app.dashboard/loading-creating-mock?
  (fn [db _]
    (:loading-creating-mock? db)))
+
+(refx/reg-sub
+ :app.dashboard/mock-content-err
+ (fn [db _]
+   (or (:mock-content-err db)
+       {})))
 
 (refx/reg-sub
  :app.dashboard/mock

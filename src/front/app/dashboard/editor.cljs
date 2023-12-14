@@ -1,30 +1,66 @@
 (ns front.app.dashboard.editor
-  (:require ["@codemirror/language" :as language]
-            ["@codemirror/legacy-modes/mode/yaml" :as yaml]
-            ["@uiw/react-codemirror" :as c]
-            [front.app.components.svg :as svg]
-            [front.app.dashboard.base :as base]
-            [front.app.lib :refer [defnc]]
-            [helix.core :refer [$]]
-            [helix.dom :as d]
-            [helix.hooks :as hooks]
-            [refx.alpha :as refx]))
+  (:require
+   ["@codemirror/language" :as language]
+   ["@codemirror/legacy-modes/mode/yaml" :as yaml]
+   ["@codemirror/state" :as cm-state]
+   ["@codemirror/view" :as cm-view]
+   ["@uiw/codemirror-theme-github" :as theme]
+   ["@uiw/react-codemirror" :as c]
+   [front.app.components.svg :as svg]
+   [front.app.dashboard.base :as base]
+   [front.app.lib :refer [defnc]]
+   [helix.core :refer [$]]
+   [helix.dom :as d]
+   [helix.hooks :as hooks]
+   [refx.alpha :as refx]))
 
-(defnc editor
-  [props]
+;; ref: https://codemirror.net/examples/decoration/
+(def add-underline
+  (.define cm-state/StateEffect
+           {:map (fn [{:keys [from to]} change]
+                   #js {:from (js-invoke change "mapPos" from)
+                        :to (js-invoke change "mapPos" to)})}))
+
+(def underline-mark (.mark cm-view/Decoration #js {:class "cm-underline"}))
+
+(.log js/console underline-mark)
+
+(defn update-underlines [underlines tr]
+  (let [effects (filter #(.is % add-underline) (.-effects tr))]
+    (->> underlines
+         (map (.-changes tr))
+         (reduce #(.update %1 #js {:add [(.range underline-mark
+                                                 (.. %2 -value -from)
+                                                 (.. %2 -value -to))]})
+                 effects))))
+
+(def underline-field
+  (.define cm-state/StateField
+           #js {:create #(.-none cm-view/Decoration)
+                :update update-underlines
+                :provide #(.from (.-decorations cm-view/EditorView) %)}))
+
+(.baseTheme cm-view/EditorView
+            (clj->js {:.cm-underline
+                      {:textDecoration "underline 3px red"}}))
+
+(defnc editor [props]
   (let [{:keys [data]} props
         {:keys [content id]} data
-        ref-fn (hooks/use-callback [content]
-                 (fn [e]
-                   (js/console.log e)
-                   (refx/dispatch-sync [:app.dashboard/edit-mock {:mock-id id
-                                                                  :content e}])))]
+        ref-fn (hooks/use-callback
+                [content]
+                (fn [content]
+                  (refx/dispatch-sync
+                   [:app.dashboard/edit-mock {:mock-id id
+                                              :content content}])))]
     ($ c/default
-       {:value  (if content content "")
+       {:autoFocus true
+        :value (or content "")
         :height "400px"
+        :theme theme/githubLight
         :extensions #js [(.define language/StreamLanguage yaml/yaml)]
-        :onChange (fn [e]
-                    (ref-fn e))})))
+        :onChange (fn [e] (ref-fn e))
+        :mode "yaml"})))
 
 (defnc drag-drop [{:keys [on-load]}]
   (d/div {:class-name "flex items-center justify-center w-full"}
@@ -101,5 +137,3 @@
                       (d/div {:class-name "w-full justify-start items-center inline-flex"}
                              (d/div {:class-name "grow shrink basis-0 h-px bg-gray-200"}))))
         ($ editor {:data data})))))
-
-
