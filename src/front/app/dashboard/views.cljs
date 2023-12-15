@@ -20,18 +20,17 @@
                            (d/div {:class-name "text-base font-semibold text-gray-900 truncate dark:text-white"}
                                   "Avelino")
                            (d/div {:class-name "text-sm text-gray-500 text-normal dark:text-gray-400"}
-                                  "avelino@cljazz.co")))
+                                  (d/i "avelino@moclojer.com"))))
              (d/h1 {:class-name "mb-4 text-2xl font-bold text-gray-900 dark:text-white"}
-                   "Welcome to moclojer SaaS beta")
-             (d/div {:class-name "space-y-2"}
+                   "Welcome to moclojer beta")
+             (d/div {:class-name "space-y-1"}
                     (d/p {:class-name "text-base font-normal text-gray-500 dark:text-gray-400"}
-                         "Moclojer is an open source project developed by the company cljazz (with input from the Clojure community)." (d/br)
                          "I'm happy to have you here, we are launching the SaaS version of moclojer, seeking to make it simple for you to put a mock API in the air to develop your projects." (d/br))
                     (d/p {:class-name "text-base font-normal text-gray-500 dark:text-gray-400"}
                          "I look forward to your feedback (this is the only way we can improve the product).")
 
-                    (d/p {:class-name "text-base font-normal text-gray-500 dark:text-gray-400"}
+                    (d/p {:class-name "p-2 text-base font-normal text-gray-500 dark:text-gray-400"}
                          "Best Regards,"
                          (d/br)
-                         "Avelino Founder Team"))))))
+                         (d/i "Avelino Founder Team")))))))
 
