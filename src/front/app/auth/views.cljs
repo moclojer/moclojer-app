@@ -26,7 +26,7 @@
                        (d/img {:src "/images/authentication/login.svg" :class-name "rounded-l-lg"}))
                 (if sent?
                   (d/div {:id "login-email-sent"
-                          :class-name ""}
+                          :class-name "p-6 space-y-8 w-full sm:p-8 lg:p-16 lg:py-0"}
                          (d/h2
                           {:class-name "font-semibold text-gray-900"}
                           "Check your email, and click on the link.")
