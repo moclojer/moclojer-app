@@ -1,9 +1,7 @@
 (ns front.app.dashboard.editor
   (:require
-   ["@codemirror/language" :as language]
-   ["@codemirror/legacy-modes/mode/yaml" :as yaml]
-   ["@codemirror/state" :as cm-state]
-   ["@codemirror/view" :as cm-view]
+   ["/js/codemirror" :as cm]
+   ["@codemirror/lint" :as clint]
    ["@uiw/codemirror-theme-github" :as theme]
    ["@uiw/react-codemirror" :as c]
    [front.app.components.svg :as svg]
@@ -14,52 +12,23 @@
    [helix.hooks :as hooks]
    [refx.alpha :as refx]))
 
-;; ref: https://codemirror.net/examples/decoration/
-(def add-underline
-  (.define cm-state/StateEffect
-           {:map (fn [{:keys [from to]} change]
-                   #js {:from (js-invoke change "mapPos" from)
-                        :to (js-invoke change "mapPos" to)})}))
-
-(def underline-mark (.mark cm-view/Decoration #js {:class "cm-underline"}))
-
-(.log js/console underline-mark)
-
-(defn update-underlines [underlines tr]
-  (let [effects (filter #(.is % add-underline) (.-effects tr))]
-    (->> underlines
-         (map (.-changes tr))
-         (reduce #(.update %1 #js {:add [(.range underline-mark
-                                                 (.. %2 -value -from)
-                                                 (.. %2 -value -to))]})
-                 effects))))
-
-(def underline-field
-  (.define cm-state/StateField
-           #js {:create #(.-none cm-view/Decoration)
-                :update update-underlines
-                :provide #(.from (.-decorations cm-view/EditorView) %)}))
-
-(.baseTheme cm-view/EditorView
-            (clj->js {:.cm-underline
-                      {:textDecoration "underline 3px red"}}))
-
 (defnc editor [props]
   (let [{:keys [data]} props
         {:keys [content id]} data
         ref-fn (hooks/use-callback
                 [content]
-                (fn [content]
+                (fn [content cm-ref]
                   (refx/dispatch-sync
                    [:app.dashboard/edit-mock {:mock-id id
-                                              :content content}])))]
+                                              :content content
+                                              :cm-ref cm-ref}])))]
     ($ c/default
        {:autoFocus true
         :value (or content "")
         :height "400px"
         :theme theme/githubLight
-        :extensions #js [(.define language/StreamLanguage yaml/yaml)]
-        :onChange (fn [e] (ref-fn e))
+        :extensions #js [cm/yamlExtension (clint/lintGutter) cm/yamlLinter]
+        :onChange (partial ref-fn)
         :mode "yaml"})))
 
 (defnc drag-drop [{:keys [on-load]}]
