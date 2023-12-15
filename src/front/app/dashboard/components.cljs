@@ -188,9 +188,11 @@
                                                                 (if (= mock-type :personal)
                                                                   ($ svg/personal-mock)
                                                                   ($ svg/org-mock)))
-                                                              (if is-sidebar-toogle?
-                                                                (d/span (first wildcard))
-                                                                (d/span {:class-name "flex-1 ml-3 text-left whitespace-nowrap"} wildcard))))))))
+                                                              (d/a {:href ""
+                                                                    :on-click (fn [_] (rfe/push-state :app.core/mocks-view {:mock-id (:key wildcard)}))}
+                                                                   (if is-sidebar-toogle?
+                                                                     (d/span (first wildcard))
+                                                                     (d/span {:class-name "flex-1 ml-3 text-left whitespace-nowrap"} wildcard)))))))))
 
                                          (d/div {:class-name "pt-2 space-y-2"}
                                                 (d/a {:href ""
