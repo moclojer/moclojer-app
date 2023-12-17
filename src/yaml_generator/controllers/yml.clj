@@ -1,18 +1,10 @@
 (ns yaml-generator.controllers.yml
-<<<<<<< HEAD
   (:require
    [clojure.java.io :as io]
    [components.logs :as logs]
    [components.storage :as storage]
    [yaml-generator.logic.yml :as logic.yml]
    [yaml-generator.ports.producers :as ports.producers]))
-=======
-  (:require [clojure.java.io :as io]
-            [components.logs :as logs]
-            [components.storage :as storage]
-            [yaml-generator.logic.yml :as logic.yml]
-            [yaml-generator.ports.producers :as ports.producers]))
->>>>>>> 1dbc6c2 (add: publish and start moclojer)
 
 (defn gen-path [user-id id]
   (str user-id "/" id "/mock.yml"))
