@@ -1,4 +1,4 @@
-(ns dev.yaml-generator.dev
+(ns dev.yaml-generator.dev-workers
   (:require [com.stuartsierra.component :as component]
             [components.config :as config]
             [components.database :as database]
@@ -22,7 +22,7 @@
    :publisher (component/using (redis-publisher/new-redis-publisher) [:config])
    :database (component/using (database/new-database) [:config])
    :workers (component/using
-             (redis-queue/new-redis-queue p.workers/workers) [:config :database :storage])
+             (redis-queue/new-redis-queue p.workers/workers) [:config :database :storage :publisher])
    :storage (component/using
              (storage/new-storage) [:config])))
 
@@ -44,11 +44,9 @@
   (pg-emb/halt-pg!))
 
 ;;invoke start system 
-(start-system-dev! system-map)
 
 (comment
 
-  (stop-system-dev!)
   (start-system-dev! system-map)
 
 ;;invoke stop system 

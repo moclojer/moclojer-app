@@ -41,3 +41,10 @@
                     (Thread. ^Runnable stop-system!))
   (start-system! (build-system-map)))
 
+
+(comment 
+  (start-system! (build-system-map))
+  (stop-system!)
+  ;
+  )
+

@@ -1,7 +1,7 @@
 (ns back.integration.yaml-generator.yaml-unified-mock-test
   (:require [back.api.routes :as routes]
             [back.integration.components.utils :as utils]
-            [clj-yaml.core :as yaml]
+            [yaml.core :as yaml]
             [clojure.java.io :as io]
             [com.stuartsierra.component :as component]
             [components.config :as config]

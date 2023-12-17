@@ -9,4 +9,14 @@
     (let [_ (redis-publisher/publish! publisher :mock.unified {:event {:path path}})]
       path)
     (catch Exception e
+      (logs/log :error e)
       (logs/log :error :publish-mock-error e))))
+
+(defn restart-mock!
+  [publisher]
+  (try
+    (let [_ (redis-publisher/publish! publisher :restart.mocks
+                                      {:event {:path "moclojer.yml"}})])
+    (catch Exception e
+      (logs/log :error :publish-mock-restart-error e))))
+

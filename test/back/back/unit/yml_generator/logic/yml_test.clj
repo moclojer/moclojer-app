@@ -1,5 +1,5 @@
 (ns back.unit.yml-generator.logic.yml-test
-  (:require [clj-yaml.core :as yaml]
+  (:require [yaml.core :as yaml]
             [clojure.test :refer [deftest is testing]]
             [state-flow.assertions.matcher-combinators :refer [match?]]
             [yaml-generator.logic.yml :as logic.yml]))

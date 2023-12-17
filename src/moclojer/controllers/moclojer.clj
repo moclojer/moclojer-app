@@ -1,17 +1,20 @@
 (ns moclojer.controllers.moclojer
-  (:require [clj-yaml.core :as yaml]
-            [clojure.java.io :as io]
-            [components.storage :as storage]))
+  (:require [clojure.java.io :as io]
+            [components.logs :as logs]
+            [components.storage :as storage]
+            [yaml.core :as yaml]))
 
-(defn write-on-disk [mock]
-  (spit "resources/moclojer.yml" mock))
+(defn write-on-disk [storage]
+  (let [string-mock (storage/get-file storage "moclojer" "moclojer.yml")]
+    (logs/log :info :moclojer :found string-mock)
+    (when string-mock
+      (->>
+       (slurp
+        (io/reader string-mock))
+       (yaml/parse-string)
+       (spit "resources/moclojer.yml")))))
 
 (defn write-file-on-disk
   [{:keys [_event]}
    {:keys [storage]}]
-  (let [mock (slurp
-              (io/reader
-               (storage/get-file storage "moclojer" "moclojer.yml")))]
-    (when mock
-      (-> (yaml/parse-string mock)
-          (write-on-disk)))))
+  (write-on-disk storage))
