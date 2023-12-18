@@ -61,5 +61,7 @@
                ffirst)]
      apis)))
 
-
-
+(refx/reg-sub
+ :app.dashboard/mock-valid?
+ (fn [db _]
+   (:mock-valid? db)))
