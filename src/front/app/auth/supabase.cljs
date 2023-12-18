@@ -21,7 +21,10 @@
         "yZ3NkZHhvdXhtdWdzIiwicm9sZSI6ImFub24iLCJ"
         "pYXQiOjE2ODE1MDM0NDMsImV4cCI6MTk5NzA3OTQ"
         "0M30.7pq4MM_ZldiWvOk_cnQuxlvUF8eFcxlPDB7"
-        "jMTNMYb0")))
+        "jMTNMYb0")
+   (clj->js {:auth {:authoRefreshToken true
+                    :persistSession true
+                    :detectSessionInUrl true}})))
 
 (defn signin-with-email [^js client email]
   (let [auth (.-auth client)
