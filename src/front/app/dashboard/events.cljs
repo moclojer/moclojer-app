@@ -1,7 +1,6 @@
 (ns front.app.dashboard.events
   (:require
    ["js-yaml" :as js-yaml]
-   [front.app.dashboard.codemirror :as cm]
    [refx.alpha :as refx]))
 
 (refx/reg-event-db
@@ -140,12 +139,13 @@
 
 (refx/reg-event-fx
  :app.dashboard/verify-mock
- (fn [_ [_ {:keys [new-mocks mock cm-ref]}]]
-   (try
-     (.load js-yaml (or (:content mock) ""))
-     (catch :default err
-       (cm/apply-err-underline err cm-ref)))
-   {:dispatch [:app.dashboard/edit-mock-success {:body {:mocks new-mocks}}]}))
+ (fn [{db :db} [_ {:keys [new-mocks mock]}]]
+   (let [content (or (:content mock) "")
+         valid? (try
+                  (.load js-yaml content) true
+                  (catch :default _ false))]
+     {:db (assoc db :mock-valid? valid?)
+      :dispatch [:app.dashboard/edit-mock-success {:body {:mocks new-mocks}}]})))
 
 (refx/reg-event-fx
  :app.dashboard/verify-mock-failed
@@ -156,7 +156,7 @@
 
 (refx/reg-event-fx
  :app.dashboard/edit-mock
- (fn [{db :db} [_ {:keys [content mock-id cm-ref]}]]
+ (fn [{db :db} [_ {:keys [content mock-id]}]]
    (let [mock-raw (-> db :mocks-raw)
          mock (assoc (->> mock-raw
                           (filter
@@ -174,8 +174,7 @@
                     mock)]
 
      {:dispatch [:app.dashboard/verify-mock {:new-mocks new-mocks
-                                             :mock mock
-                                             :cm-ref cm-ref}]
+                                             :mock mock}]
       :db (-> db
               (assoc :loading-edit-mock true))})))
 

@@ -1,7 +1,7 @@
 (ns front.app.dashboard.editor
   (:require
-   ["/js/codemirror" :as cm]
-   ["@codemirror/lint" :as clint]
+   ["@codemirror/language" :as language]
+   ["@codemirror/legacy-modes/mode/yaml" :as yaml]
    ["@uiw/codemirror-theme-github" :as theme]
    ["@uiw/react-codemirror" :as c]
    [front.app.components.svg :as svg]
@@ -17,17 +17,16 @@
         {:keys [content id]} data
         ref-fn (hooks/use-callback
                 [content]
-                (fn [content cm-ref]
+                (fn [content]
                   (refx/dispatch-sync
                    [:app.dashboard/edit-mock {:mock-id id
-                                              :content content
-                                              :cm-ref cm-ref}])))]
+                                              :content content}])))]
     ($ c/default
        {:autoFocus true
         :value (or content "")
         :height "400px"
         :theme theme/githubLight
-        :extensions #js [cm/yamlExtension (clint/lintGutter) cm/yamlLinter]
+        :extensions #js [(.define language/StreamLanguage yaml/yaml)]
         :onChange (partial ref-fn)
         :mode "yaml"})))
 
@@ -62,6 +61,15 @@
                                    (set! (.-onload reader) on-load)
                                    (.readAsText reader file)))}))))
 
+(defnc save-button [{:keys [mock-id]}]
+  (let [mock-valid? (refx/use-sub [:app.dashboard/mock-valid?])]
+    (d/button
+     {:class-name (str "px-3 py-2 bg-pink-600 rounded-lg justify-end items-center gap-2 flex btn-add"
+                       (when-not mock-valid? " opacity-50 cursor-not-allowed"))
+      :on-click (fn [_] (when mock-valid? (refx/dispatch [:app.dashboard/save-mock mock-id])))}
+     (d/div {:class-name "text-white text-xs font-bold leading-[18px]"} " save")
+     ($ svg/save))))
+
 (defnc index [{:keys [route]}]
   (let [on-load (fn [e fnstate]
                   (let [f (-> e .-target .-result)]
@@ -91,10 +99,7 @@
                                        (d/div {:class-name "text-gray-800 text-sm font-medium leading-[21px]"} "remove")
                                        ($ svg/trash))
 
-                             (d/button {:class-name "px-3 py-2 bg-pink-600 rounded-lg justify-end items-center gap-2 flex btn-add"
-                                        :on-click (fn [_] (refx/dispatch [:app.dashboard/save-mock mock-id]))}
-                                       (d/div {:class-name "text-white text-xs font-bold leading-[18px] "} " save")
-                                       ($ svg/save))))
+                             ($ save-button mock-id)))
                (d/div {}
                       ($ drag-drop
                          {:on-load (fn [e]
