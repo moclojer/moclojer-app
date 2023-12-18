@@ -43,12 +43,6 @@
    (:loading-creating-mock? db)))
 
 (refx/reg-sub
- :app.dashboard/mock-content-err
- (fn [db _]
-   (or (:mock-content-err db)
-       {})))
-
-(refx/reg-sub
  :app.dashboard/mock
  (fn [db [_ id]]
    (let [mocks (-> db :mocks)
