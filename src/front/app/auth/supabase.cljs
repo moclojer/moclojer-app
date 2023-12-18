@@ -22,7 +22,7 @@
         "pYXQiOjE2ODE1MDM0NDMsImV4cCI6MTk5NzA3OTQ"
         "0M30.7pq4MM_ZldiWvOk_cnQuxlvUF8eFcxlPDB7"
         "jMTNMYb0")
-   (clj->js {:auth {:authoRefreshToken true
+   (clj->js {:auth {:autoRefreshToken true
                     :persistSession true
                     :detectSessionInUrl true}})))
 
