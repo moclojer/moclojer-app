@@ -159,15 +159,10 @@
                  :set-state set-state}))))
 
 (defnc auth-view []
-  (let [in-callback? (hooks/use-ref false)
-        user (refx/use-sub [:app.auth/current-user])
+  (let [user (refx/use-sub [:app.auth/current-user])
         loading? (refx/use-sub [:app.auth/login-loading])
         sent? (refx/use-sub [:app.auth/username-sent])
         [error error-res] (refx/use-sub [:app.auth/login-error])]
-    (hooks/use-effect
-     :always
-     (reset! in-callback? (utils/check-in-callback?)))
-
     (hooks/use-effect
      [error]
      (when error
@@ -182,21 +177,23 @@
        (rfe/push-state :app.core/dashboard)))
 
     (hooks/use-effect
-     :always
-     (if @in-callback?
-       (-> (.. supabase/client -auth getSession)
-           (p/then
-            (fn [resp] (let [session (-> (utils/js->cljs-key resp)
-                                         (get-in [:data :session])
-                                         utils/convert-keys)]
-                         (refx/dispatch-sync [:app.auth/saving-user session]))))
-           (p/catch (fn [err] (refx/dispatch-sync [:app.auth/login-error err]))))
-       (when (nil? user)
-         (rfe/push-state :app.core/login))))
+     :once
+     (-> (.. supabase/client -auth getSession)
+         (p/then
+          (fn [resp] (let [session (-> (utils/js->cljs-key resp)
+                                       (get-in [:data :session])
+                                       utils/convert-keys)]
+                       (if (and (some? session)
+                                (not= session {}))
+                         (refx/dispatch-sync [:app.auth/saving-user session])
+                         (rfe/push-state :app.core/login)))))
+         (p/catch (fn [err] (refx/dispatch-sync [:app.auth/login-error err])))))
 
-    (d/div
-     ($ container
-        ($ first-login {:sent? sent?
-                        :loading? loading?
-                        :error error
-                        :error-res error-res})))))
+    (when (and (some? user)
+               (nil? (-> user :user :username)))
+      (d/div
+       ($ container
+          ($ first-login {:sent? sent?
+                          :loading? loading?
+                          :error error
+                          :error-res error-res}))))))
