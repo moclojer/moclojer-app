@@ -31,7 +31,6 @@
                       controllers.user/get-user-by-id)
         user (get-user-fn id database)
         valid-user? (uuid? (:customer/uuid user))]
-    (prn :user user)
     (if valid-user?
       {:status 200
        :body {:user (adapters.customers/->wire user)}}
