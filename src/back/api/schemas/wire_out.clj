@@ -1,7 +1,7 @@
 (ns back.api.schemas.wire-out)
 
-(def UsernameAvailable 
-  [:map 
+(def UsernameAvailable
+  [:map
    [:available boolean?]])
 
 (def User

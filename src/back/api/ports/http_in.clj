@@ -1,8 +1,9 @@
 (ns back.api.ports.http-in
-  (:require [back.api.adapters.customers :as adapter.customers]
-            [back.api.controllers.login :as controllers.login]
-            [back.api.controllers.user :as controllers.user]
-            [back.api.controllers.mocks :as controllers.mocks]))
+  (:require
+   [back.api.adapters.customers :as adapters.customers]
+   [back.api.controllers.login :as controllers.login]
+   [back.api.controllers.mocks :as controllers.mocks]
+   [back.api.controllers.user :as controllers.user]))
 
 (defn handler-create-user!
   [{{{:keys [access-token]} :body} :parameters
@@ -21,12 +22,20 @@
     {:status 200
      :body {:user user}}))
 
-(defn get-user-by-id
-  [{{{:keys [id]} :path} :parameters
+(defn handler-get-user
+  [{{{:keys [id]} :path
+     {:keys [external]} :query} :parameters
     {:keys [database]} :components}]
-  (let [user (controllers.user/get-user-by-id id database)]
-    {:status 200
-     :body {:user (adapter.customers/->wire user)}}))
+  (let [get-user-fn (if external
+                      controllers.user/get-user-by-external-id
+                      controllers.user/get-user-by-id)
+        user (get-user-fn id database)
+        valid-user? (uuid? (:customer/uuid user))]
+    (prn :user user)
+    (if valid-user?
+      {:status 200
+       :body {:user (adapters.customers/->wire user)}}
+      {:status 404})))
 
 ;; TODO: Create an interceptor to get customer-id and org-id from cookies
 ;; TODO: Get customer-id and org-id from interceptor
