@@ -1,7 +1,8 @@
 (ns back.api.controllers.user
-  (:require [back.api.adapters.customers :as adapter.customers]
-            [back.api.db.customers :as db.customers]
-            [back.api.logic.customers :as logic.customers]))
+  (:require
+   [back.api.adapters.customers :as adapter.customers]
+   [back.api.db.customers :as db.customers]
+   [back.api.logic.customers :as logic.customers]))
 
 (defn username-available?
   [username database]
@@ -14,6 +15,12 @@
 (defn get-user-by-id
   [id database]
   (let [user (db.customers/get-by-id
+              id database)]
+    user))
+
+(defn get-user-by-external-id
+  [id database]
+  (let [user (db.customers/get-by-external-id
               id database)]
     user))
 

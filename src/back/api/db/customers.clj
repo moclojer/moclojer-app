@@ -47,7 +47,6 @@
            sql/format))
       first))
 
-
 (defn get-by-username [username db]
   (-> (database/execute
        db

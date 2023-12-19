@@ -1,10 +1,11 @@
 (ns back.api.routes
-  (:require [back.api.healthcheck :as healthcheck]
-            [back.api.interceptors.extract-user :refer [extract-user-interceptor]]
-            [back.api.ports.http-in :as ports.http-in]
-            [back.api.schemas.wire-in :as schemas.wire-in]
-            [back.api.schemas.wire-out :as schemas.wire-out]
-            [reitit.swagger :as swagger]))
+  (:require
+   [back.api.healthcheck :as healthcheck]
+   [back.api.interceptors.extract-user :refer [extract-user-interceptor]]
+   [back.api.ports.http-in :as ports.http-in]
+   [back.api.schemas.wire-in :as schemas.wire-in]
+   [back.api.schemas.wire-out :as schemas.wire-out]
+   [reitit.swagger :as swagger]))
 
 (def routes
   [["/swagger.json"
@@ -41,10 +42,12 @@
             :responses {200 {:body {:user schemas.wire-out/User}}}
             :handler ports.http-in/edit-user!}
      :get {:summary "Retrieve user"
-           :parameters {:path {:id uuid?}}
+           :parameters {:path {:id uuid?}
+                        :query {:external boolean?}}
            :interceptors [(extract-user-interceptor)]
-           :responses {200 {:body {:user schemas.wire-out/User}}}
-           :handler ports.http-in/get-user-by-id}}]
+           :responses {200 {:body {:user schemas.wire-out/User}}
+                       400 {}}
+           :handler ports.http-in/handler-get-user}}]
 
    ["/user/username/:username"
     {:swagger {:tags ["get username"]}
