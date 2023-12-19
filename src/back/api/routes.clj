@@ -2,6 +2,7 @@
   (:require
    [back.api.healthcheck :as healthcheck]
    [back.api.interceptors.extract-user :refer [extract-user-interceptor]]
+   [back.api.interceptors.extract-uuid-origin :refer [extract-uuid-origin]]
    [back.api.ports.http-in :as ports.http-in]
    [back.api.schemas.wire-in :as schemas.wire-in]
    [back.api.schemas.wire-out :as schemas.wire-out]
@@ -36,7 +37,8 @@
    ["/user/:id"
     {:swagger {:tags ["login"]}
      :post {:summary "Update user"
-            :interceptors [(extract-user-interceptor)]
+            :interceptors [(extract-user-interceptor)
+                           (extract-uuid-origin)]
             :parameters {:path {:id uuid?}
                          :body {:username string?}}
             :responses {200 {:body {:user schemas.wire-out/User}}}
