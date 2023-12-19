@@ -8,8 +8,7 @@
            :protocol #profile {:dev :http
                                :default :http
                                :prod :https}
-           :port #profile {:default 4566
-                           :dev 4566}
+           :port #profile {:dev 4566}
            :host #profile {:dev "localhost"
                            :default "localhost"
                            :prod "sfo3.digitaloceanspaces.com"}}
