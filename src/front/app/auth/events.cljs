@@ -53,6 +53,37 @@
                :username-available? false)}))
 
 (refx/reg-event-fx
+ :app.auth/user-exists?
+ (fn [_ [_ access-token]]
+   {:http {:url "/user-external"
+           :method :get
+           :headers {"authorization" (str "Bearer " access-token)}
+           :on-success [:app.auth/user-exists]
+           :on-failure [:app.auth/user-does-not-exist]}}))
+
+(refx/reg-event-db
+ :app.auth/user-exists
+ (fn [db [_ {:keys [body]}]]
+   (let [resp-user (:user body)
+         inner-user {:valid-user true
+                     :user-id (:uuid resp-user)
+                     :username (:username resp-user)}
+         old-user (:current-user db)
+         current-user (assoc old-user :user (merge (:user old-user) inner-user))]
+     (set-current-user-cookie! current-user)
+     (assoc db
+            :user-exists? true
+            :current-user current-user))))
+
+(refx/reg-event-db
+ :app.auth/user-does-not-exist
+ (fn [db _]
+   (auth.db/remove-cookie "current-user")
+   (assoc db
+          :user-exists? false
+          :current-user nil)))
+
+(refx/reg-event-fx
  :app.auth/saving-user
  (fn
    [{db :db} [_ session]]
@@ -166,10 +197,11 @@
  (fn
    [{db :db} _]
    (auth.db/remove-cookie "current-user")
-   {:db (-> db
-            (assoc :current-user nil)
-            (assoc :login-loading? false)
-            (assoc :login-error nil))}))
+   {:db (assoc db
+               :user-exists? false
+               :current-user nil
+               :login-loading? false
+               :login-error nil)}))
 
 (refx/reg-event-db
  :app.auth/error

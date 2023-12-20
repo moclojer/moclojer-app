@@ -35,3 +35,8 @@
  :app.auth/username-to-save
  (fn [db]
    (:username-to-save db)))
+
+(refx/reg-sub
+ :app.auth/user-exists?
+ (fn [db]
+   (:user-exists? db)))
