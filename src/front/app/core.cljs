@@ -42,34 +42,6 @@
  (fn [db]
    db))
 
-(defnc routing []
-  (let [user (refx/use-sub [:app.auth/current-user])
-        current-route (refx/use-sub [:app.routes/current-route])
-        route-data (:data current-route)
-        is-public? (:public? route-data)
-        view (:view route-data)]
-
-    (prn "current-route" current-route)
-    ;;#todo this is a hack to match routing properly, need to figure out
-    ;; the navigation logic better
-
-    (if
-     (or
-      user
-      current-route
-      (not= (:name route-data)
-            :app.core/login))
-      (if (and is-public?
-               (not (-> user :user :valid-user)))
-        ($ view {:route current-route})
-        (do
-          (refx/dispatch-sync [:app.dashboard/get-mocks user])
-          (if (not (= (-> route-data :name)
-                      :app.core/login))
-            ($ view {:route current-route})
-            (rfe/push-state :app.core/dashboard))))
-      (rfe/push-state :app.core/login))))
-
 (defnc route-handler []
   (let [current-route (refx/use-sub [:app.routes/current-route])
         current-user (refx/use-sub [:app.auth/current-user])
@@ -116,11 +88,8 @@
       (when (and (some? view) accessible-route?)
         ($ view {:route current-route})))))
 
-(prn "hello")
-
 (defnc app []
   (d/div
-   #_($ routing)
    ($ route-handler)
    (when debug
      ($ footer-component))))
