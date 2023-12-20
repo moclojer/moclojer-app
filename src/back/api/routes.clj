@@ -47,10 +47,13 @@
                        404 {}}
            :handler ports.http-in/handler-get-user}}]
 
-   ["/user/external/:id"
+   ;; not using /user/external so it doesn't conflict with
+   ;; /user/:id. Since the only customer data a user can retrieve
+   ;; using an external id, is themselves, for security reasons.
+   ;; Any other operation should be done using the /user/:id route.
+   ["/user-external"
     {:swagger {:tags ["login"]}
      :get {:summary "Retrieve user by external id"
-           :parameters {:path {:id uuid?}}
            :interceptors [(extract-user-interceptor)]
            :responses {200 {:body {:user schemas.wire-out/User}}
                        404 {}}
