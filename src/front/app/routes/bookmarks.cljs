@@ -8,7 +8,11 @@
   [""
    ["/"
     {:name :app.core/auth
-     :view auth/auth-view
+     :public? true}]
+
+   ["/first-login"
+    {:name :app.core/first-login
+     :view auth/first-login-view
      :public? true}]
 
    ["/login"

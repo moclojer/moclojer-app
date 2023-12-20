@@ -145,6 +145,17 @@
           (d/main {:class-name "bg-gray-50 dark:bg-gray-900"})
           children))
 
+(defnc first-login-view []
+  (let [loading? (refx/use-sub [:app.auth/login-loading])
+        sent? (refx/use-sub [:app.auth/username-sent])
+        [error error-res] (refx/use-sub [:app.auth/login-error])]
+    (d/div
+     ($ container
+        ($ first-login {:sent? sent?
+                        :loading? loading?
+                        :error error
+                        :error-res error-res})))))
+
 (defnc login-view []
   (let [loading? (refx/use-sub [:app.auth/login-loading])
         [error error-res] (refx/use-sub [:app.auth/login-error])
