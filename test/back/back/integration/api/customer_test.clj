@@ -1,20 +1,21 @@
 (ns back.integration.api.customer-test
-  (:require [back.api.db.customers :as db.customers]
-            [back.api.routes :as routes]
-            [components.config :as config]
-            [components.database :as database]
-            [components.http :as http]
-            [components.router :as router]
-            [components.webserver :as webserver]
-            [back.integration.api.helpers :as helpers]
-            [back.integration.components.utils :as utils]
-            [com.stuartsierra.component :as component]
-            [matcher-combinators.matchers :as matchers]
-            [state-flow.api :refer [defflow] :as flow]
-            [state-flow.assertions.matcher-combinators :refer [match?]]
-            [state-flow.cljtest]
-            [state-flow.core :refer [flow]]
-            [state-flow.state :as state]))
+  (:require
+   [back.api.db.customers :as db.customers]
+   [back.api.routes :as routes]
+   [back.integration.api.helpers :as helpers]
+   [back.integration.components.utils :as utils]
+   [com.stuartsierra.component :as component]
+   [components.config :as config]
+   [components.database :as database]
+   [components.http :as http]
+   [components.router :as router]
+   [components.webserver :as webserver]
+   [matcher-combinators.matchers :as matchers]
+   [state-flow.api :refer [defflow] :as flow]
+   [state-flow.assertions.matcher-combinators :refer [match?]]
+   [state-flow.cljtest]
+   [state-flow.core :refer [flow]]
+   [state-flow.state :as state]))
 
 (defn- create-and-start-components! []
   (component/start-system
@@ -74,7 +75,7 @@
         (flow "retrieve user by external id"
               [resp (helpers/request! {:method :get
                                        :headers {"authorization" token}
-                                       :uri "/user/external/dcf34306-1c9e-4abb-a49b-438e1869ec5b"})]
+                                       :uri "/user-external"})]
               (match?
                (matchers/embeds {:status 200
                                  :body {:user {:email "test@gmail.com"}}})
