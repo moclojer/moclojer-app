@@ -72,7 +72,7 @@
          current-user (assoc old-user :user (merge (:user old-user) inner-user))]
      (set-current-user-cookie! current-user)
      (assoc db
-            :user-exists? true
+            :user-exists? (some? (-> body :user :username))
             :current-user current-user))))
 
 (refx/reg-event-db

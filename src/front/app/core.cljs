@@ -67,22 +67,24 @@
     (hooks/use-effect
      [current-user]
      (if (and user-exists? valid-user?)
-       (rfe/push-state :app.core/dashboard)
-       (-> (.. supabase/client -auth getSession)
-           (p/then
-            (fn [resp]
-              (let [ses (-> (utils/js->cljs-key resp)
-                            (get-in [:data :session])
-                            utils/convert-keys)
-                    access-token (:access-token ses)
-                    valid-session? (and (some? ses) (not= ses {})
-                                        (some? access-token))]
-                (if valid-session?
-                  (do
-                    (set-session! ses)
-                    (refx/dispatch-sync [:app.auth/user-exists? access-token]))
-                  (rfe/push-state :app.core/login)))))
-           (p/catch (fn [err] (refx/dispatch-sync [:app.auth/login-error err]))))))
+       (do
+         (rfe/push-state :app.core/dashboard))
+       (when-not (some? session)
+         (-> (.. supabase/client -auth getSession)
+             (p/then
+              (fn [resp]
+                (let [ses (-> (utils/js->cljs-key resp)
+                              (get-in [:data :session])
+                              utils/convert-keys)
+                      access-token (:access-token ses)
+                      valid-session? (and (some? ses) (not= ses {})
+                                          (some? access-token))]
+                  (if valid-session?
+                    (do
+                      (set-session! ses)
+                      (refx/dispatch-sync [:app.auth/user-exists? access-token]))
+                    (rfe/push-state :app.core/login)))))
+             (p/catch (fn [err] (refx/dispatch-sync [:app.auth/login-error err])))))))
 
     (let [view (-> current-route :data :view)]
       (when (and (some? view) accessible-route?)
