@@ -2,12 +2,10 @@
   (:require
    [back.api.healthcheck :as healthcheck]
    [back.api.interceptors.extract-user :refer [extract-user-interceptor]]
-   [back.api.interceptors.extract-uuid-origin :refer [extract-uuid-origin]]
    [back.api.ports.http-in :as ports.http-in]
    [back.api.schemas.wire-in :as schemas.wire-in]
    [back.api.schemas.wire-out :as schemas.wire-out]
    [reitit.swagger :as swagger]))
-
 (def routes
   [["/swagger.json"
     {:get {:no-doc true
@@ -37,19 +35,26 @@
    ["/user/:id"
     {:swagger {:tags ["login"]}
      :post {:summary "Update user"
-            :interceptors [(extract-user-interceptor)
-                           (extract-uuid-origin)]
+            :interceptors [(extract-user-interceptor)]
             :parameters {:path {:id uuid?}
                          :body {:username string?}}
             :responses {200 {:body {:user schemas.wire-out/User}}}
             :handler ports.http-in/edit-user!}
      :get {:summary "Retrieve user"
-           :parameters {:path {:id uuid?}
-                        :query {:external boolean?}}
+           :parameters {:path {:id uuid?}}
            :interceptors [(extract-user-interceptor)]
            :responses {200 {:body {:user schemas.wire-out/User}}
-                       400 {}}
+                       404 {}}
            :handler ports.http-in/handler-get-user}}]
+
+   ["/user/external/:id"
+    {:swagger {:tags ["login"]}
+     :get {:summary "Retrieve user by external id"
+           :parameters {:path {:id uuid?}}
+           :interceptors [(extract-user-interceptor)]
+           :responses {200 {:body {:user schemas.wire-out/User}}
+                       404 {}}
+           :handler ports.http-in/handler-get-user-by-external-id}}]
 
    ["/user/username/:username"
     {:swagger {:tags ["get username"]}

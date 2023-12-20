@@ -32,7 +32,9 @@
                user (db.customers/get-by-external-id external-id database)
                session-data {:org (:customer/username user)
                              :user-id (:customer/uuid user)}]
-           (assoc-in ctx [:request :session-data] session-data))
+           (-> ctx
+               (assoc-in [:request :session-data] session-data)
+               (assoc-in [:request :user] user)))
          (throw (ex-info "Unauthorized" {:cause "Token is missing"})))))
    ;; http://pedestal.io/pedestal/0.6/reference/error-handling.html
    :error
