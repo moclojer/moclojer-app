@@ -29,11 +29,11 @@
   ;; it doesn't make sense to make another request, incase the
   ;; user being retrieved, is the same one in the session.
   ;; So we just return the extracted user.
-  (let [same-user? (= (-> ext-user :customer/uuid str) id)
+  (let [same-user? (= (some-> ext-user :customer/uuid str) id)
         user (if same-user?
                ext-user
                (controllers.user/get-user-by-id id database))
-        valid-user? (uuid? (:customer/uuid user))]
+        valid-user? (some-> user :customer/uuid uuid?)]
     (if valid-user?
       {:status 200
        :body {:user (adapters.customers/->wire user)}}
@@ -41,7 +41,7 @@
 
 (defn handler-get-user-by-external-id
   [{:keys [user]}]
-  (if (uuid? (:customer/uuid user))
+  (if (some-> user :customer/uuid uuid?)
     {:status 200
      :body {:user (adapters.customers/->wire user)}}
     {:status 404}))
