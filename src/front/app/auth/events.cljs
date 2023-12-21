@@ -54,12 +54,23 @@
 
 (refx/reg-event-fx
  :app.auth/user-exists?
+<<<<<<< HEAD
  (fn [_ [_ access-token]]
+=======
+ (fn [{db :db} [_ access-token]]
+>>>>>>> j0suetm/revamp-auth-flow
    {:http {:url "/user-external"
            :method :get
            :headers {"authorization" (str "Bearer " access-token)}
            :on-success [:app.auth/user-exists]
+<<<<<<< HEAD
            :on-failure [:app.auth/user-does-not-exist]}}))
+=======
+           :on-failure [:app.auth/user-does-not-exist]}
+    ;; we temporarily save the access-token, so we can
+    ;; use it in :app.auth/user-exists.
+    :db (assoc db :access-token access-token)}))
+>>>>>>> j0suetm/revamp-auth-flow
 
 (refx/reg-event-db
  :app.auth/user-exists
@@ -69,19 +80,37 @@
                      :user-id (:uuid resp-user)
                      :username (:username resp-user)}
          old-user (:current-user db)
+<<<<<<< HEAD
          current-user (assoc old-user :user (merge (:user old-user) inner-user))]
      (set-current-user-cookie! current-user)
      (assoc db
             :user-exists? (some? (-> body :user :username))
             :current-user current-user))))
+=======
+         current-user (assoc old-user
+                             :user (merge (:user old-user) inner-user)
+                             :access-token (:access-token db))]
+     (set-current-user-cookie! current-user)
+     (-> db
+         (assoc :user-exists? (some? (-> body :user :username))
+                :current-user current-user)
+         (dissoc :access-token)))))
+>>>>>>> j0suetm/revamp-auth-flow
 
 (refx/reg-event-db
  :app.auth/user-does-not-exist
  (fn [db _]
    (auth.db/remove-cookie "current-user")
+<<<<<<< HEAD
    (assoc db
           :user-exists? false
           :current-user nil)))
+=======
+   (-> db
+       (assoc :user-exists? false
+              :current-user nil)
+       (dissoc :access-token))))
+>>>>>>> j0suetm/revamp-auth-flow
 
 (refx/reg-event-fx
  :app.auth/saving-user

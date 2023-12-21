@@ -49,6 +49,7 @@
         valid-user? (-> current-user :user :valid-user)
         public-route? (-> current-route :data :public?)
         accessible-route? (or valid-user? public-route?)
+        route-name (-> current-route :data :name)
         [session set-session!] (hooks/use-state nil)
         user-exists? (refx/use-sub [:app.auth/user-exists?])]
 
@@ -59,31 +60,33 @@
 
     (hooks/use-effect
      [user-exists?]
-     (when (and (not user-exists?) (some? session))
-       (refx/dispatch-sync [:app.auth/saving-user session])
-       (rfe/push-state :app.core/first-login)
-       (set-session! nil)))
+     (if (and (not user-exists?) (not valid-user?) (some? session))
+       (do
+         (refx/dispatch-sync [:app.auth/saving-user session])
+         (rfe/push-state :app.core/first-login)
+         (set-session! nil))
+       (if (not= route-name :app.core/auth)
+         (rfe/push-state route-name)
+         (rfe/push-state :app.core/dashboard))))
 
     (hooks/use-effect
      [current-user]
-     (if (and user-exists? valid-user?)
-         (rfe/push-state :app.core/dashboard)
-       (when-not (some? session)
-         (-> (.. supabase/client -auth getSession)
-             (p/then
-              (fn [resp]
-                (let [ses (-> (utils/js->cljs-key resp)
-                              (get-in [:data :session])
-                              utils/convert-keys)
-                      access-token (:access-token ses)
-                      valid-session? (and (some? ses) (not= ses {})
-                                          (some? access-token))]
-                  (if valid-session?
-                    (do
-                      (set-session! ses)
-                      (refx/dispatch-sync [:app.auth/user-exists? access-token]))
-                    (rfe/push-state :app.core/login)))))
-             (p/catch (fn [err] (refx/dispatch-sync [:app.auth/login-error err])))))))
+     (when-not (and (some? session) valid-user?)
+       (-> (.. supabase/client -auth getSession)
+           (p/then
+            (fn [resp]
+              (let [ses (-> (utils/js->cljs-key resp)
+                            (get-in [:data :session])
+                            utils/convert-keys)
+                    access-token (:access-token ses)
+                    valid-session? (and (some? ses) (not= ses {})
+                                        (some? access-token))]
+                (if valid-session?
+                  (do
+                    (set-session! ses)
+                    (refx/dispatch-sync [:app.auth/user-exists? access-token]))
+                  (rfe/push-state :app.core/login)))))
+           (p/catch (fn [err] (refx/dispatch-sync [:app.auth/login-error err]))))))
 
     (let [view (-> current-route :data :view)]
       (when (and (some? view) accessible-route?)

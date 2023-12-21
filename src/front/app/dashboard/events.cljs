@@ -71,12 +71,10 @@
 
 (refx/reg-event-fx
  :app.dashboard/get-mocks-failure
- (fn [{db :db} [_ response]]
-   {:db
-    (assoc db
-           :error-fetch-mocks false
-           :mocks
-           [])}))
+ (fn [{db :db} [_ {body :body}]]
+   {:db (assoc db
+               :error-fetch-mocks body
+               :mocks [])}))
 
 (refx/reg-event-fx
  :app.dashboard/get-mocks

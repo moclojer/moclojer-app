@@ -1,11 +1,13 @@
 (ns front.app.dashboard.components
-  (:require [front.app.auth.supabase :as supabase]
-            [front.app.components.svg :as svg]
-            [front.app.lib :refer [defnc]]
-            [helix.core :refer [$]]
-            [helix.dom :as d]
-            [refx.alpha :as refx]
-            [reitit.frontend.easy :as rfe]))
+  (:require
+   [front.app.auth.supabase :as supabase]
+   [front.app.components.svg :as svg]
+   [front.app.lib :refer [defnc]]
+   [helix.core :refer [$]]
+   [helix.dom :as d]
+   [helix.hooks :as hooks]
+   [refx.alpha :as refx]
+   [reitit.frontend.easy :as rfe]))
 
 (defnc nav-bar [{:keys [toggle-sidebar
                         set-toggle user-data]}]
@@ -97,11 +99,16 @@
                                    :role "menuitem"}
                                   "Logout"))))))))))
 
-(defnc aside [{:keys
-               [is-sidebar-toogle?
-                set-toggle]}]
+(defnc aside [{:keys [is-sidebar-toogle? set-toggle]}]
   (let [apis-mocks (refx/use-sub [:app.dashboard/mocks-api-raw])
-        is-menu-open? (refx/use-sub [:app.dashboard/is-menu-open?])]
+        is-menu-open? (refx/use-sub [:app.dashboard/is-menu-open?])
+        current-user (refx/use-sub [:app.auth/current-user])]
+
+    (hooks/use-effect
+     [apis-mocks]
+     (when (nil? apis-mocks)
+       (refx/dispatch-sync [:app.dashboard/get-mocks current-user])))
+
     (d/div {:class-name "flex overflow-hidden pt-16 bg-gray-50 dark:bg-gray-900"}
            (d/aside {:id "sidebar"
                      :on-mouse-enter (fn [_e]

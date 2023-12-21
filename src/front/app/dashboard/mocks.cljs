@@ -1,11 +1,13 @@
 (ns front.app.dashboard.mocks
-  (:require [front.app.components.svg :as svg]
-            [front.app.dashboard.base :as base]
-            [front.app.lib :refer [defnc]]
-            [helix.core :refer [$ <>]]
-            [helix.dom :as d]
-            [refx.alpha :as refx]
-            [reitit.frontend.easy :as rfe]))
+  (:require
+   [front.app.components.svg :as svg]
+   [front.app.dashboard.base :as base]
+   [front.app.lib :refer [defnc]]
+   [helix.core :refer [$ <>]]
+   [helix.dom :as d]
+   [helix.hooks :as hooks]
+   [refx.alpha :as refx]
+   [reitit.frontend.easy :as rfe]))
 
 (defnc api-mock [{:keys [enable url id]}]
   (d/a {:class-name "py-4 bg-white border-b border-gray-200 justify-center items-center inline-flex mouse-cursor" :id id
@@ -48,8 +50,8 @@
                   ($ svg/org-mock))
                 (d/div {:class-name "w-[423px] self-stretch text-gray-900 text-xl font-bold leading-[30px]"} subdomain))
          (for [{:keys [enable url id]} apis]
-           (<> {:key id} 
-             ($ api-mock {:enable enable :url url :id id})))
+           (<> {:key id}
+               ($ api-mock {:enable enable :url url :id id})))
          (d/div {:class-name "self-stretch pt-6 justify-start items-start inline-flex text-white text-xs font-bold leading-[18px]"}
                 (d/button {:class-name "px-3 py-2 bg-pink-600 rounded-lg justify-end items-center gap-2 flex btn-add"
                            :on-click (fn [_] (refx/dispatch [:app.dashboard/toggle-mock-modal]))}
@@ -66,13 +68,16 @@
                           ($ svg/box)))))
 
 (defnc mocks []
-  ($ base/index
-     (let [mocks-apis (refx/use-sub [:app.dashboard/mocks-api])]
+  (let [current-user  (refx/use-sub [:app.auth/current-user])
+        mocks-apis (refx/use-sub [:app.dashboard/mocks-api])]
+
+    (hooks/use-effect
+     [mocks-apis]
+     (when (nil? mocks-apis)
+       (refx/dispatch-sync [:app.dashboard/get-mocks current-user])))
+
+    ($ base/index
        (d/div {:class-name "mock-list"}
               (for [{:keys [mock-type subdomain apis] :or {mock-type :personal}} mocks-apis]
-                (<> {:key subdomain} 
+                (<> {:key subdomain}
                     ($ apis-mocks {:mock-type mock-type :subdomain subdomain :apis apis})))))))
-
-
-
-
