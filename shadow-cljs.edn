@@ -16,7 +16,7 @@
                            :closure-defines {front.app.core/DEBUG false
                                              front.app.http/API_URL "https://app.moclojer.com/api"
                                              front.app.auth.supabase/SUPABASE "https://app.moclojer.com/#/"}
-                           :compiler-options {:optimizations :none
+                           :compiler-options {:optimizations :simple
                                               :infer-externs :auto}}}
           :tests    {:target           :browser-test
                      :test-dir         "resources/front/test"
