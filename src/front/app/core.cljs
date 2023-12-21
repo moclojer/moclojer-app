@@ -67,8 +67,7 @@
     (hooks/use-effect
      [current-user]
      (if (and user-exists? valid-user?)
-       (do
-         (rfe/push-state :app.core/dashboard))
+         (rfe/push-state :app.core/dashboard)
        (when-not (some? session)
          (-> (.. supabase/client -auth getSession)
              (p/then
