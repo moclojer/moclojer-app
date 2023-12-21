@@ -70,6 +70,7 @@
 (defnc mocks []
   (let [current-user  (refx/use-sub [:app.auth/current-user])
         mocks-apis (refx/use-sub [:app.dashboard/mocks-api])]
+
     (hooks/use-effect
      [mocks-apis]
      (when (nil? mocks-apis)
