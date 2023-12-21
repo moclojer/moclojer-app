@@ -1,6 +1,5 @@
 (ns front.app.dashboard.events
   (:require
-   ["js-yaml" :as js-yaml]
    [refx.alpha :as refx]))
 
 (refx/reg-event-db
@@ -139,9 +138,7 @@
  :app.dashboard/verify-mock
  (fn [{db :db} [_ {:keys [new-mocks mock]}]]
    (let [content (or (:content mock) "")
-         valid? (try
-                  (.load js-yaml content) true
-                  (catch :default _ false))]
+         valid? true]
      {:db (assoc db :mock-valid? valid?)
       :dispatch [:app.dashboard/edit-mock-success {:body {:mocks new-mocks}}]})))
 
