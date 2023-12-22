@@ -100,7 +100,7 @@
                               (d/form {:disabled loading?
                                        :on-submit (fn [e]
                                                     (.preventDefault e)
-                                                    (when (and (some? username) available?)
+                                                    (when (and (not-empty username) available?)
                                                       (refx/dispatch [:app.auth/save-username username])))
                                        :class-name "mt-8 space-y-6"}
                                       (d/div
