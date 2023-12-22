@@ -1,10 +1,14 @@
 (ns front.app.auth.supabase
-  (:require ["@supabase/supabase-js" :as sb]
-            [promesa.core :as p]
-            [reitit.frontend.easy :as rfe]))
+  (:require
+   ["@supabase/supabase-js" :as sb]
+   [promesa.core :as p]
+   [reitit.frontend.easy :as rfe]))
 
-(goog-define SUPABASE "http://localhost:8000/#/")
-(def supabase SUPABASE)
+(goog-define SUPABASE_URL "")
+(goog-define SUPABASE_TOKEN "")
+(when-not (every? not-empty [SUPABASE_URL SUPABASE_TOKEN])
+  (throw (js/Error. "SUPABASE_URL or SUPABASE_TOKEN weren't defined")))
+(goog-define SUPABASE_REDIRECT "http://localhost:8000/#/")
 
 (defn create-client
   "creates a supabase client"
@@ -14,28 +18,17 @@
    (.createClient sb url key options)))
 
 (def client
-  (create-client
-   "https://tgvdfxurgsddxouxmugs.supabase.co"
-   (str "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ"
-        "pc3MiOiJzdXBhYmFzZSIsInJlZiI6InRndmRmeHV"
-        "yZ3NkZHhvdXhtdWdzIiwicm9sZSI6ImFub24iLCJ"
-        "pYXQiOjE2ODE1MDM0NDMsImV4cCI6MTk5NzA3OTQ"
-        "0M30.7pq4MM_ZldiWvOk_cnQuxlvUF8eFcxlPDB7"
-        "jMTNMYb0")
-   (clj->js {:auth {:autoRefreshToken true
-                    :persistSession true
-                    :detectSessionInUrl true}})))
+  (let [options (clj->js {:auth {:autoRefreshToken true
+                                 :persistSession true
+                                 :detectSessionInUrl true}})]
+    (create-client SUPABASE_URL SUPABASE_TOKEN options)))
 
 (defn signin-with-email [^js client email]
   (let [auth (.-auth client)
-        promise (.signInWithOtp
-                 auth
-                 (clj->js {:email email
-                           :options {:emailRedirectTo (if app/debug
-                                                        "http://localhost:8000/#/"
-                                                        supabase)}}))]
-
-    promise))
+        options (clj->js
+                 {:email email
+                  :options {:emailRedirectTo SUPABASE_REDIRECT}})]
+    (.signInWithOtp auth options)))
 
 (defn sign-out [dispatch-fn-logout]
   (let [auth (.-auth client)]
