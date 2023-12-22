@@ -61,7 +61,7 @@
     (hooks/use-effect
      [user-exists?]
      (if (and (not user-exists?) (some? session))
-       (do
+       (when (some? current-user)
          (refx/dispatch-sync [:app.auth/saving-user session])
          (rfe/push-state :app.core/first-login)
          (set-session! nil))

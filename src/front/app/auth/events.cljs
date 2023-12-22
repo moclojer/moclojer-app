@@ -198,17 +198,19 @@
        (assoc :login-loading? false)
        (assoc :login-email-sent nil))))
 
-;; logout
 (refx/reg-event-fx
  :app.auth/logout
  (fn
    [{db :db} _]
    (auth.db/remove-cookie "current-user")
+   (auth.db/clear-localstorage)
    {:db (assoc db
                :user-exists? false
                :current-user nil
                :login-loading? false
-               :login-error nil)}))
+               :login-error nil
+               :mocks-raw []
+               :mocks nil)}))
 
 (refx/reg-event-db
  :app.auth/error

@@ -100,7 +100,7 @@
                               (d/form {:disabled loading?
                                        :on-submit (fn [e]
                                                     (.preventDefault e)
-                                                    (when username
+                                                    (when (and (some? username) available?)
                                                       (refx/dispatch [:app.auth/save-username username])))
                                        :class-name "mt-8 space-y-6"}
                                       (d/div
@@ -125,8 +125,9 @@
                                              (d/span {:class-name "text-gray-500"} "moclojer.com"))
 
                                       ($ button
-                                         {:type "submit"
-                                          :disabled loading?
+                                         {:class-name (if available? "" " cursor-not-allowed")
+                                          :type "submit"
+                                          :disabled (or loading? (not available?))
                                           :variant "solid-blue"
                                           :color (if available?
                                                    "pink"
@@ -147,9 +148,9 @@
         sent? (refx/use-sub [:app.auth/username-sent])
         [error error-res] (refx/use-sub [:app.auth/login-error])]
     (hooks/use-effect
-      [sent?]
-      (when sent?
-        (rfe/push-state :app.core/dashboard)))
+     [sent?]
+     (when sent?
+       (rfe/push-state :app.core/dashboard)))
 
     (d/div
      ($ container

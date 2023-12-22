@@ -1,7 +1,8 @@
 (ns front.app.auth.db
-  (:require ["js-cookie" :as cookie]
-            [cljs.reader :as reader]
-            [refx.alpha :as refx]))
+  (:require
+   ["js-cookie" :as cookie]
+   [cljs.reader :as reader]
+   [refx.alpha :as refx]))
 
 (defn set-cookie
   [name expires value]
@@ -22,3 +23,6 @@
           :cookie-current-user (-> "current-user"
                                    get-cookie
                                    reader/read-string))))
+
+(defn clear-localstorage []
+  (.clear js/localStorage))
