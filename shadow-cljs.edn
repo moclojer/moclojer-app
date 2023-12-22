@@ -1,6 +1,8 @@
 ;;shadow clj config
 {:deps {:aliases [:front-dev]}
  :nrepl {:port 8777}
+ :build-defaults {:closure-defines {front.app.auth.supabase/SUPABASE_URL "https://tgvdfxurgsddxouxmugs.supabase.co"
+                                    front.app.auth.supabase/SUPABASE_TOKEN "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRndmRmeHVyZ3NkZHhvdXhtdWdzIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODE1MDM0NDMsImV4cCI6MTk5NzA3OTQ0M30.7pq4MM_ZldiWvOk_cnQuxlvUF8eFcxlPDB7jMTNMYb0"}}
  :builds {:app {:target :browser
                 :output-dir "resources/front/public/assets/js"
                 :asset-path "/assets/js"
@@ -8,8 +10,6 @@
                            :reload-strategy :full
                            :http-port 8000
                            :http-root "resources/front/public/"}
-                :closure-defines {front.app.auth.supabase/SUPABASE_URL "https://tgvdfxurgsddxouxmugs.supabase.co"
-                                  front.app.auth.supabase/SUPABASE_TOKEN "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRndmRmeHVyZ3NkZHhvdXhtdWdzIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODE1MDM0NDMsImV4cCI6MTk5NzA3OTQ0M30.7pq4MM_ZldiWvOk_cnQuxlvUF8eFcxlPDB7jMTNMYb0"}
                 :dev      {:modules {:core {:init-fn dev.core/init}}
                            :compiler-options {:warning-as-errors true}}
                 :release  {:modules {:core {:init-fn front.app.core/init}}
