@@ -11,6 +11,9 @@
    [refx.alpha :as refx]
    [reitit.frontend.easy :as rfe]))
 
+(defnc not-found-view []
+  (d/div "404"))
+
 (defnc login [{:keys [sent? loading?
                       state set-state
                       error error-res]}]
@@ -144,9 +147,9 @@
         sent? (refx/use-sub [:app.auth/username-sent])
         [error error-res] (refx/use-sub [:app.auth/login-error])]
     (hooks/use-effect
-     [sent?]
-     (when sent?
-       (rfe/push-state :app.core/dashboard)))
+      [sent?]
+      (when sent?
+        (rfe/push-state :app.core/dashboard)))
 
     (d/div
      ($ container

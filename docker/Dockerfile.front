@@ -11,9 +11,7 @@ COPY ./ /app
 
 ENV DEBUG=false
 
-RUN npm i . && \
-    npm run postinstall && \
-    npm run release
+RUN npm i . && \ npm run postinstall && \ npm run release
 
 FROM node:16.13.2-alpine as release
 
