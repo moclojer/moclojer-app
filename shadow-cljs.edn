@@ -11,13 +11,15 @@
                 :dev      {:modules {:core {:init-fn dev.core/init}}
                            :closure-defines {front.app.core/DEBUG true
                                              front.app.http/API_URL "http://localhost:3000"
-                                             front.app.auth.supabase/SUPABASE "http://localhost:8000/#/"}}
+                                             front.app.auth.supabase/SUPABASE "http://localhost:8000/#/"}
+                           :compiler-options {:warning-as-errors true}}
                 :release  {:modules {:core {:init-fn front.app.core/init}}
                            :closure-defines {front.app.core/DEBUG false
                                              front.app.http/API_URL "https://app.moclojer.com/api"
                                              front.app.auth.supabase/SUPABASE "https://app.moclojer.com/#/"}
                            :compiler-options {:infer-externs :auto
-                                              :source-map true}}}
+                                              :source-map true
+                                              :warnings-as-errors true}}}
           :tests    {:target           :browser-test
                      :test-dir         "resources/front/test"
                      :ns-regexp        "-test$"
