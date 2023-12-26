@@ -61,11 +61,14 @@
     (hooks/use-effect
      [user-exists?]
      (if (and (not user-exists?) (some? session))
-       (when (some? current-user)
+       ;; checking nothing here because this isn't true only when
+       ;; the current user is pre-loaded from the cookies, but also
+       ;; when the user is logging in for the first time in a new computer.
+       (do
          (refx/dispatch-sync [:app.auth/saving-user session])
          (rfe/push-state :app.core/first-login)
          (set-session! nil))
-       (if (not= route-name :app.core/auth)
+       (if (and (not= route-name :app.core/auth) (some? current-user))
          (rfe/push-state route-name)
          (rfe/push-state :app.core/dashboard))))
 
