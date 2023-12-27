@@ -1,18 +1,25 @@
 (ns back.api.logic.mocks
-  (:require [back.api.utils :refer [assoc-if]]) 
-  (:import [java.util UUID]))
+  (:require
+   [back.api.utils :refer [assoc-if]]
+   [camel-snake-kebab.core :as csk])
+  (:import
+   [java.util UUID]))
 
 (defn ->uuid []
   (UUID/randomUUID))
 
-(defn create
-  [{:keys [subdomain content user-id wildcard]}]
-  (-> {:mock/id (->uuid)
-       :mock/subdomain subdomain
-       :mock/wildcard wildcard 
-       :mock/user_id user-id
-       :mock/enabled true}
-      (assoc-if :mock/content content)))
+(defn create [mock]
+  (let [new-uuid (->uuid)
+        content (:content mock)]
+    (-> (reduce-kv
+         (fn [acc k v]
+           (assoc acc (->> (name k)
+                           (str "mock/")
+                           csk/->snake_case
+                           keyword) v))
+         {} mock)
+        (assoc :mock/id new-uuid)
+        (assoc-if :mock/content content))))
 
 (defn enable [mock]
   (assoc mock :mock/enabled true))

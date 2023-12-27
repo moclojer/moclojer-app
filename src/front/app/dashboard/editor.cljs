@@ -91,7 +91,7 @@
                (d/div {:class-name "flex bg-white justify-between items-center"}
                       (d/div {:class-name " bg-white  gap-4 flex "}
                              (d/div {:class-name " rounded-md  items-center gap-4 inline-flex"}
-                                    ($ svg/mock-enable)
+                                    ($ svg/mock-enabled)
                                     (d/div {:class-name "text-zinc-500 text-xl font-medium leading-[30px]"} (str (:url data)))))
 
                       (d/div {:class-name "flex gap-2.5 p-2 bg-white"}

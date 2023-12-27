@@ -41,7 +41,7 @@
                                      :apis (conj apis (-> {:wildcard wildcard
                                                            :subdomain subdomain
                                                            :url url
-                                                           :enable enabled
+                                                           :enabled enabled
                                                            :id id}
                                                           (assoc-if :content content)))}]
                        (assoc mocks-by-domain
@@ -54,7 +54,7 @@
                              :apis [(-> {:wildcard wildcard
                                          :subdomain subdomain
                                          :url url
-                                         :enable enabled
+                                         :enabled enabled
                                          :id id}
                                         (assoc-if :content content))]}))))
 
@@ -107,7 +107,7 @@
 
 (refx/reg-event-db
  :app.dashboard/created-mock-success
- (fn [db [_ {mock :mock}]]
+ (fn [db [_ {_mock :mock}]]
    (-> db
        (assoc :is-modal-open? false
               :loading-creating-mock? false)

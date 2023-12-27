@@ -9,21 +9,21 @@
    [refx.alpha :as refx]
    [reitit.frontend.easy :as rfe]))
 
-(defnc api-mock [{:keys [enable url id]}]
+(defnc api-mock [{:keys [enabled url id]}]
   (d/a {:class-name "py-4 bg-white border-b border-gray-200 justify-center items-center inline-flex mouse-cursor" :id id
         :key id
         :on-click (fn [_] (rfe/push-state :app.core/mocks-view {:mock-id id}))
         #_#_:href (str "/dashboard/mocks/" id)}
        (d/div {:class-name "grow shrink basis-0 h-[49px] justify-start items-center gap-2 flex"}
-              (if enable
-                ($ svg/mock-enable)
-                ($ svg/mock-disable))
+              (if enabled
+                ($ svg/mock-enabled)
+                ($ svg/mock-disabled))
               (d/div {:class-name "justify-start items-start flex"})
               (d/div {:class-name "grow shrink basis-0 flex-col justify-start items-start gap-1 inline-flex"}
-                     (d/div {:class-name (if enable
+                     (d/div {:class-name (if enabled
                                            "w-[1116px] grow shrink basis-0 text-gray-900 text-base font-semibold leading-normal"
                                            "w-[1116px] h-6 text-neutral-400 text-base font-semibold leading-normal")} url)
-                     (d/div {:class-name (if enable
+                     (d/div {:class-name (if enabled
                                            "w-[1116px] text-gray-500 text-sm font-normal leading-[21px]"
                                            "w-[1116px] text-gray-500 text-sm font-normal leading-[21px]")} " my frist mock server")))
 
@@ -49,9 +49,9 @@
                   ($ svg/personal-mock)
                   ($ svg/org-mock))
                 (d/div {:class-name "w-[423px] self-stretch text-gray-900 text-xl font-bold leading-[30px]"} subdomain))
-         (for [{:keys [enable url id]} apis]
+         (for [{:keys [enabled url id]} apis]
            (<> {:key id}
-               ($ api-mock {:enable enable :url url :id id})))
+               ($ api-mock {:enabled enabled :url url :id id})))
          (d/div {:class-name "self-stretch pt-6 justify-start items-start inline-flex text-white text-xs font-bold leading-[18px]"}
                 (d/button {:class-name "px-3 py-2 bg-pink-600 rounded-lg justify-end items-center gap-2 flex btn-add"
                            :on-click (fn [_] (refx/dispatch [:app.dashboard/toggle-mock-modal]))}
