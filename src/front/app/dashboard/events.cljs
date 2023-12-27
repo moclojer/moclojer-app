@@ -63,11 +63,11 @@
 
 (refx/reg-event-fx
  :app.dashboard/get-mocks-success
- (fn [{db :db} [_ {:keys [body]}]]
-   (let [m (make-api-type (:mocks body))]
+ (fn [{db :db} [_ {{mocks :mocks} :body}]]
+   (let [mocks-apis (make-api-type mocks)]
      {:db (assoc db
-                 :mocks-raw (:mocks body)
-                 :mocks m)})))
+                 :mocks-raw mocks
+                 :mocks mocks-apis)})))
 
 (refx/reg-event-fx
  :app.dashboard/get-mocks-failure
@@ -91,29 +91,27 @@
  (fn [{db :db} [_ mock]]
    {:http {:url "/mocks"
            :method :post
-           :headers {"authorization" (str "Bearer " (:access-token (-> db :current-user)))}
+           :headers {"authorization" (str "Bearer " (:access-token (:current-user db)))}
            :body mock
            :on-success [:app.dashboard/created-mock-success]
            :on-failure [:app.dashboard/created-mock-failure]}
-    :db (-> db
-            (assoc :loading-creating-mock? true))}))
+    :db (assoc db :loading-creating-mock? true)}))
 
-(refx/reg-event-fx
+(refx/reg-event-db
  :app.dashboard/created-mock-failure
- (fn [{db :db} [_ err]]
+ (fn [db [_ err]]
    (prn :error err)
-   {:db (-> db
-            (assoc :loading-creating-mock? false
-                   :error-creating-mock? true))}))
+   (assoc db
+          :loading-creating-mock? false
+          :error-creating-mock? true)))
 
-(refx/reg-event-fx
+(refx/reg-event-db
  :app.dashboard/created-mock-success
- (fn [{db :db} [_ mock]]
-   {:db (-> db
-            (assoc
-             :is-modal-open? false
-             :loading-creating-mock? false))
-    :dispatch [:app.routes/push-state :app.core/mocks]}))
+ (fn [db [_ {mock :mock}]]
+   (-> db
+       (assoc :is-modal-open? false
+              :loading-creating-mock? false)
+       #_(update-in [:mocks :apis] conj mock))))
 
 (refx/reg-event-fx
  :app.dashboard/save-mock
