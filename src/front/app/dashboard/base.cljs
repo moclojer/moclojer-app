@@ -19,11 +19,11 @@
   (let [is-mock-modal (refx/use-sub [:app.dashboard/is-modal-open?])
         loading? (refx/use-sub [:app.dashboard/loading-creating-mock?])
         user-orgs (refx/use-sub [:app.user/orgs])
-        [new-mock set-mock] (hooks/use-state {:enable false})
+        [new-mock set-mock] (hooks/use-state {:enabled false})
         allow-save? (and (:subdomain new-mock)
                          (seq (:subdomain new-mock))
                          (:wildcard new-mock)
-                         (some? (:enable new-mock)))]
+                         (some? (:enabled new-mock)))]
     (<>
      (when is-mock-modal
        (d/div {:modal-backdrop "" :class "bg-gray-900 bg-opacity-50 dark:bg-opacity-80 fixed inset-0 z-40"}))
@@ -99,7 +99,7 @@
                                                               :id "rating-reminders"
                                                               :class-name "sr-only peer"
                                                               :on-change (fn [e]
-                                                                           (set-mock assoc :enable (= (.. e -target -value) "on")))})
+                                                                           (set-mock assoc :enabled (= (.. e -target -value) "on")))})
                                                     (d/span {:class-name "w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-focus:ring-4 peer-focus:ring-pink-300 dark:peer-focus:ring-pink-800 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-pink-500"}))))
 
                              (d/div {:class-name "flex justify-between items-center py-4"}

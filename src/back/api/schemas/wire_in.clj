@@ -8,6 +8,7 @@
   [:map
    [:subdomain string?]
    [:wildcard string?]
+   [:enabled boolean?]
    [:content {:optional true} string?]])
 
 (def MockUpdate

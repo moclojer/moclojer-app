@@ -1,16 +1,13 @@
 (ns back.api.controllers.mocks
-  (:require [back.api.adapters.mocks :as adapter.mocks]
-            [back.api.db.mocks :as db.mocks]
-            [back.api.logic.mocks :as logic.mocks]
-            [back.api.ports.producers :as ports.producers]))
+  (:require
+   [back.api.adapters.mocks :as adapter.mocks]
+   [back.api.db.mocks :as db.mocks]
+   [back.api.logic.mocks :as logic.mocks]
+   [back.api.ports.producers :as ports.producers]))
 
 (defn create-mock!
-  [user-id {:keys [subdomain content wildcard]}
-   {:keys [database]}]
-  (-> (logic.mocks/create {:subdomain subdomain
-                           :user-id user-id
-                           :wildcard wildcard
-                           :content content})
+  [user-id mock {:keys [database]}]
+  (-> (logic.mocks/create (merge {:user-id user-id} mock))
       (db.mocks/insert! database)
       (adapter.mocks/->wire)))
 
