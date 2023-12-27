@@ -19,11 +19,11 @@
   (let [is-mock-modal (refx/use-sub [:app.dashboard/is-modal-open?])
         loading? (refx/use-sub [:app.dashboard/loading-creating-mock?])
         user-orgs (refx/use-sub [:app.user/orgs])
-        [new-mock set-mock] (hooks/use-state {})
+        [new-mock set-mock] (hooks/use-state {:enable false})
         allow-save? (and (:subdomain new-mock)
                          (seq (:subdomain new-mock))
-                         (:wildcard new-mock))]
-
+                         (:wildcard new-mock)
+                         (some? (:enable new-mock)))]
     (<>
      (when is-mock-modal
        (d/div {:modal-backdrop "" :class "bg-gray-900 bg-opacity-50 dark:bg-opacity-80 fixed inset-0 z-40"}))
@@ -84,15 +84,10 @@
                                                #(d/option {:key % :value %} %)
                                                user-orgs))
                                     (d/div {:class-name "mt-2 text-sm text-gray-500 dark:text-gray-400"}
-                                           (d/span {:class-name "text-gray-900 text-base font-semibold "} (if
-                                                                                                           (and (not (nil? (:wildcard new-mock)))
-                                                                                                                (seq (:wildcard new-mock)))
-                                                                                                            (:wildcard new-mock)
-                                                                                                            "<mock-name>"))
-                                           (d/span  {:class-name "text-gray-900  "} (str "." (if (and (not (nil? (:subdomain new-mock)))
-                                                                                                      (seq (:subdomain new-mock)))
-                                                                                               (:subdomain new-mock)
-                                                                                               "<org-name>") ".moclojer.com"))))
+                                           (d/span {:class-name "text-gray-900 text-base font-semibold "} (or (:wildcard new-mock)
+                                                                                                              "<mock-name>"))
+                                           (d/span  {:class-name "text-gray-900 "} (str "." (or (:subdomain new-mock)
+                                                                                                "<org-name>") ".moclojer.com"))))
 
                              (d/div {:class-name "divide-y divide-gray-200 dark:divide-gray-700"}
                                     (d/div {:class-name "flex justify-between items-center py-4"}
@@ -100,16 +95,20 @@
                                                   (d/div {:class-name "text-lg font-semibold text-gray-900 dark:text-white"} "public?")
                                                   (d/div {:class-name "text-base font-normal text-gray-500 dark:text-gray-400"} "is this api ready to be published?"))
                                            (d/label {:for "rating-reminders" :class-name "flex relative items-center cursor-pointer"}
-                                                    (d/input {:type "checkbox" :id "rating-reminders" :class-name "sr-only peer"})
+                                                    (d/input {:type "checkbox"
+                                                              :id "rating-reminders"
+                                                              :class-name "sr-only peer"
+                                                              :on-change (fn [e]
+                                                                           (set-mock assoc :enable (= (.. e -target -value) "on")))})
                                                     (d/span {:class-name "w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-focus:ring-4 peer-focus:ring-pink-300 dark:peer-focus:ring-pink-800 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-pink-500"}))))
 
                              (d/div {:class-name "flex justify-between items-center py-4"}
                                     (d/div {:class-name "flex flex-col flex-grow"})
 
                                     (d/button {:class-name
-                                               (if allow-save?
-                                                 "px-3 py-2 bg-pink-600 rounded-lg justify-end items-center gap-2 flex btn-add"
-                                                 "px-3 py-2 bg-gray-600 rounded-lg justify-end items-center gap-2 flex btn-add")
+                                               (str "px-3 py-2 "
+                                                    (if allow-save? "bg-pink-600" "bg-gray-600")
+                                                    " rounded-lg justify-end items-center gap-2 flex btn-add")
                                                :on-click (fn [_]
                                                            (when allow-save?
                                                              (refx/dispatch [:app.dashboard/create-mock new-mock])))}

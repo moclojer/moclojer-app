@@ -22,8 +22,7 @@
 
 (refx/reg-event-fx
  :app.auth/username-available?
- (fn [{db :db}
-      [_ username]]
+ (fn [{db :db} [_ username]]
    (let [access-token (-> db :current-user :access-token)]
      {:http {:url (str "/user/username/" username)
              :method :get
@@ -54,15 +53,15 @@
 
 (refx/reg-event-fx
  :app.auth/user-exists?
- (fn [{db :db} [_ access-token]]
+ (fn [{db :db} [_ session]]
    {:http {:url "/user-external"
            :method :get
-           :headers {"authorization" (str "Bearer " access-token)}
+           :headers {"authorization" (str "Bearer " (:access-token session))}
            :on-success [:app.auth/user-exists]
            :on-failure [:app.auth/user-does-not-exist]}
     ;; we temporarily save the access-token, so we can
     ;; use it in :app.auth/user-exists.
-    :db (assoc db :access-token access-token)}))
+    :db (assoc db :session session)}))
 
 (refx/reg-event-db
  :app.auth/user-exists
@@ -74,12 +73,13 @@
          old-user (:current-user db)
          current-user (assoc old-user
                              :user (merge (:user old-user) inner-user)
-                             :access-token (:access-token db))]
+                             :access-token (or (some-> db :session :access-token)
+                                               (:access-token old-user)))]
      (set-current-user-cookie! current-user)
      (-> db
          (assoc :user-exists? (some? (-> body :user :username))
                 :current-user current-user)
-         (dissoc :access-token)))))
+         (dissoc :session)))))
 
 (refx/reg-event-db
  :app.auth/user-does-not-exist
@@ -87,8 +87,8 @@
    (auth.db/remove-cookie "current-user")
    (-> db
        (assoc :user-exists? false
-              :current-user nil)
-       (dissoc :access-token))))
+              :current-user {:access-token (some-> db :session :access-token)})
+       (dissoc :session))))
 
 (refx/reg-event-fx
  :app.auth/saving-user
@@ -103,7 +103,7 @@
              :on-failure [:app.auth/failed-save-user]}
       :db  (assoc db
                   :login-loading? true
-                  :current-user session
+                  ;; :current-user session
                   :login-error nil)})))
 
 (refx/reg-event-fx

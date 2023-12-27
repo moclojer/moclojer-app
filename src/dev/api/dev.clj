@@ -1,15 +1,16 @@
 (ns dev.api.dev
-  (:require [back.api.routes :as routes]
-            [com.stuartsierra.component :as component]
-            [components.config :as config]
-            [components.database :as database]
-            [components.http :as http]
-            [components.logs :as logs]
-            [components.migrations :as migrations]
-            [components.redis-publisher :as redis-publisher]
-            [components.router :as router]
-            [components.webserver :as webserver]
-            [pg-embedded-clj.core :as pg-emb])
+  (:require
+   [back.api.routes :as routes]
+   [com.stuartsierra.component :as component]
+   [components.config :as config]
+   [components.database :as database]
+   [components.http :as http]
+   [components.logs :as logs]
+   [components.migrations :as migrations]
+   [components.redis-publisher :as redis-publisher]
+   [components.router :as router]
+   [components.webserver :as webserver]
+   [pg-embedded-clj.core :as pg-emb])
   (:gen-class))
 
 ;;this namespace is used for development purposes only
@@ -34,7 +35,6 @@
        component/start
        (reset! system-atom)))
 
-
 (defn stop-system-dev! []
   (logs/log :info :system-stop)
   (swap!
@@ -45,5 +45,4 @@
 (comment
 
   (stop-system-dev!)
-  (start-system-dev! (build-system-map))
-  )
+  (start-system-dev! (build-system-map)))
