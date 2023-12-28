@@ -27,7 +27,7 @@
     :webserver (component/using (webserver/new-webserver)
                                 [:config :http :router :database]))))
 
-(def token "Beare eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJkY2ZmNGMwNi0xYzllLTRhYmItYTQ5Yi00MzhlMTg2OWVjNWIifQ.Gd42MG5EQCVvQwsvlhRQWHuEr-BBo4GB7Pd9di8w_No")
+(def token "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJkY2ZmNGMwNi0xYzllLTRhYmItYTQ5Yi00MzhlMTg2OWVjNWIifQ.Gd42MG5EQCVvQwsvlhRQWHuEr-BBo4GB7Pd9di8w_No")
 
 (defflow
   flow-save-mock
@@ -60,15 +60,17 @@
                                                :user-id "cd989358-af38-4a2f-a1a1-88096aa425a7"
                                                :enabled true}}})
                resp)
-              (flow "retreive the mock"
+              (flow "retrieve the mock"
                     [resp-get (helpers/request! {:method :get
                                                  :headers {"authorization" token}
                                                  :uri "/mocks"
                                                  :body {}})]
                     (match?
-                     (matchers/embeds {:mocks [{:id #(uuid? (java.util.UUID/fromString %))
-                                                :subdomain "chico"
-                                                :wildcard "test"
-                                                :user-id "cd989358-af38-4a2f-a1a1-88096aa425a7"
-                                                :enabled true}]})
+                     (matchers/embeds {:mockss [{:subdomain "chico"
+                                                 :mock-type "personal"
+                                                 :apis [{:id #(uuid? (java.util.UUID/fromString %))
+                                                         :url "test.chico.moclojer.com"
+                                                         :subdomain "chico"
+                                                         :wildcard "test"
+                                                         :enabled true}]}]})
                      (-> resp-get :body))))))
