@@ -100,12 +100,14 @@
                                                        :uri "/mocks"
                                                        :body {}})]
                           (match?
-                           (matchers/embeds {:mocks [{:id #(uuid? (java.util.UUID/fromString %))
-                                                      :subdomain "chico"
-                                                      :content yml
-                                                      :wildcard "test"
-                                                      :user-id "cd989358-af38-4a2f-a1a1-88096aa425a7"
-                                                      :enabled true}]})
+                           (matchers/embeds {:mocks [{:subdomain "chico"
+                                                      :mock-type "personal"
+                                                      :apis [{:id #(uuid? (java.util.UUID/fromString %))
+                                                              :subdomain "chico"
+                                                              :url "test.chico.moclojer.com"
+                                                              :content yml
+                                                              :wildcard "test"
+                                                              :enabled true}]}]})
                            (-> resp-get :body)))
 
                     (flow "should have publish a mock calling publisher"
