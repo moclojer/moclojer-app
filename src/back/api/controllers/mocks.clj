@@ -22,7 +22,8 @@
 (defn get-mocks
   [filters {:keys [database]}]
   (->> (db.mocks/get-mocks filters database)
-       (map adapter.mocks/->wire)))
+       (map adapter.mocks/->wire)
+       (logic.mocks/group "personal")))
 
 (defn publish-mock!
   [id {:keys [database]}]
