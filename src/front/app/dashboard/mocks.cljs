@@ -68,16 +68,16 @@
                           ($ svg/box)))))
 
 (defnc mocks []
-  (let [current-user  (refx/use-sub [:app.auth/current-user])
-        mocks-apis (refx/use-sub [:app.dashboard/mocks-api])]
+  (let [current-user (refx/use-sub [:app.auth/current-user])
+        mocks (refx/use-sub [:app.dashboard/mocks])]
 
     (hooks/use-effect
-     [mocks-apis]
-     (when (nil? mocks-apis)
+     [mocks]
+     (when (nil? mocks)
        (refx/dispatch-sync [:app.dashboard/get-mocks current-user])))
 
     ($ base/index
        (d/div {:class-name "mock-list"}
-              (for [{:keys [mock-type subdomain apis] :or {mock-type :personal}} mocks-apis]
+              (for [{:keys [mock-type subdomain apis] :or {mock-type :personal}} mocks]
                 (<> {:key subdomain}
                     ($ apis-mocks {:mock-type mock-type :subdomain subdomain :apis apis})))))))

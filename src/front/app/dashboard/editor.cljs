@@ -61,7 +61,7 @@
                                    (set! (.-onload reader) on-load)
                                    (.readAsText reader file)))}))))
 
-(defnc save-button [{:keys [mock-id]}]
+(defnc save-button [{mock-id :mock-id}]
   (let [mock-valid? (refx/use-sub [:app.dashboard/mock-valid?])]
     (d/button
      {:class-name (str "px-3 py-2 bg-pink-600 rounded-lg justify-end items-center gap-2 flex btn-add"
@@ -99,7 +99,7 @@
                                        (d/div {:class-name "text-gray-800 text-sm font-medium leading-[21px]"} "remove")
                                        ($ svg/trash))
 
-                             ($ save-button mock-id)))
+                             ($ save-button {:mock-id mock-id})))
                (d/div {}
                       ($ drag-drop
                          {:on-load (fn [e]

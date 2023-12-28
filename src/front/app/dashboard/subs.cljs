@@ -11,12 +11,12 @@
           ys))
 
 (refx/reg-sub
- :app.dashboard/mocks-api
+ :app.dashboard/mocks
  (fn [db _]
    (:mocks db)))
 
 (refx/reg-sub
- :app.dashboard/mocks-api-raw
+ :app.dashboard/mocks-raw
  (fn [db _]
    (:mocks-raw db)))
 
