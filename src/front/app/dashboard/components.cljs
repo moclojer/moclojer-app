@@ -9,8 +9,7 @@
    [refx.alpha :as refx]
    [reitit.frontend.easy :as rfe]))
 
-(defnc nav-bar [{:keys [toggle-sidebar
-                        set-toggle user-data]}]
+(defnc nav-bar [{:keys [toggle-sidebar set-toggle user-data]}]
   (d/nav
    {:class-name "fixed z-30 w-full bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700"}
    (d/div
@@ -100,28 +99,26 @@
                                   "Logout"))))))))))
 
 (defnc aside [{:keys [is-sidebar-toogle? set-toggle]}]
-  (let [apis-mocks (refx/use-sub [:app.dashboard/mocks-api-raw])
+  (let [mocks-raw (refx/use-sub [:app.dashboard/mocks-raw])
         is-menu-open? (refx/use-sub [:app.dashboard/is-menu-open?])
         current-user (refx/use-sub [:app.auth/current-user])]
 
     (hooks/use-effect
-     [apis-mocks]
-     (when (nil? apis-mocks)
+     [mocks-raw]
+     (when (nil? mocks-raw)
        (refx/dispatch-sync [:app.dashboard/get-mocks current-user])))
 
     (d/div {:class-name "flex overflow-hidden pt-16 bg-gray-50 dark:bg-gray-900"}
            (d/aside {:id "sidebar"
                      :on-mouse-enter (fn [_e]
                                        (when is-sidebar-toogle?
-                                         (do
-                                           (refx/dispatch-sync [:app.dashboard/toggle-menu])
-                                           (set-toggle false))))
+                                         (refx/dispatch-sync [:app.dashboard/toggle-menu])
+                                         (set-toggle false)))
                      :on-mouse-leave (fn [_e]
                                        (when is-sidebar-toogle?
                                          (set-toggle true)))
                      :class-name (str "flex hidden fixed top-0 left-0 z-20 flex-col flex-shrink-0 pt-16 w-64 h-full duration-75 lg:flex transition-width "
-                                      (when is-sidebar-toogle?
-                                        "lg:w-16"))
+                                      (when is-sidebar-toogle? "lg:w-16"))
                      :aria-label "Sidebar"}
                     (d/div {:class-name "flex relative flex-col flex-1 pt-0 min-h-0 bg-white border-r border-gray-200 dark:bg-gray-800 dark:border-gray-700"}
                            (d/div {:class-name "flex overflow-y-auto flex-col flex-1 pt-5 pb-4"}
@@ -151,7 +148,7 @@
                                                 (d/button
                                                  {:href ""
                                                   :on-click (fn [_e]
-                                                              (if (empty? apis-mocks)
+                                                              (if (empty? mocks-raw)
                                                                 (refx/dispatch-sync [:app.dashboard/toggle-mock-modal])
                                                                 (do (refx/dispatch-sync [:app.dashboard/toggle-menu])
                                                                     (rfe/push-state :app.core/mocks))))
@@ -183,7 +180,7 @@
                                                                                           (str "py-2 space-y-2")
                                                                                           "hidden py-2 space-y-2")}
                                                       (for [{:keys [mock-type wildcard]
-                                                             :or {mock-type :personal}} apis-mocks]
+                                                             :or {mock-type :personal}} mocks-raw]
                                                         (d/li
                                                          {:key wildcard}
                                                          (d/a {:href ""
