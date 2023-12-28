@@ -66,11 +66,11 @@
                                                  :uri "/mocks"
                                                  :body {}})]
                     (match?
-                     (matchers/embeds {:mockss [{:subdomain "chico"
-                                                 :mock-type "personal"
-                                                 :apis [{:id #(uuid? (java.util.UUID/fromString %))
-                                                         :url "test.chico.moclojer.com"
-                                                         :subdomain "chico"
-                                                         :wildcard "test"
-                                                         :enabled true}]}]})
+                     (matchers/embeds {:mocks [{:subdomain "chico"
+                                                :mock-type "personal"
+                                                :apis [{:id #(uuid? (java.util.UUID/fromString %))
+                                                        :url "test.chico.moclojer.com"
+                                                        :subdomain "chico"
+                                                        :wildcard "test"
+                                                        :enabled true}]}]})
                      (-> resp-get :body))))))
