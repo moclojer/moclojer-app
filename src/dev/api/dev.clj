@@ -5,18 +5,15 @@
    [components.config :as config]
    [components.database :as database]
    [components.http :as http]
-   [components.logs :as logs]
-   [components.migrations :as migrations]
    [components.redis-publisher :as redis-publisher]
    [components.router :as router]
    [components.webserver :as webserver]
-   [pg-embedded-clj.core :as pg-emb])
+   [dev.utils :as utils])
   (:gen-class))
 
-;;this namespace is used for development purposes only
-;;it is not included in the uberjar
-;;refactoring to reuse components
-(def system-atom (atom nil))
+;; This namespace is used for development purposes only;
+;; it is not included in the uberjar.
+(def sys-atom (atom nil))
 
 (defn build-system-map []
   (component/system-map
@@ -27,22 +24,14 @@
    :publisher (component/using (redis-publisher/new-redis-publisher) [:config])
    :webserver (component/using (webserver/new-webserver) [:config :http :router :database :publisher])))
 
-(defn start-system-dev! [system-map]
-  (logs/setup [["*" :info]] :auto)
-  (pg-emb/init-pg)
-  (migrations/migrate (migrations/configuration-with-db))
-  (->> system-map
-       component/start
-       (reset! system-atom)))
-
-(defn stop-system-dev! []
-  (logs/log :info :system-stop)
-  (swap!
-   system-atom
-   (fn [s] (when s (component/stop s))))
-  (pg-emb/halt-pg!))
-
 (comment
+  ;; init
+  (utils/start-system-dev! sys-atom (build-system-map))
 
-  (stop-system-dev!)
-  (start-system-dev! (build-system-map)))
+  ;; iterate
+  (utils/stop-system-dev! sys-atom false)
+  ;; re-eval project then
+  (utils/start-system-dev! sys-atom (build-system-map) false)
+
+  ;; finish
+  (utils/stop-system-dev! sys-atom))
