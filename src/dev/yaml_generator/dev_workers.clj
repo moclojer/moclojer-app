@@ -48,6 +48,8 @@
 
 (comment
 
+  (stop-system-dev!)
+  (start-system-dev! system-map)
 
 ;;invoke stop system 
   (def publisher (:publisher @system-atom))
