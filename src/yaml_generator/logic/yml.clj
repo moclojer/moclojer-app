@@ -1,5 +1,6 @@
 (ns yaml-generator.logic.yml
-  (:require [clj-yaml.core :as yaml]))
+  (:require
+   [clj-yaml.core :as yaml]))
 
 (defn to-yaml-string [data]
   (yaml/generate-string data))
@@ -18,4 +19,4 @@
   (let [data1 (parse-yaml content-yaml)
         data2 (parse-yaml unified-yaml)]
     (to-yaml-string
-      (concat data1 data2))))
+     (concat data1 data2))))

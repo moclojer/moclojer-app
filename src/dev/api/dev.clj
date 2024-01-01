@@ -30,7 +30,7 @@
 
   ;; iterate
   (utils/stop-system-dev! sys-atom false)
-  ;; re-eval project then
+  ;; re-eval file then
   (utils/start-system-dev! sys-atom (build-system-map) false)
 
   ;; finish
