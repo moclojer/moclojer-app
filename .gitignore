@@ -39,3 +39,6 @@ resources/front/public/mockServiceWorker.js
 
 .DS_Store
 .dir-locals.el
+
+/docker/localstack
+/docker/redis
