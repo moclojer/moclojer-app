@@ -1,6 +1,7 @@
-(ns  yaml-generator.ports.producers
-  (:require [components.logs :as logs]
-            [components.redis-publisher :as redis-publisher]))
+(ns yaml-generator.ports.producers
+  (:require
+   [components.logs :as logs]
+   [components.redis-publisher :as redis-publisher]))
 
 (defn mock-unified!
   [path publisher]

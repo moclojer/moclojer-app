@@ -1,9 +1,11 @@
 (ns back.api.ports.producers
-  (:require [components.logs :as logs]
-            [components.redis-publisher :as redis-publisher]))
+  (:require
+   [components.logs :as logs]
+   [components.redis-publisher :as redis-publisher]))
 
 (defn mock-updated
   [mock publisher]
+  (prn :mock mock)
   (try
     (let [_ (redis-publisher/publish! publisher :mock.changed {:event mock})]
       mock)
