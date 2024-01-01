@@ -1,12 +1,14 @@
 (ns components.storage
-  (:require [clojure.java.io :as io]
-            [cognitect.aws.client.api :as aws]
-            [cognitect.aws.credentials :as cred]
-            [com.stuartsierra.component :as component]
-            [components.config :as config]
-            [components.logs :as logs]))
+  (:require
+   [clojure.java.io :as io]
+   [cognitect.aws.client.api :as aws]
+   [cognitect.aws.credentials :as cred]
+   [com.stuartsierra.component :as component]
+   [components.config :as config]
+   [components.logs :as logs]))
 
 (defprotocol IStorage
+  (initialize [this bucket-name])
   (get-bucket [this bucket-name])
   (list-buckets [this])
   (create-bucket! [this bucket-name])
@@ -42,15 +44,20 @@
                                                  {:access-key-id (-> config :config :storage :access-key-id)
                                                   :secret-access-key (-> config :config :storage :secret-access-key)})
                           :endpoint-override (endpoint-override config)})]
-
-      (assoc this :storage s3)))
+      (-> this
+          (assoc :storage s3)
+          (initialize "moclojer"))))
   (stop [this]
     (println "Stopping storage component")
     (assoc this :storage nil))
 
   IStorage
-  (get-bucket [this bucket-name]
+  (initialize [this bucket-name]
+    (when (nil? (get-bucket this bucket-name))
+      (create-bucket! this bucket-name))
+    this)
 
+  (get-bucket [this bucket-name]
     (-> (-> this :storage)
         (aws/invoke {:op :ListObjects
                      :request {:Bucket bucket-name}})
@@ -139,6 +146,8 @@
   (def storage
     (:storage @system-atom))
 
+  (create-bucket! storage "moclojer")
+
   (get-bucket storage "moclojer")
 
   (list-buckets storage)
@@ -147,8 +156,8 @@
 
   #_(get-file storage "moclojer" "1/2/test.yml")
 
-  (slurp (io/reader 
-           (get-file storage "moclojer" "cd989358-af38-4a2f-a1a1-88096aa425a7/accb6ceb-db5b-4033-98e5-8878ad8eff86/mock.yml")))
+  (slurp (io/reader
+          (get-file storage "moclojer" "cd989358-af38-4a2f-a1a1-88096aa425a7/accb6ceb-db5b-4033-98e5-8878ad8eff86/mock.yml")))
 
   (upload! storage "moclojer" "1/2/testt.yml" yml)
 
