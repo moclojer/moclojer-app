@@ -27,18 +27,18 @@ services:
     volumes:
       - ./redis:/redis
 
-  #localstack to test bucket code
+  # https://docs.localstack.cloud/user-guide/aws/s3/#s3-docker-image
   localstack:
-    image: localstack/localstack:latest
+    image: localstack/localstack:s3-latest
     ports:
-      - "4566-4583:4566-4583"
+      - "127.0.0.1:4566:4566" # Gateway      
     environment:
-      - SERVICES=s3,lambda,sqs,apigateway,cloudformation
+      - AWS_ACCESS_KEY_ID="foo"
+      - AWS_SECRET_ACCESS_KEY="bar"
       - AWS_DEFAULT_REGION=us-east-1
-      - EDGE_PORT=4566
-      - DEBUG=1
+      - DEBUG=${DEBUG:-1}
     volumes:
-      - "./.localstack:/localstack"
+      - "${LOCALSTACK_DIR:-./localstack}:/var/lib/localstack"
 
 volumes:
     db-data:
