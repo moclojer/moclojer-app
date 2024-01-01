@@ -19,7 +19,7 @@
    :workers (component/using
              (redis-queue/new-redis-queue p.workers/workers) [:config :storage])
    :moclojer (component/using
-              (moclojer/new-moclojer) [:storage])))
+              (moclojer/new-moclojer) [:storage :config])))
 
 (defn start-system! [system-map]
   (logs/setup [["*" :info]] :auto)
