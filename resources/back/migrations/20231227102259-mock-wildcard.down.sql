@@ -1,4 +1,4 @@
-ALTER TABLE Mock DROP CONSTRAINT IF EXISTS uq_wildcard_per_user_subdomain;
+ALTER TABLE mock DROP CONSTRAINT IF EXISTS uq_wildcard_per_user_subdomain;
 
 DROP TRIGGER IF EXISTS enforce_uq_wildcard ON mock;
 
