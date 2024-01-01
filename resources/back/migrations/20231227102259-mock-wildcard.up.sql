@@ -14,10 +14,10 @@ BEGIN
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
-
+--;
 CREATE TRIGGER enforce_uq_wildcard
 BEFORE INSERT ON mock
 FOR EACH ROW EXECUTE FUNCTION check_uq_wildcard();
-
+--;
 CREATE UNIQUE INDEX uq_wildcard_per_user_subdomain
 ON mock (user_id, subdomain, wildcard);
