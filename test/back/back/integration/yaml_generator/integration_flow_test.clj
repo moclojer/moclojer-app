@@ -1,12 +1,12 @@
 (ns back.integration.yaml-generator.integration-flow-test
   (:require [back.api.routes :as routes]
             [back.integration.components.utils :as utils]
-            [yaml.core :as yaml]
             [clojure.java.io :as io]
             [com.stuartsierra.component :as component]
             [components.config :as config]
             [components.database :as database]
             [components.http :as http]
+            [components.moclojer :as moclojer]
             [components.redis-publisher :as redis-publisher]
             [components.redis-queue :as redis-queue]
             [components.router :as router]
@@ -16,7 +16,8 @@
             [state-flow.cljtest]
             [state-flow.core :refer [flow]]
             [state-flow.state :as state]
-            [yaml-generator.ports.workers :as p.workers]))
+            [yaml-generator.ports.workers :as p.workers]
+            [yaml.core :as yaml]))
 
 (defn publish-message [msg queue-name]
   (flow "publish a message"
@@ -62,7 +63,10 @@
     :storage (component/using (storage/new-storage)
                               [:config])
     :workers (component/using
-              (redis-queue/new-redis-queue p.workers/workers) [:config :database :storage :publisher]))))
+              (redis-queue/new-redis-queue p.workers/workers) [:config :database :storage :publisher])
+
+    :moclojer (component/using
+               (moclojer/new-moclojer) [:storage :config]))))
 
 (def yml "
 - endpoint:
@@ -116,11 +120,11 @@
     ;;
     (flow "sleeping and check get the file inside the bucket"
 
-      (state/invoke (fn [] (Thread/sleep 10000)))
+      (state/invoke (fn [] (Thread/sleep 15000)))
       [file-result (get-file-on-localstack "moclojer" (str "cd989358-af38-4a2f-a1a1-88096aa425a7/" mock-id "/mock.yml"))]
 
       ; #TODO for now we are parsing to check the content
-      (match? (yaml/parse-string 
-                expected-yml-with-host)
+      (match? (yaml/parse-string
+               expected-yml-with-host)
               (yaml/parse-string
-                file-result)))))
+               file-result)))))
