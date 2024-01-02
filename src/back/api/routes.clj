@@ -82,7 +82,12 @@
            :interceptors [(extract-user-interceptor)]
            :parameters {:body schemas.wire-in/MockUpdate}
            :responses {200 {:body {:mock schemas.wire-out/Mock}}}
-           :handler ports.http-in/handler-update-mock!}}]
+           :handler ports.http-in/handler-update-mock!}
+     :delete {:summary "Delete a mock"
+              :interceptors [(extract-user-interceptor)]
+              :parameters {:body schemas.wire-in/MockDelete}
+              :responses {200 {:body {}}}
+              :handler ports.http-in/handler-delete-mock!}}]
 
    ["/mocks/:id/publish"
     {:post {:summary "Publish mock"

@@ -52,7 +52,12 @@
   (assoc mock :mock/content content))
 
 (defn publish [mock]
-  (assoc mock :mock/published true))
+  (assoc mock :mock/enabled true))
 
 (defn unpublish [mock]
-  (assoc mock :mock/published false))
+  (assoc mock :mock/enabled false))
+
+(defn filter-by-id [mocks id]
+  (->> mocks
+       (filter #(= (-> % :mock/id str) (str id)))
+       first))

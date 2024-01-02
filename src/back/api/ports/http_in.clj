@@ -4,6 +4,7 @@
    [back.api.controllers.login :as controllers.login]
    [back.api.controllers.mocks :as controllers.mocks]
    [back.api.controllers.user :as controllers.user]))
+
 (defn handler-create-user!
   [{{{:keys [access-token]} :body} :parameters
     components :components}]
@@ -83,6 +84,14 @@
     components :components}]
   (controllers.mocks/unpublish-mock! id components)
   {:status 200 :body {}})
+
+(defn handler-delete-mock!
+  [{{{id :id} :body} :parameters
+    session :session-data
+    components :components}]
+  (if (controllers.mocks/delete-mock! session id components)
+    {:status 200 :body {}}
+    {:status 401 :body {}}))
 
 (defn username-available?
   [{{{:keys [username]} :path} :parameters

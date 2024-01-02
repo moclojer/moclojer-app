@@ -42,4 +42,4 @@
      (-> ctx
          (dissoc :error)
          (assoc :response {:status 401
-                           :body (get-message-when-keyword ex)})))})
+                           :body {:error (get-message-when-keyword ex)}})))})
