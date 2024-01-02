@@ -1,10 +1,18 @@
 (ns components.database
-  (:require [com.stuartsierra.component :as component]
-            [components.db-utils :refer [to-jdbc-uri]]
-            [components.logs :as logs]
-            [next.jdbc :as jdbc]
-            [next.jdbc.connection :as connection])
-  (:import (com.zaxxer.hikari HikariDataSource)))
+  (:require
+   [com.stuartsierra.component :as component]
+   [components.db-utils :refer [to-jdbc-uri]]
+   [components.logs :as logs]
+   [next.jdbc :as jdbc]
+   [next.jdbc.connection :as connection])
+  (:import
+   (com.zaxxer.hikari HikariDataSource)))
+
+;; https://github.com/seancorfield/next-jdbc/blob/develop/doc/getting-started.md#logging-sql-and-parameters
+(defn db-logger
+  "Simple logger for debugging purposes."
+  [operation query]
+  (logs/log :info :database :operation operation :query query))
 
 (defprotocol DatabaseProvider
   (execute [self command]
@@ -28,7 +36,9 @@
 
   DatabaseProvider
   (execute [this commands]
-    (jdbc/execute! (:datasource this) commands)))
+    (let [ds (:datasource this)
+          log-ds (jdbc/with-logging ds db-logger)]
+      (jdbc/execute! log-ds commands))))
 
 (defn new-database []
   (map->Database {}))
