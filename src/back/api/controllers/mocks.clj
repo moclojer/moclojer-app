@@ -39,3 +39,13 @@
       (db.mocks/update! database))
   true)
 
+(defn delete-mock!
+  [session id {:keys [database]}]
+  ;; filtering so we can check if the session user
+  ;; owns the mock to be deleted.
+  (if-let [mock (-> (db.mocks/get-mocks session database)
+                    (logic.mocks/filter-by-id id))]
+    (do
+      (db.mocks/delete-mock-by-id (:mock/id mock) database)
+      (constantly true))
+    false))
