@@ -157,13 +157,13 @@
   #_(get-file storage "moclojer" "1/2/test.yml")
 
   (slurp (io/reader
-          (get-file storage "moclojer" "cd989358-af38-4a2f-a1a1-88096aa425a7/accb6ceb-db5b-4033-98e5-8878ad8eff86/mock.yml")))
+          (get-file storage "moclojer" "01946f25-0294-488f-ac13-4158f5dce8ca/cb145ab3-3abc-40ec-9a52-b14bd5ea8825/mock.yml")))
 
   (upload! storage "moclojer" "1/2/testt.yml" yml)
 
   #_(list-buckets storage)
   (create-bucket! storage "moclojer")
-  #_(delete-file! storage "moclojer" "test.yml")
+  (delete-file! storage "moclojer" "1/2/testt.yml")
   ;
   )
 
