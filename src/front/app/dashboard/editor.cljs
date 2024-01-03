@@ -95,15 +95,15 @@
                                     ($ svg/mock-enabled)
                                     (d/div {:class-name "text-zinc-500 text-xl font-medium leading-[30px]"} (str (:url data)))))
 
-                      (d/button {:class-name "flex gap-2.5 p-2 bg-white"
-                                 :on-click (fn [_]
-                                             (refx/dispatch-sync [:app.dashboard/delete-mock {:id mock-id}])
-                                             (rfe/push-state :app.core/mocks))}
-                                (d/div {:class-name "px-3 py-2 rounded-lg border border-gray-200 justify-center items-center gap-2 flex"}
+                      (d/div {:class-name "flex gap-2.5 p-2 bg-white"}
+                             (d/button {:class-name "px-3 py-2 rounded-lg border border-gray-200 justify-center items-center gap-2 flex"
+                                        :on-click (fn [_]
+                                                    (refx/dispatch-sync [:app.dashboard/delete-mock {:id mock-id}])
+                                                    (rfe/push-state :app.core/mocks))}
                                        (d/div {:class-name "text-gray-800 text-sm font-medium leading-[21px]"} "remove")
                                        ($ svg/trash))
 
-                                ($ save-button {:mock-id mock-id})))
+                             ($ save-button {:mock-id mock-id})))
                (d/div {}
                       ($ drag-drop
                          {:on-load (fn [e]
