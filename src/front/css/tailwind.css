@@ -27,10 +27,7 @@
 .mock-list {
   display: flex;
   flex-direction: column;
-}
-
-.mock-list-margin {
-  margin: 32px;
+  padding: 32px;
 }
 
 .button-remove:hover {
