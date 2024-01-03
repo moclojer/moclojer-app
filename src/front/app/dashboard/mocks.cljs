@@ -10,26 +10,25 @@
    [reitit.frontend.easy :as rfe]))
 
 (defnc api-mock [{:keys [enabled url id]}]
-  (d/a {:class-name "py-4 bg-white border-b border-gray-200 justify-center items-center inline-flex mouse-cursor" :id id
-        :key id
-        :on-click (fn [_] (rfe/push-state :app.core/mocks-view {:mock-id id}))
-        #_#_:href (str "/dashboard/mocks/" id)}
-       (d/div {:class-name "grow shrink basis-0 h-[49px] justify-start items-center gap-2 flex"}
+  (d/a {:class "w-full py-4 bg-white border-b border-gray-200 justify-center items-center inline-flex mouse-cursor"
+        :id id :key id
+        :on-click (fn [_] (rfe/push-state :app.core/mocks-view {:mock-id id}))}
+       (d/div {:class "grow shrink basis-0 h-[49px] flex justify-start items-center gap-2"}
               (if enabled
                 ($ svg/mock-enabled)
                 ($ svg/mock-disabled))
-              (d/div {:class-name "justify-start items-start flex"})
-              (d/div {:class-name "grow shrink basis-0 flex-col justify-start items-start gap-1 inline-flex"}
-                     (d/div {:class-name (if enabled
-                                           "w-[1116px] grow shrink basis-0 text-gray-900 text-base font-semibold leading-normal"
-                                           "w-[1116px] h-6 text-neutral-400 text-base font-semibold leading-normal")} url)
-                     (d/div {:class-name (if enabled
-                                           "w-[1116px] text-gray-500 text-sm font-normal leading-[21px]"
-                                           "w-[1116px] text-gray-500 text-sm font-normal leading-[21px]")} " my frist mock server")))
+              (d/div {:class "grow shrink flex-col justify-start items-start gap-1 inline-flex"}
+                     (d/div {:class (str "w-full text-base font-semibold leading-normal "
+                                         (if enabled
+                                           "grow shrink basis-0 text-gray-900"
+                                           "h-6 text-neutral-400"))}
+                            url)
+                     (d/div {:class "w-full text-gray-500 text-sm font-normal leading-[21px]"}
+                            " my first mock server")))
 
-       (d/div {:class-name "px-3 py-2  rounded-lg border border-gray-200 justify-center items-center gap-2 flex button-remove"}
+       (d/div {:class "px-3 py-2 rounded-lg border border-gray-200 justify-center items-center gap-2 flex button-remove"}
               (d/button {:on-click (fn [e] (prn :click e))
-                         :class-name "text-gray-800 text-sm font-medium leading-[21px]"}
+                         :class "text-gray-800 text-sm font-medium leading-[21px]"}
                         "remove")
               (d/svg {:width "10"
                       :height "20"
@@ -47,16 +46,16 @@
 
 (defnc apis-mocks [{:keys [subdomain mock-type apis]}]
   (d/div {:id "custom-mock"
-          :class-name "w-[1306px] h-[314px] p-8 bg-white rounded-lg shadow flex-col justify-center items-start inline-flex mock-list-margin"
+          :class "w-full h-[314px] p-8 bg-white rounded-lg shadow flex-col justify-center items-start inline-flex"
           :key (str subdomain)}
-         (d/div {:class-name "self-stretch justify-start items-center gap-[15px] inline-flex"}
+         (d/div {:class "self-stretch justify-start items-center gap-[15px] inline-flex"}
                 ($ (mock-svg-by-type mock-type))
-                (d/div {:class-name "w-[423px] self-stretch text-gray-900 text-xl font-bold leading-[30px]"} subdomain))
+                (d/div {:class "w-full self-stretch text-gray-900 text-xl font-bold leading-[30px]"} subdomain))
          (for [{:keys [enabled url id]} apis]
            (<> {:key id}
                ($ api-mock {:enabled enabled :url url :id id})))
-         (d/div {:class-name "self-stretch pt-6 justify-start items-start inline-flex text-white text-xs font-bold leading-[18px]"}
-                (d/button {:class-name "px-3 py-2 bg-pink-600 rounded-lg justify-end items-center gap-2 flex btn-add"
+         (d/div {:class "self-stretch pt-6 justify-start items-start inline-flex text-white text-xs font-bold leading-[18px]"}
+                (d/button {:class "px-3 py-2 bg-pink-600 rounded-lg justify-end items-center gap-2 flex btn-add"
                            :on-click (fn [_] (refx/dispatch [:app.dashboard/toggle-mock-modal]))}
                           (d/svg {:width "16"
                                   :height "17"
@@ -80,7 +79,7 @@
        (refx/dispatch-sync [:app.dashboard/get-mocks current-user])))
 
     ($ base/index
-       (d/div {:class-name "mock-list"}
+       (d/div {:class "mock-list"}
               (for [{:keys [mock-type subdomain apis] :or {mock-type "personal"}} mocks]
                 (<> {:key subdomain}
                     ($ apis-mocks {:mock-type mock-type :subdomain subdomain :apis apis})))))))
