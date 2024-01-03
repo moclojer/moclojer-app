@@ -142,3 +142,27 @@
  :app.dashboard/edit-mock-success
  (fn [db [_ {new-mocks-raw :new-mocks-raw}]]
    (assoc db :mocks-raw new-mocks-raw)))
+
+(refx/reg-event-fx
+ :app.dashboard/delete-mock-success
+ (fn [{db :db} [_ user]]
+   {:dispatch [:app.dashboard/get-mocks user]
+    :db (dissoc db :delete-mock-err)}))
+
+(refx/reg-event-db
+ :app.dashboard/delete-mock-failure
+ (fn [db [_ body]]
+   (prn :body body)
+   (assoc db :delete-mock-err body)))
+
+(refx/reg-event-fx
+ :app.dashboard/delete-mock
+ (fn [{{:keys [current-user]} :db}
+      [_ {:keys [id]}]]
+   (let [access-token (:access-token current-user)]
+     {:http {:url "/mocks"
+             :method :delete
+             :headers {"authorization" (str "Bearer " access-token)}
+             :body {:id (str id)}
+             :on-success [:app.dashboard/delete-mock-success current-user]
+             :on-failure [:app.dashboard/delete-mock-failure]}})))
