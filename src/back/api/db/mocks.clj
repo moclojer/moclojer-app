@@ -46,5 +46,4 @@
    db
    (-> (sql.helpers/delete-from :mock)
        (sql.helpers/where [:= :id id])
-       (sql.helpers/returning :*)
        (sql/format))))
