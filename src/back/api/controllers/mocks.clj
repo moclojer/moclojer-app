@@ -17,7 +17,7 @@
       (logic.mocks/update {:content content})
       (db.mocks/update! database)
       (adapter.mocks/->wire)
-      (ports.producers/publish-mock-event publisher)))
+      (ports.producers/publish-mock-event :mock.changed publisher)))
 
 (defn get-mocks
   [filters {:keys [database]}]
@@ -31,7 +31,7 @@
       logic.mocks/publish
       (db.mocks/update! database)
       (adapter.mocks/->wire)
-      (ports.producers/publish-mock-event publisher))
+      (ports.producers/publish-mock-event :mock.changed publisher))
   true)
 
 (defn unpublish-mock!
@@ -40,7 +40,7 @@
       logic.mocks/unpublish
       (db.mocks/update! database)
       (adapter.mocks/->wire)
-      (ports.producers/publish-mock-event publisher))
+      (ports.producers/publish-mock-event :mock.changed publisher))
   true)
 
 (defn delete-mock!
