@@ -47,13 +47,17 @@
           :wildcard "test"
           :enabled true}})
 
-#_(defn flow'-check-mock-deletion-publisher [mock]
-    (flow
-     [delete-evt (first (:mock.deleted @redis-publisher/mock-publisher))]
-     "should have published a :mock.deleted event"
-     (match? (matchers/embeds delete-evt) {:event mock})))
+(defn fcheck-mock-deletion-publisher [{:keys [id user-id]}]
+  (flow
+   "should have published a :mock.deleted event"
+   [deleted-evt (state/invoke
+                 #(first (:mock.deleted @redis-publisher/mock-publisher)))]
+   (match?
+    (matchers/embeds deleted-evt)
+    {:event {:id (parse-uuid id)
+             :user-id user-id}})))
 
-(defn flow'-check-mock-deletion-storage [{:keys [id user-id]}]
+(defn fcheck-mock-deletion-storage [{:keys [id user-id]}]
   (flow
    "should have deleted mock from storage"
    [:let [file-path (str user-id "/" id "/mock.yml")]
@@ -61,7 +65,7 @@
     mock-file (state/invoke #(storage/get-file strg "moclojer" file-path))]
    (match? nil mock-file)))
 
-(defn flow'-delete-mock [id]
+(defn fdelete-mock [id]
   (flow
    "should delete given mock"
    [:let [req (merge (:base-req flow-consts)
@@ -72,11 +76,11 @@
     (matchers/embeds {:status 200 :body empty?})
     resp)
    [:let [mock {:id id
-                :user-id (get-in flow-consts [:user :customer/external-uuid])}]]
-   #_(flow'-check-mock-deletion-publisher mock)
-   (flow'-check-mock-deletion-storage mock)))
+                :user-id (get-in flow-consts [:user :customer/uuid])}]]
+   (fcheck-mock-deletion-publisher mock)
+   (fcheck-mock-deletion-storage mock)))
 
-(defn flow'-create-mock []
+(defn fcreate-mock []
   (flow
    "should create a mock"
    [:let [req (merge (:base-req flow-consts)
@@ -87,7 +91,7 @@
    (match?
     (matchers/embeds {:status 201 :body exp-body})
     resp)
-   (flow'-delete-mock (get-in resp [:body :mock :id]))))
+   (fdelete-mock (get-in resp [:body :mock :id]))))
 
 (defflow
   flow-delete-mock
@@ -98,4 +102,4 @@
    "should create and delete mock"
    [db (state-flow.api/get-state :database)]
    (state/invoke #(db.customers/insert! (:user flow-consts) db))
-   (flow'-create-mock)))
+   (fcreate-mock)))
