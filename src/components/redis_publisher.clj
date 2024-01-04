@@ -47,11 +47,10 @@
     (reset! mock-publisher {}))
 
   IPublisher
-  (publish! [_this queue-name message]
-    (let [state (get @mock-publisher queue-name)]
-      (if state
-        (swap! mock-publisher assoc queue-name (conj state message))
-        (swap! mock-publisher assoc queue-name [message])))))
+  (publish! [_ queue-name message]
+    (if-let [state (get @mock-publisher queue-name)]
+      (swap! mock-publisher assoc queue-name (conj state message))
+      (swap! mock-publisher assoc queue-name [message]))))
 
 (defn mock-redis-publisher []
   (->MockRedisPublisher {}))
@@ -64,6 +63,4 @@
                 :mock.changed
                 (mq/enqueue
                  :mock.changed
-                 "test"))
-  ;
-  )
+                 "test")))
