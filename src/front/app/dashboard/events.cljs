@@ -152,7 +152,6 @@
 (refx/reg-event-db
  :app.dashboard/delete-mock-failure
  (fn [db [_ body]]
-   (prn :body body)
    (assoc db :delete-mock-err body)))
 
 (refx/reg-event-fx
