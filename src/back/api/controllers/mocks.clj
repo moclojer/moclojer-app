@@ -10,11 +10,15 @@
   (let [uid {:user-id user-id}
         wuid (merge (select-keys mock [:wildcard]) uid)
         existing-mock (db.mocks/get-mock-by-wildcard wuid database)]
-    (if (nil? existing-mock)
+    (if (empty? existing-mock)
       (-> (logic.mocks/create (merge uid mock))
           (db.mocks/insert! database)
           (adapter.mocks/->wire))
       false)))
+
+(defn wildcard-available?
+  [wuid {:keys [database]}]
+  (empty? (db.mocks/get-mock-by-wildcard wuid database)))
 
 (defn update-mock!
   [id content {:keys [database publisher]}]

@@ -4,6 +4,7 @@
    [back.api.controllers.login :as controllers.login]
    [back.api.controllers.mocks :as controllers.mocks]
    [back.api.controllers.user :as controllers.user]))
+
 (defn handler-create-user!
   [{{{:keys [access-token]} :body} :parameters
     components :components}]
@@ -87,9 +88,20 @@
   (controllers.mocks/unpublish-mock! id components)
   {:status 200 :body {}})
 
-(defn username-available?
+(defn handler-username-available?
   [{{{:keys [username]} :path} :parameters
     {:keys [database]} :components}]
   (let [available (controllers.user/username-available? username database)]
     {:status 200
      :body available}))
+
+(defn handler-wildcard-available?
+  [{{{:keys [wildcard]} :path} :parameters
+    {:keys [user-id]} :session-data
+    components :components}]
+  (let [available (controllers.mocks/wildcard-available?
+                   {:wildcard wildcard
+                    :user-id user-id}
+                   components)]
+    {:status 200
+     :body {:available available}}))

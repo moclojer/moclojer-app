@@ -59,3 +59,8 @@
  :app.dashboard/mock-valid?
  (fn [db _]
    (:mock-valid? db)))
+
+(refx/reg-sub
+ :app.dashboard/wildcard-available?
+ (fn [db _]
+   (:wildcard-available? db)))

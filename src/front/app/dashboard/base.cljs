@@ -20,10 +20,12 @@
         loading? (refx/use-sub [:app.dashboard/loading-creating-mock?])
         user-orgs (refx/use-sub [:app.user/orgs])
         [new-mock set-mock] (hooks/use-state {:enabled false})
+        wildcard-available? (refx/use-sub [:app.dashboard/wildcard-available?])
         allow-save? (and (:subdomain new-mock)
                          (seq (:subdomain new-mock))
                          (:wildcard new-mock)
-                         (some? (:enabled new-mock)))]
+                         (some? (:enabled new-mock))
+                         wildcard-available?)]
     (<>
      (when is-mock-modal
        (d/div {:modal-backdrop "" :class "bg-gray-900 bg-opacity-50 dark:bg-opacity-80 fixed inset-0 z-40"}))
@@ -64,7 +66,9 @@
                                                       :value (or (:wildcard new-mock) "")
                                                       :type "text"
                                                       :on-change (fn [e]
-                                                                   (set-mock assoc :wildcard (.. e -target -value)))
+                                                                   (let [wildcard (.. e -target -value)]
+                                                                     (set-mock assoc :wildcard wildcard)
+                                                                     (refx/dispatch-sync [:app.dashboard/wildcard-available? wildcard])))
                                                       :name "product-name"
                                                       :id "product-name"}))))
                              (d/div {:class-name "mb-4"}

@@ -65,8 +65,8 @@
      :get {:summary "Check if username is available"
            :parameters {:path {:username string?}}
            :interceptors [(extract-user-interceptor)]
-           :responses {200 {:body schemas.wire-out/UsernameAvailable}}
-           :handler ports.http-in/username-available?}}]
+           :responses {200 {:body schemas.wire-out/Available}}
+           :handler ports.http-in/handler-username-available?}}]
 
    ["/mocks"
     {:swagger {:tags ["mocks"]}
@@ -85,6 +85,14 @@
            :parameters {:body schemas.wire-in/MockUpdate}
            :responses {200 {:body {:mock schemas.wire-out/Mock}}}
            :handler ports.http-in/handler-update-mock!}}]
+
+   ["/mock/wildcard/:wildcard"
+    {:swagger {:tags ["get wildcard"]}
+     :get {:summary "Check if wildcard is available"
+           :parameters {:path {:wildcard string?}}
+           :interceptors [(extract-user-interceptor)]
+           :responses {200 {:body schemas.wire-out/Available}}
+           :handler ports.http-in/handler-wildcard-available?}}]
 
    ["/mocks/:id/publish"
     {:post {:summary "Publish mock"
