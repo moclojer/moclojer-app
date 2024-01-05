@@ -6,6 +6,7 @@
    [back.api.schemas.wire-in :as schemas.wire-in]
    [back.api.schemas.wire-out :as schemas.wire-out]
    [reitit.swagger :as swagger]))
+
 (def routes
   [["/swagger.json"
     {:get {:no-doc true
@@ -72,7 +73,8 @@
      :post {:summary "Create a mock"
             :parameters {:body schemas.wire-in/Mock}
             :interceptors [(extract-user-interceptor)]
-            :responses {201 {:body {:mock schemas.wire-out/Mock}}}
+            :responses {201 {:body {:mock schemas.wire-out/Mock}}
+                        400 {:body {:error string?}}}
             :handler ports.http-in/handler-create-mock!}
      :get {:summary "Get mocks"
            :interceptors [(extract-user-interceptor)]

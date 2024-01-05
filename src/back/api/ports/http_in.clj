@@ -53,9 +53,12 @@
   [{{body :body} :parameters
     {:keys [user-id]} :session-data
     components :components}]
-  (let [mock (controllers.mocks/create-mock! user-id body components)]
+  (if-let [mock (controllers.mocks/create-mock! user-id body components)]
     {:status 201
-     :body {:mock mock}}))
+     :body {:mock mock}}
+    {:status 400
+     :body {:error (str "mock " (:wildcard body) "." (:subdomain body)
+                        ".moclojer.com already exists")}}))
 
 (defn handler-update-mock!
   [{{{:keys [id content]} :body} :parameters
