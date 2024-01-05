@@ -96,12 +96,11 @@
      :body available}))
 
 (defn handler-wildcard-available?
-  [{{{:keys [wildcard]} :path} :parameters
+  [{{mock :path} :parameters
     {:keys [user-id]} :session-data
     components :components}]
   (let [available (controllers.mocks/wildcard-available?
-                   {:wildcard wildcard
-                    :user-id user-id}
+                   (merge mock {:user-id user-id})
                    components)]
     {:status 200
      :body {:available available}}))

@@ -86,10 +86,11 @@
            :responses {200 {:body {:mock schemas.wire-out/Mock}}}
            :handler ports.http-in/handler-update-mock!}}]
 
-   ["/mock/wildcard/:wildcard"
+   ["/mocks/wildcard/:subdomain/:wildcard"
     {:swagger {:tags ["get wildcard"]}
      :get {:summary "Check if wildcard is available"
-           :parameters {:path {:wildcard string?}}
+           :parameters {:path {:subdomain string?
+                               :wildcard string?}}
            :interceptors [(extract-user-interceptor)]
            :responses {200 {:body schemas.wire-out/Available}}
            :handler ports.http-in/handler-wildcard-available?}}]

@@ -37,7 +37,7 @@
   background-color: #5e5e5e1c;
 }
 
-.btn-add:hover {
+.btn-add:not(.btn-add__disabled):hover {
   background-color: #e9056299;
 }
 

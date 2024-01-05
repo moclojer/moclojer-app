@@ -32,13 +32,15 @@
             sql/format))
        first))
 
-(defn get-mock-by-wildcard [{:keys [wildcard user-id]} db]
+(defn get-mock-by-wildcard
+  [{:keys [wildcard subdomain user-id]} db]
   (first (database/execute
           db
           (-> (sql.helpers/select :*)
               (sql.helpers/from :mock)
               (sql.helpers/where [:and
                                   [:= :wildcard wildcard]
+                                  [:= :subdomain subdomain]
                                   [:= :user_id user-id]])
               sql/format))))
 

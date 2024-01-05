@@ -150,10 +150,11 @@
 
 (refx/reg-event-fx
  :app.dashboard/wildcard-available?
- (fn [{db :db} [_ wildcard]]
+ (fn [{db :db} [_ {:keys [subdomain wildcard]}]]
    (let [access-token (get-in db [:current-user :access-token])]
-     {:http {:url (str "/mock/wildcard/" wildcard)
-             :method :get
-             :headers {"authorization" (str "Bearer " access-token)}
-             :on-success [:app.dashboard/wildcard-available]
-             :on-failure [:app.dashboard/create-mock-failure]}})))
+     (when (every? not-empty [subdomain wildcard])
+       {:http {:url (str "/mocks/wildcard/" subdomain "/" wildcard)
+               :method :get
+               :headers {"authorization" (str "Bearer " access-token)}
+               :on-success [:app.dashboard/wildcard-available]
+               :on-failure [:app.dashboard/create-mock-failure]}}))))

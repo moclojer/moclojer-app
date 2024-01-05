@@ -66,9 +66,11 @@
                                                       :value (or (:wildcard new-mock) "")
                                                       :type "text"
                                                       :on-change (fn [e]
-                                                                   (let [wildcard (.. e -target -value)]
+                                                                   (let [subdomain (:subdomain new-mock)
+                                                                         wildcard (.. e -target -value)]
                                                                      (set-mock assoc :wildcard wildcard)
-                                                                     (refx/dispatch-sync [:app.dashboard/wildcard-available? wildcard])))
+                                                                     (refx/dispatch-sync [:app.dashboard/wildcard-available? {:subdomain subdomain
+                                                                                                                              :wildcard wildcard}])))
                                                       :name "product-name"
                                                       :id "product-name"}))))
                              (d/div {:class-name "mb-4"}
@@ -79,8 +81,11 @@
                                                :name "subdomain"
                                                :value (or (:subdomain new-mock) "")
                                                :on-change (fn [e]
-                                                            (prn :e (.. e -target -value))
-                                                            (set-mock assoc :subdomain (.. e -target -value)))
+                                                            (let [subdomain (.. e -target -value)
+                                                                  wildcard (:wildcard new-mock)]
+                                                              (set-mock assoc :subdomain subdomain)
+                                                              (refx/dispatch-sync [:app.dashboard/wildcard-available? {:subdomain subdomain
+                                                                                                                       :wildcard wildcard}])))
 
                                                :class "bg-gray-50 border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"}
                                               (d/option {:value ""} "Select an org-name")
@@ -110,9 +115,8 @@
                                     (d/div {:class-name "flex flex-col flex-grow"})
 
                                     (d/button {:class-name
-                                               (str "px-3 py-2 "
-                                                    (if allow-save? "bg-pink-600" "bg-gray-600")
-                                                    " rounded-lg justify-end items-center gap-2 flex btn-add")
+                                               (str "px-3 py-2 rounded-lg justify-end items-center gap-2 flex btn-add "
+                                                    (if allow-save? "bg-pink-600" "btn-add__disabled bg-gray-600 cursor-not-allowed"))
                                                :on-click (fn [_]
                                                            (when allow-save?
                                                              (refx/dispatch [:app.dashboard/create-mock new-mock])))}

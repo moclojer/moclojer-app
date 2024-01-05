@@ -8,8 +8,9 @@
 (defn create-mock!
   [user-id mock {:keys [database]}]
   (let [uid {:user-id user-id}
-        wuid (merge (select-keys mock [:wildcard]) uid)
-        existing-mock (db.mocks/get-mock-by-wildcard wuid database)]
+        existing-mock (-> (select-keys mock [:wildcard :subdomain])
+                          (merge uid)
+                          (db.mocks/get-mock-by-wildcard database))]
     (if (empty? existing-mock)
       (-> (logic.mocks/create (merge uid mock))
           (db.mocks/insert! database)
@@ -17,8 +18,8 @@
       false)))
 
 (defn wildcard-available?
-  [wuid {:keys [database]}]
-  (empty? (db.mocks/get-mock-by-wildcard wuid database)))
+  [mock {:keys [database]}]
+  (empty? (db.mocks/get-mock-by-wildcard mock database)))
 
 (defn update-mock!
   [id content {:keys [database publisher]}]
