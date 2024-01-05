@@ -7,9 +7,14 @@
 
 (defn create-mock!
   [user-id mock {:keys [database]}]
-  (-> (logic.mocks/create (merge {:user-id user-id} mock))
-      (db.mocks/insert! database)
-      (adapter.mocks/->wire)))
+  (let [uid {:user-id user-id}
+        wuid (merge (select-keys mock [:wildcard]) uid)
+        existing-mock (db.mocks/get-mock-by-wildcard wuid database)]
+    (if (nil? existing-mock)
+      (-> (logic.mocks/create (merge uid mock))
+          (db.mocks/insert! database)
+          (adapter.mocks/->wire))
+      false)))
 
 (defn update-mock!
   [id content {:keys [database publisher]}]
