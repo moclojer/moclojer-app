@@ -88,6 +88,14 @@
   (controllers.mocks/unpublish-mock! id components)
   {:status 200 :body {}})
 
+(defn handler-delete-mock!
+  [{{{id :id} :body} :parameters
+    session :session-data
+    components :components}]
+  (if (controllers.mocks/delete-mock! session id components)
+    {:status 200 :body {}}
+    {:status 401 :body {}}))
+
 (defn handler-username-available?
   [{{{:keys [username]} :path} :parameters
     {:keys [database]} :components}]
