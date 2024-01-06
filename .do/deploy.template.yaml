@@ -32,6 +32,11 @@ ingress:
     match:
       path:
         prefix: /api
+  - component:
+      name: moclojer
+    match:
+      path:
+        prefix: /v1/api
 
 static_sites:
 - dockerfile_path: docker/Dockerfile.front
