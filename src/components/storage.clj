@@ -152,6 +152,8 @@
 
   (list-buckets storage)
 
+  (delete-bucket! storage "moclojer")
+
   (list-files storage "moclojer")
 
 

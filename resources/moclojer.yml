@@ -1,12 +1,12 @@
 
 - endpoint:
     method: GET
-    path: /hello/:username
+    path: /version
     response:
       status: 200
       headers:
         Content-Type: application/json
       body: >
         {
-          "hello": "{{path-params.username}}!"
+          "version": "v0.0.1!"
         }
