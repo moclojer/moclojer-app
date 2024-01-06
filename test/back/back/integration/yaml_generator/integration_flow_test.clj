@@ -95,7 +95,6 @@
 - endpoint:
     method: GET
     path: /hello/:username
-    host: test.chico.moclojer.com
     response:
       status: 200
       headers:

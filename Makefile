@@ -24,3 +24,10 @@ dist-api: build-uberjar-api ## Build and package Clojure service
 build-uberjar-api: ## Build a uberjar archive of Clojure project & Clojure runtime
 	$(info --------- Build service Uberjar  ---------)
 	clojure -T:build uberjar :uber-file api
+
+dist-moclojer: build-uberjar-moclojer ## Build and package Clojure service
+	$(info --------- Build and Package Clojure moclojerservice ---------)
+
+build-uberjar-moclojer: ## Build a uberjar archive of Clojure project & Clojure runtime
+	$(info --------- Build service Uberjar  ---------)
+	clojure -T:build uberjar :uber-file moclojer
