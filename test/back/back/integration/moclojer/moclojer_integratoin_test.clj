@@ -92,6 +92,7 @@
         }")
 
 (defn- create-and-start-components! []
+  (spit "resources/moclojer.yml" start-mock-yaml)
   (component/start-system
    (component/system-map
     :config (config/new-config)
