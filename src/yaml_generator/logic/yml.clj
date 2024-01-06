@@ -1,6 +1,6 @@
 (ns yaml-generator.logic.yml
   (:require
-   [clj-yaml.core :as yaml]))
+   [yaml.core :as yaml]))
 
 (defn to-yaml-string [data]
   (yaml/generate-string data))

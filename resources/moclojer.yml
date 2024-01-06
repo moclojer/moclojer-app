@@ -1,0 +1,10 @@
+  - endpoint:
+      method: GET
+      path: /version
+      response:
+        status: 200
+        headers: {Content-Type: application/json}
+        body: |-
+          {
+            "version": "v0.0.1!"
+          }

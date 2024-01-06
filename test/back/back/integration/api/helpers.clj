@@ -1,5 +1,5 @@
 (ns back.integration.api.helpers
- (:require [cheshire.core :as json]
+  (:require [cheshire.core :as json]
             [clojure.string :as string]
             [io.pedestal.test :as pt]
             [state-flow.api :as state-flow.api]
@@ -20,6 +20,15 @@
   [{:keys [method uri body headers]}]
   (flow "makes http request"
     [service-fn (state-flow.api/get-state (comp :io.pedestal.http/service-fn :webserver :webserver))]
+    (-> service-fn
+        (do-request method uri body headers)
+        parsed-response
+        state-flow.api/return)))
+
+(defn request-moclojer!
+  [{:keys [method uri body headers]}]
+  (flow "makes http request"
+    [service-fn (state-flow.api/get-state (comp :io.pedestal.http/service-fn :server :moclojer :moclojer))]
     (-> service-fn
         (do-request method uri body headers)
         parsed-response
