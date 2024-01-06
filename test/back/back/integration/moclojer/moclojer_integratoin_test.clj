@@ -30,6 +30,14 @@
          msg)
         state-flow.api/return)))
 
+(defn delete-bucket-on-localstack [n]
+  (flow "delte bucket on localstack"
+    [storage (state-flow.api/get-state :storage)]
+
+    (-> storage
+        (storage/delete-bucket! n)
+        state-flow.api/return)))
+
 (defn create-bucket-on-localstack [n]
   (flow "create a bucket on localstack"
     [storage (state-flow.api/get-state :storage)]
@@ -46,9 +54,9 @@
       [:let [files (->> (storage/list-files storage n)
                         (map :Key))]]
       (flow "delete")
-      (->> files
-           (map #(storage/delete-file! storage n %))
-           state-flow.api/return))))
+      (some->> files
+               (map #(storage/delete-file! storage n %))
+               state-flow.api/return))))
 
 (defn delelte-file [n f]
   (flow "cleaning up localstack"
@@ -56,14 +64,14 @@
     (-> (storage/delete-file! storage n f)
         state-flow.api/return)))
 
-(defn get-file-from-localstack [n k]
-  (flow "get a storage "
+(defn cleaning-up-localstack-all-files [n]
+  (flow "cleaning up localstack"
     [storage (state-flow.api/get-state :storage)]
-    (flow "get file"
-      [file (storage/get-file storage n k)]
 
-      (some-> file
-              state-flow.api/return))))
+    (->>  (storage/list-files storage n)
+          (map :Key)
+          (map #(storage/delete-file! storage n %))
+          state-flow.api/return)))
 
 (def start-mock-yaml "
 - endpoint:
@@ -92,7 +100,6 @@
         }")
 
 (defn- create-and-start-components! []
-  (spit "resources/moclojer.yml" start-mock-yaml)
   (component/start-system
    (component/system-map
     :config (config/new-config)
@@ -119,42 +126,53 @@
                                                         :storage]))))
 
 (def mock-id (random-uuid))
+
 (defflow start-moclojer-with-yaml-generator
-  {:init (utils/start-system! create-and-start-components!)
+  {:init (utils/start-system!
+          create-and-start-components!)
    :cleanup utils/stop-system!
    :fail-fast? true}
 
-  (state/invoke (fn [] (Thread/sleep 15000)))
+  (flow "cleaning up localstack"
+    [:let [_r (spit "resources/moclojer.yml" start-mock-yaml)
+           _ (cleaning-up-localstack "moclojer")]]
+    (state/invoke (fn [] (Thread/sleep 15000)))
 
-  (flow "request the moclojer server up with default mock"
-    [resp (helpers/request-moclojer! {:method :get
-                                      :uri "/version"})]
+    (flow "request the moclojer server up with default mock"
+      [resp (helpers/request-moclojer! {:method :get
+                                        :uri "/version"})]
 
-    (match? {:status 200
-             :body {:version "v0.0.1!"}}
-            resp)
+      (match? {:status 200
+               :body {:version "v0.0.1!"}}
+              resp)
 
-    (flow "create a bucket and consuming message"
+      (flow "create a bucket and consuming message"
 
-      [create (create-bucket-on-localstack "moclojer")
-       _ (publish-message {:event
-                           {:user-id #uuid "cd989358-af38-4a2f-a1a1-88096aa425a7",
-                            :id mock-id
-                            :wildcard "test",
-                            :subdomain "chico",
-                            :enabled true,
-                            :content mock-yaml}} :mock.changed)]
-      (match? create {:Location "/moclojer"})
+        [create (create-bucket-on-localstack "moclojer")
+         _ (publish-message {:event
+                             {:user-id #uuid "cd989358-af38-4a2f-a1a1-88096aa425a7",
+                              :id mock-id
+                              :wildcard "test",
+                              :subdomain "chico",
+                              :enabled true,
+                              :content mock-yaml}} :mock.changed)]
+        (match? create {:Location "/moclojer"})
 
     ;;
-      (flow "sleeping and check if the file change"
+        (flow "sleeping and check if the file change"
 
-        (state/invoke (fn [] (Thread/sleep 25000)))
-        [resp (helpers/request-moclojer! {:method :get
-                                          :uri "/hello/chico"})]
+          (state/invoke (fn [] (Thread/sleep 25000)))
+          [resp (helpers/request-moclojer! {:method :get
+                                            :uri "/hello/chico"})]
 
-        (match? {:status 200
-                 :body {:hello "chico!"}} resp)
-        (flow "deleting"
-          [:let [_ (spit "resources/moclojer.yml" start-mock-yaml)]]
-          (cleaning-up-localstack "moclojer"))))))
+          (match? {:status 200
+                   :body {:hello "chico!"}} resp)
+
+          (flow "deleting"
+            [:let [_ (spit "resources/moclojer.yml" start-mock-yaml)]]
+            (flow "cleaning up localstack"
+              [r (cleaning-up-localstack-all-files "moclojer")]
+              (match? (list {} {}) r)
+              (flow "delete bucket"
+                [r (delete-bucket-on-localstack "moclojer")]
+                (match? {} r)))))))))

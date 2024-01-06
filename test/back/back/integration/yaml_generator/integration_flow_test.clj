@@ -18,6 +18,14 @@
             [yaml-generator.ports.workers :as p.workers]
             [yaml.core :as yaml]))
 
+(defn delete-bucket-on-localstack [n]
+  (flow "delte bucket on localstack"
+    [storage (state-flow.api/get-state :storage)]
+
+    (-> storage
+        (storage/delete-bucket! n)
+        state-flow.api/return)))
+
 (defn publish-message [msg queue-name]
   (flow "publish a message"
     [publisher (state-flow.api/get-state :publisher)]
@@ -55,6 +63,15 @@
         (-> storage
             (storage/delete-bucket! n)
             state-flow.api/return)))))
+
+(defn cleaning-up-localstack-all-files [n]
+  (flow "cleaning up localstack"
+    [storage (state-flow.api/get-state :storage)]
+
+    (->>  (storage/list-files storage n)
+          (map :Key)
+          (map #(storage/delete-file! storage n %))
+          state-flow.api/return)))
 
 (defn- create-and-start-components! []
   (component/start-system
@@ -111,30 +128,32 @@
    :cleanup utils/stop-system!
    :fail-fast? true}
 
-  (flow "deleting if exist"
-    (cleaning-up-localstack "moclojer")
+  (flow "create a bucket and consuming message"
 
-    (flow "create a bucket and consuming message"
-
-      [create (create-bucket-on-localstack "moclojer")
-       _ (publish-message {:event
-                           {:user-id #uuid "cd989358-af38-4a2f-a1a1-88096aa425a7",
-                            :id mock-id
-                            :wildcard "test",
-                            :subdomain "chico",
-                            :enabled true,
-                            :content yml}} :mock.changed)]
-      (match? create {:Location "/moclojer"})
+    [create (create-bucket-on-localstack "moclojer")
+     _ (publish-message {:event
+                         {:user-id #uuid "cd989358-af38-4a2f-a1a1-88096aa425a7",
+                          :id mock-id
+                          :wildcard "test",
+                          :subdomain "chico",
+                          :enabled true,
+                          :content yml}} :mock.changed)]
+    (match? create {:Location "/moclojer"})
 
     ;;
-      (flow "sleeping and check get the file inside the bucket"
+    (flow "sleeping and check get the file inside the bucket"
 
-        (state/invoke (fn [] (Thread/sleep 15000)))
-        [file-result (get-file-on-localstack "moclojer" (str "cd989358-af38-4a2f-a1a1-88096aa425a7/" mock-id "/mock.yml"))]
+      (state/invoke (fn [] (Thread/sleep 15000)))
+      [file-result (get-file-on-localstack "moclojer" (str "cd989358-af38-4a2f-a1a1-88096aa425a7/" mock-id "/mock.yml"))]
 
       ; #TODO for now we are parsing to check the content
-        (match? (yaml/parse-string
-                 expected-yml-with-host)
-                (yaml/parse-string
-                 file-result))
-        (cleaning-up-localstack "moclojer")))))
+      (match? (yaml/parse-string
+               expected-yml-with-host)
+              (yaml/parse-string
+               file-result))
+      (flow "cleaning up localstack"
+        [r (cleaning-up-localstack-all-files "moclojer")]
+        (match? (list {} {}) r)
+        (flow "delete bucket"
+          [r (delete-bucket-on-localstack "moclojer")]
+          (match? {} r))))))
