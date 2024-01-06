@@ -16,3 +16,4 @@
   [{:keys [_event]}
    {:keys [storage]}]
   (write-on-disk storage))
+
