@@ -154,6 +154,11 @@
 
   (list-files storage "moclojer")
 
+
+  (->> (list-files storage "moclojer")
+      (map :Key)
+      (map #(delete-file! storage "moclojer" %))
+      )
   #_(get-file storage "moclojer" "1/2/test.yml")
 
   (slurp (io/reader

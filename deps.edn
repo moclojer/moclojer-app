@@ -42,7 +42,7 @@
                                    :git/url "https://github.com/cljazz/supabase-clj"}
 
         com.moclojer/moclojer {:git/url "https://github.com/moclojer/moclojer.git"
-                               :git/sha "cdd0a9289e071972e7d1d0c21c85b1b970050cf4"}}
+                               :git/sha "8eef33753c7e0e834392e67caa5bef888ada6880"}}
 
  :aliases
  {;; frontend

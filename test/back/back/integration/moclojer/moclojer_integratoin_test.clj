@@ -2,6 +2,7 @@
   (:require [back.api.routes :as routes]
             [back.integration.api.helpers :as helpers]
             [back.integration.components.utils :as utils]
+            [clojure.java.io :as io]
             [com.stuartsierra.component :as component]
             [components.config :as config]
             [components.database :as database]
@@ -11,13 +12,13 @@
             [components.redis-queue :as redis-queue]
             [components.router :as router]
             [components.storage :as storage]
+            [moclojer.ports.workers :as p.moclojer.workers]
             [state-flow.api :refer [defflow]]
             [state-flow.assertions.matcher-combinators :refer [match?]]
             [state-flow.cljtest]
             [state-flow.core :refer [flow]]
             [state-flow.state :as state]
-            [yaml-generator.ports.workers :as p.workers]
-            [moclojer.ports.workers :as p.moclojer.workers]))
+            [yaml-generator.ports.workers :as p.workers]))
 
 (defn publish-message [msg queue-name]
   (flow "publish a message"
@@ -41,11 +42,41 @@
   (flow "cleaning up localstack"
     [storage (state-flow.api/get-state :storage)]
 
-    (let [exist (storage/get-bucket storage n)]
-      (when exist
-        (-> storage
-            (storage/delete-bucket! n)
-            state-flow.api/return)))))
+    (flow "files"
+      [:let [files (->> (storage/list-files storage n)
+                        (map :Key))]]
+      (flow "delete")
+      (->> files
+           (map #(storage/delete-file! storage n %))
+           state-flow.api/return))))
+
+(defn delelte-file [n f]
+  (flow "cleaning up localstack"
+    [storage (state-flow.api/get-state :storage)]
+    (-> (storage/delete-file! storage n f)
+        state-flow.api/return)))
+
+(defn get-file-from-localstack [n k]
+  (flow "get a storage "
+    [storage (state-flow.api/get-state :storage)]
+    (flow "get file"
+      [file (storage/get-file storage n k)]
+
+      (some-> file
+              state-flow.api/return))))
+
+(def start-mock-yaml "
+- endpoint:
+    method: GET
+    path: /version
+    response:
+      status: 200
+      headers:
+        Content-Type: application/json
+      body: >
+        {
+          \"version\": \"v0.0.1!\"
+        }")
 
 (def mock-yaml "
 - endpoint:
@@ -122,4 +153,7 @@
                                           :uri "/hello/chico"})]
 
         (match? {:status 200
-                 :body {:hello "chico!"}} resp)))))
+                 :body {:hello "chico!"}} resp)
+        (flow "deleting"
+          [:let [_ (spit "resources/moclojer.yml" start-mock-yaml)]]
+          (cleaning-up-localstack "moclojer"))))))

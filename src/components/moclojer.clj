@@ -12,7 +12,7 @@
 
 (defn moclojer-server! [{:keys [config-path join?]}]
   (let [*router (m.adapters/generate-routes (m.io-utils/open-file config-path))]
-    {:stop-future (server/create-wathcer *router {:config-path config-path})
+    {:stop-future (server/create-watcher *router {:config-path config-path})
      :server (server/start-server! *router {:join? join?})}))
 
 (defrecord Moclojer [storage config]
