@@ -39,10 +39,10 @@
                     "xYzllLTRhYmItYTQ5Yi00MzhlMTg2OWVjNWIifQ.Gd42M"
                     "G5EQCVvQwsvlhRQWHuEr-BBo4GB7Pd9di8w_No")}
               :uri "/mocks"}
-   :user {:customer/uuid #uuid "cd989358-af38-4a2f-a1a1-88096aa425a7"
+   :user {:customer/uuid (random-uuid)
           :customer/email "test@gmail.com"
           :customer/username "j0suetm"
-          :customer/external-uuid #uuid "dcff4c06-1c9e-4abb-a49b-438e1869ec5b"}
+          :customer/external-uuid (random-uuid)}
    :mock {:subdomain "j0suetm"
           :wildcard "test"
           :enabled true}})
@@ -86,7 +86,9 @@
    [:let [req (merge (:base-req flow-consts)
                      {:method :post
                       :body (:mock flow-consts)})
-          exp-body {:mock (assoc (:mock flow-consts) :id string?)}]
+          exp-body {:mock (merge (:mock flow-consts)
+                                 {:id string?
+                                  :user-id string?})}]
     resp (helpers/request! req)]
    (match?
     (matchers/embeds {:status 201 :body exp-body})
