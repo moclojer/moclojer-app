@@ -34,10 +34,10 @@
                     "xYzllLTRhYmItYTQ5Yi00MzhlMTg2OWVjNWIifQ.Gd42M"
                     "G5EQCVvQwsvlhRQWHuEr-BBo4GB7Pd9di8w_No")}
               :uri "/mocks"}
-   :user {:customer/uuid (random-uuid)
+   :user {:customer/uuid #uuid "cd989358-af38-4a2f-a1a1-88096aa425a7"
           :customer/email "test@gmail.com"
           :customer/username "my-user"
-          :customer/external-uuid (random-uuid)}
+          :customer/external-uuid #uuid "dcff4c06-1c9e-4abb-a49b-438e1869ec5b"}
    :mock {:subdomain "my-user"
           :wildcard "test"
           :enabled false}})
