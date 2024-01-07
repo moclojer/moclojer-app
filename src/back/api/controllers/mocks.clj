@@ -15,7 +15,10 @@
       (-> (logic.mocks/create (merge uid mock))
           (db.mocks/insert! database)
           (adapter.mocks/->wire))
-      false)))
+      (throw (ex-info "Mock with given wildcard and subdomain already exists"
+                      {:status-code 412
+                       :cause :invalid-wildcard
+                       :value (adapter.mocks/->wire existing-mock)})))))
 
 (defn wildcard-available?
   [mock {:keys [database]}]
