@@ -1,6 +1,6 @@
-(ns moclojer.ports.workers
+(ns moclojer.api.ports.workers
   (:require [components.logs :as logs]
-            [moclojer.controllers.moclojer :as controller.moclojer]))
+            [moclojer.api.controllers.moclojer :as controller.moclojer]))
 
 (defn restart-mock-file-handler
   [{:keys [event]} components]

@@ -12,7 +12,7 @@
             [components.redis-queue :as redis-queue]
             [components.router :as router]
             [components.storage :as storage]
-            [moclojer.ports.workers :as p.moclojer.workers]
+            [moclojer.api.ports.workers :as p.moclojer.workers]
             [state-flow.api :refer [defflow]]
             [state-flow.assertions.matcher-combinators :refer [match?]]
             [state-flow.cljtest]

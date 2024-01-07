@@ -1,4 +1,4 @@
-(ns moclojer.server
+(ns moclojer.api.server
   (:require [com.stuartsierra.component :as component]
             [components.config :as config]
             [components.logs :as logs]
@@ -6,7 +6,8 @@
             [components.redis-publisher :as redis-publisher]
             [components.redis-queue :as redis-queue]
             [components.storage :as storage]
-            [moclojer.ports.workers :as p.workers]))
+            [moclojer.api.ports.workers :as p.workers])
+  (:gen-class))
 
 (def system-atom (atom nil))
 
