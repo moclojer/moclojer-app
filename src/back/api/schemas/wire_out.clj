@@ -25,6 +25,9 @@
    [:subdomain string?]
    [:enabled boolean?]])
 
+(def MockDeleteUnauthorized
+  [:map [:error string?]])
+
 (def GroupedMockAPI
   [:and
    [:map

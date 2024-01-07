@@ -53,3 +53,9 @@
                                 [:= :user_id user-id]])
             sql/format))))
 
+(defn delete-mock-by-id [id db]
+  (database/execute
+   db
+   (-> (sql.helpers/delete-from :mock)
+       (sql.helpers/where [:= :id id])
+       (sql/format))))

@@ -6,9 +6,12 @@
    [yaml-generator.logic.yml :as logic.yml]
    [yaml-generator.ports.producers :as ports.producers]))
 
+(defn gen-path [user-id id]
+  (str user-id "/" id "/mock.yml"))
+
 (defn generate [{:keys [id user-id wildcard content subdomain enabled]}
                 {:keys [storage publisher]}]
-  (let [path (str user-id "/" id "/mock.yml")
+  (let [path (gen-path user-id id)
         host (str wildcard "." subdomain ".moclojer.com")
         content-with-host (logic.yml/add-host host content)
         file-exist? (storage/get-file storage "moclojer" path)]
@@ -32,4 +35,7 @@
            (storage/upload! storage "moclojer" "moclojer.yml"))
       (storage/upload! storage "moclojer" "moclojer.yml" file-mock))))
 
-
+(defn delete [{:keys [id user-id]} {:keys [storage]}]
+  (let [path (gen-path user-id id)]
+    (logs/log :info :delete :path path)
+    (storage/delete-file! storage "moclojer" path)))

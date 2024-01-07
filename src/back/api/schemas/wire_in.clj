@@ -15,3 +15,6 @@
   [:map
    [:id string?]
    [:content {:optional true} string?]])
+
+(def MockDelete
+  [:map [:id string?]])

@@ -3,11 +3,9 @@
    [components.logs :as logs]
    [components.redis-publisher :as redis-publisher]))
 
-(defn mock-updated
-  [mock publisher]
-  (prn :mock mock)
+(defn publish-mock-event [mock queue-name publisher]
   (try
-    (let [_ (redis-publisher/publish! publisher :mock.changed {:event mock})]
-      mock)
+    (redis-publisher/publish! publisher queue-name  {:event mock})
+    mock
     (catch Exception e
       (logs/log :error :publish-mock-error e))))
