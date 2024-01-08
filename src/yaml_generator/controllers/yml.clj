@@ -32,8 +32,9 @@
     (logs/log :info :generate-unified-yml :path path :mock file-mock)
     (logs/log :info :moclojer :unified unified-mock)
     (if unified-mock
-      (->> (logic.yml/to-yaml-string
-            (logic.yml/unified-yaml file-mock (slurp (io/reader unified-mock))))
+      (->> (io/reader unified-mock)
+           slurp
+           (logic.yml/unified-yaml file-mock)
            (storage/upload! storage "moclojer" "moclojer.yml"))
       (storage/upload! storage "moclojer" "moclojer.yml" file-mock))))
 
