@@ -1,24 +1,25 @@
 (ns components.moclojer
-  (:require [clojure.java.io :as io]
-            [com.moclojer.adapters :as m.adapters]
-            [com.moclojer.io-utils :as m.io-utils]
-            [com.moclojer.server :as server]
-            [com.stuartsierra.component :as component]
-            [components.logs :as logs]
-            [components.storage :as storage]
-            [io.pedestal.http :as http]))
+  (:require
+   [clojure.java.io :as io]
+   [com.moclojer.adapters :as m.adapters]
+   [com.moclojer.io-utils :as m.io-utils]
+   [com.moclojer.server :as server]
+   [com.stuartsierra.component :as component]
+   [components.logs :as logs]
+   [components.storage :as storage]
+   [io.pedestal.http :as http]))
 
-(defn write-on-disk [storage]
+(defn write-on-disk [storage config-path]
   (let [string-mock (storage/get-file storage "moclojer" "moclojer.yml")]
     (logs/log :info :moclojer :found string-mock)
     (when string-mock
       (->>
        (slurp
         (io/reader string-mock))
-       (spit "resources/moclojer.yml")))))
+       (spit config-path)))))
 
-(defn service-startup! [storage]
-  (write-on-disk storage))
+(defn service-startup! [storage config-path]
+  (write-on-disk storage config-path))
 
 (defn moclojer-server! [{:keys [config-path join?]}]
   (let [*router (m.adapters/generate-routes (m.io-utils/open-file config-path))]
@@ -32,7 +33,7 @@
       (logs/log :info :moclojer-start
                 :info-server {:config-path config-path
                               :join? join?})
-      (service-startup! storage)
+      (service-startup! storage config-path)
       (assoc this :moclojer
              (moclojer-server!
               {:config-path config-path
