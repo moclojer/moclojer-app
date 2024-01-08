@@ -22,6 +22,7 @@ USER moclojer
 
 WORKDIR /service
 COPY --from=builder /build/target/moclojer.jar /service/moclojer.jar
+COPY resources/moclojer.yml /service/moclojer.yml
 
 ENV PROFILE=prod
 
