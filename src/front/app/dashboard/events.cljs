@@ -143,6 +143,22 @@
  (fn [db [_ {new-mocks-raw :new-mocks-raw}]]
    (assoc db :mocks-raw new-mocks-raw)))
 
+(refx/reg-event-db
+ :app.dashboard/wildcard-available
+ (fn [db [_ {{:keys [available]} :body}]]
+   (assoc db :wildcard-available? available)))
+
+(refx/reg-event-fx
+ :app.dashboard/wildcard-available?
+ (fn [{db :db} [_ {:keys [subdomain wildcard]}]]
+   (let [access-token (get-in db [:current-user :access-token])]
+     (when (every? not-empty [subdomain wildcard])
+       {:http {:url (str "/mocks/wildcard/" subdomain "/" wildcard)
+               :method :get
+               :headers {"authorization" (str "Bearer " access-token)}
+               :on-success [:app.dashboard/wildcard-available]
+               :on-failure [:app.dashboard/create-mock-failure]}}))))
+
 (refx/reg-event-fx
  :app.dashboard/delete-mock-success
  (fn [{db :db} [_ user]]

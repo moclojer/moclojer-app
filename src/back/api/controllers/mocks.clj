@@ -7,9 +7,22 @@
 
 (defn create-mock!
   [user-id mock {:keys [database]}]
-  (-> (logic.mocks/create (merge {:user-id user-id} mock))
-      (db.mocks/insert! database)
-      (adapter.mocks/->wire)))
+  (let [uid {:user-id user-id}
+        existing-mock (-> (select-keys mock [:wildcard :subdomain])
+                          (merge uid)
+                          (db.mocks/get-mock-by-wildcard database))]
+    (if (empty? existing-mock)
+      (-> (logic.mocks/create (merge uid mock))
+          (db.mocks/insert! database)
+          (adapter.mocks/->wire))
+      (throw (ex-info "Mock with given wildcard and subdomain invalid"
+                      {:status-code 412
+                       :cause :invalid-wildcard
+                       :value (adapter.mocks/->wire existing-mock)})))))
+
+(defn wildcard-available?
+  [mock {:keys [database]}]
+  (empty? (db.mocks/get-mock-by-wildcard mock database)))
 
 (defn update-mock!
   [id content {:keys [database publisher]}]

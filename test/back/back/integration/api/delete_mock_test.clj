@@ -86,7 +86,9 @@
    [:let [req (merge (:base-req flow-consts)
                      {:method :post
                       :body (:mock flow-consts)})
-          exp-body {:mock (assoc (:mock flow-consts) :id string?)}]
+          exp-body {:mock (merge (:mock flow-consts)
+                                 {:id string?
+                                  :user-id string?})}]
     resp (helpers/request! req)]
    (match?
     (matchers/embeds {:status 201 :body exp-body})

@@ -53,9 +53,12 @@
   [{{body :body} :parameters
     {:keys [user-id]} :session-data
     components :components}]
-  (let [mock (controllers.mocks/create-mock! user-id body components)]
+  (if-let [mock (controllers.mocks/create-mock! user-id body components)]
     {:status 201
-     :body {:mock mock}}))
+     :body {:mock mock}}
+    {:status 400
+     :body {:error (str "mock " (:wildcard body) "." (:subdomain body)
+                        ".moclojer.com already exists")}}))
 
 (defn handler-update-mock!
   [{{{:keys [id content]} :body} :parameters
@@ -93,9 +96,19 @@
     {:status 200 :body {}}
     {:status 401 :body {}}))
 
-(defn username-available?
+(defn handler-username-available?
   [{{{:keys [username]} :path} :parameters
     {:keys [database]} :components}]
   (let [available (controllers.user/username-available? username database)]
     {:status 200
      :body available}))
+
+(defn handler-wildcard-available?
+  [{{mock :path} :parameters
+    {:keys [user-id]} :session-data
+    components :components}]
+  (let [available (controllers.mocks/wildcard-available?
+                   (merge mock {:user-id user-id})
+                   components)]
+    {:status 200
+     :body {:available available}}))

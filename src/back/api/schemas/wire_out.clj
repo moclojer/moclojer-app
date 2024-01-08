@@ -1,6 +1,12 @@
 (ns back.api.schemas.wire-out)
 
-(def UsernameAvailable
+(def APIError
+  [:map
+   [:message string?]
+   [:cause string?]
+   [:value any?]])
+
+(def Available
   [:map
    [:available boolean?]])
 
