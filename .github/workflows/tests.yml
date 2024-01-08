@@ -1,8 +1,13 @@
-name: Tests
+name: Tests Frontend
 
 on:
   pull_request:
     branches: [ main ]
+    paths:
+      - 'src/front/**'
+      - 'test/front/**'
+      - 'shadow-cljs.edn'
+      - 'resources/front/**'
 
   workflow_dispatch:
 

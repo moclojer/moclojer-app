@@ -1,5 +1,14 @@
 #kaocha/v1
- {:tests   [{:id         :unit
-             :test-paths ["test/back/back/unit"]}
-            {:id         :integration
-             :test-paths ["test/back/back/integration"]}]}
+ {:tests [{:id         :unit
+           :test-paths ["test/back/back/unit"]}
+          {:id         :integration
+           :test-paths ["test/back/back/integration"]}
+          {:id         :api
+           :test-paths ["test/back/back/integration/api"]}
+          ;; test-paths of other test IDs should be updated if
+          ;; unit tests are added
+          {:id         :yaml-generator
+           :test-paths ["test/back/back/integration/yaml_generator"
+                        "test/back/back/unit/yml_generator"]}
+          {:id         :moclojer
+           :test-paths ["test/back/back/integration/moclojer"]}]}
