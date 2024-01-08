@@ -1,7 +1,7 @@
 (ns back.integration.yaml-generator.yaml-unified-mock-test
   (:require [back.api.routes :as routes]
             [back.integration.components.utils :as utils]
-            [clj-yaml.core :as yaml]
+            [yaml.core :as yaml]
             [clojure.java.io :as io]
             [com.stuartsierra.component :as component]
             [components.config :as config]
@@ -35,6 +35,23 @@
     (-> storage
         (storage/create-bucket! n)
         state-flow.api/return)))
+
+(defn delete-bucket-on-localstack [n]
+  (flow "delte bucket on localstack"
+    [storage (state-flow.api/get-state :storage)]
+
+    (-> storage
+        (storage/delete-bucket! n)
+        state-flow.api/return)))
+
+(defn cleaning-up-localstack-all-files [n]
+  (flow "cleaning up localstack"
+    [storage (state-flow.api/get-state :storage)]
+
+    (->>  (storage/list-files storage n)
+          (map :Key)
+          (map #(storage/delete-file! storage n %))
+          state-flow.api/return)))
 
 (defn setup-file-on-localstack [bucket k v]
   (flow "setup a file on localstack"
@@ -94,7 +111,6 @@
 - endpoint:
     method: GET
     path: /hello/:username
-    hots: test.chico.moclojer.com
     response:
       status: 200
       headers:
@@ -118,8 +134,8 @@
 
     (flow "setup mock on bucket for path"
       [_ (setup-file-on-localstack "moclojer"
-                                             (str "cd989358-af38-4a2f-a1a1-88096aa425a7/" mock-id "/mock.yml")
-                                             yml)
+                                   (str "cd989358-af38-4a2f-a1a1-88096aa425a7/" mock-id "/mock.yml")
+                                   yml)
        _ (publish-message {:event
                            {:path (str "cd989358-af38-4a2f-a1a1-88096aa425a7/" mock-id "/mock.yml")}} :mock-unified)]
       (flow "sleeping and check get the file inside the bucket unified"
@@ -131,4 +147,11 @@
         (match? (yaml/parse-string
                  expected-yml-with-host)
                 (yaml/parse-string
-                 file-result))))))
+                 file-result))
+
+        (flow "cleaning up localstack"
+          [r (cleaning-up-localstack-all-files "moclojer")]
+          (match? (list {}) r)
+          (flow "delete bucket"
+            [r (delete-bucket-on-localstack "moclojer")]
+            (match? {} r)))))))

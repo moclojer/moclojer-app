@@ -37,9 +37,12 @@
         selmer/selmer {:mvn/version "1.12.55"}
         com.taoensso/carmine {:mvn/version "3.3.0"
                               :exclusions [com.taoensso/timbre]}
-        clj-commons/clj-yaml {:mvn/version "1.0.27"}
+        io.forward/yaml               {:mvn/version "1.0.11"}
         io.github.cljazz/supabase {:git/sha "a850ed47eb0daa8303f206ea60bd4b3bf59e1e0a"
-                                   :git/url "https://github.com/cljazz/supabase-clj"}}
+                                   :git/url "https://github.com/cljazz/supabase-clj"}
+
+        com.moclojer/moclojer {:git/url "https://github.com/moclojer/moclojer.git"
+                               :git/sha "84df7980a56789d1f0b03b9ee06086e4b33f28f1"}}
 
  :aliases
  {;; frontend
