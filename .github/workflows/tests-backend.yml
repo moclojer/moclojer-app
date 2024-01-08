@@ -15,7 +15,6 @@ jobs:
 
     strategy:
       matrix:
-        namespace: [ unit, integration ]
         operating-system: [ubuntu-latest]
 
     runs-on: ${{ matrix.operating-system }}
@@ -46,7 +45,7 @@ jobs:
         uses: supercharge/redis-github-action@1.7.0
         with:
           redis-version: 7
-      - name: Star localsta
+      - name: Start localstack
         run: |
           pip install localstack awscli-local[ver1] # install LocalStack cli and awslocal
           docker pull localstack/localstack         # Make sure to pull the latest version of the image
@@ -55,5 +54,34 @@ jobs:
           localstack wait -t 30                     # to become ready before timing out 
           echo "Startup complete"          ck
 
-      - name: Execute clojure code
-        run: clojure -M:test ${{ matrix.namespace }}
+      - uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          filters: |
+            api:
+              - 'src/back/**'
+              - 'src/components/**'
+              - 'test/back/back/api/integration/api/**'
+              - 'resources/back/**'
+            yaml-generator:
+              - 'src/yaml_generator/**'
+              - 'src/components/**'
+              - 'test/back/back/yml_generator/**'
+              - 'resources/back/**'
+            moclojer:
+              - 'src/moclojer/**'
+              - 'src/components/**'
+              - 'test/back/back/moclojer/**'
+              - 'resources/back/**'
+
+      - name: Test API
+        if: steps.filter.outputs.api == 'true'
+        run: clojure -M:test api
+
+      - name: Test Yaml Generator
+        if: steps.filter.outputs.yaml-generator == 'true'
+        run: clojure -M:test yaml-generator
+
+      - name: Test Moclojer Lib
+        if: steps.filter.outputs.moclojer == 'true'
+        run: clojure -M:test moclojer
