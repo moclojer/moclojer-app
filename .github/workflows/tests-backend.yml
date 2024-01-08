@@ -61,7 +61,7 @@ jobs:
             api:
               - 'src/back/**'
               - 'src/components/**'
-              - 'test/back/back/api/integration/api/**'
+              - 'test/back/back/integration/api/**'
               - 'resources/back/**'
             yaml-generator:
               - 'src/yaml_generator/**'
