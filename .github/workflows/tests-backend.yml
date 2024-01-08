@@ -71,7 +71,7 @@ jobs:
             moclojer:
               - 'src/moclojer/**'
               - 'src/components/**'
-              - 'test/back/back/moclojer/**'
+              - 'test/back/back/integration/moclojer/**'
               - 'resources/back/**'
 
       - name: Test API
