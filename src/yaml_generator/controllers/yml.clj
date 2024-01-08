@@ -18,8 +18,6 @@
         content-with-host (if (= env :dev) content (logic.yml/add-host host content))
         file-exist? (storage/get-file storage "moclojer" path)]
 
-    (prn :env env :ctt content :cwh content-with-host)
-
     (logs/log :info :upload :path path :file-exist? file-exist?)
     (storage/upload! storage "moclojer" path content-with-host)
     (when enabled
