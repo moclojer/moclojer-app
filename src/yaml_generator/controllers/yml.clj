@@ -12,11 +12,13 @@
 (defn generate [{:keys [id user-id wildcard content subdomain enabled]}
                 {:keys [storage publisher config]}]
   (let [path (gen-path user-id id)
-        env (-> config :env)
+        env (get-in config [:config :env])
         host (str wildcard "." subdomain ".moclojer.com")
         ;; this is to develop mode not use host local to be able to test integration
-        content-with-host (if (= env :dev) (logic.yml/add-host host content) content)
+        content-with-host (if (= env :dev) content (logic.yml/add-host host content))
         file-exist? (storage/get-file storage "moclojer" path)]
+
+    (prn :env env :ctt content :cwh content-with-host)
 
     (logs/log :info :upload :path path :file-exist? file-exist?)
     (storage/upload! storage "moclojer" path content-with-host)
