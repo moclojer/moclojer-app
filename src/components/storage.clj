@@ -156,21 +156,19 @@
 
   (list-files storage "moclojer")
 
-
   (->> (list-files storage "moclojer")
-      (map :Key)
-      (map #(delete-file! storage "moclojer" %))
-      )
+       (map :Key)
+       (map #(delete-file! storage "moclojer" %)))
   #_(get-file storage "moclojer" "1/2/test.yml")
 
   (slurp (io/reader
-          (get-file storage "moclojer" "01946f25-0294-488f-ac13-4158f5dce8ca/cb145ab3-3abc-40ec-9a52-b14bd5ea8825/mock.yml")))
+          (get-file storage "moclojer" "moclojer.yml")))
 
   (upload! storage "moclojer" "1/2/testt.yml" yml)
 
   #_(list-buckets storage)
   (create-bucket! storage "moclojer")
-  (delete-file! storage "moclojer" "1/2/testt.yml")
+  (delete-file! storage "moclojer" "moclojer.yml")
   ;
   )
 
