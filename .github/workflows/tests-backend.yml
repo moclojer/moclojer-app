@@ -5,6 +5,19 @@ on:
   # Triggers the workflow on push or pull request events but only for the main branch
   pull_request:
     branches: [ main ]
+    paths:
+      - 'src/back/**'
+      - 'src/components/**'
+      - 'test/back/back/api/integration/api/**'
+      - 'resources/back/**'
+      - 'src/yaml_generator/**'
+      - 'src/components/**'
+      - 'test/back/back/yml_generator/**'
+      - 'resources/back/**'
+      - 'src/moclojer/**'
+      - 'src/components/**'
+      - 'test/back/back/moclojer/**'
+      - 'resources/back/**'
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
