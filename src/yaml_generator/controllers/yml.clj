@@ -13,9 +13,9 @@
                 {:keys [storage publisher config]}]
   (let [path (gen-path user-id id)
         env (get-in config [:config :env])
+        host-key (if (= env :dev) :local-host :host)
         host (str wildcard "." subdomain ".moclojer.com")
-        ;; this is to develop mode not use host local to be able to test integration
-        content-with-host (if (= env :dev) content (logic.yml/add-host host content))
+        content-with-host (logic.yml/add-host host-key host content)
         file-exist? (storage/get-file storage "moclojer" path)]
 
     (logs/log :info :upload :path path :file-exist? file-exist?)
@@ -24,21 +24,38 @@
       (ports.producers/mock-unified! path publisher))
     (logs/log :info :upload-success :path path)))
 
-(defn generate-unified-yml [{:keys [path]} {:keys [storage]}]
-  (let [file-mock (slurp
-                   (io/reader
-                    (storage/get-file storage "moclojer" path)))
-        unified-mock (storage/get-file storage "moclojer" "moclojer.yml")]
-    (logs/log :info :generate-unified-yml :path path :mock file-mock)
-    (logs/log :info :moclojer :unified unified-mock)
-    (if unified-mock
-      (->> (io/reader unified-mock)
-           slurp
-           (logic.yml/unified-yaml file-mock)
-           (storage/upload! storage "moclojer" "moclojer.yml"))
-      (storage/upload! storage "moclojer" "moclojer.yml" file-mock))))
+;; NOTE: do not confuse :local-host tag in moclojer yamls with
+;; the localhost network! :local-host is just the local version of
+;; the host in prod env. It's there just so we can update the unified
+;; mock.
 
-(defn delete [{:keys [id user-id]} {:keys [storage]}]
-  (let [path (gen-path user-id id)]
+(defn generate-unified-yml
+  ([args components]
+   (generate-unified-yml args components true))
+  ([{:keys [path]} {:keys [storage config]} append?]
+   (let [new-mock (storage/get-file storage "moclojer" path)
+         slurp-new-mock #(when new-mock (slurp (io/reader new-mock)))
+         unified-mock (storage/get-file storage "moclojer" "moclojer.yml")
+         env (get-in config [:config :env])
+         host-key (if (= env :dev) :local-host :host)]
+     (if unified-mock
+       (try
+         (logs/log :info :generate-unified :path path :new-mock new-mock)
+         (->> (logic.yml/unified-yaml
+               (slurp (io/reader unified-mock))
+               (slurp-new-mock)
+               append? host-key)
+              (storage/upload! storage "moclojer" "moclojer.yml"))
+         (catch Exception e
+           (logs/log :error :generate-unified
+                     (-> e ex-data :cause)
+                     (.getMessage e))))
+       (storage/upload! storage "moclojer" "moclojer.yml" (or (slurp-new-mock)
+                                                              "[]\n"))))))
+
+(defn delete [{:keys [id user-id]} components]
+  (let [path (gen-path user-id id)
+        storage (:storage components)]
     (logs/log :info :delete :path path)
+    (generate-unified-yml {:path path} components false)
     (storage/delete-file! storage "moclojer" path)))

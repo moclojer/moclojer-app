@@ -8,15 +8,43 @@
 (defn parse-yaml [yml-string]
   (yaml/parse-string yml-string))
 
-(defn add-host [host content]
+(defn add-host [host-key host content]
   (let [yml (parse-yaml content)]
     (->>
      yml
-     (map #(update-in % [:endpoint :host] (constantly host)))
+     (map #(update-in % [:endpoint host-key] (constantly host)))
      to-yaml-string)))
 
-(defn unified-yaml [content-yaml unified-yaml]
-  (let [data1 (parse-yaml content-yaml)
-        data2 (parse-yaml unified-yaml)]
-    (to-yaml-string
-     (concat data1 data2))))
+;; TODO: there should be a check for the mock content's
+;; authenticity. We've already created an issue for the
+;; creation of Moclojer's spec/schema though.
+;; This is a problem because inner data is NECESSARY in
+;; order for okayish execution. For example: in the following
+;; function, we try to get the host from the new mock. If this
+;; data ins't checked beforehand, things could (and probably will)
+;; go south.
+
+(defn unified-yaml
+  "There are 2 possible operations:
+  
+   1. append?=true will first look for the new-mock
+      in the old mock, and will create if it doesn't exist,
+      update otherwise.
+
+   2. append?=false will simply delete the mock from the old-mock
+      if it exists.
+
+   Also, if new-mock is an invalid moclojer mock, it will
+   raise an exception."
+  [old-um new-mock append? host-key]
+  (let [parsed-old-um (parse-yaml old-um)
+        parsed-new-mock (parse-yaml new-mock)]
+    (if-let [host (get-in (first parsed-new-mock) [:endpoint host-key])]
+      (let [other-mocks (filter #(not= host (get-in % [:endpoint host-key])) parsed-old-um)]
+        (-> (if append?
+              (reduce conj other-mocks parsed-new-mock)
+              other-mocks)
+            to-yaml-string))
+      (throw (ex-info "Invalid moclojer mock"
+                      {:cause :missing-host
+                       :value new-mock})))))
