@@ -8,15 +8,15 @@ on:
     paths:
       - 'src/back/**'
       - 'src/components/**'
-      - 'test/back/back/api/integration/api/**'
+      - 'test/back/back/integration/api/**'
       - 'resources/back/**'
       - 'src/yaml_generator/**'
       - 'src/components/**'
-      - 'test/back/back/yml_generator/**'
+      - 'test/back/back/integration/yaml_generator**'
       - 'resources/back/**'
       - 'src/moclojer/**'
       - 'src/components/**'
-      - 'test/back/back/moclojer/**'
+      - 'test/back/back/integration/moclojer/**'
       - 'resources/back/**'
 
   # Allows you to run this workflow manually from the Actions tab
