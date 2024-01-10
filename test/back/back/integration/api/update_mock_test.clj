@@ -104,7 +104,7 @@
                                                       :mock-type "personal"
                                                       :apis [{:id #(uuid? (java.util.UUID/fromString %))
                                                               :subdomain "chico"
-                                                              :url "test.chico.moclojer.com"
+                                                              :url "test-chico.moclojer.com"
                                                               :content yml
                                                               :wildcard "test"
                                                               :enabled true}]}]})

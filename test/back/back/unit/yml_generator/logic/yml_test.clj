@@ -35,7 +35,7 @@
 - endpoint:
     method: GET
     path: /hello/:username
-    host: test.chico.moclojer.com
+    host: test-chico.moclojer.com
     response:
       status: 200
       headers:
@@ -48,7 +48,7 @@
 - endpoint:
     method: GET
     path: /hello/:username/:lastname
-    host: test.chico.moclojer.com
+    host: test-chico.moclojer.com
     response:
       status: 200
       headers:
@@ -63,7 +63,7 @@
 - endpoint:
     method: GET
     path: /hello/:username
-    host: test1.chico.moclojer.com
+    host: test1-chico.moclojer.com
     response:
       status: 200
       headers:
@@ -76,7 +76,7 @@
 - endpoint:
     method: GET
     path: /hello/
-    host: test1.chico.moclojer.com
+    host: test1-chico.moclojer.com
     response:
       status: 200
       headers:
@@ -91,7 +91,7 @@
 - endpoint:
     method: GET
     path: /hello/:username
-    host: test.chico.moclojer.com
+    host: test-chico.moclojer.com
     response:
       status: 200
       headers:
@@ -104,7 +104,7 @@
 - endpoint:
     method: GET
     path: /hello/:username/:lastname
-    host: test.chico.moclojer.com
+    host: test-chico.moclojer.com
     response:
       status: 200
       headers:
@@ -116,7 +116,7 @@
 - endpoint:
     method: GET
     path: /hello/:username
-    host: test1.chico.moclojer.com
+    host: test1-chico.moclojer.com
     response:
       status: 200
       headers:
@@ -129,7 +129,7 @@
 - endpoint:
     method: GET
     path: /hello/
-    host: test1.chico.moclojer.com
+    host: test1-chico.moclojer.com
     response:
       status: 200
       headers:
@@ -147,8 +147,7 @@
           yml-with-host)
          (yaml/parse-string
           (logic.yml/add-host
-           :host
-           "test.chico.moclojer.com"
+           :host "test-chico.moclojer.com"
            yml-without-host))))))
 
 (deftest yaml-unified-test
@@ -163,7 +162,7 @@
 - endpoint:
     method: POST
     path: /bye/:username
-    host: test.chico.moclojer.com
+    host: test-chico.moclojer.com
     response:
       status: 200
       headers:
@@ -178,7 +177,7 @@
 - endpoint:
     method: POST
     path: /bye/:username
-    host: test.chico.moclojer.com
+    host: test-chico.moclojer.com
     response:
       status: 200
       headers:
@@ -191,7 +190,7 @@
 - endpoint:
     method: GET
     path: /hello/:username/:lastname
-    host: test.chico.moclojer.com
+    host: test-chico.moclojer.com
     response:
       status: 200
       headers:
@@ -203,7 +202,7 @@
 - endpoint:
     method: GET
     path: /hello/:username
-    host: test1.chico.moclojer.com
+    host: test1-chico.moclojer.com
     response:
       status: 200
       headers:
@@ -216,7 +215,7 @@
 - endpoint:
     method: GET
     path: /hello/
-    host: test1.chico.moclojer.com
+    host: test1-chico.moclojer.com
     response:
       status: 200
       headers:
@@ -239,7 +238,7 @@
 - endpoint:
     method: GET
     path: /hello/:username/:lastname
-    host: test.chico.moclojer.com
+    host: test-chico.moclojer.com
     response:
       status: 200
       headers:
@@ -251,7 +250,7 @@
 - endpoint:
     method: GET
     path: /hello/:username
-    host: test1.chico.moclojer.com
+    host: test1-chico.moclojer.com
     response:
       status: 200
       headers:
@@ -264,7 +263,7 @@
 - endpoint:
     method: GET
     path: /hello/
-    host: test1.chico.moclojer.com
+    host: test1-chico.moclojer.com
     response:
       status: 200
       headers:
