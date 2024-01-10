@@ -21,12 +21,15 @@
         (assoc :mock/id new-uuid)
         (assoc-if :mock/content content))))
 
+(defn gen-host [wildcard subdomain]
+  (str wildcard "-" subdomain ".moclojer.com"))
+
 (defn group [mock-type mocks]
   (-> (reduce
        (fn [grouped-mocks mock]
          (let [subdomain (:subdomain mock)
                subdomain-group (get grouped-mocks subdomain)
-               url {:url (str (:wildcard mock) "." subdomain ".moclojer.com")}
+               url {:url (gen-host (:wildcard mock) subdomain)}
                old-apis (vec (:apis subdomain-group))
                new-apis (->> (select-keys mock [:wildcard :subdomain :url :enabled
                                                 :id :content])

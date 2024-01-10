@@ -38,7 +38,7 @@
     [:subdomain string?]
     [:enabled boolean?]]
    [:fn (fn [{:keys [wildcard url subdomain]}]
-          (= (str wildcard "." subdomain ".moclojer.com") url))]])
+          (= (str wildcard "-" subdomain ".moclojer.com") url))]])
 
 (def GroupedMock
   [:map

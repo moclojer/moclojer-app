@@ -95,7 +95,7 @@
                                     (d/div {:class-name "mt-2 text-sm text-gray-500 dark:text-gray-400"}
                                            (d/span {:class-name "text-gray-900 text-base font-semibold "} (or (:wildcard new-mock)
                                                                                                               "<mock-name>"))
-                                           (d/span  {:class-name "text-gray-900 "} (str "." (or (:subdomain new-mock)
+                                           (d/span  {:class-name "text-gray-900 "} (str "-" (or (:subdomain new-mock)
                                                                                                 "<org-name>") ".moclojer.com"))))
 
                              (d/div {:class-name "divide-y divide-gray-200 dark:divide-gray-700"}
