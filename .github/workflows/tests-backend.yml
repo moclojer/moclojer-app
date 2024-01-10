@@ -9,7 +9,6 @@ on:
       - 'src/back/**'
       - 'src/components/**'
       - 'src/yaml_generator/**'
-      - 'src/moclojer/**'
       - 'resources/back/**'
       - 'test/back/back/**'
 
@@ -17,15 +16,35 @@ on:
   workflow_dispatch:
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    outputs:
+      tests-to-run: ${{ steps.filter.outputs.changes }}
+    steps:
+    - uses: dorny/paths-filter@v2
+      id: filter
+      with:
+        filters: |
+          api:
+            - 'src/back/**'
+            - 'src/components/**'
+            - 'test/back/back/integration/api/**'
+            - 'resources/back/**'
+          yaml-generator:
+            - 'src/yaml_generator/**'
+            - 'src/components/**'
+            - 'test/back/back/integration/yaml_generator/**'
+            - 'resources/back/**'
 
   tests:
-
+    needs: changes
     strategy:
       matrix:
         operating-system: [ubuntu-latest]
-
+        test-to-run: ${{ fromJSON(needs.changes.outputs.tests-to-run) }}
     runs-on: ${{ matrix.operating-system }}
-
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -61,34 +80,5 @@ jobs:
           localstack wait -t 30                     # to become ready before timing out 
           echo "Startup complete"          ck
 
-      - uses: dorny/paths-filter@v2
-        id: changes
-        with:
-          filters: |
-            api:
-              - 'src/back/**'
-              - 'src/components/**'
-              - 'test/back/back/integration/api/**'
-              - 'resources/back/**'
-            yaml-generator:
-              - 'src/yaml_generator/**'
-              - 'src/components/**'
-              - 'test/back/back/integration/yaml_generator**'
-              - 'resources/back/**'
-            moclojer:
-              - 'src/moclojer/**'
-              - 'src/components/**'
-              - 'test/back/back/integration/moclojer/**'
-              - 'resources/back/**'
-
-      - name: Test API
-        if: steps.filter.outputs.api == 'true'
-        run: clojure -M:test api
-
-      - name: Test Yaml Generator
-        if: steps.filter.outputs.yaml-generator == 'true'
-        run: clojure -M:test yaml-generator
-
-      - name: Test Moclojer Lib
-        if: steps.filter.outputs.moclojer == 'true'
-        run: clojure -M:test moclojer
+      - name: Run test ${{ matrix.test-to-run }}
+        run: clojure -M:test ${{ matrix.test-to-run }}
