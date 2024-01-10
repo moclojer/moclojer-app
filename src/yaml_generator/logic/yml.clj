@@ -2,6 +2,12 @@
   (:require
    [yaml.core :as yaml]))
 
+(defn gen-path [user-id id]
+  (str user-id "/" id "/mock.yml"))
+
+(defn gen-host [wildcard subdomain]
+  (str wildcard "-" subdomain ".moclojer.com"))
+
 (defn to-yaml-string [data]
   (yaml/generate-string data))
 
