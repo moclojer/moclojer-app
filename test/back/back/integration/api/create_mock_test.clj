@@ -69,7 +69,7 @@
                      (matchers/embeds {:mocks [{:subdomain "chico"
                                                 :mock-type "personal"
                                                 :apis [{:id #(uuid? (java.util.UUID/fromString %))
-                                                        :url "test.chico.moclojer.com"
+                                                        :url "test-chico.moclojer.com"
                                                         :subdomain "chico"
                                                         :wildcard "test"
                                                         :enabled true}]}]})
