@@ -8,7 +8,7 @@
                 :asset-path "/assets/js"
                 :devtools {:preloads [dev.refresh]
                            :reload-strategy :full
-                           :http-port 8000
+                           :http-port 8200
                            :http-root "resources/front/public/"}
                 :dev      {:modules {:core {:init-fn dev.core/init}}
                            :compiler-options {:warning-as-errors true}}
