@@ -41,6 +41,7 @@
     "tailwindcss": "^3.3.2"
   },
   "dependencies": {
+    "@codemirror/lint": "^6.4.2",
     "@codemirror/language": "^6.6.0",
     "@codemirror/legacy-modes": "^6.3.1",
     "@codemirror/state": "^6.3.3",
