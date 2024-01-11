@@ -2,8 +2,11 @@
   (:require
    ["@codemirror/language" :as language]
    ["@codemirror/legacy-modes/mode/yaml" :as yaml]
+   ["@codemirror/lint" :as clint]
    ["@uiw/codemirror-theme-github" :as theme]
    ["@uiw/react-codemirror" :as c]
+   ["js-yaml" :as js-yaml]
+   [clojure.string :refer [join]]
    [front.app.components.svg :as svg]
    [front.app.dashboard.base :as base]
    [front.app.lib :refer [defnc]]
@@ -12,6 +15,21 @@
    [helix.hooks :as hooks]
    [refx.alpha :as refx]
    [reitit.frontend.easy :as rfe]))
+
+(def yaml-linter
+  (clint/linter
+   (fn [view]
+     (let [doc (.. view -state -doc)
+           content (join \newline (.-text doc))]
+       (try
+         (.load js-yaml content)
+         #js []
+         (catch :default e
+           (let [mark (.-mark e)
+                 from (if mark (dec (.-position mark)) 0)]
+             (clj->js [{:from from :to from
+                        :message (.-reason e)
+                        :severity "error"}]))))))))
 
 (defnc editor [props]
   (let [{:keys [data]} props
@@ -27,7 +45,8 @@
         :value (or content "")
         :height "400px"
         :theme theme/githubLight
-        :extensions #js [(.define language/StreamLanguage yaml/yaml)]
+        :extensions #js [(.define language/StreamLanguage yaml/yaml)
+                         (clint/lintGutter) yaml-linter]
         :onChange (partial ref-fn)
         :mode "yaml"})))
 

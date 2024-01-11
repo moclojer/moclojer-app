@@ -8,7 +8,7 @@
 (goog-define SUPABASE_TOKEN "")
 (when-not (every? not-empty [SUPABASE_URL SUPABASE_TOKEN])
   (throw (js/Error. "SUPABASE_URL or SUPABASE_TOKEN weren't defined")))
-(goog-define SUPABASE_REDIRECT "http://localhost:8000/#/")
+(goog-define SUPABASE_REDIRECT "http://localhost:8200/#/")
 
 (defn create-client
   "creates a supabase client"
