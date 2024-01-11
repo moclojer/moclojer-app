@@ -16,20 +16,24 @@
    [refx.alpha :as refx]
    [reitit.frontend.easy :as rfe]))
 
+(defn handle-lint-ex [ex]
+  (let [mark (.-mark ex)
+        from (if mark (dec (.-position mark)) 0)]
+    (clj->js [{:from from :to from
+               :message (.-reason ex)
+               :severity "error"}])))
+
 (def yaml-linter
   (clint/linter
    (fn [view]
      (let [doc (.. view -state -doc)
-           content (join \newline (.-text doc))]
-       (try
-         (.load js-yaml content)
-         #js []
-         (catch :default e
-           (let [mark (.-mark e)
-                 from (if mark (dec (.-position mark)) 0)]
-             (clj->js [{:from from :to from
-                        :message (.-reason e)
-                        :severity "error"}]))))))))
+           content (join \newline (.-text doc))
+           diag (try
+                  (.load js-yaml content)
+                  #js []
+                  (catch :default ex (handle-lint-ex ex)))]
+       (refx/dispatch-sync [:app.dashboard/set-mock-validation (empty? diag)])
+       diag))))
 
 (defnc editor [props]
   (let [{:keys [data]} props

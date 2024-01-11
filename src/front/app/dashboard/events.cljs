@@ -1,6 +1,5 @@
 (ns front.app.dashboard.events
   (:require
-   ["js-yaml" :as js-yaml]
    [refx.alpha :as refx]))
 
 (refx/reg-event-db
@@ -99,21 +98,10 @@
    (prn :error err)
    (assoc db :save-edit-mock true)))
 
-(refx/reg-event-fx
- :app.dashboard/verify-mock
- (fn [{db :db} [_ {:keys [new-mocks-raw content]}]]
-   (let [valid? (try
-                  (.load js-yaml (or content "")) true
-                  (catch :default _ false))]
-     {:db (assoc db :mock-valid? valid?)
-      :dispatch [:app.dashboard/edit-mock-success {:new-mocks-raw new-mocks-raw}]})))
-
-(refx/reg-event-fx
- :app.dashboard/verify-mock-failed
- (fn [{db :db} [_ err]]
-   {:db (assoc db :mock-content-err {:reason (.-reason err)
-                                     :mark (js->clj (.-mark err)
-                                                    :keywordize-keys true)})}))
+(refx/reg-event-db
+ :app.dashboard/set-mock-validation
+ (fn [db [_ valid?]]
+   (assoc db :mock-valid? valid?)))
 
 (defn update-mock-content-by-id [mocks-raw id content]
   (->> mocks-raw
@@ -125,10 +113,9 @@
 (refx/reg-event-fx
  :app.dashboard/edit-mock
  (fn [{db :db} [_ {:keys [mock-id content]}]]
-   {:dispatch [:app.dashboard/verify-mock
+   {:dispatch [:app.dashboard/edit-mock-success
                {:new-mocks-raw (update-mock-content-by-id (:mocks-raw db)
-                                                          mock-id content)
-                :content content}]
+                                                          mock-id content)}]
     :db (-> db
             (assoc :loading-edit-mock true))}))
 
