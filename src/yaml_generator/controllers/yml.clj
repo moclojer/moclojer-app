@@ -29,25 +29,29 @@
 (defn generate-unified-yml
   ([args components]
    (generate-unified-yml args components true))
-  ([{:keys [path]} {:keys [storage config]} append?]
-   (let [new-mock (storage/get-file storage "moclojer" path)
-         slurp-new-mock #(when new-mock (slurp (io/reader new-mock)))
+  ([{:keys [path]} {:keys [storage config publisher]} append?]
+   (let [new-mock-file (storage/get-file storage "moclojer" path)
+         new-mock-content (when new-mock-file (slurp (io/reader new-mock-file)))
          unified-mock (storage/get-file storage "moclojer" "moclojer.yml")
          env (get-in config [:config :env])
          host-key (if (= env :dev) :local-host :host)]
      (if unified-mock
        (try
-         (logs/log :info :generate-unified :path path :new-mock new-mock)
-         (->> (logic.yml/unified-yaml
-               (slurp (io/reader unified-mock))
-               (slurp-new-mock)
-               append? host-key)
+         (logs/log :info :generate-unified :path path :new-mock new-mock-file)
+         (->> (logic.yml/unified-yaml (slurp (io/reader unified-mock))
+                                      new-mock-content append? host-key)
               (storage/upload! storage "moclojer" "moclojer.yml"))
+
+         (ports.producers/restart-mock! publisher)
+         (some-> new-mock-content
+                 (logic.yml/get-domain-from-mock host-key)
+                 (ports.producers/create-domain! publisher))
+
          (catch Exception e
            (logs/log :error :generate-unified
                      (-> e ex-data :cause)
                      (.getMessage e))))
-       (storage/upload! storage "moclojer" "moclojer.yml" (or (slurp-new-mock)
+       (storage/upload! storage "moclojer" "moclojer.yml" (or new-mock-content
                                                               "[]\n"))))))
 
 (defn delete [{:keys [id user-id]} components]
