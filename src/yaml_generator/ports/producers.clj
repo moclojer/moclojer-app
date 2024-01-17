@@ -20,3 +20,10 @@
     (catch Exception e
       (logs/log :error :publish-mock-restart-error e))))
 
+(defn create-domain!
+  [domain publisher]
+  (try
+    (let [_ (redis-publisher/publish! publisher :domain.create
+                                      {:event {:domain domain}})])
+    (catch Exception e
+      (logs/log :error :publish-domain-error e))))

@@ -1,7 +1,7 @@
 (ns yaml-generator.ports.workers
-  (:require [components.logs :as logs]
-            [yaml-generator.controllers.yml :as controller.yml]
-            [yaml-generator.ports.producers :as ports.producers]))
+  (:require
+   [components.logs :as logs]
+   [yaml-generator.controllers.yml :as controller.yml]))
 
 (defn generate-yml-handler
   [{:keys [event]} components]
@@ -11,8 +11,7 @@
 (defn unified-mock-handler
   [{:keys [event]} components]
   (logs/log :info :unified-handler :received event)
-  (controller.yml/generate-unified-yml event components)
-  (ports.producers/restart-mock! (:publisher components)))
+  (controller.yml/generate-unified-yml event components))
 
 (defn deleted-mock-handler
   [{:keys [event]} components]
