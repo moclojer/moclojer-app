@@ -15,13 +15,6 @@
 (defn gen-host [wildcard subdomain]
   (str wildcard "-" subdomain ".moclojer.com"))
 
-(defn get-host-from-mock [mock-content host-key]
-  (when (and mock-content host-key)
-    (-> mock-content
-        parse-yaml
-        first
-        (get-in [:endpoint host-key]))))
-
 ;; TODO: are we sure this is safe?
 (defn get-domain-from-mock [mock-content host-key]
   (when (and mock-content host-key)
