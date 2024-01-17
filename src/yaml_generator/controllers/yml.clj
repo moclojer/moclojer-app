@@ -1,6 +1,7 @@
 (ns yaml-generator.controllers.yml
   (:require
    [clojure.java.io :as io]
+   [clojure.string :as str]
    [components.logs :as logs]
    [components.storage :as storage]
    [yaml-generator.logic.yml :as logic.yml]
@@ -18,7 +19,9 @@
     (logs/log :info :upload :path path :file-exist? file-exist?)
     (storage/upload! storage "moclojer" path content-with-host)
     (when enabled
-      (ports.producers/mock-unified! path publisher))
+      (ports.producers/mock-unified! path
+                                     (str/replace host #".moclojer.com" "")
+                                     publisher))
     (logs/log :info :upload-success :path path)))
 
 ;; NOTE: do not confuse :local-host tag in moclojer yamls with
@@ -29,7 +32,7 @@
 (defn generate-unified-yml
   ([args components]
    (generate-unified-yml args components true))
-  ([{:keys [path]} {:keys [storage config publisher]} append?]
+  ([{:keys [path domain]} {:keys [storage config publisher]} append?]
    (let [new-mock-file (storage/get-file storage "moclojer" path)
          new-mock-content (when new-mock-file (slurp (io/reader new-mock-file)))
          unified-mock (storage/get-file storage "moclojer" "moclojer.yml")
@@ -43,9 +46,7 @@
               (storage/upload! storage "moclojer" "moclojer.yml"))
 
          (ports.producers/restart-mock! publisher)
-         (some-> new-mock-content
-                 (logic.yml/get-domain-from-mock host-key)
-                 (ports.producers/create-domain! publisher))
+         (ports.producers/create-domain! domain publisher)
 
          (catch Exception e
            (logs/log :error :generate-unified

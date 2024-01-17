@@ -1,6 +1,5 @@
 (ns yaml-generator.logic.yml
   (:require
-   [clojure.string :as str]
    [yaml.core :as yaml]))
 
 (defn to-yaml-string [data]
@@ -14,15 +13,6 @@
 
 (defn gen-host [wildcard subdomain]
   (str wildcard "-" subdomain ".moclojer.com"))
-
-;; TODO: are we sure this is safe?
-(defn get-domain-from-mock [mock-content host-key]
-  (when (and mock-content host-key)
-    (-> mock-content
-        parse-yaml
-        first
-        (get-in [:endpoint host-key])
-        (str/replace #".moclojer.com" ""))))
 
 (defn add-host [host-key host content]
   (let [yml (parse-yaml content)]
