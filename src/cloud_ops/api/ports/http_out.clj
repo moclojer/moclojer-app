@@ -5,7 +5,7 @@
    [muuntaja.core :as m]))
 
 (defn mount-req
-  "Creates a list of parameters that can be later used
+  "Creates a list of parameters that can be later used as a basis
    on http requests to digitalocean API with `apply`."
   [base-url app-id token]
   (let [url (str base-url "/apps/" app-id)
@@ -22,11 +22,22 @@
     (let [{:keys [body]} (apply c/get req-params)
           decoded (m/decode "application/json" body)
           spec (get-in decoded [:app :spec])]
-      (logs/log :info :domain-create :spec-ok)
+      (logs/log :info :domain-create :get-current-spec :ok)
       spec)
     (catch Exception e
-      (logs/log :error :domain-create-error e))))
+      (logs/log :error :domain-create-error :get-current-spec e))))
 
-#_(defn update-do-spec!
-    "Updates Digital Ocean `spec`."
-    [req-params])
+(defn update-do-spec!
+  "Updates Digital Ocean `spec`, adding the new domain.
+
+   WARNING: The only modification allowed is adding a domain. Please
+   take care on doing any other operation that could modify any other
+   data besides the domain list."
+  [new-spec [url opts]]
+  (try
+    (let [enc-spec (m/encode "application/json" {:spec new-spec})
+          req-params [url (assoc opts :body enc-spec)]]
+      (apply c/put req-params)
+      (logs/log :info :domain-create :ok))
+    (catch Exception e
+      (logs/log :error :domain-create-error :update-do-spec e))))
