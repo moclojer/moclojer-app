@@ -3,6 +3,7 @@
    [cloud-ops.api.ports.workers :as p.workers]
    [com.stuartsierra.component :as component]
    [components.config :as config]
+   [components.http :as http]
    [components.logs :as logs]
    [components.redis-publisher :as redis-publisher]
    [components.redis-queue :as redis-queue])
@@ -13,10 +14,11 @@
 (defn build-system-map []
   (component/system-map
    :config (config/new-config)
+   :http (http/new-http)
    :publisher (component/using
                (redis-publisher/new-redis-publisher) [:config])
    :workers (component/using
-             (redis-queue/new-redis-queue p.workers/workers) [:config])))
+             (redis-queue/new-redis-queue p.workers/workers) [:config :http])))
 
 (defn start-system! [system-map]
   (logs/setup [["*" :info]] :auto)
@@ -41,5 +43,8 @@
 (comment
   (start-system! (build-system-map))
   (stop-system!)
+
+  (http/request (get-in @system-atom [:workers :http]) {:method :get
+                                                        :url "https://google.com"})
   ;;
   )
