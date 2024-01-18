@@ -56,11 +56,10 @@
   (->MockRedisPublisher {}))
 
 (comment
-  ;;invoke stop system 
-  (carmine/wcar {:spec {:password "redislocal"
-                        :host "localhost"
+  ;;invoke stop system
+  (carmine/wcar {:spec {:host "localhost"
                         :port 6379}}
-                :mock.changed
+                :domain.create
                 (mq/enqueue
-                 :mock.changed
-                 "test")))
+                 :domain.create
+                 {:event {:domain "mock-j0suetm"}})))
