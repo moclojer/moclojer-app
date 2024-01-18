@@ -1,19 +1,19 @@
 (ns components.redis-queue
   (:require
-   [components.logs :as logs]
    [com.stuartsierra.component :as component]
+   [components.logs :as logs]
    [taoensso.carmine.message-queue :as mq]))
 
-(defrecord RedisWorkers [config database storage publisher workers]
+(defrecord RedisWorkers [config database storage publisher http workers]
   component/Lifecycle
   (start [this]
     (let [{:keys [uri]} (-> config :config :redis-worker)
           conn {:spec {:uri uri}}
-          components  (-> {}
-                          (assoc :database database
-                                 :storage storage
-                                 :publisher publisher
-                                 :config config))
+          components {:database database
+                      :storage storage
+                      :publisher publisher
+                      :config config
+                      :http http}
           _ (logs/log :info :redis-worker :start-workers)
           ws (doall (for [{:keys [queue-name handler]} workers]
                       (do
@@ -38,5 +38,5 @@
     (assoc this :conn nil :workers nil)))
 
 (defn new-redis-queue [workers]
-  (->RedisWorkers {} {} {} {} workers))
+  (->RedisWorkers {} {} {} {} {} workers))
 
