@@ -20,6 +20,14 @@
            :host #profile {:dev "localhost"
                            :default "localhost"
                            :prod "sfo3.digitaloceanspaces.com"}}
+ :cloud-providers
+ {:digital-ocean {:base-url "https://api.digitalocean.com/v2"
+                  :token #or [#env DO_TOKEN "dop_v1_14942e4b3d28fb3e2be4e814b210428329045a9da14736c55cfca6952742b799"]
+                  :app-id "4dd19675-0b62-4b9a-8082-8ee5d9eab99a"}
+  :cloudflare {:base-url "https://api.cloudflare.com/client/v4"
+               :token #or [#env CF_TOKEN "2YDTvo3NxkEisrBuLm64RbhTSm_OoFfq7jsPLC9h"]
+               :zone-id "c6f10cf4dd7ace4b979d60c22066be23"
+               :record-content "goldfish-app-zq7eo.ondigitalocean.app"}}
  :redis-worker  {:uri #or [#env REDIS_URL "redis://localhost:6379"]}
  :redis-publisher {:uri #or [#env REDIS_URL "redis://localhost:6379"]}
  :database {:dbtype "postgres"
