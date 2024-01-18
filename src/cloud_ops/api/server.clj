@@ -44,7 +44,8 @@
   (start-system! (build-system-map))
   (stop-system!)
 
-  (http/request (get-in @system-atom [:workers :http]) {:method :get
-                                                        :url "https://google.com"})
+  (http/request (get-in @system-atom [:workers :http])
+                {:method :get
+                 :url "https://google.com"})
   ;;
   )

@@ -4,13 +4,30 @@
    [components.logs :as logs]
    [muuntaja.core :as m]))
 
-(defn mount-do-req
+(defn mount-basic-req
   "Creates a list of parameters that can be later used as a basis
-   on http requests to digitalocean API."
-  [base-url app-id token]
-  {:url (str base-url "/apps/" app-id)
+   on http requests to cloud providers' API."
+  [url token]
+  {:url url
    :headers {:Content-Type "application/json"
              :Authorization (str "Bearer " token)}})
+
+(defn create-cf-domain!
+  "Creates a new CloudFlare DNS record."
+  [{:keys [domain record-content]} http req-params]
+  (try
+    (let [req-body {:content record-content
+                    :name domain
+                    :proxied true
+                    :type "CNAME"
+                    :ttl 1}
+          enc-body (m/encode "application/json" req-body)
+          new-req-params (merge req-params {:method :post
+                                            :body enc-body})]
+      (hp/request http new-req-params)
+      (logs/log :info :create-domain :create-cf-domain :ok))
+    (catch Exception e
+      (logs/log :error :create-domain-error :create-cf-domain e))))
 
 (defn get-current-do-spec
   "Retrieves the current App Specification from the `moclojer-cloud` app in DO.
@@ -39,6 +56,6 @@
           new-req-params (merge req-params {:method :put
                                             :body enc-spec})]
       (hp/request http new-req-params)
-      (logs/log :info :domain-create :ok))
+      (logs/log :info :domain-create :update-do-spec :ok))
     (catch Exception e
       (logs/log :error :domain-create-error :update-do-spec e))))

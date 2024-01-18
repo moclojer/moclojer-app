@@ -62,4 +62,4 @@
                 :domain.create
                 (mq/enqueue
                  :domain.create
-                 {:event {:domain "another-mock-j0suetm"}})))
+                 {:event {:domain "domain-test-j0suetm"}})))
