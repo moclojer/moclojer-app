@@ -9,4 +9,5 @@
         req-params (http-out/mount-req base-url app-id token)]
     (some->
      (http-out/get-current-do-spec req-params)
-     (logic.do/add-domain-to-spec domain))))
+     (logic.do/add-domain-to-spec domain)
+     (http-out/update-do-spec! req-params))))
