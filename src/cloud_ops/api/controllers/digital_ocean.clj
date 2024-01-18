@@ -6,7 +6,8 @@
 (defn create-domain! [domain {:keys [config http]}]
   (let [provider (get-in config [:config :cloud-providers :digital-ocean])
         {:keys [base-url app-id token]} provider
-        req-params (http-out/mount-do-req base-url app-id token)]
+        url (str base-url "/apps/" app-id)
+        req-params (http-out/mount-basic-req url token)]
     (some->
      (http-out/get-current-do-spec http req-params)
      (logic.do/add-domain-to-spec domain)
