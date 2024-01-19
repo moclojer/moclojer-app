@@ -1,6 +1,4 @@
-(ns cloud-ops.api.logic.digital-ocean
-  (:require
-   [components.logs :as logs]))
+(ns cloud-ops.api.logic.digital-ocean)
 
 (defn domain-already-exists?
   "Checks if given `new-domain` is already in the spec `domains`."
@@ -20,8 +18,9 @@
       (let [new-domain-spec {:type "ALIAS" :domain new-domain-url}
             new-domains (conj domains new-domain-spec)]
         (assoc spec :domains new-domains))
-      (logs/log :error :create-domain-error :domain-already-exists
-                :domain new-domain))))
+      (throw (ex-info "domain already exists"
+                      {:provider "digital ocean"
+                       :domain new-domain})))))
 
 (comment
 
