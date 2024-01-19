@@ -12,6 +12,20 @@
    :headers {:Content-Type "application/json"
              :Authorization (str "Bearer " token)}})
 
+(defn get-current-cf-records
+  "Retrieves the current domain records in CloudFlare."
+  [http req-params]
+  (try
+    (let [req-params (assoc req-params :method :get)
+          {:keys [body]} (hp/request http req-params)
+          decoded (m/decode "application/json" body)]
+      (logs/log :info :create-domain :cloudflare :get-current-records :ok)
+      (:result decoded))
+    (catch Exception e
+      (throw (ex-info "failed to get current records"
+                      {:provider "cloudflare"
+                       :error (.getMessage e)})))))
+
 (defn create-cf-domain!
   "Creates a new CloudFlare DNS record."
   [{:keys [domain record-content]} http req-params]
@@ -25,9 +39,11 @@
           new-req-params (merge req-params {:method :post
                                             :body enc-body})]
       (hp/request http new-req-params)
-      (logs/log :info :create-domain :create-cf-domain :ok))
+      (logs/log :info :create-domain :cloudflare :ok))
     (catch Exception e
-      (logs/log :error :create-domain-error :create-cf-domain e))))
+      (throw (ex-info "failed to create domain"
+                      {:provider "cloudflare"
+                       :error (.getmessage e)})))))
 
 (defn get-current-do-spec
   "Retrieves the current App Specification from the `moclojer-cloud` app in DO.
@@ -39,10 +55,12 @@
           {:keys [body]} (hp/request http new-req-params)
           decoded (m/decode "application/json" body)
           spec (get-in decoded [:app :spec])]
-      (logs/log :info :domain-create :get-current-spec :ok)
+      (logs/log :info :create-domain :digital-ocean :get-current-spec :ok)
       spec)
     (catch Exception e
-      (logs/log :error :domain-create-error :get-current-spec e))))
+      (throw (ex-info "failed to get current spec"
+                      {:provider "digital ocean"
+                       :error e})))))
 
 (defn update-do-spec!
   "Updates Digital Ocean `spec`, adding the new domain.
@@ -56,6 +74,8 @@
           new-req-params (merge req-params {:method :put
                                             :body enc-spec})]
       (hp/request http new-req-params)
-      (logs/log :info :domain-create :update-do-spec :ok))
+      (logs/log :info :create-domain :digital-ocean :update-spec :ok))
     (catch Exception e
-      (logs/log :error :domain-create-error :update-do-spec e))))
+      (throw (ex-info "failed to update spec"
+                      {:provider "digital ocean"
+                       :error e})))))
