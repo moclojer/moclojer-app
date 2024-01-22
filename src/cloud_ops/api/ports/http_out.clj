@@ -4,6 +4,22 @@
    [components.logs :as logs]
    [muuntaja.core :as m]))
 
+(defn ping-domain
+  "Pings `domain` to see if its deployed.
+
+   `last-attempt?` is so we can print the complete error
+   only in the final attempt, so the screen doesn't fill up
+   with error messages of the first 2 attempts."
+  [domain http last-attempt?]
+  (try
+    (let [url (str "https://" domain ".moclojer.com")
+          resp (hp/request http {:method :get
+                                 :url url})]
+      (:status resp))
+    (catch Exception e
+      (logs/log :error :verify-domain
+                (if last-attempt? e (.getMessage e))))))
+
 (defn mount-basic-req
   "Creates a list of parameters that can be later used as a basis
    on http requests to cloud providers' API."
@@ -25,7 +41,7 @@
       (logs/log :error :create-domain :cloudflare :get-current-records e))))
 
 (defn create-cf-domain!
-  "Creates a new CloudFlare DNS record."
+  "Creates a new CloudFlare DNS record. Returns true when succesful."
   [{:keys [domain record-content]} http req-params]
   (try
     (let [req-body {:content record-content
@@ -37,7 +53,9 @@
           new-req-params (merge req-params {:method :post
                                             :body enc-body})]
       (hp/request http new-req-params)
-      (logs/log :info :create-domain :cloudflare :ok))
+      (logs/log :info :create-domain :cloudflare :ok)
+
+      true)
     (catch Exception e
       (logs/log :error :create-domain :cloudflare e))))
 
@@ -57,7 +75,8 @@
       (logs/log :error :create-domain :digital-ocean :get-current-spec e))))
 
 (defn update-do-spec!
-  "Updates Digital Ocean `spec`, adding the new domain.
+  "Updates Digital Ocean `spec`, adding the new domain. Returns true when
+   succesful.
 
    WARNING: The only modification allowed is adding a domain. Please
    take care on doing any other operation that could modify any other
@@ -68,6 +87,8 @@
           new-req-params (merge req-params {:method :put
                                             :body enc-spec})]
       (hp/request http new-req-params)
-      (logs/log :info :create-domain :digital-ocean :update-spec :ok))
+      (logs/log :info :create-domain :digital-ocean :update-spec :ok)
+
+      true)
     (catch Exception e
       (logs/log :error :create-domain :digital-ocean :update-spec e))))
