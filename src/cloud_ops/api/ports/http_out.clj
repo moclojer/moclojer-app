@@ -22,9 +22,7 @@
       (logs/log :info :create-domain :cloudflare :get-current-records :ok)
       (:result decoded))
     (catch Exception e
-      (throw (ex-info "failed to get current records"
-                      {:provider "cloudflare"
-                       :error (.getMessage e)})))))
+      (logs/log :error :create-domain :cloudflare :get-current-records e))))
 
 (defn create-cf-domain!
   "Creates a new CloudFlare DNS record."
@@ -41,9 +39,7 @@
       (hp/request http new-req-params)
       (logs/log :info :create-domain :cloudflare :ok))
     (catch Exception e
-      (throw (ex-info "failed to create domain"
-                      {:provider "cloudflare"
-                       :error (.getmessage e)})))))
+      (logs/log :error :create-domain :cloudflare e))))
 
 (defn get-current-do-spec
   "Retrieves the current App Specification from the `moclojer-cloud` app in DO.
@@ -58,9 +54,7 @@
       (logs/log :info :create-domain :digital-ocean :get-current-spec :ok)
       spec)
     (catch Exception e
-      (throw (ex-info "failed to get current spec"
-                      {:provider "digital ocean"
-                       :error e})))))
+      (logs/log :error :create-domain :digital-ocean :get-current-spec e))))
 
 (defn update-do-spec!
   "Updates Digital Ocean `spec`, adding the new domain.
@@ -76,6 +70,4 @@
       (hp/request http new-req-params)
       (logs/log :info :create-domain :digital-ocean :update-spec :ok))
     (catch Exception e
-      (throw (ex-info "failed to update spec"
-                      {:provider "digital ocean"
-                       :error e})))))
+      (logs/log :error :create-domain :digital-ocean :update-spec e))))

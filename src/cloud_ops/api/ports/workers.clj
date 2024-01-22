@@ -1,17 +1,14 @@
 (ns cloud-ops.api.ports.workers
   (:require
-   [cloud-ops.api.controllers.cloudflare :as ctrls.cf]
-   [cloud-ops.api.controllers.digital-ocean :as ctrls.do]
-   [cloud-ops.api.log-utils :refer [log-ex]]))
+   [cloud-ops.api.controllers.provider :as ctrls.provider]
+   [components.logs :as logs]))
 
 (defn create-domain-handler
   [{:keys [event]} components]
-  (try
-    (when-let [domain (:domain event)]
-      (ctrls.cf/create-domain! domain components)
-      (ctrls.do/create-domain! domain components))
-    (catch Exception e
-      (log-ex e :create-domain))))
+  (if-let [domain (:domain event)]
+    (some-> (ctrls.provider/get-current-data domain components)
+            (ctrls.provider/create-domain! domain components))
+    (logs/log :error :create-domain :empty-domain)))
 
 (def workers [{:handler create-domain-handler
                :queue-name :domain.create}])
