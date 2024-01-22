@@ -35,26 +35,52 @@
           do (ctrls.do/create-domain! do-spec domain components)]
       (when (and cf do) domain))))
 
+;; Not sure if this is the best option, but works fine for now,
+;; since it isn't expected to have too many verifications ongoing
+;; concurrently.
+(def ongoing-verifications (atom []))
+
+(defn verify-domain-non-blocking
+  "Asynchronously verifies the domain.
+
+   60000 milliseconds, 60 seconds * 1000"
+  [domain attempt {:keys [config http publisher]}]
+  (let [max-attempts (or (get-in config [:cloud-providers
+                                         :max-verification-attempts]) 3)
+        timeout (* 60 1000)
+        last-attempt? (>= attempt max-attempts)]
+
+    (swap! ongoing-verifications conj domain)
+    (println :ongoing-verifications @ongoing-verifications)
+    (logs/log :info :verify-domain domain :attempt attempt)
+
+    (Thread/sleep timeout)
+    (if (= (http-out/ping-domain domain http last-attempt?) 200)
+      (do
+        ;; TODO: set `publisher` in DB
+        (swap! ongoing-verifications #(vec (remove (fn [ov]
+                                                     (= ov domain))
+                                                   %)))
+        (logs/log :info :verify-domain domain :ok))
+      (if-not last-attempt?
+        ;; TODO: warn staff of last attempt
+        (producers/verify-domain! domain (inc attempt) publisher)
+        (logs/log :error :verify-domain domain :timed-out (* max-attempts timeout))))))
+
 (defn verify-domain
   "Performs recursive attempts on a job that verifies the created domain.
    Retries 3 times, with each attempt taking 1 minute. If, after 3 minutes,
    the domain isn't up, there're high risks, and the staff should be warned.
 
-   NOTE: 60000 milliseconds, 60 seconds * 1000
-   
    see also: github.com/taoensso/carmine/blob/3e54188692529d232e2541c0c0fc226814b60c34/test/taoensso/carmine/tests/message_queue.clj#L203"
-  [{:keys [domain attempt]} {:keys [config http publisher]}]
-  (let [max-attempts (or (get-in config [:cloud-providers
-                                         :max-verification-attempts]) 3)
-        last-attempt? (>= attempt max-attempts)
-        timeout (* 60 1000)]
-    (logs/log :info :verify-domain domain :attempt attempt)
-    (go
-      (Thread/sleep timeout)
-      (if (= (http-out/ping-domain domain http last-attempt?) 200)
-          ;; TODO: set `publisher` in DB
-        (logs/log :info :verify-domain domain :ok)
-        (if last-attempt?
-            ;; TODO: handle last attempt
-          (logs/log :error :verify-domain domain :timed-out (* max-attempts timeout))
-          (producers/verify-domain! domain (inc attempt) publisher))))))
+  [{:keys [domain attempt]} components]
+  (let [ongoing-ver-domains @ongoing-verifications]
+
+    ;; if for some obscure reason the ongoing verifications atom
+    ;; is destroyed, we just `reset!` it back.
+    (when (nil? ongoing-ver-domains)
+      (reset! ongoing-verifications []))
+
+    (if-not (and (= attempt 1) (.contains ongoing-ver-domains domain))
+      (go (verify-domain-non-blocking domain attempt components))
+      (logs/log :warn :verify-domain domain :ongoing-verification))))
