@@ -51,7 +51,6 @@
         last-attempt? (>= attempt max-attempts)]
 
     (swap! ongoing-verifications conj domain)
-    (println :ongoing-verifications @ongoing-verifications)
     (logs/log :info :verify-domain domain :attempt attempt)
 
     (Thread/sleep timeout)
