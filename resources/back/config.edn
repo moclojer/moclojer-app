@@ -27,7 +27,8 @@
   :cloudflare {:base-url "https://api.cloudflare.com/client/v4"
                :token #or [#env CF_TOKEN "2YDTvo3NxkEisrBuLm64RbhTSm_OoFfq7jsPLC9h"]
                :zone-id "c6f10cf4dd7ace4b979d60c22066be23"
-               :record-content "goldfish-app-zq7eo.ondigitalocean.app"}}
+               :record-content "goldfish-app-zq7eo.ondigitalocean.app"}
+  :max-verification-attempts 3}
  :redis-worker  {:uri #or [#env REDIS_URL "redis://localhost:6379"]}
  :redis-publisher {:uri #or [#env REDIS_URL "redis://localhost:6379"]}
  :database {:dbtype "postgres"

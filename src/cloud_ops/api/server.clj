@@ -18,7 +18,7 @@
    :publisher (component/using
                (redis-publisher/new-redis-publisher) [:config])
    :workers (component/using
-             (redis-queue/new-redis-queue p.workers/workers) [:config :http])))
+             (redis-queue/new-redis-queue p.workers/workers) [:config :http :publisher])))
 
 (defn start-system! [system-map]
   (logs/setup [["*" :info]] :auto)
@@ -43,9 +43,5 @@
 (comment
   (start-system! (build-system-map))
   (stop-system!)
-
-  (http/request (get-in @system-atom [:workers :http])
-                {:method :get
-                 :url "https://google.com"})
   ;;
   )
