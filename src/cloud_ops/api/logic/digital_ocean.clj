@@ -1,26 +1,20 @@
 (ns cloud-ops.api.logic.digital-ocean)
 
-(defn domain-already-exists?
+(defn domain-exists?
   "Checks if given `new-domain` is already in the spec `domains`."
   [domains new-domain]
-  (-> #(= (:domain %) new-domain)
-      (filter domains)
-      seq))
+  (let [complete-domain (str new-domain ".moclojer.com")]
+    (-> #(= (:domain %) complete-domain)
+        (filter domains)
+        seq)))
 
 (defn add-domain-to-spec
-  "Appends the `new-domain` to the `spec` domain list if the `new-domain`
-   isn't there already. In this case, returns `nil`."
+  "Appends the `new-domain` to the `spec` domain list."
   [spec new-domain]
   (let [domains (:domains spec)
-        new-domain-url (str new-domain ".moclojer.com")
-        domain-exists? (domain-already-exists? domains new-domain-url)]
-    (if-not domain-exists?
-      (let [new-domain-spec {:type "ALIAS" :domain new-domain-url}
-            new-domains (conj domains new-domain-spec)]
-        (assoc spec :domains new-domains))
-      (throw (ex-info "domain already exists"
-                      {:provider "digital ocean"
-                       :domain new-domain})))))
+        new-domain-spec {:type "ALIAS" :domain (str new-domain ".moclojer.com")}
+        new-domains (conj domains new-domain-spec)]
+    (assoc spec :domains new-domains)))
 
 (comment
 
