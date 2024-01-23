@@ -106,3 +106,25 @@ workers:
   - key: PROFILE
     scope: RUN_TIME
     value: "prod"
+- dockerfile_path: docker/Dockerfile.cloud-ops
+  name: moclojer-cloud-ops
+  instance_count: 1
+  instance_size_slug: professional-xs
+  source_dir: /
+  github:
+    branch: main
+    deploy_on_push: true
+    repo: moclojer/moclojer-app
+  envs:
+  - key: REDIS_URL
+    scope: RUN_TIME
+    value: ${moclojer-redis.REDIS_URL}
+  - key: DO_TOKEN
+    scope: RUN_TIME
+    value: "foo"
+  - key: CF_TOKEN
+    scope: RUN_TIME
+    value: "bar"
+  - key: PROFILE
+    scope: RUN_TIME
+    value: "prod"
