@@ -30,8 +30,8 @@
                :record-content "goldfish-app-zq7eo.ondigitalocean.app"}
   :proxy {:proxy-host "162.243.162.62"
           :proxy-port 3128
-          :proxy-user "foo"
-          :proxy-pass "bar"}
+          :proxy-user #env PROXY_USER
+          :proxy-pass #env PROXY_PASS}
   :max-verification-attempts 3}
  :redis-worker  {:uri #or [#env REDIS_URL "redis://localhost:6379"]}
  :redis-publisher {:uri #or [#env REDIS_URL "redis://localhost:6379"]}
