@@ -1,8 +1,8 @@
 (ns cloud-ops.api.controllers.cloud
   (:require
    [clojure.core.async :refer [go]]
-   [cloud-ops.api.controllers.cloudflare :as ctrls.cf]
-   [cloud-ops.api.controllers.digital-ocean :as ctrls.do]
+   [cloud-ops.api.controllers.cloudflare :as controllers.cf]
+   [cloud-ops.api.controllers.digital-ocean :as controllers.do]
    [cloud-ops.api.logic.cloudflare :as logic.cf]
    [cloud-ops.api.logic.digital-ocean :as logic.do]
    [cloud-ops.api.ports.http-out :as http-out]
@@ -13,8 +13,8 @@
   "Retrieves current data from both CloudFlare and DigitalOcean.
    The naming is agnostic to records and entire specs."
   [domain components]
-  (let [cf-records (ctrls.cf/get-current-records components)
-        do-spec (ctrls.do/get-current-spec components)]
+  (let [cf-records (controllers.cf/get-current-records components)
+        do-spec (controllers.do/get-current-spec components)]
     {:cf-records (if-not (logic.cf/domain-exists? cf-records domain)
                    cf-records
                    (logs/log :error :create-domain :cloudflare
@@ -31,8 +31,8 @@
    Returns domain so `verify-domain` can be chained in the handler."
   [{:keys [cf-records do-spec]} domain components]
   (when (and cf-records do-spec)
-    (let [cf (ctrls.cf/create-domain! domain components)
-          do (ctrls.do/create-domain! do-spec domain components)]
+    (let [cf (controllers.cf/create-domain! domain components)
+          do (controllers.do/create-domain! do-spec domain components)]
       (when (and cf do) domain))))
 
 ;; Not sure if this is the best option, but works fine for now,
