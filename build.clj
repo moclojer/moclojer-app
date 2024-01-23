@@ -1,15 +1,19 @@
 (ns build
   (:refer-clojure :exclude [test])
-  (:require [clojure.tools.build.api :as b]))
+  (:require
+   [clojure.tools.build.api :as b]))
 
 (def default-lib-api 'com.github.moclojer/api)
 (def default-lib-yaml 'com.github.moclojer/yaml-service)
+(def default-lib-cloud-ops 'com.github.moclojer/cloud-ops)
 
 (def default-main-api 'back.api.server)
 (def default-main-yml 'yaml-generator.server)
+(def default-main-cloud-ops 'cloud-ops.api.server)
 
 (def default-version-api "0.0.1-SNAPSHOT")
 (def default-version-yml "0.0.1-SNAPSHOT")
+(def default-versino-cloud-ops "0.0.1-SNAPSHOT")
 
 (def class-dir "target/classes")
 
@@ -60,5 +64,23 @@
                     (println "\nBuilding JAR on" uber-file)
                     (b/uber opts-yml)
                     opts-yml)
-
+    :cloud-ops (let [actual-lib (or lib default-lib-cloud-ops)
+                     actual-main (or main default-main-cloud-ops)
+                     actual-uber-file (format "target/%s.jar"
+                                              uber-file)
+                     opts-cloud-ops (assoc opts
+                                           :lib actual-lib
+                                           :main actual-main
+                                           :uber-file actual-uber-file
+                                           :basis (b/create-basis {})
+                                           :class-dir class-dir
+                                           :src-dirs ["src"]
+                                           :ns-compile [actual-main])]
+                 (println "\nCopying source" class-dir)
+                 (b/copy-dir {:src-dirs ["resources" "src"] :target-dir class-dir})
+                 (println (str "\nCompiling " main))
+                 (b/compile-clj opts-cloud-ops)
+                 (println "\nBuilding JAR on" uber-file)
+                 (b/uber opts-cloud-ops)
+                 opts-cloud-ops)
     :else (throw (ex-info "Invalid name uber-file" {:cause "invalid uber-file name" :error :invalid-uber-file-name}))))
