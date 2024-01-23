@@ -62,7 +62,7 @@
                 :domain.create
                 (mq/enqueue
                  :domain.create
-                 {:event {:domain "por-favor-funciona-j0suetm"
+                 {:event {:domain "teste-final-j0suetm"
                           :attempt 1}}))
   ;;
   )
