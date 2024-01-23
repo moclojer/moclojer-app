@@ -11,8 +11,8 @@
     (http-out/get-current-cf-records http req-params)))
 
 (defn create-domain! [domain {:keys [config http]}]
-  (let [[{:keys [cloudflare
-                 proxy]}] (get-in config [:config :cloud-providers :cloudflare])
+  (let [{:keys [cloudflare
+                proxy]} (get-in config [:config :cloud-providers :cloudflare])
         {:keys [base-url zone-id token record-content]} cloudflare
         url (str base-url "/zones/" zone-id "/dns_records")
         req-params (http-out/mount-basic-req url token proxy)]
