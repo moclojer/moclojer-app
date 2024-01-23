@@ -7,13 +7,13 @@
   (let [provider (get-in config [:config :cloud-providers :digital-ocean])
         {:keys [base-url app-id token]} provider
         url (str base-url "/apps/" app-id)
-        req-params (http-out/mount-basic-req url token)]
+        req-params (http-out/mount-basic-req url token nil)]
     (http-out/get-current-do-spec http req-params)))
 
 (defn create-domain! [cur-spec domain {:keys [config http]}]
   (let [provider (get-in config [:config :cloud-providers :digital-ocean])
         {:keys [base-url app-id token]} provider
         url (str base-url "/apps/" app-id)
-        req-params (http-out/mount-basic-req url token)]
+        req-params (http-out/mount-basic-req url token nil)]
     (some-> (logic.do/add-domain-to-spec cur-spec domain)
             (http-out/update-do-spec! http req-params))))
