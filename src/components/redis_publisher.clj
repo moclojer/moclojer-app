@@ -59,10 +59,10 @@
   ;;invoke stop system
   (carmine/wcar {:spec {:host "localhost"
                         :port 6379}}
-                :domain.verify
+                :domain.create
                 (mq/enqueue
-                 :domain.verify
-                 {:event {:domain "teste-j0suetm"
+                 :domain.create
+                 {:event {:domain "por-favor-funciona-j0suetm"
                           :attempt 1}}))
   ;;
   )
