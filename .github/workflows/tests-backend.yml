@@ -9,6 +9,7 @@ on:
       - 'src/back/**'
       - 'src/components/**'
       - 'src/yaml_generator/**'
+      - 'src/cloud_ops/**'
       - 'resources/back/**'
       - 'test/back/back/**'
 
@@ -36,6 +37,11 @@ jobs:
             - 'src/yaml_generator/**'
             - 'src/components/**'
             - 'test/back/back/integration/yaml_generator/**'
+            - 'resources/back/**'
+          cloud-ops:
+            - 'src/cloud_ops/**'
+            - 'src/components/**'
+            - 'test/back/back/integration/cloud_ops/**'
             - 'resources/back/**'
 
   tests:
