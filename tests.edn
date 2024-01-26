@@ -10,5 +10,5 @@
           {:id         :yaml-generator
            :test-paths ["test/back/back/integration/yaml_generator"
                         "test/back/back/unit/yml_generator"]}
-          {:id         :moclojer
-           :test-paths ["test/back/back/integration/moclojer"]}]}
+          {:id         :cloud-ops
+           :test-paths ["test/back/back/unit/cloud_ops"]}]}
