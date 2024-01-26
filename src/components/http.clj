@@ -53,7 +53,8 @@
 
   HttpProvider
   (request
-    [_self {:keys [url] :as req}]
+    [_self {:keys [method url] :as req}]
+    (logs/log :info :http-out-message :method method :url url)
     (swap! requests merge
            (assoc req :instant (System/currentTimeMillis)))
     (get-in @responses

@@ -61,7 +61,7 @@
                        lambdaisland/kaocha-cloverage {:mvn/version "1.0.75"}
                        nubank/matcher-combinators {:mvn/version "3.5.1"}
                        nubank/state-flow {:mvn/version "5.14.2"}}
-         :main-opts   ["-m" "kaocha.runner"]}
+         :main-opts   ["-m" "kaocha.runner" "--no-capture-output"]}
   ;; clj -M:clojure-lsp
   :clojure-lsp {:replace-deps {com.github.clojure-lsp/clojure-lsp-standalone {:mvn/version "2022.09.01-15.27.31"}}
                 :main-opts ["-m" "clojure-lsp.main"]}

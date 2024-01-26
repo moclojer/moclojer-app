@@ -9,7 +9,7 @@
     (is (match?
          true
          (logic.cf/domain-exists? [{:name "domain-1"}
-                                   {:name "domani-2"}] "domain-2"))))
+                                   {:name "domain-2"}] "domain-2"))))
   (testing "should verify that domain does not exist"
     (is (match?
          false

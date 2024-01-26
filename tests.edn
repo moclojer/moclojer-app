@@ -5,10 +5,14 @@
            :test-paths ["test/back/back/integration"]}
           {:id         :api
            :test-paths ["test/back/back/integration/api"]}
-          ;; test-paths of other test IDs should be updated if
-          ;; unit tests are added
           {:id         :yaml-generator
            :test-paths ["test/back/back/integration/yaml_generator"
                         "test/back/back/unit/yml_generator"]}
           {:id         :cloud-ops
-           :test-paths ["test/back/back/unit/cloud_ops"]}]}
+           :test-paths ["test/back/back/unit/cloud_ops"
+                        "test/back/back/integration/cloud_ops"]}]
+  :output   :verbose
+  :color?   true
+  :reporter [kaocha.report/dots]
+  :plugins  [:kaocha.plugin/randomize
+             :kaocha.plugin/capture-output]}
