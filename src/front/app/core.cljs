@@ -90,7 +90,6 @@
            (p/catch (fn [err] (refx/dispatch-sync [:app.auth/login-error err]))))))
 
     (let [view (-> current-route :data :view)]
-      (prn current-route accessible-route?)
       (when (and (some? view) accessible-route?)
         ($ view {:route current-route})))))
 

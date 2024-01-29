@@ -73,12 +73,10 @@
                                {:valid-user valid-user?
                                 :user-id (:uuid resp-user)
                                 :username (:username resp-user)
-                                :email (or (get-in db [:session :email])
-                                           (get-in old-user [:user :email]))})
+                                :email (:email resp-user)})
          current-user (-> old-user
                           (merge (:session db))
                           (update-in [:user] merge new-inner-user))]
-     (prn :new-inner-user new-inner-user)
      (set-current-user-cookie! current-user)
      (-> db
          (assoc :user-exists? valid-user?
