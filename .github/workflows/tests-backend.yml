@@ -57,6 +57,7 @@ jobs:
         image: "redis:7"
         ports:
           - 6379:6379
+        options: --rm
       localstack:
         image: "localstack/localstack"
         ports:
@@ -86,10 +87,3 @@ jobs:
 
       - name: Run test ${{ matrix.test-to-run }}
         run: clojure -M:test ${{ matrix.test-to-run }}
-
-      - name: Cleanup
-        run: |
-          docker stop redis
-          docker stop localstack
-          docker rm redis
-          docker rm localstack
