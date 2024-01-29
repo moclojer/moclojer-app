@@ -51,6 +51,19 @@ jobs:
         operating-system: [ubuntu-latest]
         test-to-run: ${{ fromJSON(needs.changes.outputs.tests-to-run) }}
     runs-on: ${{ matrix.operating-system }}
+    # https://docs.github.com/en/actions/using-containerized-services/about-service-containers
+    container:
+      image: adoptopenjdk:11-jdk-hotspot
+    services:
+      redis:
+        image: "redis:7"
+        ports:
+          - 6379:6379
+      localstack:
+        image: "localstack/localstack"
+        ports:
+          - 4566:4566
+        options: --rm
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -73,18 +86,15 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/deps.edn') }}
           restore-keys: ${{ runner.os }}-m2
 
-      - name: Start Redis
-        uses: supercharge/redis-github-action@1.7.0
-        with:
-          redis-version: 7
-      - name: Start localstack
-        run: |
-          pip install localstack awscli-local[ver1] # install LocalStack cli and awslocal
-          docker pull localstack/localstack         # Make sure to pull the latest version of the image
-          localstack start -d                       # Start LocalStack in the background
-          echo "Waiting for LocalStack startup..."  # Wait 30 seconds for the LocalStack container
-          localstack wait -t 30                     # to become ready before timing out 
-          echo "Startup complete"          ck
+      - name: Wait for LocalStack to start
+        run: sleep 30
 
       - name: Run test ${{ matrix.test-to-run }}
         run: clojure -M:test ${{ matrix.test-to-run }}
+
+      - name: Cleanup
+        run: |
+          docker stop redis
+          docker stop localstack
+          docker rm redis
+          docker rm localstack
