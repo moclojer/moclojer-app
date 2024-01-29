@@ -12,10 +12,21 @@
    [reitit.frontend.easy :as rfe]))
 
 (def gravatar-base-url "https://gravatar.com/avatar/")
+(def auth0-cdn-base-url "https://cdn.auth0.com/avatars/")
+
+(defn get-simple-avatar-url [username]
+  (let [uq-names (-> username
+                     (str/split #" "))
+        initials (->> uq-names
+                      (take 2)
+                      (map #(take 1 %))
+                      flatten
+                      (str/join ""))]
+    (str auth0-cdn-base-url initials ".png")))
 
 (defnc user-profile [{:keys [user-data]}]
   (let [[pfp-url set-pfp-url!] (hooks/use-state nil)
-        default-pfp-url "/images/default-pfp.png"
+        default-pfp-url (get-simple-avatar-url (:username user-data))
         pfp-loading? (and (nil? pfp-url) (not= pfp-url default-pfp-url))]
 
     ;; https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/digest
@@ -36,7 +47,8 @@
                     (.join ""))))
              (p/then
               (fn [hex]
-                (set-pfp-url! (str gravatar-base-url hex)))
+                (set-pfp-url! (str gravatar-base-url hex
+                                   "?default=" default-pfp-url)))
               (fn [hex]
                 (refx/dispatch-sync [:app.dashboard/get-pfp-url hex])))
              (p/catch
@@ -47,7 +59,7 @@
 
     (d/div {:class-name "hidden lg:block"}
            (d/button {:type "button"
-                      :class-name "flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
+                      :class-name "flex text-sm bg-gray-800 aspect-square rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
                       :id "user-menu-button-2"
                       :aria-expanded "false"
                       :data-dropdown-toggle "dropdown-2"}
@@ -72,7 +84,7 @@
                         (d/li
 
                          (d/button
-                          {:class-name "block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
+                          {:class-name "w-full block py-2 px-4 text-sm text-left text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
                            :on-click (fn [e]
                                        (.preventDefault e)
                                        (supabase/sign-out
@@ -124,19 +136,19 @@
                       (d/img {:src "/images/logo.svg"
                               :class-name "mr-3 h-9"})))
      (d/div {:class-name "flex items-center lg:gap-3"}
-            (d/div {:class-name "px-3 py-2 bg-pink-600 rounded-lg justify-end items-center gap-2 flex btn-add"}
-                   (d/svg {:width "16"
-                           :height "17"
-                           :viewBox "0 0 16 17"
-                           :fill "none"}
-                          (d/path {:fill-rule "evenodd"
-                                   :clip-rule "evenodd"
-                                   :d "M8 4.5C8.21217 4.5 8.41566 4.58429 8.56569 4.73431C8.71571 4.88434 8.8 5.08783 8.8 5.3V7.7H11.2C11.4122 7.7 11.6157 7.78429 11.7657 7.93431C11.9157 8.08434 12 8.28783 12 8.5C12 8.71217 11.9157 8.91566 11.7657 9.06569C11.6157 9.21571 11.4122 9.3 11.2 9.3H8.8V11.7C8.8 11.9122 8.71571 12.1157 8.56569 12.2657C8.41566 12.4157 8.21217 12.5 8 12.5C7.78783 12.5 7.58434 12.4157 7.43431 12.2657C7.28429 12.1157 7.2 11.9122 7.2 11.7V9.3H4.8C4.58783 9.3 4.38434 9.21571 4.23431 9.06569C4.08429 8.91566 4 8.71217 4 8.5C4 8.28783 4.08429 8.08434 4.23431 7.93431C4.38434 7.78429 4.58783 7.7 4.8 7.7H7.2V5.3C7.2 5.08783 7.28429 4.88434 7.43431 4.73431C7.58434 4.58429 7.78783 4.5 8 4.5V4.5Z"
-                                   :fill "white"}))
-                   (d/button {:class-name "text-white text-xs font-bold leading-[18px]"
-                              :on-click (fn [_] (refx/dispatch [:app.dashboard/toggle-mock-modal]))}
-                             " new mock")
-                   ($ svg/box))
+            (d/button {:class-name "px-3 py-2 bg-pink-600 rounded-lg justify-end items-center gap-2 flex btn-add"
+                       :on-click (fn [_] (refx/dispatch [:app.dashboard/toggle-mock-modal]))}
+                      (d/svg {:width "16"
+                              :height "17"
+                              :viewBox "0 0 16 17"
+                              :fill "none"}
+                             (d/path {:fill-rule "evenodd"
+                                      :clip-rule "evenodd"
+                                      :d "M8 4.5C8.21217 4.5 8.41566 4.58429 8.56569 4.73431C8.71571 4.88434 8.8 5.08783 8.8 5.3V7.7H11.2C11.4122 7.7 11.6157 7.78429 11.7657 7.93431C11.9157 8.08434 12 8.28783 12 8.5C12 8.71217 11.9157 8.91566 11.7657 9.06569C11.6157 9.21571 11.4122 9.3 11.2 9.3H8.8V11.7C8.8 11.9122 8.71571 12.1157 8.56569 12.2657C8.41566 12.4157 8.21217 12.5 8 12.5C7.78783 12.5 7.58434 12.4157 7.43431 12.2657C7.28429 12.1157 7.2 11.9122 7.2 11.7V9.3H4.8C4.58783 9.3 4.38434 9.21571 4.23431 9.06569C4.08429 8.91566 4 8.71217 4 8.5C4 8.28783 4.08429 8.08434 4.23431 7.93431C4.38434 7.78429 4.58783 7.7 4.8 7.7H7.2V5.3C7.2 5.08783 7.28429 4.88434 7.43431 4.73431C7.58434 4.58429 7.78783 4.5 8 4.5V4.5Z"
+                                      :fill "white"}))
+                      (d/p {:class-name "text-white text-xs font-bold leading-[18px]"}
+                           " new mock")
+                      ($ svg/box))
             ($ user-profile {:user-data user-data}))))))
 
 (defnc aside [{:keys [is-sidebar-toogle? set-toggle]}]
