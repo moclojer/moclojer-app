@@ -9,6 +9,38 @@
    [refx.alpha :as refx]
    [reitit.frontend.easy :as rfe]))
 
+(defnc user-profile [{:keys [user-data]}]
+  (d/div {:class-name "hidden lg:block"}
+         (d/button {:type "button"
+                    :class-name "flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
+                    :id "user-menu-button-2"
+                    :aria-expanded "false"
+                    :data-dropdown-toggle "dropdown-2"}
+                   (d/span {:class-name "sr-only"} "Open user menu")
+                   (d/img {:class-name "w-8 h-8 rounded-full" :src "/images/users/avatar.png"}))
+         (d/div {:class-name "hidden z-50 my-4 text-base list-none bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600"
+                 :id "dropdown-2"}
+                (d/div {:class-name "py-3 px-4" :role "none"}
+                       (d/p {:class-name "text-sm font-medium text-gray-900 truncate dark:text-gray-300" :role "none"}
+                            (:email user-data)))
+                (d/ul {:class-name "py-1" :role "none"}
+                      (d/li
+                       (d/a {:href ""
+                             :class-name "block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
+                             :role "menuitem"}
+                            "Settings"))
+
+                      (d/li
+
+                       (d/button
+                        {:class-name "block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
+                         :on-click (fn [e]
+                                     (.preventDefault e)
+                                     (supabase/sign-out
+                                      #(refx/dispatch-sync [:app.auth/logout %])))
+                         :role "menuitem"}
+                        "Logout"))))))
+
 (defnc nav-bar [{:keys [toggle-sidebar set-toggle user-data]}]
   (d/nav
    {:class-name "fixed z-30 w-full bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700"}
@@ -66,36 +98,7 @@
                               :on-click (fn [_] (refx/dispatch [:app.dashboard/toggle-mock-modal]))}
                              " new mock")
                    ($ svg/box))
-            (d/div {:class-name "hidden lg:block"}
-                   (d/button {:type "button"
-                              :class-name "flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
-                              :id "user-menu-button-2"
-                              :aria-expanded "false"
-                              :data-dropdown-toggle "dropdown-2"}
-                             (d/span {:class-name "sr-only"} "Open user menu")
-                             (d/img {:class-name "w-8 h-8 rounded-full" :src "/images/users/avatar.png"}))
-                   (d/div {:class-name "hidden z-50 my-4 text-base list-none bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600"
-                           :id "dropdown-2"}
-                          (d/div {:class-name "py-3 px-4" :role "none"}
-                                 (d/p {:class-name "text-sm font-medium text-gray-900 truncate dark:text-gray-300" :role "none"}
-                                      (:email user-data)))
-                          (d/ul {:class-name "py-1" :role "none"}
-                                (d/li
-                                 (d/a {:href ""
-                                       :class-name "block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
-                                       :role "menuitem"}
-                                      "Settings"))
-
-                                (d/li
-
-                                 (d/button
-                                  {:class-name "block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
-                                   :on-click (fn [e]
-                                               (.preventDefault e)
-                                               (supabase/sign-out
-                                                #(refx/dispatch-sync [:app.auth/logout %])))
-                                   :role "menuitem"}
-                                  "Logout"))))))))))
+            ($ user-profile {:user-data user-data}))))))
 
 (defnc aside [{:keys [is-sidebar-toogle? set-toggle]}]
   (let [mocks-raw (refx/use-sub [:app.dashboard/mocks-raw])
@@ -128,7 +131,6 @@
                                                 (d/a {:href ""
                                                       :class-name "flex items-center p-2 text-base font-normal text-gray-900 rounded-lg hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-gray-700"
                                                       :on-click (fn [_e]
-                                                                  (prn :click :home)
                                                                   (rfe/push-state :app.core/dashboard))}
                                                      (d/svg {:class-name "w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
                                                              :fill "none" :viewBox "0 0 24 24"}
