@@ -67,17 +67,21 @@
  :app.auth/user-exists
  (fn [db [_ {:keys [body]}]]
    (let [resp-user (:user body)
-         inner-user {:valid-user true
-                     :user-id (:uuid resp-user)
-                     :username (:username resp-user)}
+         valid-user? (some? (get-in body [:user :username]))
          old-user (:current-user db)
-         current-user (assoc old-user
-                             :user (merge (:user old-user) inner-user)
-                             :access-token (or (some-> db :session :access-token)
-                                               (:access-token old-user)))]
+         new-inner-user (merge (:user old-user)
+                               {:valid-user valid-user?
+                                :user-id (:uuid resp-user)
+                                :username (:username resp-user)
+                                :email (or (get-in db [:session :email])
+                                           (get-in old-user [:user :email]))})
+         current-user (-> old-user
+                          (merge (:session db))
+                          (update-in [:user] merge new-inner-user))]
+     (prn :new-inner-user new-inner-user)
      (set-current-user-cookie! current-user)
      (-> db
-         (assoc :user-exists? (some? (-> body :user :username))
+         (assoc :user-exists? valid-user?
                 :current-user current-user)
          (dissoc :session)))))
 
