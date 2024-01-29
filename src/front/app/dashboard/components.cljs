@@ -48,9 +48,7 @@
              (p/then
               (fn [hex]
                 (set-pfp-url! (str gravatar-base-url hex
-                                   "?default=" default-pfp-url)))
-              (fn [hex]
-                (refx/dispatch-sync [:app.dashboard/get-pfp-url hex])))
+                                   "?default=" default-pfp-url))))
              (p/catch
               (fn [err]
                 (.log js/console "failed to digest email hash:" err)
