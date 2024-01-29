@@ -52,8 +52,6 @@ jobs:
         test-to-run: ${{ fromJSON(needs.changes.outputs.tests-to-run) }}
     runs-on: ${{ matrix.operating-system }}
     # https://docs.github.com/en/actions/using-containerized-services/about-service-containers
-    container:
-      image: adoptopenjdk:11-jdk-hotspot
     services:
       redis:
         image: "redis:7"
