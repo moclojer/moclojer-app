@@ -1,11 +1,13 @@
 (ns back.unit.yml-generator.logic.yml-test
   (:require
    [clojure.test :refer [deftest is testing]]
+   [matcher-combinators.matchers :as matchers]
    [state-flow.assertions.matcher-combinators :refer [match?]]
    [yaml-generator.logic.yml :as logic.yml]
    [yaml.core :as yaml]))
 
-(def yml-without-host "
+(def mocks
+  {:without-host "
 - endpoint:
     method: GET
     path: /hello/:username
@@ -29,9 +31,8 @@
         {
           \"hello\": \"{{path-params.username}}!\"
         }
-  ")
-
-(def yml-with-host "
+  "
+   :with-host "
 - endpoint:
     method: GET
     path: /hello/:username
@@ -57,9 +58,8 @@
         {
           \"hello\": \"{{path-params.username}}!\"
         }
-  ")
-
-(def moclojer-yaml "
+  "
+   :normal "
 - endpoint:
     method: GET
     path: /hello/:username
@@ -85,9 +85,8 @@
         {
           \"hello\": \"hello!\"
         }
-  ")
-
-(def unified-expected "
+  "
+   :expected-unified "
 - endpoint:
     method: GET
     path: /hello/:username
@@ -138,146 +137,125 @@
         {
           \"hello\": \"hello!\"
         }
-  ")
+  "
+   :unmodified "
+- endpoint:
+    method: POST
+    path: /bye/:username
+    host: test-chico.moclojer.com
+    response:
+      status: 200
+      headers:
+        Content-Type: application/json
+      body: >
+        {
+          \"hello\": \"{{path-params.username}}!\"
+        }
+  "
+   :expected-modified "
+- endpoint:
+    method: POST
+    path: /bye/:username
+    host: test-chico.moclojer.com
+    response:
+      status: 200
+      headers:
+        Content-Type: application/json
+      body: >
+        {
+          \"hello\": \"{{path-params.username}}!\"
+        }
+
+- endpoint:
+    method: GET
+    path: /hello/:username
+    host: test1-chico.moclojer.com
+    response:
+      status: 200
+      headers:
+        Content-Type: application/json
+      body: >
+        {
+          \"hello\": \"hello!\"
+        }
+  
+- endpoint:
+    method: GET
+    path: /hello/
+    host: test1-chico.moclojer.com
+    response:
+      status: 200
+      headers:
+        Content-Type: application/json
+      body: >
+        {
+          \"hello\": \"hello!\"
+        }
+  "
+   :expected-deleted "
+- endpoint:
+    method: GET
+    path: /hello/:username
+    host: test1-chico.moclojer.com
+    response:
+      status: 200
+      headers:
+        Content-Type: application/json
+      body: >
+        {
+          \"hello\": \"hello!\"
+        }
+  
+- endpoint:
+    method: GET
+    path: /hello/
+    host: test1-chico.moclojer.com
+    response:
+      status: 200
+      headers:
+        Content-Type: application/json
+      body: >
+        {
+          \"hello\": \"hello!\"
+        }
+  "})
 
 (deftest yaml-test
   (testing "should add the host into the yaml"
-    (is (match?
-         (yaml/parse-string
-          yml-with-host)
-         (yaml/parse-string
-          (logic.yml/add-host
-           :host "test-chico.moclojer.com"
-           yml-without-host))))))
+    (is
+     (match?
+      (matchers/embeds (yaml/parse-string (:with-host mocks)))
+      (yaml/parse-string
+       (logic.yml/add-host
+        :host "test-chico.moclojer.com"
+        (:without-host mocks)))))))
 
 (deftest yaml-unified-test
   (testing "should merge two yaml"
     (is
      (match?
-      (yaml/parse-string unified-expected)
+      (matchers/embeds (yaml/parse-string (:expected-unified mocks)))
       (yaml/parse-string
-       (logic.yml/unified-yaml yml-with-host moclojer-yaml true :host))))))
-
-(def modified-mock "
-- endpoint:
-    method: POST
-    path: /bye/:username
-    host: test-chico.moclojer.com
-    response:
-      status: 200
-      headers:
-        Content-Type: application/json
-      body: >
-        {
-          \"hello\": \"{{path-params.username}}!\"
-        }
-  ")
-
-(def expected-modified-mock "
-- endpoint:
-    method: POST
-    path: /bye/:username
-    host: test-chico.moclojer.com
-    response:
-      status: 200
-      headers:
-        Content-Type: application/json
-      body: >
-        {
-          \"hello\": \"{{path-params.username}}!\"
-        }
-  
-- endpoint:
-    method: GET
-    path: /hello/:username/:lastname
-    host: test-chico.moclojer.com
-    response:
-      status: 200
-      headers:
-        Content-Type: application/json
-      body: >
-        {
-          \"hello\": \"{{path-params.username}}!\"
-        }
-- endpoint:
-    method: GET
-    path: /hello/:username
-    host: test1-chico.moclojer.com
-    response:
-      status: 200
-      headers:
-        Content-Type: application/json
-      body: >
-        {
-          \"hello\": \"hello!\"
-        }
-  
-- endpoint:
-    method: GET
-    path: /hello/
-    host: test1-chico.moclojer.com
-    response:
-      status: 200
-      headers:
-        Content-Type: application/json
-      body: >
-        {
-          \"hello\": \"hello!\"
-        }
-  ")
+       (logic.yml/unified-yaml (:with-host mocks)
+                               (:normal mocks)
+                               true :host))))))
 
 (deftest modified-yaml-unified-test
   (testing "should modify unified yaml"
+    (println :m (:expected-modified mocks) :n (:normal mocks) :u (:unmodified mocks))
     (is
      (match?
-      (yaml/parse-string expected-modified-mock)
+      (matchers/embeds (yaml/parse-string (:expected-modified mocks)))
       (yaml/parse-string
-       (logic.yml/unified-yaml moclojer-yaml modified-mock true :host))))))
-
-(def expected-deleted-mock "
-- endpoint:
-    method: GET
-    path: /hello/:username/:lastname
-    host: test-chico.moclojer.com
-    response:
-      status: 200
-      headers:
-        Content-Type: application/json
-      body: >
-        {
-          \"hello\": \"{{path-params.username}}!\"
-        }
-- endpoint:
-    method: GET
-    path: /hello/:username
-    host: test1-chico.moclojer.com
-    response:
-      status: 200
-      headers:
-        Content-Type: application/json
-      body: >
-        {
-          \"hello\": \"hello!\"
-        }
-  
-- endpoint:
-    method: GET
-    path: /hello/
-    host: test1-chico.moclojer.com
-    response:
-      status: 200
-      headers:
-        Content-Type: application/json
-      body: >
-        {
-          \"hello\": \"hello!\"
-        }
-  ")
+       (logic.yml/unified-yaml (:normal mocks) (:unmodified mocks)
+                               true :host))))))
 
 (deftest deleted-yaml-unified-test
   (testing "should delete mock from unified yaml"
     (is
      (match?
-      (yaml/parse-string expected-deleted-mock)
+      (matchers/embeds (yaml/parse-string (:expected-deleted mocks)))
       (yaml/parse-string
-       (logic.yml/unified-yaml moclojer-yaml modified-mock false :host))))))
+       (logic.yml/unified-yaml (:normal mocks)
+                               (:unmodified mocks)
+                               false :host))))))
