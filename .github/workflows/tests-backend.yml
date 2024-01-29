@@ -86,9 +86,6 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/deps.edn') }}
           restore-keys: ${{ runner.os }}-m2
 
-      - name: Wait for LocalStack to start
-        run: sleep 30
-
       - name: Run test ${{ matrix.test-to-run }}
         run: clojure -M:test ${{ matrix.test-to-run }}
 
