@@ -21,7 +21,8 @@
                       (take 2)
                       (map #(take 1 %))
                       flatten
-                      (str/join ""))]
+                      (str/join "")
+                      str/lower-case)]
     (str auth0-cdn-base-url initials ".png")))
 
 (defnc user-profile [{:keys [user-data]}]
