@@ -27,7 +27,10 @@
 
 (defnc user-profile [{:keys [user-data]}]
   (let [[pfp-url set-pfp-url!] (hooks/use-state nil)
-        default-pfp-url (get-simple-avatar-url (:username user-data))
+        username (:username user-data)
+        default-pfp-url (if username
+                          (get-simple-avatar-url username)
+                          "/images/default-pfp.png")
         pfp-loading? (and (nil? pfp-url) (not= pfp-url default-pfp-url))]
 
     ;; https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/digest
@@ -230,24 +233,20 @@
                                                 (d/ul {:id "dropdown-mocks" :class-name (if is-menu-open?
                                                                                           (str "py-2 space-y-2")
                                                                                           "hidden py-2 space-y-2")}
-                                                      (for [{:keys [mock-type wildcard]
+                                                      (for [{:keys [mock-type wildcard id]
                                                              :or {mock-type :personal}} mocks-raw]
                                                         (d/li
                                                          {:key wildcard}
-                                                         (d/a {:href ""
-                                                               :on-click (fn [_e]
-                                                                           (rfe/push-state :app.core/mocks))
-                                                               :class-name (str (if is-sidebar-toogle? "px-4 " "pl-11 ")
-                                                                                "flex items-center p-2 text-base font-normal text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700")}
-                                                              (when-not is-sidebar-toogle?
-                                                                (if (= mock-type :personal)
-                                                                  ($ svg/personal-mock)
-                                                                  ($ svg/org-mock)))
-                                                              (d/a {:href ""
-                                                                    :on-click (fn [_] (rfe/push-state :app.core/mocks-view {:mock-id (:key wildcard)}))}
+                                                         (d/button {:on-click #(rfe/push-state :app.core/mocks-view {:mock-id id})
+                                                                    :class-name (str (if is-sidebar-toogle? "px-4 " "pl-11 ")
+                                                                                     "flex items-center p-2 text-base font-normal text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700")}
+                                                                   (when-not is-sidebar-toogle?
+                                                                     (if (= mock-type :personal)
+                                                                       ($ svg/personal-mock)
+                                                                       ($ svg/org-mock)))
                                                                    (if is-sidebar-toogle?
                                                                      (d/span (first wildcard))
-                                                                     (d/span {:class-name "flex-1 ml-3 text-left whitespace-nowrap"} wildcard)))))))))
+                                                                     (d/span {:class-name "flex-1 ml-3 text-left whitespace-nowrap"} wildcard))))))))
 
                                          (d/div {:class-name "pt-2 space-y-2"}
                                                 (d/a {:href ""
