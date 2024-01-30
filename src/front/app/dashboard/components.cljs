@@ -230,9 +230,7 @@
                                                         (d/path {:d "M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
                                                                  :clip-rule "evenodd"
                                                                  :fill-rule "evenodd"})))
-                                                (d/ul {:id "dropdown-mocks" :class-name (if is-menu-open?
-                                                                                          (str "py-2 space-y-2")
-                                                                                          "hidden py-2 space-y-2")}
+                                                (d/ul {:id "dropdown-mocks" :class-name (str "py-2 space-y-2" (when is-menu-open? " hidden"))}
                                                       (for [{:keys [mock-type wildcard id]
                                                              :or {mock-type :personal}} mocks-raw]
                                                         (d/li
