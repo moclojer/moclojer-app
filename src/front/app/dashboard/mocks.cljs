@@ -2,12 +2,47 @@
   (:require
    [front.app.components.svg :as svg]
    [front.app.dashboard.base :as base]
+   [front.app.dashboard.components :as dash-comps]
    [front.app.lib :refer [defnc]]
    [helix.core :refer [$ <>]]
    [helix.dom :as d]
    [helix.hooks :as hooks]
    [refx.alpha :as refx]
    [reitit.frontend.easy :as rfe]))
+
+(defnc mock-dns-status
+  "There are 3 possible DNS status:
+
+   1. offline
+   2. publishing
+   3. published
+
+   A mock is offline only if its not enabled or
+   not saved yet. When saved, we ping the domain,
+   and while not returning a 200 OK for the max
+   of 5 attempts , it will be :publishing, or
+   :published otherwise."
+  [{:keys [enabled id url]}]
+  (let [{:keys [dns-status
+                attempt]
+         :or {attempt 0}} (refx/use-sub [:app.dashboard/mock-dns-status id])
+        loading? (and enabled (nil? dns-status)
+                      (< attempt 5))]
+
+    (hooks/use-effect
+     [dns-status attempt]
+     (when loading?
+       (js/setTimeout #(refx/dispatch
+                        [:app.dashboard/ping-domain
+                         {:url (str "https://" url)
+                          :mock-id id}])
+                      2000)))
+
+    ($ dash-comps/dns-status
+       {:status (if enabled
+                  (or dns-status :publishing)
+                  :offline)
+        :loading? loading?})))
 
 (defnc api-mock [{:keys [enabled url id]}]
   (d/div {:class "w-full py-4 bg-white border-b border-gray-200 justify-center items-center inline-flex mouse-cursor"
@@ -18,10 +53,13 @@
                   ($ svg/mock-enabled)
                   ($ svg/mock-disabled))
                 (d/div {:class "grow shrink flex-col justify-start items-start gap-1 inline-flex"}
-                       (d/div {:class (str "w-full text-base font-semibold leading-normal "
+                       (d/div {:class (str "w-full flex flex-row space-x-2 text-base font-semibold leading-normal "
                                            (if enabled
                                              "grow shrink basis-0 text-gray-900"
                                              "h-6 text-neutral-400"))}
+                              ($ mock-dns-status {:enabled enabled
+                                                  :id id
+                                                  :url url})
                               url)
                        (d/div {:class "w-full text-gray-500 text-sm font-normal leading-[21px]"}
                               " my first mock server")))

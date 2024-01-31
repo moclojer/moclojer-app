@@ -168,3 +168,44 @@
              :body {:id (str id)}
              :on-success [:app.dashboard/delete-mock-success current-user]
              :on-failure [:app.dashboard/delete-mock-failure]}})))
+
+(refx/reg-event-fx
+ :app.dashboard/ping-domain
+ (fn [_ [_ {:keys [url mock-id]}]]
+   {:http {:url url
+           :method :get
+           :headers {}
+           :on-success [:app.dashboard/domain-published mock-id]
+           :on-failure [:app.dashboard/domain-publishing mock-id]}}))
+
+(defonce max-ping-attempts 3)
+
+(defn update-mock-dns-status
+  [mocks mock mock-id status]
+  (let [attempt ((fnil inc 0)
+                 (:attempt mock))]
+    (conj mocks (if (= (:id mock) mock-id)
+                  (assoc mock
+                         :dns-status status
+                         :attempt attempt)
+                  mock))))
+
+(refx/reg-event-db
+ :app.dashboard/domain-published
+ (fn [db [_ mock-id _]]
+   (->>
+    (reduce
+     #(update-mock-dns-status %1 %2 mock-id
+                              :published)
+     [] (:mocks-raw db))
+    (assoc db :mocks-raw))))
+
+(refx/reg-event-db
+ :app.dashboard/domain-publishing
+ (fn [db [_ mock-id _]]
+   (->>
+    (reduce
+     #(update-mock-dns-status %1 %2 mock-id
+                              nil)
+     [] (:mocks-raw db))
+    (assoc db :mocks-raw))))

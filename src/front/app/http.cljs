@@ -10,14 +10,17 @@
 
 (defn- send-request!
   [{:keys [url on-success on-failure _] :as request} fn-request]
-  (prn :url (str api-url url))
-  (-> (fn-request (str api-url url) request)
-      (.then (fn [{:keys [status] :as resp}]
-               (if (>= status 400)
-                 (dispatch (conj on-failure (utils/js->cljs-key resp)))
-                 (dispatch (conj on-success (utils/js->cljs-key resp))))))
-      (.catch (fn [resp]
-                (dispatch (conj on-failure (utils/js->cljs-key resp)))))))
+  (let [external? (.includes url "https://")
+        rurl (if external? url (str api-url url))
+        req (if external? (assoc request :mode :cors) request)]
+    (prn :url rurl)
+    (-> (fn-request rurl req)
+        (.then (fn [{:keys [status] :as resp}]
+                 (if (>= status 400)
+                   (dispatch (conj on-failure (utils/js->cljs-key resp)))
+                   (dispatch (conj on-success (utils/js->cljs-key resp))))))
+        (.catch (fn [resp]
+                  (dispatch (conj on-failure (utils/js->cljs-key resp))))))))
 
 (defn http-effect
   [fn-request]
