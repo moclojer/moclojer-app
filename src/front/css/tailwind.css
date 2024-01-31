@@ -207,6 +207,21 @@
   @apply hover:bg-gray-50 cursor-pointer !important;
 }
 
+.dns-offline {
+  background-color: #FDE8E8;
+  color: #9B1C1C;
+}
+
+.dns-publishing {
+  background-color: #FDF6B2;
+  color: #723B13;
+}
+
+.dns-published {
+  background-color: #DEF7EC;
+  color: #03543F;
+}
+
 /* feed styles */
 
 @media (min-width: 1280px) {

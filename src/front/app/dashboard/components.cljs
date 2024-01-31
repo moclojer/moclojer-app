@@ -292,3 +292,13 @@
                                    (when (not is-sidebar-toogle?)
                                      (d/span {:class-name "ml-3"}
                                              "Logout")))))))))
+
+(defnc dns-status [{:keys [status loading?]}]
+  (d/div {:class (str "px-3 mr-2 flex flex-row space-x-2 items-center rounded-md dns-"
+                      (name status) (when loading? " opacity-70 animate-pulse"))}
+         ($ (case status
+              :offline svg/dns-offline
+              :publishing svg/dns-publishing
+              :published svg/dns-published
+              :default svg/dns-offline))
+         (d/p {:class "text-sm font-semibold"} "DNS")))
