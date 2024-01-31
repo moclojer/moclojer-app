@@ -237,7 +237,7 @@
                                                          {:key wildcard}
                                                          (d/button {:on-click #(rfe/push-state :app.core/mocks-view {:mock-id id})
                                                                     :class-name (str (if is-sidebar-toogle? "px-4 " "pl-11 ")
-                                                                                     "flex items-center p-2 text-base font-normal text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700")}
+                                                                                     "w-full flex items-center p-2 text-base font-normal text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700")}
                                                                    (when-not is-sidebar-toogle?
                                                                      (if (= mock-type :personal)
                                                                        ($ svg/personal-mock)
