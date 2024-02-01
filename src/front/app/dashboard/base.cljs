@@ -19,7 +19,7 @@
   (let [is-mock-modal (refx/use-sub [:app.dashboard/is-modal-open?])
         loading? (refx/use-sub [:app.dashboard/loading-creating-mock?])
         user-orgs (refx/use-sub [:app.user/orgs])
-        [new-mock set-mock] (hooks/use-state {:enabled false})
+        [new-mock set-mock] (hooks/use-state {:enabled true})
         wildcard-available? (refx/use-sub [:app.dashboard/wildcard-available?])
         allow-save? (and (:subdomain new-mock)
                          (seq (:subdomain new-mock))
@@ -98,7 +98,7 @@
                                            (d/span  {:class-name "text-gray-900 "} (str "-" (or (:subdomain new-mock)
                                                                                                 "<org-name>") ".moclojer.com"))))
 
-                             (d/div {:class-name "divide-y divide-gray-200 dark:divide-gray-700"}
+                             (d/div {:class-name "divide-y divide-gray-200 dark:divide-gray-700 hidden"}
                                     (d/div {:class-name "flex justify-between items-center py-4"}
                                            (d/div {:class-name "flex flex-col flex-grow"}
                                                   (d/div {:class-name "text-lg font-semibold text-gray-900 dark:text-white"} "public?")
@@ -106,7 +106,7 @@
                                            (d/label {:for "rating-reminders" :class-name "flex relative items-center cursor-pointer"}
                                                     (d/input {:type "checkbox"
                                                               :id "rating-reminders"
-                                                              :class-name "sr-only peer"
+                                                              :class-name "sr-only peer cursor-not-allowed"
                                                               :on-change (fn [e]
                                                                            (set-mock assoc :enabled (= (.. e -target -value) "on")))})
                                                     (d/span {:class-name "w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-focus:ring-4 peer-focus:ring-pink-300 dark:peer-focus:ring-pink-800 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-pink-500"}))))
