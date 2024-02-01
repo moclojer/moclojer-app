@@ -15,6 +15,31 @@
    [refx.alpha :as refx]
    [reitit.frontend.easy :as rfe]))
 
+(defonce default-content
+  "# The following schema is an example of how you can
+# use the power of Moclojer to create your applications.
+#
+# Documentation: https://docs.moclojer.com
+# Source Code: https://github.com/moclojer/moclojer
+
+# This mock register route: GET /hello/:username
+- endpoint:
+    # Note: the method could be omitted because GET is the default
+    method: GET
+    path: /hello/:username
+    response:
+      # Note: the status could be omitted because 200 is the default
+      status: 200
+      headers:
+        Content-Type: application/json
+      # Note: the body will receive the value passed in the url using the
+      # :username placeholder
+      body: >
+        {
+          \"hello\": \"{{path-params.username}}!\"
+        }
+")
+
 (defnc editor [props]
   (let [{:keys [data]} props
         {:keys [content id]} data
@@ -26,7 +51,7 @@
                                               :content content}])))]
     ($ c/default
        {:autoFocus true
-        :value (or content "")
+        :value (or content default-content)
         :height "400px"
         :theme theme/githubLight
         :extensions #js [(.define language/StreamLanguage yaml/yaml)
