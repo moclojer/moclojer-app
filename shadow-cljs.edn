@@ -12,7 +12,7 @@
                            :http-root "resources/front/public/"}
                 :dev      {:modules {:core {:init-fn dev.core/init}}
                            :compiler-options {:warning-as-errors true}
-                           :build-hooks [(teknql.tailwind/start-watch!)]}
+                           #_#_:build-hooks [(teknql.tailwind/start-watch!)]}
                 :release  {:modules {:core {:init-fn front.app.core/init}}
                            :closure-defines {front.app.core/DEBUG false
                                              front.app.http/API_URL "https://app.moclojer.com/api"
