@@ -155,8 +155,10 @@
 
     (d/div {:class-name "flex overflow-hidden pt-16 bg-gray-50 dark:bg-gray-900"}
            (d/aside {:id "sidebar"
-                     :on-mouse-enter #(when-not mobile? (toggle-aside! not))
-                     :on-mouse-leave #(when-not mobile? (toggle-aside! not))
+                     :on-mouse-enter #(when (and (not mobile?)
+                                                 (not aside-open?)) (toggle-aside! true))
+                     :on-mouse-leave #(when (and (not mobile?)
+                                                 aside-open?) (toggle-aside! false))
                      :class (str "fixed top-0 left-0 z-20 flex-col flex-shrink-0 pt-16 w-full h-full duration-75 transition-width "
                                  (if aside-open? "flex lg:w-64" "hidden lg:flex lg:w-16"))
                      :aria-label "Sidebar"}
