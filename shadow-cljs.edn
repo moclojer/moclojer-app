@@ -20,8 +20,7 @@
                            :compiler-options {:optimizations :advanced
                                               :infer-externs :auto
                                               :source-map true
-                                              :warnings-as-errors true}
-                           :build-hooks [(teknql.tailwind/compile-release!)]}
+                                              :warnings-as-errors true}}
                 :tailwind/output "resources/front/public/assets/css/output.css"
                 :tailwind/files {:base-path "./"
                                  :tailwind.css "src/front/css/tailwind.css"}}
