@@ -124,21 +124,21 @@
 
                                               ($ svg/save)))))))))))
 (defnc index [{:keys [children]}]
-  (let [[toggle-sidebar set-toggle] (hooks/use-state false)
+  (let [[aside-open? toggle-aside!] (hooks/use-state false)
         user (-> (refx/use-sub [:app.auth/current-user]) :user)]
     (d/body
      {:class-name "bg-gray-50 dark:bg-gray-800"}
-     ($ nav-bar {:set-toggle set-toggle
-                 :toggle-sidebar toggle-sidebar
+     ($ nav-bar {:aside-open? aside-open?
+                 :toggle-aside! toggle-aside!
                  :user-data user})
 
-     ($ aside {:is-sidebar-toogle? toggle-sidebar
-               :set-toggle set-toggle})
+     ($ aside {:aside-open? aside-open?
+               :toggle-aside! toggle-aside!})
 
      (d/div {:class-name "hidden fixed inset-0 z-10 bg-gray-900/50 dark:bg-gray-900/90"
              :id "sidebarBackdrop"})
      (<>
       ($ container
-         {:is-sidebar-toogle? toggle-sidebar}
+         {:is-sidebar-toogle? toggle-aside!}
          children)
       ($ edit-modal)))))
