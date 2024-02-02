@@ -3,7 +3,7 @@
 module.exports = {
   content: process.env.NODE_ENV == 'production' ?
     ["./resources/front/public/assets/js/core.js"] :
-    ["./resources/front/public/assets/js/cljs-runtime/*.js"],
+    ["./resources/front/public/assets/js/cljs-runtime/front.app*.js"],
   safelist: [
     'w-64',
     'w-1/2',

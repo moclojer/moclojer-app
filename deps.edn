@@ -9,7 +9,6 @@
         metosin/reitit-schema {:mvn/version "0.5.18"}
         metosin/reitit-frontend {:mvn/version "0.5.18"}
         lambdaisland/fetch {:mvn/version "1.1.60"}
-        com.teknql/shadow-cljs-tailwind-jit {:mvn/version "1.0.0"}
         ;; back
         com.cognitect.aws/api          {:mvn/version "0.8.561"}
         com.cognitect.aws/endpoints    {:mvn/version "1.1.12.230"}
