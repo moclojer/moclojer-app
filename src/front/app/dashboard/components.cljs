@@ -235,7 +235,7 @@
                                                             (when-not aside-open?
                                                               "lg:hidden lg:absolute"))}
                                                       "Help")))))
-                           (d/div {:class-name (str  "hidden absolute bottom-0 left-0 justify-center p-4 space-x-4 w-full lg:flex"
+                           (d/div {:class-name (str  "absolute bottom-0 left-0 justify-center p-4 space-x-4 w-full lg:flex"
                                                      (when aside-open?
                                                        " flex-col space-y-4 p-2"))}
                                   (d/button
