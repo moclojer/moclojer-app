@@ -237,14 +237,14 @@
                                                          {:key wildcard}
                                                          (d/button {:on-click #(rfe/push-state :app.core/mocks-view {:mock-id id})
                                                                     :class-name (str (if is-sidebar-toogle? "px-4 " "pl-11 ")
-                                                                                     "w-full flex items-center p-2 text-base font-normal text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700")}
+                                                                                     "w-full flex items-center overflow-hidden ellipsis p-2 text-base font-normal text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700")}
                                                                    (when-not is-sidebar-toogle?
                                                                      (if (= mock-type :personal)
                                                                        ($ svg/personal-mock)
                                                                        ($ svg/org-mock)))
                                                                    (if is-sidebar-toogle?
                                                                      (d/span (first wildcard))
-                                                                     (d/span {:class-name "flex-1 ml-3 text-left whitespace-nowrap"} wildcard))))))))
+                                                                     (d/span {:class-name "flex-1 ml-3 text-left truncate"} wildcard))))))))
 
                                          (d/div {:class-name "pt-2 space-y-2"}
                                                 (d/a {:href ""
