@@ -1,15 +1,15 @@
-(ns front.app.components.container 
+(ns front.app.components.container
   (:require
    [front.app.lib :refer [defnc]]
    [helix.dom :as d]))
 
-(defnc container [{:keys [is-sidebar-toogle? children]
+(defnc container [{:keys [aside-open? children]
                    :or {is-sidebar-toogle? false}}]
   (d/div
    {:class-name (str "overflow-y-auto relative h-full bg-gray-50 "
-                     (if is-sidebar-toogle?
-                       "lg:ml-16"
-                       "lg:ml-64")
+                     (if aside-open?
+                       "lg:ml-64"
+                       "lg:ml-16")
                      " dark:bg-gray-900")
     :id "main-content"}
    children))

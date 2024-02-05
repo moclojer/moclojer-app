@@ -139,6 +139,6 @@
              :id "sidebarBackdrop"})
      (<>
       ($ container
-         {:is-sidebar-toogle? toggle-aside!}
+         {:aside-open? aside-open?}
          children)
       ($ edit-modal)))))
