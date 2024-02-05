@@ -42,16 +42,23 @@
 
 (defnc editor [props]
   (let [{:keys [data]} props
-        {:keys [content id]} data
+        {:keys [content id]
+         :or {content default-content}} data
         ref-fn (hooks/use-callback
                 [content]
                 (fn [content]
                   (refx/dispatch-sync
                    [:app.dashboard/edit-mock {:mock-id id
                                               :content content}])))]
+
+    ;; populate content at first load
+    (hooks/use-effect
+     :once
+     (ref-fn content))
+
     ($ c/default
        {:autoFocus true
-        :value (or content default-content)
+        :value content
         :height "400px"
         :theme theme/githubLight
         :extensions #js [(.define language/StreamLanguage yaml/yaml)
