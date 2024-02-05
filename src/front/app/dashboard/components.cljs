@@ -175,21 +175,23 @@
                                                                                     (when-not aside-open?
                                                                                       "lg:hidden lg:absolute"))} "Home")))
                                                (d/li
-                                                (d/button
-                                                 {:on-click (fn [_e]
-                                                              (if (empty? mocks-raw)
-                                                                (refx/dispatch-sync [:app.dashboard/toggle-mock-modal])
-                                                                (do (refx/dispatch-sync [:app.dashboard/toggle-menu])
-                                                                    (rfe/push-state :app.core/mocks))))
-                                                  :class-name "flex items-center p-2 w-full text-base font-normal text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
-                                                  :aria-controls "dropdown-mocks"
-                                                  :aria-expanded aside-open?
-                                                  :data-collapse-toggle "dropdown-mocks"}
-                                                 ($ svg/mock-list-box)
-                                                 (d/span {:class-name (str "flex-1 ml-3 text-left whitespace-nowrap "
-                                                                           (when-not aside-open?
-                                                                             "lg:hidden lg:absolute"))} "Mocks")
-                                                 ($ svg/arrow-down))
+                                                (d/div {:class "flex flex-row"}
+                                                       (d/button
+                                                        {:on-click (fn [_e]
+                                                                     (if (empty? mocks-raw)
+                                                                       (refx/dispatch-sync [:app.dashboard/toggle-mock-modal])
+                                                                       (rfe/push-state :app.core/mocks)))
+                                                         :class-name "flex items-center p-2 w-full text-base font-normal text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+                                                         :aria-controls "dropdown-mocks"
+                                                         :aria-expanded aside-open?
+                                                         :data-collapse-toggle "dropdown-mocks"}
+                                                        ($ svg/mock-list-box)
+                                                        (d/span {:class-name (str "flex-1 ml-3 text-left whitespace-nowrap "
+                                                                                  (when-not aside-open?
+                                                                                    "lg:hidden lg:absolute"))} "Mocks"))
+                                                       (d/button {:class "px-2 rounded-lg fill-gray-200 bg-transparent hover:bg-gray-200 hover:fill-gray-400"
+                                                                  :on-click #(refx/dispatch-sync [:app.dashboard/toggle-menu])}
+                                                                 ($ svg/arrow {:direction (if menu-open? :up :down)})))
                                                 (d/ul {:id "dropdown-mocks"
                                                        :class-name (str "py-2 space-y-2"
                                                                         (when (or (not menu-open?) (not aside-open?)) " hidden"))}
