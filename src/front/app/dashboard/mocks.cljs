@@ -113,11 +113,16 @@
 
     (hooks/use-effect
      [mocks]
-     (when (nil? mocks)
-       (refx/dispatch-sync [:app.dashboard/get-mocks current-user])))
+     (if (nil? mocks)
+       (refx/dispatch-sync [:app.dashboard/get-mocks current-user])
+       (when (empty? mocks)
+         (refx/dispatch-sync [:app.dashboard/toggle-mock-modal]))))
 
     ($ base/index
        (d/div {:class "mock-list"}
-              (for [{:keys [mock-type subdomain apis] :or {mock-type "personal"}} mocks]
-                (<> {:key subdomain}
-                    ($ apis-mocks {:mock-type mock-type :subdomain subdomain :apis apis})))))))
+              (if (some? mocks)
+                (for [{:keys [mock-type subdomain apis] :or {mock-type "personal"}} mocks]
+                  (<> {:key subdomain}
+                      ($ apis-mocks {:mock-type mock-type :subdomain subdomain :apis apis})))
+                (d/p {:class "todo"}
+                     "loading..."))))))
