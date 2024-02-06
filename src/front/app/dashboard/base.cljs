@@ -10,6 +10,31 @@
    [helix.hooks :as hooks]
    [refx.alpha :as refx]))
 
+(defonce default-content
+  "# The following schema is an example of how you can
+# use the power of Moclojer to create your applications.
+#
+# Documentation: https://docs.moclojer.com
+# Source Code: https://github.com/moclojer/moclojer
+
+# This mock register route: GET /hello/:username
+- endpoint:
+    # Note: the method could be omitted because GET is the default
+    method: GET
+    path: /hello/:username
+    response:
+      # Note: the status could be omitted because 200 is the default
+      status: 200
+      headers:
+        Content-Type: application/json
+      # Note: the body will receive the value passed in the url using the
+      # :username placeholder
+      body: >
+        {
+          \"hello\": \"{{path-params.username}}!\"
+        }
+")
+
 (defnc loading-creating-mock []
   (d/span {:class-name "inline-flex"}
           ($ loading-spinner {})
@@ -19,7 +44,8 @@
   (let [is-mock-modal (refx/use-sub [:app.dashboard/is-modal-open?])
         loading? (refx/use-sub [:app.dashboard/loading-creating-mock?])
         user-orgs (refx/use-sub [:app.user/orgs])
-        [new-mock set-mock] (hooks/use-state {:enabled true})
+        [new-mock set-mock] (hooks/use-state {:enabled true
+                                              :content default-content})
         wildcard-available? (refx/use-sub [:app.dashboard/wildcard-available?])
         allow-save? (and (:subdomain new-mock)
                          (seq (:subdomain new-mock))
