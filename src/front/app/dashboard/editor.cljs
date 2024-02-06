@@ -15,46 +15,16 @@
    [refx.alpha :as refx]
    [reitit.frontend.easy :as rfe]))
 
-(defonce default-content
-  "# The following schema is an example of how you can
-# use the power of Moclojer to create your applications.
-#
-# Documentation: https://docs.moclojer.com
-# Source Code: https://github.com/moclojer/moclojer
-
-# This mock register route: GET /hello/:username
-- endpoint:
-    # Note: the method could be omitted because GET is the default
-    method: GET
-    path: /hello/:username
-    response:
-      # Note: the status could be omitted because 200 is the default
-      status: 200
-      headers:
-        Content-Type: application/json
-      # Note: the body will receive the value passed in the url using the
-      # :username placeholder
-      body: >
-        {
-          \"hello\": \"{{path-params.username}}!\"
-        }
-")
-
 (defnc editor [props]
   (let [{:keys [data]} props
         {:keys [content id]
-         :or {content default-content}} data
+         :or {content ""}} data
         ref-fn (hooks/use-callback
                 [content]
                 (fn [content]
                   (refx/dispatch-sync
                    [:app.dashboard/edit-mock {:mock-id id
                                               :content content}])))]
-
-    ;; populate content at first load
-    (hooks/use-effect
-     :once
-     (ref-fn content))
 
     ($ c/default
        {:autoFocus true
