@@ -6,15 +6,19 @@
    [back.api.ports.producers :as ports.producers]))
 
 (defn create-mock!
-  [user-id mock {:keys [database]}]
+  [user-id mock {:keys [database publisher]}]
   (let [uid {:user-id user-id}
         existing-mock (-> (select-keys mock [:wildcard :subdomain])
                           (merge uid)
                           (db.mocks/get-mock-by-wildcard database))]
     (if (empty? existing-mock)
-      (-> (logic.mocks/create (merge uid mock))
-          (db.mocks/insert! database)
-          (adapter.mocks/->wire))
+      (let [new-mock (-> (logic.mocks/create (merge uid mock))
+                         (db.mocks/insert! database)
+                         (adapter.mocks/->wire))]
+        (if (:enabled new-mock)
+          (ports.producers/publish-mock-event new-mock
+                                              :mock.changed publisher)
+          new-mock))
       (throw (ex-info "Mock with given wildcard and subdomain invalid"
                       {:status-code 412
                        :cause :invalid-wildcard

@@ -164,7 +164,7 @@
   (slurp (io/reader
           (get-file storage "moclojer" "moclojer.yml")))
 
-  (upload! storage "moclojer" "j0suetm/my-mock.yml" yml)
+  (upload! storage "moclojer" "moclojer.yml" "[]\n")
 
   #_(list-buckets storage)
   (create-bucket! storage "moclojer")
