@@ -38,22 +38,24 @@
          unified-mock (storage/get-file storage "moclojer" "moclojer.yml")
          env (get-in config [:config :env])
          host-key (if (= env :dev) :local-host :host)]
-     (if unified-mock
-       (try
-         (logs/log :info :generate-unified :path path :new-mock new-mock-file)
-         (->> (logic.yml/unified-yaml (slurp (io/reader unified-mock))
-                                      new-mock-content append? host-key)
-              (storage/upload! storage "moclojer" "moclojer.yml"))
+     (try
+       (if unified-mock
+         (do
+           (logs/log :info :generate-unified :path path :new-mock new-mock-file)
+           (->> (logic.yml/unified-yaml (slurp (io/reader unified-mock))
+                                        new-mock-content append? host-key)
+                (storage/upload! storage "moclojer" "moclojer.yml")))
 
-         (ports.producers/restart-mock! publisher)
-         (ports.producers/create-domain! domain publisher)
+         (storage/upload! storage "moclojer" "moclojer.yml"
+                          (or new-mock-content "[]\n")))
 
-         (catch Exception e
-           (logs/log :error :generate-unified
-                     (-> e ex-data :cause)
-                     (.getMessage e))))
-       (storage/upload! storage "moclojer" "moclojer.yml" (or new-mock-content
-                                                              "[]\n"))))))
+       (ports.producers/restart-mock! publisher)
+       (ports.producers/create-domain! domain publisher)
+
+       (catch Exception e
+         (logs/log :error :generate-unified
+                   (-> e ex-data :cause)
+                   (.getMessage e)))))))
 
 (defn delete [{:keys [id user-id]} components]
   (let [path (logic.yml/gen-path user-id id)
