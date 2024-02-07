@@ -1,12 +1,15 @@
 (ns back.api.logic.mocks
   (:require
-   [back.api.utils :refer [assoc-if]]
-   [camel-snake-kebab.core :as csk])
+   [camel-snake-kebab.core :as csk]
+   [clojure.java.io :as io])
   (:import
    [java.util UUID]))
 
 (defn ->uuid []
   (UUID/randomUUID))
+
+(def default-mock-content
+  (slurp (io/resource "back/default-mock.yaml")))
 
 (defn create [mock]
   (let [new-uuid (->uuid)
@@ -18,8 +21,8 @@
                            csk/->snake_case
                            keyword) v))
          {} mock)
-        (assoc :mock/id new-uuid)
-        (assoc-if :mock/content content))))
+        (merge {:mock/id new-uuid
+                :mock/content (or content default-mock-content)}))))
 
 (defn gen-host [wildcard subdomain]
   (str wildcard "-" subdomain ".moclojer.com"))
