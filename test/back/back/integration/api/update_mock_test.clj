@@ -1,6 +1,7 @@
 (ns back.integration.api.update-mock-test
   (:require
    [back.api.db.customers :as db.customers]
+   [back.api.logic.mocks :as m.logic]
    [back.api.routes :as routes]
    [back.integration.api.helpers :as helpers]
    [back.integration.components.utils :as utils]
@@ -85,6 +86,7 @@
                                                  :uri "/mocks"
                                                  :body {:id (-> resp :body :mock :id str)
                                                         :content yml}})]
+
                     (match?
                      (matchers/embeds {:mock {:id #(uuid? (java.util.UUID/fromString %))
                                               :subdomain "chico"
@@ -118,4 +120,4 @@
                                     :wildcard "test",
                                     :subdomain "chico",
                                     :enabled true,
-                                    :content yml}}))))))
+                                    :content m.logic/default-mock-content}}))))))
