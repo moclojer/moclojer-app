@@ -27,9 +27,9 @@
                                               :content content}])))]
 
     ($ c/default
-       {:autoFocus true
+       {:height "calc(100vh - 171px)"
+        :autoFocus true
         :value content
-        :height "400px"
         :theme theme/githubLight
         :extensions #js [(.define language/StreamLanguage yaml/yaml)
                          (clint/lintGutter) linter/yaml-linter]
@@ -37,22 +37,12 @@
         :mode "yaml"})))
 
 (defnc drag-drop [{:keys [on-load]}]
-  (d/div {:class-name "flex items-center justify-center w-full"}
+  (d/div {:class-name "hidden flex items-center justify-center w-full"}
          (d/label
           {:for "dropzone-file"
            :class-name "flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600"}
           (d/div {:class-name "flex flex-col items-center justify-center pt-5 pb-6"}
-                 (d/svg
-                  {:class-name "w-8 h-8 mb-4 text-gray-500 dark:text-gray-400"
-                   :aria-hidden "true"
-                   :fill "none"
-                   :viewBox  "0 0 20 16"}
-                  (d/path {:stroke "currentColor"
-                           :stroke-linecap "round"
-                           :stroke-linejoin "round"
-                           :stroke-width "2"
-                           :d "M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"}))
-
+                 ($ svg/upload {:class-name "mb-4 text-gray-500 dark:text-gray-400 w-8 h-8"})
                  (d/p {:class-name "mb-2 text-sm text-gray-500 dark:text-gray-400"}
                       (d/span {:class-name "font-semibold"} "Click to upload the mock") " or drag and drop")
                  (d/p {:class-name "text-xs text-gray-500 dark:text-gray-400"} "YAML"))
@@ -67,10 +57,11 @@
                                    (set! (.-onload reader) on-load)
                                    (.readAsText reader file)))}))))
 
-(defnc save-button [{mock-id :mock-id}]
+(defnc save-button [{:keys [mock-id full-width?]}]
   (let [mock-valid? (refx/use-sub [:app.dashboard/mock-valid?])]
     (d/button
-     {:class-name (str "px-3 py-2 bg-pink-600 rounded-lg justify-end items-center gap-2 flex btn-add"
+     {:class-name (str "px-3 py-2 bg-pink-600 rounded-lg flex justify-center items-center btn-add space-x-2 "
+                       (when full-width? "w-full ")
                        (when-not mock-valid? " opacity-50 cursor-not-allowed"))
       :on-click (fn [_] (when mock-valid? (refx/dispatch [:app.dashboard/save-mock mock-id])))}
      (d/div {:class-name "text-white text-xs font-bold leading-[18px]"} " save")
@@ -85,7 +76,7 @@
 
     ($ base/index
        (d/div
-        (d/div {:class-name "flex w-full flex-col bg-white p-5 "}
+        (d/div {:class-name "flex w-full flex-col bg-white px-5 pt-5 lg:p-5"}
                (d/div {:class-name "bg-white rounded-br-lg flex-col justify-start  inline-flex"}
                       (d/div {:class-name " rounded-md justify-start items-center gap-4 inline-flex"}
                              ($ svg/box {:color "black"})
@@ -94,31 +85,33 @@
                              (d/div {:class-name "w-5 "} ">")
                              (d/div {:class-name "justify-center items-center flex"}
                                     (d/div {:class-name "text-gray-700 text-sm font-medium leading-[21px]"} "my"))))
-               (d/div {:class-name "flex bg-white justify-between items-center"}
-                      (d/div {:class-name " bg-white  gap-4 flex "}
-                             (d/div {:class-name " rounded-md  items-center gap-4 inline-flex"}
-                                    (if (:enabled data)
-                                      ($ svg/mock-enabled)
-                                      ($ svg/mock-disabled))
-                                    (d/div {:class-name "text-zinc-500 text-xl font-medium leading-[30px]"} (str (:url data)))))
+               (d/div {:class-name "flex flex-col items-left lg:flex-row lg:justify-between"}
+                      (d/div {:class-name "flex flex-row items-center space-x-2"}
+                             (if (:enabled data)
+                               ($ svg/mock-enabled)
+                               ($ svg/mock-disabled))
+                             (d/div {:class-name "text-zinc-500 text-lg truncate text-ellipsis lg:text-xl font-medium"}
+                                    (str (:url data))))
 
-                      (d/div {:class-name "flex gap-2.5 p-2 bg-white"}
-                             (d/button {:class-name "px-3 py-2 rounded-lg border border-gray-200 justify-center items-center gap-2 flex"
-                                        :on-click (fn [_]
-                                                    (refx/dispatch-sync [:app.dashboard/delete-mock {:id mock-id}])
-                                                    (rfe/push-state :app.core/mocks))}
-                                       (d/div {:class-name "text-gray-800 text-sm font-medium leading-[21px]"} "remove")
+                      (d/div {:class-name "w-full lg:w-1/2 xl:w-1/3 2xl:w-1/4 flex flex-row mt-2 mb-4 lg:my-0 space-x-2"}
+                             (d/button {:class-name (str "w-full px-3 py-2 rounded-lg border border-gray-200 "
+                                                         "flex flex-row justify-center items-center space-x-2")
+                                        :on-click #(do
+                                                     (refx/dispatch-sync [:app.dashboard/delete-mock {:id mock-id}])
+                                                     (rfe/push-state :app.core/mocks))}
+                                       (d/div {:class-name "text-gray-800 text-sm font-medium"} "remove")
                                        ($ svg/trash))
 
-                             ($ save-button {:mock-id mock-id})))
-               (d/div {}
-                      ($ drag-drop
-                         {:on-load (fn [e]
-                                     (on-load e
-                                              #(refx/dispatch [:app.dashboard/edit-mock {:mock-id mock-id
-                                                                                         :content %}])))}))
+                             ($ save-button {:mock-id mock-id
+                                             :full-width? true})
 
-               (d/div {:class-name "w-full  bg-white rounded-bl-lg rounded-br-lg flex-col justify-start items-center gap-5 inline-flex"}
-                      (d/div {:class-name "w-full justify-start items-center inline-flex"}
-                             (d/div {:class-name "grow shrink basis-0 h-px bg-gray-200"}))))
+                             (d/button {:class (str "w-full px-3 py-2 rounded-l-lg bg-gray-800 "
+                                                    "flex flex-row justify-center items-center space-x-2")}
+                                       (d/p {:class "text-white text-sm font-medium whitespace-nowrap"} "upload file")
+                                       ($ svg/upload {:class-name "w-4 h-4 fill-white"}))))
+               ($ drag-drop
+                  {:on-load (fn [e]
+                              (on-load e
+                                       #(refx/dispatch [:app.dashboard/edit-mock {:mock-id mock-id
+                                                                                  :content %}])))}))
         ($ editor {:data data})))))
