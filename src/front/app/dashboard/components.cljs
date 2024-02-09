@@ -205,7 +205,8 @@
                                                                :or {mock-type :personal}} mocks-raw]
                                                           (d/li
                                                            {:key wildcard}
-                                                           (d/button {:on-click #(rfe/push-state :app.core/mocks-view {:mock-id id})
+                                                           (d/button {:on-click #(do (rfe/push-state :app.core/mocks-view {:mock-id id})
+                                                                                     (toggle-aside! false))
                                                                       :class-name (str "pl-11 w-full flex items-center overflow-hidden ellipsis p-2 "
                                                                                        "text-base font-normal text-gray-900 rounded-lg transition "
                                                                                        "duration-75 group hover:bg-gray-100 dark:text-gray-200 "
