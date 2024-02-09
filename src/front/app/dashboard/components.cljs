@@ -95,7 +95,7 @@
                           "Logout")))))))
 
 (defnc new-mock-btn []
-  (d/button {:class-name "px-3 py-2 bg-pink-600 rounded-lg justify-end items-center gap-2 flex btn-add"
+  (d/button {:class-name "px-3 py-2 bg-pink-600 rounded-lg flex flex-row space-x-2 items-center btn-add"
              :on-click #(refx/dispatch [:app.dashboard/toggle-mock-modal])}
             (d/svg {:width "16"
                     :height "17"
@@ -105,7 +105,7 @@
                             :clip-rule "evenodd"
                             :d "M8 4.5C8.21217 4.5 8.41566 4.58429 8.56569 4.73431C8.71571 4.88434 8.8 5.08783 8.8 5.3V7.7H11.2C11.4122 7.7 11.6157 7.78429 11.7657 7.93431C11.9157 8.08434 12 8.28783 12 8.5C12 8.71217 11.9157 8.91566 11.7657 9.06569C11.6157 9.21571 11.4122 9.3 11.2 9.3H8.8V11.7C8.8 11.9122 8.71571 12.1157 8.56569 12.2657C8.41566 12.4157 8.21217 12.5 8 12.5C7.78783 12.5 7.58434 12.4157 7.43431 12.2657C7.28429 12.1157 7.2 11.9122 7.2 11.7V9.3H4.8C4.58783 9.3 4.38434 9.21571 4.23431 9.06569C4.08429 8.91566 4 8.71217 4 8.5C4 8.28783 4.08429 8.08434 4.23431 7.93431C4.38434 7.78429 4.58783 7.7 4.8 7.7H7.2V5.3C7.2 5.08783 7.28429 4.88434 7.43431 4.73431C7.58434 4.58429 7.78783 4.5 8 4.5V4.5Z"
                             :fill "white"}))
-            (d/p {:class-name "text-white text-xs font-bold leading-[18px]"}
+            (d/p {:class-name "text-white text-xs font-bold"}
                  " new mock")
             ($ svg/box)))
 
@@ -127,7 +127,7 @@
                       (if aside-open?
                         ($ svg/hamburger-menu-close)
                         ($ svg/hamburger-menu)))
-            (d/button {:class-name "flex mr-14"
+            (d/button {:class-name "flex"
                        :on-click #(rfe/push-state :app.core/dashboard)}
                       (d/img {:src "/images/logo.svg"
                               :class-name "mr-3 h-9"})))
@@ -171,8 +171,9 @@
                                          (d/ul {:class-name "pb-2 space-y-2"}
                                                (d/li
                                                 (d/button {:class-name "w-full flex items-center p-2 text-base font-normal text-gray-900 rounded-lg hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-gray-700"
-                                                           :on-click (fn [_e]
-                                                                       (rfe/push-state :app.core/dashboard))}
+                                                           :on-click #(do
+                                                                        (rfe/push-state :app.core/dashboard)
+                                                                        (toggle-aside! false))}
                                                           ($ svg/house)
                                                           (d/span {:class-name (str "ml-3 "
                                                                                     (when-not aside-open?
@@ -180,7 +181,8 @@
                                                (d/li
                                                 (d/div {:class "flex flex-row"}
                                                        (d/button
-                                                        {:on-click #(rfe/push-state :app.core/mocks)
+                                                        {:on-click #(do (rfe/push-state :app.core/mocks)
+                                                                        (toggle-aside! false))
                                                          :class-name "flex items-center p-2 w-full text-base font-normal text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
                                                          :aria-controls "dropdown-mocks"
                                                          :aria-expanded aside-open?
