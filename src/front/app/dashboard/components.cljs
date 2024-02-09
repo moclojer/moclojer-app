@@ -170,7 +170,7 @@
                                   (d/div {:class-name "flex-1 px-3 space-y-1 bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700"}
                                          (d/ul {:class-name "pb-2 space-y-2"}
                                                (d/li
-                                                (d/button {:class-name "flex items-center p-2 text-base font-normal text-gray-900 rounded-lg hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-gray-700"
+                                                (d/button {:class-name "w-full flex items-center p-2 text-base font-normal text-gray-900 rounded-lg hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-gray-700"
                                                            :on-click (fn [_e]
                                                                        (rfe/push-state :app.core/dashboard))}
                                                           ($ svg/house)
