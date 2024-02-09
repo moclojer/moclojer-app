@@ -213,7 +213,7 @@
                                                                        ($ svg/org-mock))
                                                                      (d/span {:class-name "flex-1 ml-3 text-left truncate"} wildcard))))))))
                                          (d/div {:class-name "pt-2 space-y-2"}
-                                                (d/a {:href ""
+                                                (d/a {:href "https://docs.moclojer.com/"
                                                       :target "_blank"
                                                       :class-name "flex items-center p-2 text-base font-normal text-gray-900 rounded-lg transition duration-75 hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-gray-700"}
                                                      (d/svg {:class-name "flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
@@ -227,7 +227,7 @@
                                                                    (when-not aside-open?
                                                                      "lg:hidden lg:absolute"))}
                                                              "Docs"))
-                                                (d/a {:href ""
+                                                (d/a {:href "https://discord.gg/pbhBzKjhTb"
                                                       :target "_blank"
                                                       :class-name "flex items-center p-2 text-base font-normal text-gray-900 rounded-lg transition duration-75 hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-gray-700"}
                                                      (d/svg {:class-name "flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
