@@ -19,13 +19,31 @@
   (let [is-mock-modal (refx/use-sub [:app.dashboard/is-modal-open?])
         loading? (refx/use-sub [:app.dashboard/loading-creating-mock?])
         user-orgs (refx/use-sub [:app.user/orgs])
+        mocks-raw (refx/use-sub [:app.dashboard/mocks-raw])
         [new-mock set-mock] (hooks/use-state {:enabled true})
         wildcard-available? (refx/use-sub [:app.dashboard/wildcard-available?])
         allow-save? (and (:subdomain new-mock)
                          (seq (:subdomain new-mock))
                          (:wildcard new-mock)
                          (some? (:enabled new-mock))
-                         wildcard-available?)]
+                         wildcard-available?)
+        default-wildcard (->> mocks-raw
+                              count
+                              inc
+                              (str "my-mock-"))
+        default-subdomain (first user-orgs)]
+
+    (hooks/use-effect
+     [new-mock]
+
+     (when-not (:wildcard new-mock)
+       (set-mock assoc :wildcard default-wildcard))
+     (when-not (:subdomain new-mock)
+       (set-mock assoc :subdomain default-subdomain))
+
+     (refx/dispatch-sync [:app.dashboard/wildcard-available?
+                          (select-keys new-mock [:subdomain :wildcard])]))
+
     (<>
      (when is-mock-modal
        (d/div {:modal-backdrop "" :class "bg-gray-900 bg-opacity-50 dark:bg-opacity-80 fixed inset-0 z-40"}))
@@ -63,66 +81,54 @@
                                                       :class-name "block mb-2 text-sm font-medium text-gray-900 dark:text-white"}
                                                      "mock name")
                                             (d/input {:class-name "shadow-sm bg-gray-50 focus:ring-pink-500 focus:border-pink-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                                                      :value (or (:wildcard new-mock) "")
+                                                      :value (or (:wildcard new-mock) default-wildcard)
                                                       :type "text"
-                                                      :on-change (fn [e]
-                                                                   (let [subdomain (:subdomain new-mock)
-                                                                         wildcard (.. e -target -value)]
-                                                                     (set-mock assoc :wildcard wildcard)
-                                                                     (refx/dispatch-sync [:app.dashboard/wildcard-available? {:subdomain subdomain
-                                                                                                                              :wildcard wildcard}])))
+                                                      :on-change #(set-mock assoc :wildcard (or (.. % -target -value) default-wildcard))
                                                       :name "product-name"
-                                                      :id "product-name"}))))
-                             (d/div {:class-name "mb-4"}
-                                    (d/label {:for "settings-language"
-                                              :class-name "block mb-2 text-sm font-medium text-gray-900 dark:text-white"}
-                                             "Org name")
-                                    (d/select {:id "settings-language"
-                                               :name "subdomain"
-                                               :value (or (:subdomain new-mock) "")
-                                               :on-change (fn [e]
-                                                            (let [subdomain (.. e -target -value)
-                                                                  wildcard (:wildcard new-mock)]
-                                                              (set-mock assoc :subdomain subdomain)
-                                                              (refx/dispatch-sync [:app.dashboard/wildcard-available? {:subdomain subdomain
-                                                                                                                       :wildcard wildcard}])))
+                                                      :id "product-name"})))
+                              (d/div {:class-name "mb-4"}
+                                     (d/label {:for "settings-language"
+                                               :class-name "block mb-2 text-sm font-medium text-gray-900 dark:text-white"}
+                                              "Org name")
+                                     (d/select {:id "settings-language"
+                                                :name "subdomain"
+                                                :value (or (:subdomain new-mock) default-subdomain)
+                                                :on-change #(set-mock assoc :subdomain (or (.. % -target -value) default-subdomain))
+                                                :class "bg-gray-50 border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"}
+                                               (d/option {:value ""} "Select an org-name")
+                                               (mapv
+                                                #(d/option {:key % :value %} %)
+                                                user-orgs))
+                                     (d/div {:class-name "mt-2 text-sm text-gray-500 dark:text-gray-400"}
+                                            (d/span {:class-name "text-gray-900 text-base font-semibold "} (or (:wildcard new-mock)
+                                                                                                               "<mock-name>"))
+                                            (d/span  {:class-name "text-gray-900 "} (str "-" (or (:subdomain new-mock)
+                                                                                                 "<org-name>") ".moclojer.com"))))
 
-                                               :class "bg-gray-50 border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"}
-                                              (d/option {:value ""} "Select an org-name")
-                                              (mapv
-                                               #(d/option {:key % :value %} %)
-                                               user-orgs))
-                                    (d/div {:class-name "mt-2 text-sm text-gray-500 dark:text-gray-400"}
-                                           (d/span {:class-name "text-gray-900 text-base font-semibold "} (or (:wildcard new-mock)
-                                                                                                              "<mock-name>"))
-                                           (d/span  {:class-name "text-gray-900 "} (str "-" (or (:subdomain new-mock)
-                                                                                                "<org-name>") ".moclojer.com"))))
+                              (d/div {:class-name "divide-y divide-gray-200 dark:divide-gray-700 hidden"}
+                                     (d/div {:class-name "flex justify-between items-center py-4"}
+                                            (d/div {:class-name "flex flex-col flex-grow"}
+                                                   (d/div {:class-name "text-lg font-semibold text-gray-900 dark:text-white"} "public?")
+                                                   (d/div {:class-name "text-base font-normal text-gray-500 dark:text-gray-400"} "is this api ready to be published?"))
+                                            (d/label {:for "rating-reminders" :class-name "flex relative items-center cursor-pointer"}
+                                                     (d/input {:type "checkbox"
+                                                               :id "rating-reminders"
+                                                               :class-name "sr-only peer cursor-not-allowed"
+                                                               :on-change (fn [e]
+                                                                            (set-mock assoc :enabled (= (.. e -target -value) "on")))})
+                                                     (d/span {:class-name "w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-focus:ring-4 peer-focus:ring-pink-300 dark:peer-focus:ring-pink-800 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-pink-500"}))))
 
-                             (d/div {:class-name "divide-y divide-gray-200 dark:divide-gray-700 hidden"}
-                                    (d/div {:class-name "flex justify-between items-center py-4"}
-                                           (d/div {:class-name "flex flex-col flex-grow"}
-                                                  (d/div {:class-name "text-lg font-semibold text-gray-900 dark:text-white"} "public?")
-                                                  (d/div {:class-name "text-base font-normal text-gray-500 dark:text-gray-400"} "is this api ready to be published?"))
-                                           (d/label {:for "rating-reminders" :class-name "flex relative items-center cursor-pointer"}
-                                                    (d/input {:type "checkbox"
-                                                              :id "rating-reminders"
-                                                              :class-name "sr-only peer cursor-not-allowed"
-                                                              :on-change (fn [e]
-                                                                           (set-mock assoc :enabled (= (.. e -target -value) "on")))})
-                                                    (d/span {:class-name "w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-focus:ring-4 peer-focus:ring-pink-300 dark:peer-focus:ring-pink-800 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-pink-500"}))))
+                              (d/div {:class-name "flex justify-between items-end py-4"}
+                                     (d/button {:class-name
+                                                (str "px-3 py-2 rounded-lg justify-end items-center gap-2 flex btn-add "
+                                                     (if allow-save? "bg-pink-600" "btn-add__disabled bg-gray-600 cursor-not-allowed"))
+                                                :on-click (fn [_]
+                                                            (when allow-save?
+                                                              (refx/dispatch [:app.dashboard/create-mock new-mock])))}
+                                               (d/div {:class-name "text-white text-xs font-bold leading-[18px] "} " save")
 
-                             (d/div {:class-name "flex justify-between items-center py-4"}
-                                    (d/div {:class-name "flex flex-col flex-grow"})
+                                               ($ svg/save))))))))))))
 
-                                    (d/button {:class-name
-                                               (str "px-3 py-2 rounded-lg justify-end items-center gap-2 flex btn-add "
-                                                    (if allow-save? "bg-pink-600" "btn-add__disabled bg-gray-600 cursor-not-allowed"))
-                                               :on-click (fn [_]
-                                                           (when allow-save?
-                                                             (refx/dispatch [:app.dashboard/create-mock new-mock])))}
-                                              (d/div {:class-name "text-white text-xs font-bold leading-[18px] "} " save")
-
-                                              ($ svg/save)))))))))))
 (defnc index [{:keys [children]}]
   (let [[aside-open? toggle-aside!] (hooks/use-state false)
         user (-> (refx/use-sub [:app.auth/current-user]) :user)]
