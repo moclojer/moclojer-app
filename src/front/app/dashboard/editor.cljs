@@ -137,11 +137,7 @@
                              ($ save-button {:mock-id mock-id
                                              :full-width? true})
 
-                             ($ file-upload-button {:handle-file-fn handle-file-fn})
-                             #_(d/button {:class (str "w-full px-3 py-2 rounded-l-lg bg-gray-800 "
-                                                      "flex flex-row justify-center items-center space-x-2")}
-                                         (d/p {:class "text-white text-sm font-medium whitespace-nowrap"} "upload file")
-                                         ($ svg/upload {:class-name "w-4 h-4 fill-white"}))))
+                             ($ file-upload-button {:handle-file-fn handle-file-fn})))
                ($ drag-drop
                   {:on-load (fn [e]
                               (on-load e
