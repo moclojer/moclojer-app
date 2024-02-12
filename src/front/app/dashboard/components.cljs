@@ -31,7 +31,8 @@
         default-pfp-url (if username
                           (get-simple-avatar-url username)
                           "/images/default-pfp.png")
-        pfp-loading? (and (nil? pfp-url) (not= pfp-url default-pfp-url))]
+        pfp-loading? (and (nil? pfp-url) (not= pfp-url default-pfp-url))
+        [dropdown-open? toggle-dropdown!] (hooks/use-state false)]
 
     ;; https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/digest
     ;; https://cdn.auth0.com/avatars/jt.png
@@ -61,18 +62,18 @@
 
     (d/div {:class-name "hidden lg:block"}
            (d/button {:type "button"
-                      :class-name "flex text-sm bg-gray-800 aspect-square rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
-                      :id "user-menu-button-2"
-                      :aria-expanded "false"
-                      :data-dropdown-toggle "dropdown-2"}
+                      :class-name (str "flex text-sm bg-gray-800 aspect-square rounded-full "
+                                       (when dropdown-open? "focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"))
+                      :on-click #(toggle-dropdown! not)}
                      (d/span {:class-name "sr-only"} "Open user menu")
                      (d/img {:class-name (str "w-8 h-8 rounded-full opacity-100"
                                               (when pfp-loading? " opacity-30 animate-pulse"))
                              :src (if pfp-loading?
                                     "/images/default-pfp.png"
                                     pfp-url)}))
-           (d/div {:class-name "hidden z-50 my-4 text-base list-none bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600"
-                   :id "dropdown-2"}
+           (d/div {:class-name (str "absolute z-50 my-4 right-0 text-base list-none bg-white rounded divide-y "
+                                    "divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600 "
+                                    (when-not dropdown-open? "hidden"))}
                   (d/div {:class-name "py-3 px-4" :role "none"}
                          (d/p {:class-name "text-sm font-medium text-gray-900 truncate dark:text-gray-300" :role "none"}
                               (:email user-data)))
@@ -84,7 +85,6 @@
                               "Settings"))
 
                         (d/li
-
                          (d/button
                           {:class-name "w-full block py-2 px-4 text-sm text-left text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
                            :on-click (fn [e]
