@@ -50,18 +50,16 @@
  (fn [db _]
    (:loading-creating-mock? db)))
 
+(defn inspect [a]
+  (prn :a a)
+  a)
+
 (refx/reg-sub
  :app.dashboard/mock
  (fn [db [_ id]]
-   (let [mocks (-> db :mocks)
-         apis (->
-               (mapv
-                (fn [{:keys [apis]}]
-                  (filter (fn [api]
-                            (= (str (:id api)) id)) apis))
-                mocks)
-               ffirst)]
-     apis)))
+   (->> (:mocks-raw db)
+        (filter #(= (-> % :id str) id))
+        first)))
 
 (refx/reg-sub
  :app.dashboard/mock-valid?
