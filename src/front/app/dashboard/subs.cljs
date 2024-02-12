@@ -50,10 +50,6 @@
  (fn [db _]
    (:loading-creating-mock? db)))
 
-(defn inspect [a]
-  (prn :a a)
-  a)
-
 (refx/reg-sub
  :app.dashboard/mock
  (fn [db [_ id]]
