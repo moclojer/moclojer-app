@@ -51,6 +51,16 @@
    (:loading-creating-mock? db)))
 
 (refx/reg-sub
+ :app.dashboard/loading-mocks?
+ (fn [db _]
+   ;; Checks if `nil?` because its nil
+   ;; state has the same value as being loaded.
+   ;; The only state where its not loading
+   ;; is explicitly when `false`.
+   (let [loading? (:loading-mocks? db)]
+     (or (nil? loading?) loading?))))
+
+(refx/reg-sub
  :app.dashboard/mock
  (fn [db [_ id]]
    (->> (:mocks-raw db)

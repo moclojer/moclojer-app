@@ -116,18 +116,19 @@
 
 (defnc mocks []
   (let [current-user (refx/use-sub [:app.auth/current-user])
-        mocks (refx/use-sub [:app.dashboard/mocks])]
+        mocks (refx/use-sub [:app.dashboard/mocks])
+        loading-mocks? (refx/use-sub [:app.dashboard/loading-mocks?])]
 
     (hooks/use-effect
      [mocks]
-     (if (nil? mocks)
+     (when (nil? mocks)
        (refx/dispatch-sync [:app.dashboard/get-mocks current-user])
-       (when (empty? mocks)
+       (when-not loading-mocks?
          (refx/dispatch-sync [:app.dashboard/toggle-mock-modal]))))
 
     ($ base/index
        (d/div {:class "flex flex-col lg:p-8"}
-              (if (some? mocks)
+              (if (and (some? mocks) (not loading-mocks?))
                 (for [{:keys [mock-type subdomain apis] :or {mock-type "personal"}} mocks]
                   (<> {:key subdomain}
                       ($ apis-mocks {:mock-type mock-type :subdomain subdomain :apis apis})))

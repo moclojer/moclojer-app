@@ -27,16 +27,18 @@
 (refx/reg-event-db
  :app.dashboard/get-mocks-success
  (fn [db [_ {{mocks :mocks} :body}]]
-   (assoc db
-          :mocks-raw (mocks->raw mocks)
-          :mocks mocks)))
+   (merge db
+          {:mocks-raw (mocks->raw mocks)
+           :mocks mocks
+           :loading-mocks? false})))
 
-(refx/reg-event-fx
+(refx/reg-event-db
  :app.dashboard/get-mocks-failure
- (fn [{db :db} [_ {body :body}]]
-   {:db (assoc db
-               :error-fetch-mocks body
-               :mocks [])}))
+ (fn [db [_ {body :body}]]
+   (merge db
+          {:error-fetch-mocks body
+           :mocks []
+           :loading-mocks? false})))
 
 (refx/reg-event-fx
  :app.dashboard/get-mocks
@@ -46,7 +48,7 @@
            :headers {"authorization" (str "Bearer " (:access-token user))}
            :on-success [:app.dashboard/get-mocks-success]
            :on-failure [:app.dashboard/get-mocks-failure]}
-    :db db}))
+    :db (assoc db :loading-mocks? true)}))
 
 (refx/reg-event-fx
  :app.dashboard/create-mock
