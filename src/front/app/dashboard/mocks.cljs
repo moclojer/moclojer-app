@@ -122,9 +122,14 @@
     (hooks/use-effect
      [mocks]
      (when (nil? mocks)
-       (refx/dispatch-sync [:app.dashboard/get-mocks current-user])
-       (when-not loading-mocks?
-         (refx/dispatch-sync [:app.dashboard/toggle-mock-modal]))))
+       (refx/dispatch-sync [:app.dashboard/get-mocks current-user])))
+
+    (hooks/use-effect
+     [mocks loading-mocks?]
+     (when (and (or (nil? mocks)
+                    (empty? mocks))
+                (not loading-mocks?))
+       (refx/dispatch-sync [:app.dashboard/toggle-mock-modal])))
 
     ($ base/index
        (d/div {:class "flex flex-col lg:p-8"}
