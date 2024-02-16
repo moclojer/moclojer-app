@@ -24,15 +24,23 @@
                 (if sent?
                   (d/div {:id "login-email-sent"
                           :class-name "p-6 space-y-8 w-full sm:p-8 lg:p-16 lg:py-0"}
-                         (d/h2
+                         (d/h2 
                           {:class-name "font-semibold text-gray-900"}
-                          "Check your email, and click on the link.")
+                          "Sign in to moclojer")
+                         (d/div
+                          {:class-name "font-semibold text-gray-900"}
+                          "Check your email")
                          (d/div
                           (d/div
                            {:class-name "ml-3 "}
-                           "Didn't received it?"
+                           "If you have an account with us, we’ve sent an email to "
+                           (:email state)
+                           " with a link that you can use to sign in.")
+                          (d/div
+                           {:class-name "ml-3 "}
+                           "You can also "
                            ($ nav-link
-                              {:children " Try again."
+                              {:children "try again."
                                :on-click (fn [e]
                                            (.preventDefault e)
                                            (refx/dispatch [:app.auth/send-email-again]))
