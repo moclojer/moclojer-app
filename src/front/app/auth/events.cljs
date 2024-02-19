@@ -33,23 +33,16 @@
               (assoc :username-available? false
                      :username-to-save username))})))
 
-(refx/reg-event-fx
+(refx/reg-event-db
  :app.auth/username-available
- (fn [{db :db}
-      [_ {:keys [body]}]]
+ (fn [db [_ {:keys [body]}]]
    (let [{:keys [available]} body]
-     (prn :body-available body)
-     {:db (-> db
-              (assoc
-               :username-available? available))})))
+     (assoc db :username-available? available))))
 
-(refx/reg-event-fx
+(refx/reg-event-db
  :app.auth/username-not-available
- (fn [{db :db}
-      [_ body]]
-   (prn :body-available-error body)
-   {:db (assoc db
-               :username-available? false)}))
+ (fn [db _]
+   (assoc db :username-available? false)))
 
 (refx/reg-event-fx
  :app.auth/user-exists?
