@@ -16,6 +16,9 @@
    [:email string?]
    [:username {:optional true} string?]])
 
+(def MockPublication
+  [:enum "offline" "publishing" "published"])
+
 (def Mock
   [:map
    [:id uuid?]
@@ -23,7 +26,8 @@
    [:wildcard string?]
    [:content {:optional true} string?]
    [:subdomain string?]
-   [:enabled boolean?]])
+   [:enabled boolean?]
+   [:publication MockPublication]])
 
 (def MockDeleteUnauthorized
   [:map [:error string?]])
@@ -36,7 +40,8 @@
     [:url string?]
     [:content {:optional true} string?]
     [:subdomain string?]
-    [:enabled boolean?]]
+    [:enabled boolean?]
+    [:publication MockPublication]]
    [:fn (fn [{:keys [wildcard url subdomain]}]
           (= (str wildcard "-" subdomain ".moclojer.com") url))]])
 

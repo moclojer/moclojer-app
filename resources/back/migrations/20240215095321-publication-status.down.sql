@@ -1,2 +1,3 @@
-ALTER TABLE Mock DROP COLUMN publication;
+ALTER TABLE mock DROP COLUMN publication;
+--;;
 DROP TYPE publication_status;

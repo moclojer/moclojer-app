@@ -73,3 +73,12 @@
       (ports.producers/publish-mock-event mock :mock.deleted publisher)
       (constantly true))
     false))
+
+(defn get-mock-publication-status
+  [id db]
+  (if-let [mock (db.mocks/get-mock-by-id id db)]
+    (:publication mock)
+    (throw (ex-info "No mock found with given id"
+                    {:status-code 400
+                     :cause :invalid-id
+                     :value id}))))
