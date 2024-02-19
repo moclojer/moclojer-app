@@ -109,6 +109,18 @@
            :responses {200 {:body schemas.wire-out/Available}}
            :handler ports.http-in/handler-wildcard-available?}}]
 
+   ["/mocks/:id/publication"
+    {:swagger {:tags ["mocks"]}
+     :get {:summary "Get mock publication status"
+           :parameters {:path {:id uuid?}}
+           :interceptors [(error-handler-interceptor)
+                          (extract-user-interceptor)]
+           :responses {200 {:body
+                            {:publication
+                             schemas.wire-out/MockPublication}}}
+           :handler (fn [_] {:status 200
+                             :body "NOT IMPLEMENTED"})}}]
+
    ["/mocks/:id/publish"
     {:post {:summary "Publish mock"
             :parameters {:path {:id uuid?}}

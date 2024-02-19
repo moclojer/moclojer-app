@@ -112,3 +112,10 @@
                    components)]
     {:status 200
      :body {:available available}}))
+
+(defn handler-get-mock-status
+  [{{id :path} :parameters
+    {:keys [database]} :components}]
+  (let [pub-stts (controllers.mocks/get-mock-publication-status)]
+    {:status 200
+     :body {:publication pub-stts}}))

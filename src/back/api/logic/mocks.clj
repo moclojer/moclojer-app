@@ -22,7 +22,8 @@
                            keyword) v))
          {} mock)
         (merge {:mock/id new-uuid
-                :mock/content (or content default-mock-content)}))))
+                :mock/content (or content default-mock-content)
+                :mock/publication "offline"}))))
 
 (defn gen-host [wildcard subdomain]
   (str wildcard "-" subdomain ".moclojer.com"))
