@@ -1,20 +1,17 @@
 (ns front.app.routes.core
-  (:require [goog.object :as gobj]
-            [refx.alpha :as refx]
-            [reitit.coercion.schema :as rsc]
-            [reitit.frontend :as rf]
-            [reitit.frontend.easy :as rfe]
-            [reitit.frontend.history :refer [ignore-anchor-click?]]))
+  (:require
+   [goog.object :as gobj]
+   [refx.alpha :as refx]
+   [reitit.coercion.schema :as rsc]
+   [reitit.frontend :as rf]
+   [reitit.frontend.easy :as rfe]
+   [reitit.frontend.history :refer [ignore-anchor-click?]]))
 
 (defn router [routes]
   (rf/router
    routes
-   {:data {:controllers [{:start (fn [ctx]
-                                   (println "start" "root controller")
-                                   (prn :ctx ctx))
-                          :stop (fn [ctx]
-                                  (println "stop" "root controller")
-                                  (prn :ctx ctx))}]
+   {:data {:controllers [{:start (fn [ctx] (prn :ctx ctx))
+                          :stop (fn [ctx] (prn :ctx ctx))}]
            :coercion rsc/coercion
            :public? false}}))
 
@@ -29,8 +26,7 @@
    on-navigate
    {:use-fragment true
     :ignore-anchor-click? (fn [router e el uri]
-                            (prn :calling router e el uri)
-                           ;; Add additional check on top of the default checks
+                            ;; Add additional check on top of the default checks
                             (and (ignore-anchor-click? router e el uri)
                                  (not= "false" (gobj/get (.-dataset el) "reititHandleClick"))))}))
 

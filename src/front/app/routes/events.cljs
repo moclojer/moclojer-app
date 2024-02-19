@@ -1,7 +1,8 @@
 (ns front.app.routes.events
-  (:require [refx.alpha :as refx]
-            [reitit.frontend.controllers :as rfc]
-            [reitit.frontend.easy :as rfe]))
+  (:require
+   [refx.alpha :as refx]
+   [reitit.frontend.controllers :as rfc]
+   [reitit.frontend.easy :as rfe]))
 
 (refx/reg-fx
  :push-state
@@ -28,5 +29,4 @@
 (refx/reg-event-fx
  :app.routes/push-state-params
  (fn [_ [_ & {:keys [route params]}]]
-   (prn "push-state-params" route params)
    (rfe/push-state route params)))

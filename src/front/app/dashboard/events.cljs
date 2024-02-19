@@ -71,8 +71,7 @@
 
 (refx/reg-event-db
  :app.dashboard/create-mock-failure
- (fn [db [_ err]]
-   (prn :error err)
+ (fn [db _]
    (assoc db
           :loading-creating-mock? false
           :error-creating-mock? true)))
@@ -96,8 +95,7 @@
 
 (refx/reg-event-db
  :app.dashboard/save-mock-failed
- (fn [db [_ err]]
-   (prn :error err)
+ (fn [db _]
    (assoc db :save-edit-mock true)))
 
 (refx/reg-event-db
@@ -123,8 +121,7 @@
 
 (refx/reg-event-db
  :app.dashboard/edit-mock-failed
- (fn [db [_ err]]
-   (prn :error err)
+ (fn [db _]
    (assoc db :failed-edit-mock true)))
 
 (refx/reg-event-db

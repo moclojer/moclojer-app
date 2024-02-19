@@ -62,7 +62,6 @@
                              (d/button {:type "button"
                                         :class-name "text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-700"
                                         :on-click (fn [_]
-                                                    (prn ">>toogle-modal-create-mock")
                                                     (set-mock dissoc {} :wildcard :subdomain)
                                                     (refx/dispatch-sync [:app.dashboard/toggle-mock-modal]))}
                                        (d/svg {:class-name "w-5 h-5"
