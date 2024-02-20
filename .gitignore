@@ -34,6 +34,8 @@ resources/front/test
 resources/front/public/assets
 resources/public/assets
 resources/front/public/mockServiceWorker.js
+# generated on build time
+resources/front/public/index.html
 
 /src/gen
 
