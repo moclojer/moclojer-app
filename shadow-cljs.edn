@@ -10,16 +10,22 @@
                            :reload-strategy :full
                            :http-port 8200
                            :http-root "resources/front/public/"}
+                ;; https://clojurians.slack.com/archives/C6N245JGG/p1601116973064800?thread_ts=1601113184.063700&cid=C6N245JGG
+                :build-hooks [(shadow.html/copy-file
+                               "resources/front/index.src.html"
+                               "resources/front/public/index.html")]
                 :dev      {:modules {:core {:init-fn dev.core/init}}
                            :compiler-options {:warning-as-errors true}}
-                :release  {:modules {:core {:init-fn front.app.core/init}}
+                :release  {:module-hash-names true
+                           :modules {:core {:init-fn front.app.core/init}}
                            :closure-defines {front.app.core/DEBUG false
                                              front.app.http/API_URL "https://app.moclojer.com/api"
                                              front.app.auth.supabase/SUPABASE_REDIRECT "https://app.moclojer.com/#/"}
                            :compiler-options {:optimizations :advanced
                                               :infer-externs :auto
                                               :source-map true
-                                              :warnings-as-errors true}}}
+                                              :warnings-as-errors true}
+                           :build-options {:manifest-name "manifest.json"}}}
           :tests    {:target           :browser-test
                      :test-dir         "resources/front/test"
                      :ns-regexp        "-test$"
