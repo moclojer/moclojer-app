@@ -16,7 +16,7 @@
         Content-Type: application/json
       # Note: the body will receive the value passed in the url using the
       # :username placeholder
-      body: >
+      body: |
         {
-          \"hello\": \"{{path-params.username}}!\"
+          "hello": "{{path-params.username}}!"
         }
