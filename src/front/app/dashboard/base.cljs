@@ -74,7 +74,7 @@
                                                 :clip-rule "evenodd"}))))
 
                       (d/div {:class-name "p-6 space-y-4"}
-                             (d/form
+                             (d/div
                               (d/div {:class-name "grid grid-cols-6 gap-4"}
                                      (d/div {:class-name "col-span-6 lm:col-span-3"}
                                             (d/label {:for "product-name"
