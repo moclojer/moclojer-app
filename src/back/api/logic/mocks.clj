@@ -36,7 +36,7 @@
                url {:url (gen-host (:wildcard mock) subdomain)}
                old-apis (vec (:apis subdomain-group))
                new-apis (->> (select-keys mock [:wildcard :subdomain :url :enabled
-                                                :id :content])
+                                                :id :content :publication])
                              (merge url)
                              (conj old-apis))]
            (assoc grouped-mocks

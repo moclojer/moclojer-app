@@ -6,12 +6,15 @@
 
 (defn insert!
   [mock db]
-  (->> (-> (sql.helpers/insert-into :mock)
-           (sql.helpers/values [mock])
-           (sql.helpers/returning :*)
-           sql/format)
-       (database/execute db)
-       first))
+  (let [pub-stt (:mock/publication mock)
+        casted-mock (->> [:cast pub-stt :publication_status]
+                         (assoc mock :mock/publication))]
+    (->> (-> (sql.helpers/insert-into :mock)
+             (sql.helpers/values [casted-mock])
+             (sql.helpers/returning :*)
+             (sql/format {:quoted false}))
+         (database/execute db)
+         first)))
 
 (defn update!
   [mock db]

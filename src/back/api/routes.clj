@@ -116,8 +116,7 @@
            :interceptors [(error-handler-interceptor)
                           (extract-user-interceptor)]
            :responses {200 {:body
-                            {:publication
-                             schemas.wire-out/MockPublication}}}
+                            {:publication schemas.wire-out/MockPublication}}}
            :handler (fn [_] {:status 200
                              :body "NOT IMPLEMENTED"})}}]
 
