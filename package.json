@@ -6,6 +6,7 @@
   "scripts": {
     "ci:karma-make": "npx msw init resources/front/test",
     "ci:tests": "npm run ci:karma-make && npx shadow-cljs compile ci-tests && npx karma start --single-run",
+    "app:watch": "npx shadow-cljs watch tests app",
     "shadow:release": "npx shadow-cljs release app",
     "postcss:build": "npx cross-env TAILWIND_MODE=build postcss src/front/css/tailwind.css -o ./resources/front/public/assets/css/output.css --verbose",
     "postcss:watch": "npx cross-env TAILWIND_MODE=watch postcss src/front/css/tailwind.css -o ./resources/front/public/assets/css/output.css --verbose -w",
