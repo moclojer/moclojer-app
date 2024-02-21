@@ -113,9 +113,10 @@
     {:status 200
      :body {:available available}}))
 
-(defn handler-get-mock-status
-  [{{id :path} :parameters
+(defn handler-get-mock-publication-status
+  [{params :parameters
     {:keys [database]} :components}]
-  (let [pub-stts (controllers.mocks/get-mock-publication-status)]
+  (let [id (get-in params [:path :id])
+        pub-stts (controllers.mocks/get-mock-publication-status id database)]
     {:status 200
      :body {:publication pub-stts}}))

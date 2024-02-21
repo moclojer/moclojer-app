@@ -77,7 +77,7 @@
 (defn get-mock-publication-status
   [id db]
   (if-let [mock (db.mocks/get-mock-by-id id db)]
-    (:publication mock)
+    (:mock/publication mock)
     (throw (ex-info "No mock found with given id"
                     {:status-code 400
                      :cause :invalid-id
