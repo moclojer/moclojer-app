@@ -117,8 +117,7 @@
                           (extract-user-interceptor)]
            :responses {200 {:body
                             {:publication schemas.wire-out/MockPublication}}}
-           :handler (fn [_] {:status 200
-                             :body "NOT IMPLEMENTED"})}}]
+           :handler ports.http-in/handler-get-mock-publication-status}}]
 
    ["/mocks/:id/publish"
     {:post {:summary "Publish mock"
