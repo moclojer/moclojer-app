@@ -18,13 +18,16 @@
 
 (defn update!
   [mock db]
-  (->> (-> (sql.helpers/update :mock)
-           (sql.helpers/set mock)
-           (sql.helpers/where [:= :id (:mock/id mock)])
-           (sql.helpers/returning :*)
-           sql/format)
-       (database/execute db)
-       first))
+  (let [pub-stt (:mock/publication mock)
+        casted-mock (->> [:cast pub-stt :publication_status]
+                         (assoc mock :mock/publication))]
+    (->> (-> (sql.helpers/update :mock)
+             (sql.helpers/set casted-mock)
+             (sql.helpers/where [:= :id (:mock/id mock)])
+             (sql.helpers/returning :*)
+             (sql/format {:quoted false}))
+         (database/execute db)
+         first)))
 
 (defn get-mock-by-id [id db]
   (->> (database/execute
