@@ -30,11 +30,18 @@
 
 (defn update-mock!
   [id content {:keys [database publisher]}]
-  (-> (db.mocks/get-mock-by-id id database)
-      (logic.mocks/update {:content content})
-      (db.mocks/update! database)
-      (adapter.mocks/->wire)
-      (ports.producers/publish-mock-event :mock.changed publisher)))
+  (if-let [mock (db.mocks/get-mock-by-id id database)]
+    (let [upd-mock (-> mock
+                       (logic.mocks/update {:content content})
+                       (db.mocks/update! database)
+                       (adapter.mocks/->wire))]
+      (prn :hereee upd-mock)
+      (when (and (:enabled upd-mock)
+                 (= (:publication upd-mock) "offline"))
+        (ports.producers/publish-mock-event upd-mock :mock.changed publisher)))
+    (throw (ex-info "Mock with given id invalid"
+                    {:status-code 412
+                     :cause :invalid-id}))))
 
 (defn get-mocks
   [filters {:keys [database]}]

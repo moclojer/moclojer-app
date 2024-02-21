@@ -47,8 +47,6 @@
      :body {:user (adapters.customers/->wire user)}}
     {:status 404}))
 
-;; TODO: Create an interceptor to get customer-id and org-id from cookies
-;; TODO: Get customer-id and org-id from interceptor
 (defn handler-create-mock!
   [{{body :body} :parameters
     {:keys [user-id]} :session-data
