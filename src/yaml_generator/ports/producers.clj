@@ -4,11 +4,12 @@
    [components.redis-publisher :as redis-publisher]))
 
 (defn mock-unified!
-  [path domain publisher]
+  [path domain create-domain? publisher]
   (try
     (redis-publisher/publish! publisher :mock.unified
                               {:event {:path path
-                                       :domain domain}})
+                                       :domain domain
+                                       :create-domain? create-domain?}})
     (catch Exception e
       (logs/log :error :publish-mock-error e))))
 
