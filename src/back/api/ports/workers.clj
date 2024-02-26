@@ -2,11 +2,11 @@
   (:require
    [back.api.controllers.mocks :as controllers.mocks]))
 
-(defn set-mock-publication-status!
+(defn update-mock-publication-status!
   [{{:keys [domain new-status]} :event} {:keys [database]}]
-  (controllers.mocks/set-mock-publication-status!
+  (controllers.mocks/update-mock-publication-status!
    domain new-status database))
 
 (def workers
-  [{:handler set-mock-publication-status!
+  [{:handler update-mock-publication-status!
     :queue-name :mock.publication}])

@@ -68,7 +68,8 @@
 
 (defn update
   [mock {:keys [content]}]
-  (assoc mock :mock/content content))
+  (-> (assoc mock :mock/content content)
+      (select-keys [:mock/id :mock/content])))
 
 (defn publish [mock]
   (assoc mock :mock/enabled true))
