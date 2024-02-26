@@ -35,9 +35,12 @@
                        (logic.mocks/update {:content content})
                        (db.mocks/update! database)
                        (adapter.mocks/->wire))]
+
       (when (and (:enabled upd-mock)
                  (= (:publication upd-mock) "offline"))
-        (ports.producers/publish-mock-event upd-mock :mock.changed publisher)))
+        (ports.producers/publish-mock-event upd-mock :mock.changed publisher))
+
+      upd-mock)
     (throw (ex-info "Mock with given id invalid"
                     {:status-code 412
                      :cause :invalid-id}))))
@@ -89,7 +92,7 @@
                      :cause :invalid-id
                      :value id}))))
 
-(defn set-mock-publication-status!
+(defn update-mock-publication-status!
   [domain new-status db]
   (if-let [mock (-> (logic.mocks/unpack-domain domain)
                     (db.mocks/get-mock-by-wildcard db))]

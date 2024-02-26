@@ -30,11 +30,10 @@
 
    Returns domain so `set-publication-status!` can be chained in
    the handler."
-  [{:keys [cf-records do-spec]} domain components]
-  (when (and cf-records do-spec)
-    (let [cf (controllers.cf/create-domain! domain components)
-          do (controllers.do/create-domain! do-spec domain components)]
-      (when (and cf do) domain))))
+  [{:keys [do-spec]} domain components]
+  (let [cf (controllers.cf/create-domain! domain components)
+        do (controllers.do/create-domain! do-spec domain components)]
+    (when (and cf do) domain)))
 
 ;; Not sure if this is the best option, but works fine for now,
 ;; since it isn't expected to have too many verifications ongoing
