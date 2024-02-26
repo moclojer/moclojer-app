@@ -58,7 +58,8 @@
                                                :id string?
                                                :wildcard "test"
                                                :user-id "cd989358-af38-4a2f-a1a1-88096aa425a7"
-                                               :enabled true}}})
+                                               :enabled true
+                                               :publication "offline"}}})
                resp)
               (flow "retrieve the mock"
                     [resp-get (helpers/request! {:method :get
@@ -72,5 +73,6 @@
                                                         :url "test-chico.moclojer.com"
                                                         :subdomain "chico"
                                                         :wildcard "test"
-                                                        :enabled true}]}]})
+                                                        :enabled true
+                                                        :publication "offline"}]}]})
                      (-> resp-get :body))))))
