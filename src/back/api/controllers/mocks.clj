@@ -88,3 +88,14 @@
                     {:status-code 400
                      :cause :invalid-id
                      :value id}))))
+
+(defn set-mock-publication-status!
+  [domain new-status db]
+  (if-let [mock (-> (logic.mocks/unpack-domain domain)
+                    (db.mocks/get-mock-by-wildcard db))]
+    (-> (logic.mocks/update-publication-status mock new-status)
+        (select-keys [:mock/id :mock/publication])
+        (db.mocks/update! db))
+    (throw (ex-info "No mock found with given domain"
+                    {:cause :invalid-domain
+                     :value domain}))))

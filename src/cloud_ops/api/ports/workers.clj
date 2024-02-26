@@ -9,6 +9,7 @@
   (if-let [domain (:domain event)]
     (some-> (controllers.cloud/get-current-data domain components)
             (controllers.cloud/create-domain! domain components)
+            (producers/set-publication-status! "publishing" publisher)
             (producers/verify-domain! 1 publisher))
     (logs/log :error :create-domain :empty-domain)))
 

@@ -28,7 +28,8 @@
   "Calls domain creation controllers for both CloudFlare and DigitalOcean,
    making some safety checks beforehand.
 
-   Returns domain so `verify-domain` can be chained in the handler."
+   Returns domain so `set-publication-status!` can be chained in
+   the handler."
   [{:keys [cf-records do-spec]} domain components]
   (when (and cf-records do-spec)
     (let [cf (controllers.cf/create-domain! domain components)
@@ -56,15 +57,17 @@
     (Thread/sleep timeout)
     (if (= (http-out/ping-domain domain http last-attempt?) 200)
       (do
-        ;; TODO: set `publisher` in DB
         (swap! ongoing-verifications #(vec (remove (fn [ov]
                                                      (= ov domain))
                                                    %)))
+
+        (producers/set-publication-status! domain "published" publisher)
         (logs/log :info :verify-domain domain :ok))
       (if-not last-attempt?
         ;; TODO: warn staff of last attempt
         (producers/verify-domain! domain (inc attempt) publisher)
-        (logs/log :error :verify-domain domain :timed-out (* max-attempts timeout))))))
+        (logs/log :error :verify-domain domain
+                  :timed-out (* max-attempts timeout))))))
 
 (defn verify-domain
   "Performs recursive attempts on a job that verifies the created domain.

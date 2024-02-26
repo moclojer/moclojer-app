@@ -1,14 +1,17 @@
 (ns back.api.server
-  (:require [back.api.routes :as routes]
-            [com.stuartsierra.component :as component]
-            [components.config :as config]
-            [components.database :as database]
-            [components.http :as http]
-            [components.logs :as logs]
-            [components.migrations :as migrations]
-            [components.redis-publisher :as redis-publisher]
-            [components.router :as router]
-            [components.webserver :as webserver])
+  (:require
+   [back.api.ports.workers :as p.workers]
+   [back.api.routes :as routes]
+   [com.stuartsierra.component :as component]
+   [components.config :as config]
+   [components.database :as database]
+   [components.http :as http]
+   [components.logs :as logs]
+   [components.migrations :as migrations]
+   [components.redis-publisher :as redis-publisher]
+   [components.redis-queue :as redis-queue]
+   [components.router :as router]
+   [components.webserver :as webserver])
   (:gen-class))
 
 (def system-atom (atom nil))
@@ -19,8 +22,13 @@
    :http (http/new-http)
    :router (router/new-router routes/routes)
    :database (component/using (database/new-database) [:config])
-   :publisher (component/using (redis-publisher/new-redis-publisher) [:config])
-   :webserver (component/using (webserver/new-webserver) [:config :http :router :database :publisher])))
+   :publisher (component/using (redis-publisher/new-redis-publisher)
+                               [:config])
+   :webserver (component/using (webserver/new-webserver)
+                               [:config :http :router :database :publisher])
+   :workers (component/using
+             (redis-queue/new-redis-queue p.workers/workers)
+             [:config :database :publisher])))
 
 (defn start-system! [system-map]
   (logs/setup [["*" :info]] :auto)
