@@ -20,7 +20,8 @@
    :publisher (component/using
                (redis-publisher/new-redis-publisher) [:config])
    :workers (component/using
-             (redis-queue/new-redis-queue p.workers/workers) [:config :database :storage :publisher])))
+             (redis-queue/new-redis-queue p.workers/workers)
+             [:config :database :storage :publisher])))
 
 (comment
   ;; init

@@ -61,8 +61,8 @@
                         :port 6379}}
                 :domain.create
                 (mq/enqueue
-                 :domain.create
-                 {:event {:domain "teste-final-j0suetm"
-                          :attempt 1}}))
+                 :mock.publication
+                 {:event {:domain "test-j0suetm"
+                          :new-status "offline"}}))
   ;;
   )

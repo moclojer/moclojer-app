@@ -19,8 +19,10 @@
 (defn update!
   [mock db]
   (let [pub-stt (:mock/publication mock)
-        casted-mock (->> [:cast pub-stt :publication_status]
-                         (assoc mock :mock/publication))]
+        casted-mock (if pub-stt
+                      (->> [:cast pub-stt :publication_status]
+                           (assoc mock :mock/publication))
+                      mock)]
     (->> (-> (sql.helpers/update :mock)
              (sql.helpers/set casted-mock)
              (sql.helpers/where [:= :id (:mock/id mock)])
@@ -39,16 +41,18 @@
        first))
 
 (defn get-mock-by-wildcard
-  [{:keys [wildcard subdomain user-id]} db]
+  [{:keys [wildcard subdomain & user-id]} db]
   (first (database/execute
           db
-          (-> (sql.helpers/select :*)
-              (sql.helpers/from :mock)
-              (sql.helpers/where [:and
-                                  [:= :wildcard wildcard]
-                                  [:= :subdomain subdomain]
-                                  [:= :user_id user-id]])
-              sql/format))))
+          (let [where [:and
+                       [:= :wildcard wildcard]
+                       [:= :subdomain subdomain]]]
+            (-> (sql.helpers/select :*)
+                (sql.helpers/from :mock)
+                (sql.helpers/where (if user-id
+                                     (conj where [:= :user_id user-id])
+                                     where))
+                sql/format)))))
 
 (defn get-mocks [{:keys [user-id]} db]
   (->> (database/execute
