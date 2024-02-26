@@ -1,5 +1,6 @@
 (ns front.app.dashboard.base
   (:require
+   ["slugify" :as slugify]
    [front.app.components.container :refer [container]]
    [front.app.components.loading :refer [loading-spinner]]
    [front.app.components.svg :as svg]
@@ -27,11 +28,16 @@
                          (:wildcard new-mock)
                          (some? (:enabled new-mock))
                          wildcard-available?)
-        default-wildcard (->> mocks-raw
-                              count
-                              inc
-                              (str "my-mock-"))
+        [default-wildcard set-default-wildcard!] (hooks/use-state "mock")
         default-subdomain (first user-orgs)]
+
+    (hooks/use-effect
+     [mocks-raw]
+     (->> mocks-raw
+          count
+          inc
+          (str "my-mock-")
+          set-default-wildcard!))
 
     (hooks/use-effect
      [new-mock]
@@ -80,9 +86,13 @@
                                                       :class-name "block mb-2 text-sm font-medium text-gray-900 dark:text-white"}
                                                      "mock name")
                                             (d/input {:class-name "shadow-sm bg-gray-50 focus:ring-pink-500 focus:border-pink-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                                                      :value (or (:wildcard new-mock) default-wildcard)
+                                                      :placeholder default-wildcard
+                                                      :on-load #(set-mock assoc :wildcard default-wildcard)
                                                       :type "text"
-                                                      :on-change #(set-mock assoc :wildcard (or (.. % -target -value) default-wildcard))
+                                                      :on-change #(set-mock assoc :wildcard (slugify/default (or (.. % -target -value) default-wildcard)
+                                                                                                             #js {:replacement "-"
+                                                                                                                  :lower true
+                                                                                                                  :trim true}))
                                                       :name "product-name"
                                                       :id "product-name"})))
                               (d/div {:class-name "mb-4"}

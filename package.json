@@ -10,6 +10,7 @@
     "postcss:build": "npx cross-env TAILWIND_MODE=build postcss src/front/css/tailwind.css -o ./resources/front/public/assets/css/output.css --verbose",
     "postcss:watch": "npx cross-env TAILWIND_MODE=watch postcss src/front/css/tailwind.css -o ./resources/front/public/assets/css/output.css --verbose -w",
     "postcss:release": "npx cross-env NODE_ENV=production postcss src/front/css/tailwind.css -o ./resources/front/public/assets/css/output.css --verbose",
+    "app:watch": "npx shadow-cljs watch app",
     "watch": "run-p -l *:watch",
     "release": "run-s *:release",
     "repl": "npx shadow-cljs clj-repl"
@@ -60,6 +61,7 @@
     "react-dom": "18.2.0",
     "react-refresh": "^0.14.0",
     "react-router-dom": "^6.13.0",
+    "slugify": "^1.6.6",
     "svgmap": "^2.10.1",
     "use-sync-external-store": "1.2.0"
   },
