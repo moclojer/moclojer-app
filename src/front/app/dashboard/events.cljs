@@ -172,42 +172,40 @@
              :on-failure [:app.dashboard/delete-mock-failure]}})))
 
 (refx/reg-event-fx
- :app.dashboard/ping-domain
- (fn [_ [_ {:keys [url mock-id]}]]
-   {:http {:url url
-           :method :get
-           :headers {}
-           :on-success [:app.dashboard/domain-published mock-id]
-           :on-failure [:app.dashboard/domain-publishing mock-id]}}))
+ :app.dashboard/get-mock-pub-stts
+ (fn [{{:keys [current-user]} :db} [_ {:keys [mock-id]}]]
+   (let [access-token (:access-token current-user)]
+     {:http {:url (str "/mocks/" mock-id "/publication")
+             :method :get
+             :headers {"authorization" (str "Bearer " access-token)}
+             :on-success [:app.dashboard/set-mock-pub-stts-success mock-id]
+             :on-failure [:app.dashboard/set-mock-pub-stts-failure mock-id]}})))
 
-(defonce max-ping-attempts 3)
-
-(defn update-mock-dns-status
+(defn update-mock-pub-stts
   [mocks mock mock-id status]
   (let [attempt ((fnil inc 0)
                  (:attempt mock))]
     (conj mocks (if (= (:id mock) mock-id)
                   (assoc mock
-                         :dns-status status
+                         :publication status
                          :attempt attempt)
                   mock))))
 
 (refx/reg-event-db
- :app.dashboard/domain-published
- (fn [db [_ mock-id _]]
+ :app.dashboard/set-mock-pub-stts-success
+ (fn [db [_ mock-id {{:keys [publication]} :body}]]
    (->>
     (reduce
-     #(update-mock-dns-status %1 %2 mock-id
-                              :published)
+     #(update-mock-pub-stts %1 %2 mock-id (or publication "publishing"))
      [] (:mocks-raw db))
     (assoc db :mocks-raw))))
 
 (refx/reg-event-db
- :app.dashboard/domain-publishing
+ :app.dashboard/set-mock-pub-stts-failure
  (fn [db [_ mock-id _]]
    (->>
     (reduce
-     #(update-mock-dns-status %1 %2 mock-id
-                              nil)
+     #(update-mock-pub-stts %1 %2 mock-id
+                            "publishing")
      [] (:mocks-raw db))
     (assoc db :mocks-raw))))
