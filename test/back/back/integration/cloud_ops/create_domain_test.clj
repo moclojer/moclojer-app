@@ -45,7 +45,13 @@
     (matchers/embeds (-> @redis-publisher/mock-publisher
                          :domain.verify first))
     {:event {:domain domain
-             :attempt 1}})))
+             :attempt 1}})
+
+   (match?
+    (matchers/embeds (-> @redis-publisher/mock-publisher
+                         :mock.publication first))
+    {:event {:domain domain
+             :new-status "publishing"}})))
 
 (defflow
   flow-create-domain

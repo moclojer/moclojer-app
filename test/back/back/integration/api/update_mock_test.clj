@@ -78,7 +78,8 @@
                                                :id string?
                                                :wildcard "test"
                                                :user-id "cd989358-af38-4a2f-a1a1-88096aa425a7"
-                                               :enabled true}}})
+                                               :enabled true
+                                               :publication "offline"}}})
                resp)
               (flow "then will update the content"
                     [resp-get (helpers/request! {:method :put
@@ -93,7 +94,8 @@
                                               :wildcard "test"
                                               :content yml
                                               :user-id "cd989358-af38-4a2f-a1a1-88096aa425a7"
-                                              :enabled true}})
+                                              :enabled true
+                                              :publication "offline"}})
                      (-> resp-get :body))
 
                     (flow "then retreive all mocks"
@@ -109,7 +111,8 @@
                                                               :url "test-chico.moclojer.com"
                                                               :content yml
                                                               :wildcard "test"
-                                                              :enabled true}]}]})
+                                                              :enabled true
+                                                              :publication "offline"}]}]})
                            (-> resp-get :body)))
 
                     (flow "should have publish a mock calling publisher"
@@ -120,4 +123,5 @@
                                     :wildcard "test",
                                     :subdomain "chico",
                                     :enabled true,
-                                    :content m.logic/default-mock-content}}))))))
+                                    :content m.logic/default-mock-content
+                                    :publication "offline"}}))))))
