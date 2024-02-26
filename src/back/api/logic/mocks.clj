@@ -36,9 +36,13 @@
    Ex: test-j0suetm.moclojer.com -> {:wildcard test
                                      :subdomain j0suetm}"
   [domain]
-  (zipmap [:wildcard :subdomain]
-          (-> (str/replace domain ".moclojer.com" "")
-              (str/split #"-"))))
+  (let [last-dash (.lastIndexOf domain "-")
+        [wildcard subdomain] (->> (str/replace domain ".moclojer.com" "")
+                                  (split-at last-dash)
+                                  (map (partial str/join "")))]
+    {:wildcard wildcard
+     ;; -j0suetm -> j0suetm
+     :subdomain (subs subdomain 1)}))
 
 (defn group [mock-type mocks]
   (-> (reduce
