@@ -20,27 +20,29 @@
    A mock is offline only if its not enabled or
    not saved yet. When saved, we ping the domain,
    and while not returning a 200 OK for the max
-   of 5 attempts , it will be :publishing, or
-   :published otherwise."
-  [{:keys [enabled id url]}]
-  (let [{:keys [dns-status
-                attempt]
-         :or {attempt 0}} (refx/use-sub [:app.dashboard/mock-dns-status id])
-        loading? (and enabled (nil? dns-status)
-                      (< attempt 5))]
+   of 15 attempts , it will be :publishing, or
+   :published otherwise.
+
+   When :offline, it will try to ping as well,
+   since newly created mocks are offline, but
+   they do need to be pinged."
+  [{:keys [enabled id]}]
+  (let [{:keys [publication attempt]
+         :or {attempt 0}} (refx/use-sub [:app.dashboard/mock-pub-stts id])
+        loading? (and enabled (< attempt 15)
+                      (some #(= % publication) ["publishing" "offline"]))]
 
     (hooks/use-effect
-     [dns-status attempt]
+     [publication attempt]
      (when loading?
        (js/setTimeout #(refx/dispatch
-                        [:app.dashboard/ping-domain
-                         {:url (str "https://" url)
-                          :mock-id id}])
+                        [:app.dashboard/get-mock-pub-stts
+                         {:mock-id id}])
                       2000)))
 
     ($ dash-comps/dns-status
        {:status (if enabled
-                  (or dns-status :publishing)
+                  (or (keyword publication) :publishing)
                   :offline)
         :loading? loading?})))
 
@@ -66,8 +68,7 @@
                                                      ($ svg/mock-disabled)))
 
                                             ($ mock-dns-status {:enabled enabled
-                                                                :id id
-                                                                :url url}))
+                                                                :id id}))
                                      (d/div {:class (str "w-full flex flex-row font-semibold truncate text-ellipsis lg:mt-0 "
                                                          (if enabled
                                                            "text-gray-900"

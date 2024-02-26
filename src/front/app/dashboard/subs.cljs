@@ -21,12 +21,12 @@
    (:mocks-raw db)))
 
 (refx/reg-sub
- :app.dashboard/mock-dns-status
+ :app.dashboard/mock-pub-stts
  (fn [{mocks :mocks-raw} [_ mock-id]]
    (-> #(= (:id %) mock-id)
        (filter mocks)
        first
-       (select-keys [:dns-status :attempt]))))
+       (select-keys [:publication :attempt]))))
 
 (refx/reg-sub
  :app.user/orgs
