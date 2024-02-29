@@ -4,14 +4,14 @@
    [clojurewerkz.quartzite.schedule.simple :as qss]
    [clojurewerkz.quartzite.scheduler :as qs]
    [clojurewerkz.quartzite.triggers :as qt]
-   [cron-jobs.jobs.redis-queue-checker :as jobs.rq]))
+   [cron-jobs.jobs.redis-checker :as jobs.rc]))
 
 (defn build-job [{:job/keys [type key trigger]}]
   {:job (qj/build
          (qj/of-type type)
          (qj/with-identity (qj/key key)))
    :trigger (let [{:keys [id repeat-count interval-ms]
-                   :or {repeat-count 1
+                   :or {repeat-count 0 ;; execute once
                         interval-ms 1000}} trigger]
               (qt/build
                (qt/with-identity id)
@@ -23,7 +23,7 @@
 
 (defn start-jobs []
   (let [sc (qs/start (qs/initialize))
-        job-specs [jobs.rq/spec]
+        job-specs [jobs.rc/spec]
         jobs (map build-job job-specs)]
     (doseq [{:keys [job trigger]} jobs]
       (qs/schedule sc job trigger))))
