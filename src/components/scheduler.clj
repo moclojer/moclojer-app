@@ -9,13 +9,15 @@
    [components.config :as config]))
 
 (defprotocol IScheduler
-  (start-job [this job-key])
+  (start-all-jobs [this])
+  (stop-all-jobs [this])
+  (start-job [this job-key extra-ctx])
   (stop-job [this job-key]))
 
-(defn build-job [{:keys [type key trigger system-atom]}]
+(defn build-job [{:keys [type key trigger ctx]}]
   {:job (qj/build
          (qj/of-type type)
-         (qj/using-job-data {"system-atom" system-atom})
+         (qj/using-job-data ctx)
          (qj/with-identity (qj/key key)))
    :trigger (let [{:keys [id repeat-count interval-ms]
                    :or {repeat-count 0 ;; execute once
@@ -38,20 +40,30 @@
     (dissoc this :jobs))
 
   IScheduler
-  (start-job [this job-key]
+  (start-all-jobs [this]
+    (doseq [{:keys [key]} (:jobs this)]
+      (start-job this key nil)))
+  (stop-all-jobs [this]
+    (doseq [{:keys [key]} (:jobs this)]
+      (stop-job this key)))
+  (start-job [this job-key extra-ctx]
     (when-let [job (->> (:jobs this)
                         (filter #(= (:key %) job-key))
                         first)]
-      (let [built-job (->> (component/start (:system-map job))
-                           (assoc job :system-atom)
+      (let [system-atom (component/start (:system-map job))
+            built-job (->> (merge extra-ctx
+                                  {"system-atom" system-atom
+                                   "job-key" (:key job)
+                                   "trigger-id" (get-in job [:trigger :id])})
+                           (assoc job :ctx)
                            build-job
                            vals)]
         (apply (partial qs/schedule (:scheduler this)) built-job))))
   (stop-job [this job-key]
-    (when-let [_job (->> (:jobs this)
-                         (filter #(= (get-in % [:spec :job :key])
-                                     job-key))
-                         first)]
+    (when-let [job (->> (:jobs this)
+                        (filter #(= (:key %) job-key))
+                        first)]
+      (component/stop (:system-map job))
       #_(qs/unschedule-job (:scheduler this) (-> job :job :trigger :key)))))
 
 (defn new-scheduler [jobs]
@@ -85,9 +97,7 @@
 
   (def scheduler (component/start (new-scheduler jobs)))
 
-  scheduler
-
-  (start-job scheduler "jobs.noop.1")
+  (start-job scheduler "jobs.noop.1" nil)
   ;; (stop-job scheduler "jobs.noop.1")
 
   (component/stop scheduler)
