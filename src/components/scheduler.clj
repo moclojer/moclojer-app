@@ -50,9 +50,10 @@
     (when-let [job (->> (:jobs this)
                         (filter #(= (:key %) job-key))
                         first)]
-      (let [system-atom (component/start (:system-map job))
+      (println "Started scheduler job" (:key job))
+      (let [sys-map (component/start (:system-map job))
             built-job (->> (merge extra-ctx
-                                  {"system-atom" system-atom
+                                  {"sys-map" sys-map
                                    "job-key" (:key job)
                                    "trigger-id" (get-in job [:trigger :id])})
                            (assoc job :ctx)
@@ -95,11 +96,16 @@
       :trigger {:id "triggers.anotherjob.1"
                 :repeat-count 0}}])
 
-  (def scheduler (component/start (new-scheduler jobs)))
+  (def system-map
+    (component/system-map
+     :scheduler (new-scheduler jobs)))
 
-  (start-job scheduler "jobs.noop.1" nil)
+  (def sys (component/start system-map))
+  (start-all-jobs (:scheduler sys))
+
+  ;; (start-job (:scheduler sys) "jobs.noop.1" nil)
   ;; (stop-job scheduler "jobs.noop.1")
 
-  (component/stop scheduler)
+  (component/stop sys)
   ;;
   )

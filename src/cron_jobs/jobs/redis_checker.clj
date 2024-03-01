@@ -21,13 +21,14 @@
 (defrecord RedisQueueChecker []
   org.quartz.Job
   (execute [_ ctx]
-    (let [ctxd (qc/from-job-data ctx)
-          job-key (get ctxd "job-key")
-          {:keys [publisher]} (get ctx "system-map")]
+    (let [ctx-data (qc/from-job-data ctx)
+          job-key (get ctx-data "job-key")
+          {:keys [publisher]} (get ctx-data "sys-map")]
       (p.producers/check-event! job-key publisher))))
 
 (def spec
   {:type RedisQueueChecker
    :key "jobs.redis-checker.1"
+   :system-map system-map
    :trigger {:id "triggers.redis-checker.1"
              :repeat-count 0}})

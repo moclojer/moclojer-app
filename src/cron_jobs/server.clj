@@ -13,12 +13,9 @@
 
 (defn start-system! []
   (logs/setup [["*" :info]] :auto)
-  (->> system-map
-       component/start
-       (reset! system-atom))
-
-  (let [{:keys [scheduler]} @system-atom]
-    (scheduler/start-all-jobs scheduler)))
+  (let [{:keys [scheduler] :as sys} (component/start system-map)]
+    (scheduler/start-all-jobs scheduler)
+    (reset! system-atom sys)))
 
 (defn stop-system! []
   (logs/log :info :system-stop)
