@@ -64,8 +64,9 @@
     (when-let [job (->> (:jobs this)
                         (filter #(= (:key %) job-key))
                         first)]
+      (println "Stopping scheduler job" (:key job))
       (component/stop (:system-map job))
-      #_(qs/unschedule-job (:scheduler this) (-> job :job :trigger :key)))))
+      (qs/delete-trigger (:scheduler this) (:trigger job)))))
 
 (defn new-scheduler [jobs]
   (->Scheduler {} {} {} jobs))
