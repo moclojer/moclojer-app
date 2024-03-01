@@ -1,4 +1,6 @@
 (ns cron-jobs.jobs.redis-checker
+  "Redis Checker is a job that sends a simple event through
+   redis' pubsub and checks for its receival."
   (:require
    [clojurewerkz.quartzite.conversion :as qc]
    [com.stuartsierra.component :as component]

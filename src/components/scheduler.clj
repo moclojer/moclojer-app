@@ -14,7 +14,13 @@
   (start-job [this job-key extra-ctx])
   (stop-job [this job-key]))
 
-(defn build-job [{:keys [type key trigger ctx]}]
+(defn build-job
+  "Builds both a job and its needed trigger. These can be used later
+   together with `start-job`.
+
+   The `ctx` param contains necessary data for the job execution, so
+   be careful with it."
+  [{:keys [type key trigger ctx]}]
   {:job (qj/build
          (qj/of-type type)
          (qj/using-job-data ctx)
@@ -30,6 +36,10 @@
                   (qss/with-repeat-count repeat-count)
                   (qss/with-interval-in-milliseconds interval-ms)))))})
 
+;; The Scheduler component is a wrapper on top of quartzite's scheduler.
+;; The reason we don't use quartzite directly is because every job uses
+;; stuartsiera's component library. So, by creating this wraper, we're
+;; abstracting away a complexity from our internal jobs: system components.
 (defrecord Scheduler [config publisher workers jobs]
   component/Lifecycle
   (start [this]
