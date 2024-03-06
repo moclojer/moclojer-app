@@ -89,14 +89,24 @@
               :headers {"authorization" (str "Bearer " (:access-token (-> db :current-user)))}
               :body {:id id
                      :content content}
-              :on-success [:app.dashboard/get-mocks (:current-user db)]
+              :on-success [:app.dashboard/save-mock-success]
               :on-failure [:app.dashboard/save-mock-failed]}
       :db (assoc db :loading-edit-mock true)})))
 
-(refx/reg-event-db
+(refx/reg-event-fx
+ :app.dashboard/save-mock-success
+ (fn [_ _]
+   {:dispatch [:app/enqueue-notification
+               {:type :info
+                :content "Saved successfully!"}]}))
+
+(refx/reg-event-fx
  :app.dashboard/save-mock-failed
- (fn [db _]
-   (assoc db :save-edit-mock true)))
+ (fn [{db :db} _]
+   {:dispatch [:app/enqueue-notification
+               {:type :error
+                :content "Error when saving!"}]
+    :db (assoc db :save-edit-mock true)}))
 
 (refx/reg-event-db
  :app.dashboard/set-mock-validation

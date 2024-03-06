@@ -7,6 +7,7 @@
    [front.app.auth.subs]
    [front.app.auth.supabase :as supabase]
    [front.app.components.footer :refer [footer-component]]
+   [front.app.components.notifications :refer [notifications]]
    [front.app.dashboard.events]
    [front.app.dashboard.subs]
    [front.app.lib :refer [defnc]]
@@ -15,7 +16,7 @@
    [front.app.routes.events]
    [front.app.routes.subs]
    [front.app.utils :as utils]
-   [helix.core :refer [$]]
+   [helix.core :refer [$ <>]]
    [helix.dom :as d]
    [helix.hooks :as hooks]
    [promesa.core :as p]
@@ -91,7 +92,9 @@
 
     (let [view (-> current-route :data :view)]
       (when (and (some? view) accessible-route?)
-        ($ view {:route current-route})))))
+        (<>
+         ($ view {:route current-route})
+         ($ notifications))))))
 
 (defnc app []
   (d/div
