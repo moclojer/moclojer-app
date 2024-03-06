@@ -25,6 +25,8 @@
                                                  (handler message components)
                                                  {:status :success}
                                                  (catch Throwable e
+                                                   (logs/log :error :error-message message)
+                                                   (logs/log :error :error-message-error e)
                                                    (println "Error in worker" e)
                                                    {:status :error
                                                     :throwable e})))}))))]
