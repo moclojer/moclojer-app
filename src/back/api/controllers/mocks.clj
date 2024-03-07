@@ -35,9 +35,7 @@
                        (logic.mocks/update {:content content})
                        (db.mocks/update! database)
                        (adapter.mocks/->wire))]
-
-      (when (and (:enabled upd-mock)
-                 (= (:publication upd-mock) "offline"))
+      (when (:enabled upd-mock)
         (ports.producers/publish-mock-event upd-mock :mock.changed publisher))
 
       upd-mock)
