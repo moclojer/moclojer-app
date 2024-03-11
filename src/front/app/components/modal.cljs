@@ -37,13 +37,14 @@
      (d/div
       {:class (str "flex overflow-y-auto overflow-x-hidden fixed right-0 "
                    "left-0 top-4 z-50 justify-center items-center md:inset-0 "
-                   "h-modal sm:h-full")}
+                   "h-modal")}
       (if loading?
         ($ modal-loading)
         (d/div
-         {:class "relative px-4 w-full max-w-2xl h-full md:h-auto"}
+         {:class "relative px-4"}
          (d/div
           {:class "relative bg-white rounded-lg shadow dark:bg-gray-800"}
-          ($ modal-header {:title title
-                           :on-close on-close})
+          (when title
+            ($ modal-header {:title title
+                             :on-close on-close}))
           children)))))))

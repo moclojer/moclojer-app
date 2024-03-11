@@ -79,9 +79,7 @@
                                      " my first mock server"))))
 
          (d/button {:class "px-3 py-2 mt-2 rounded-lg border border-gray-200 justify-center items-center gap-2 flex button-remove"
-                    :on-click #(do
-                                 (refx/dispatch-sync [:app.dashboard/delete-mock {:id id}])
-                                 (refx/dispatch-sync [:app.dashboard/get-mocks]))}
+                    :on-click #(refx/dispatch-sync [:app.dashboard/set-mock-to-delete {:id id}])}
                    (d/div {:class "text-gray-800 text-sm font-medium leading-[21px]"}
                           "remove")
                    ($ svg/trash))))
