@@ -42,10 +42,12 @@
 
 (refx/reg-event-fx
  :app.dashboard/get-mocks
- (fn [{db :db} [_ user]]
+ (fn [{db :db} _]
    {:http {:url "/mocks"
            :method :get
-           :headers {"authorization" (str "Bearer " (:access-token user))}
+           :headers {"authorization"
+                     (str "Bearer " (get-in db [:current-user
+                                                :access-token]))}
            :on-success [:app.dashboard/get-mocks-success]
            :on-failure [:app.dashboard/get-mocks-failure]}
     :db (assoc db :loading-mocks? true)}))
@@ -64,7 +66,7 @@
 (refx/reg-event-fx
  :app.dashboard/create-mock-success
  (fn [{db :db} _]
-   {:dispatch [:app.dashboard/get-mocks (:current-user db)]
+   {:dispatch [:app.dashboard/get-mocks]
     :db (assoc db
                :is-modal-open? false
                :loading-creating-mock? false)}))
@@ -155,11 +157,10 @@
                :on-success [:app.dashboard/wildcard-available]
                :on-failure [:app.dashboard/create-mock-failure]}}))))
 
-(refx/reg-event-fx
+(refx/reg-event-db
  :app.dashboard/delete-mock-success
- (fn [{db :db} [_ user]]
-   {:dispatch [:app.dashboard/get-mocks user]
-    :db (dissoc db :delete-mock-err)}))
+ (fn [db _]
+   (dissoc db :delete-mock-err)))
 
 (refx/reg-event-db
  :app.dashboard/delete-mock-failure
