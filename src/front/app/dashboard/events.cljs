@@ -217,3 +217,8 @@
                             "publishing")
      [] (:mocks-raw db))
     (assoc db :mocks-raw))))
+
+(refx/reg-event-db
+ :app.dashboard/set-mock-to-delete
+ (fn [db [_ mock]]
+   (assoc db :mock-to-delete mock)))

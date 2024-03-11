@@ -76,3 +76,8 @@
  :app.dashboard/wildcard-available?
  (fn [db _]
    (:wildcard-available? db)))
+
+(refx/reg-sub
+ :app.dashboard/mock-to-delete
+ (fn [db _]
+   (:mock-to-delete db)))

@@ -11,7 +11,7 @@
    [helix.hooks :as hooks]
    [refx.alpha :as refx]))
 
-(defnc new-mock-form []
+(defnc new-mock-modal []
   (let [is-modal-open? (refx/use-sub [:app.dashboard/is-modal-open?])
         loading? (refx/use-sub [:app.dashboard/loading-creating-mock?])
         user-orgs (refx/use-sub [:app.user/orgs])
@@ -37,24 +37,28 @@
     (hooks/use-effect
      [new-mock]
 
-     (when-not (:wildcard new-mock)
-       (set-mock assoc :wildcard default-wildcard))
-     (when-not (:subdomain new-mock)
-       (set-mock assoc :subdomain default-subdomain))
+     (let [wildcard (:wildcard new-mock)
+           subdomain (:subdomain new-mock)]
 
-     (refx/dispatch-sync [:app.dashboard/wildcard-available?
-                          (select-keys new-mock [:subdomain :wildcard])]))
+       (when-not wildcard
+         (set-mock assoc :wildcard default-wildcard))
+       (when-not wildcard
+         (set-mock assoc :subdomain default-subdomain))
+
+       (when (and wildcard subdomain)
+         (refx/dispatch-sync [:app.dashboard/wildcard-available?
+                              (select-keys new-mock [:subdomain :wildcard])]))))
 
     ($ modal
        {:title "New mock"
         :open? is-modal-open?
         :loading? loading?
         :on-close #(do
-                     (set-mock dissoc :wildcard :asubdomain)
+                     (set-mock dissoc :wildcard :subdomain)
                      (refx/dispatch-sync [:app.dashboard/toggle-mock-modal]))
         :children
         (d/div
-         {:class "p-6 space-y-4"}
+         {:class "w-screen md:w-[600px] p-6 space-y-4"}
          (d/div
           (d/div
            {:class "grid grid-cols-6 gap-4"}
@@ -162,6 +166,47 @@
 
             ($ svg/save)))))})))
 
+(defn mock-deletion-modal []
+  (let [[open? set-open!] (hooks/use-state false)
+        close-modal! #(do (set-open! false)
+                          (refx/dispatch-sync
+                           [:app.dashboard/set-mock-to-delete nil]))
+        mock (refx/use-sub [:app.dashboard/mock-to-delete])]
+
+    (hooks/use-effect
+     [mock]
+     (if (nil? mock)
+       (close-modal!)
+       (set-open! true)))
+
+    ($ modal
+       {:title nil
+        :open? open?
+        :loading? false
+        :on-close close-modal!
+        :children
+        (d/div
+         {:class "px-4 py-4 flex flex-col space-y-4 items-center align-center"}
+         ($ svg/warning)
+         (d/p "Do you want to delete this mock?")
+         (d/div
+          {:class "flex flex-row space-x-2"}
+          (d/button
+           {:class "px-4 py-2 bg-red-500 rounded-lg hover:opacity-80"
+            :on-click #(do
+                         (close-modal!)
+                         (refx/dispatch-sync [:app.dashboard/delete-mock mock])
+                         (refx/dispatch-sync [:app.dashboard/get-mocks]))}
+           (d/p
+            {:class "text-white"}
+            "Yes, I want to delete it"))
+          (d/button
+           {:class "px-4 py-2 border-2 border-gray-400 rounded-lg hover:bg-gray-200"}
+           (d/p
+            {:class "text-gray-800 text-sm font-medium"
+             :on-click #(close-modal!)}
+            "No, cancel"))))})))
+
 (defnc index [{:keys [children]}]
   (let [[aside-open? toggle-aside!] (hooks/use-state false)
         user (-> (refx/use-sub [:app.auth/current-user]) :user)]
@@ -180,4 +225,5 @@
       ($ container
          {:aside-open? aside-open?}
          children)
-      ($ new-mock-form)))))
+      ($ new-mock-modal)
+      ($ mock-deletion-modal)))))
