@@ -139,6 +139,7 @@
                                                          "flex flex-row justify-center items-center space-x-2")
                                         :on-click #(do
                                                      (refx/dispatch-sync [:app.dashboard/delete-mock {:id mock-id}])
+                                                     (refx/dispatch-sync [:app.dashboard/get-mocks])
                                                      (rfe/push-state :app.core/mocks))}
                                        (d/div {:class-name "text-gray-800 text-sm font-medium"} "remove")
                                        ($ svg/trash))
