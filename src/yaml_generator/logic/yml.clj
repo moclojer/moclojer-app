@@ -1,5 +1,7 @@
 (ns yaml-generator.logic.yml
   (:require
+   [malli.core :as m]
+   [yaml-generator.schemas.mock :as s.mock]
    [yaml.core :as yaml]))
 
 (defn to-yaml-string [data]
@@ -7,6 +9,10 @@
 
 (defn parse-yaml [yml-string]
   (yaml/parse-string yml-string))
+
+(defn validate-mock [raw-mock]
+  (->> (parse-yaml raw-mock)
+       (m/validate s.mock/Mock)))
 
 (defn gen-path [user-id id]
   (str user-id "/" id "/mock.yml"))
@@ -20,15 +26,6 @@
      yml
      (map #(update-in % [:endpoint host-key] (constantly host)))
      to-yaml-string)))
-
-;; TODO: there should be a check for the mock content's
-;; authenticity. We've already created an issue for the
-;; creation of Moclojer's spec/schema though.
-;; This is a problem because inner data is NECESSARY in
-;; order for okayish execution. For example: in the following
-;; function, we try to get the host from the new mock. If this
-;; data ins't checked beforehand, things could (and probably will)
-;; go south.
 
 (defn unified-yaml
   "There are 2 possible operations:
