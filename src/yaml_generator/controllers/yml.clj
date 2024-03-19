@@ -15,15 +15,18 @@
         host-key (if (= env :dev) :local-host :host)
         host (logic.yml/gen-host wildcard subdomain)
         content-with-host (logic.yml/add-host host-key host content)
-        file-exist? (storage/get-file storage "moclojer" path)]
+        ?file (storage/get-file storage "moclojer" path)
+        valid? (when ?file (logic.yml/validate-mock content-with-host))]
 
-    (logs/log :info :upload :path path :file-exist? file-exist?)
+    (logs/log :info :upload :path path :?file ?file)
     (storage/upload! storage "moclojer" path content-with-host)
-    (when enabled
-      (ports.producers/mock-unified! path
-                                     (str/replace host #".moclojer.com" "")
-                                     (= publication "offline")
-                                     publisher))
+    (if valid?
+      (when enabled
+        (ports.producers/mock-unified! path
+                                       (str/replace host #".moclojer.com" "")
+                                       (= publication "offline")
+                                       publisher))
+      (logs/log :warn :invalid-mock ?file))
     (logs/log :info :upload-success :path path)))
 
 ;; NOTE: do not confuse :local-host tag in moclojer yamls with the localhost
