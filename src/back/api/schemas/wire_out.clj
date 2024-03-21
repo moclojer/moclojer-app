@@ -17,7 +17,7 @@
    [:username {:optional true} string?]])
 
 (def MockPublication
-  [:enum "offline" "publishing" "published"])
+  [:enum "offline" "offline-invalid" "publishing" "published"])
 
 (def Mock
   [:map

@@ -6,7 +6,6 @@
    [components.storage :as storage]
    [yaml-generator.logic.yml :as logic.yml]
    [yaml-generator.ports.producers :as ports.producers]))
-
 (defn generate [{:keys [id user-id wildcard content subdomain
                         enabled publication]}
                 {:keys [storage publisher config]}]
@@ -14,19 +13,29 @@
         env (get-in config [:config :env])
         host-key (if (= env :dev) :local-host :host)
         host (logic.yml/gen-host wildcard subdomain)
+        domain (str/replace host #".moclojer.com" "")
         content-with-host (logic.yml/add-host host-key host content)
         ?file (storage/get-file storage "moclojer" path)
-        valid? (when ?file (logic.yml/validate-mock content-with-host))]
+        valid? (when ?file (logic.yml/validate-mock content))]
 
+    (logs/log :hereee (logic.yml/explain-mock-validation content))
     (logs/log :info :upload :path path :?file ?file)
     (storage/upload! storage "moclojer" path content-with-host)
     (if valid?
       (when enabled
         (ports.producers/mock-unified! path
-                                       (str/replace host #".moclojer.com" "")
+                                       domain
                                        (= publication "offline")
-                                       publisher))
-      (logs/log :warn :invalid-mock ?file))
+                                       publisher)
+        (when (= publication "offline-invalid")
+          (ports.producers/set-publication-status! domain
+                                                   "published"
+                                                   publisher)))
+      (do
+        (logs/log :warn :invalid-mock ?file)
+        (ports.producers/set-publication-status! domain
+                                                 "offline-invalid"
+                                                 publisher)))
     (logs/log :info :upload-success :path path)))
 
 ;; NOTE: do not confuse :local-host tag in moclojer yamls with the localhost

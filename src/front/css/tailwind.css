@@ -207,7 +207,7 @@
   @apply hover:bg-gray-50 cursor-pointer !important;
 }
 
-.dns-offline {
+.dns-offline, .dns-offline-invalid {
   background-color: #FDE8E8;
   color: #9B1C1C;
 }

@@ -28,3 +28,13 @@
                               {:event {:domain domain}})
     (catch Exception e
       (logs/log :error :publish-domain-error e))))
+
+(defn set-publication-status!
+  [domain new-status publisher]
+  (try
+    (redis-publisher/publish! publisher :mock.publication
+                              {:event {:domain domain
+                                       :new-status new-status}})
+    domain
+    (catch Exception e
+      (logs/log :error :set-publication-status e))))

@@ -267,6 +267,7 @@
                       (name status) (when loading? " opacity-70 animate-pulse"))}
          ($ (case status
               :offline svg/dns-offline
+              :offline-invalid svg/dns-offline
               :publishing svg/dns-publishing
               :published svg/dns-published
               :default svg/dns-offline))
