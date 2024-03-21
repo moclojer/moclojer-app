@@ -14,6 +14,10 @@
   (->> (parse-yaml raw-mock)
        (m/validate s.mock/Mock)))
 
+(defn explain-mock-validation [raw-mock]
+  (->> (parse-yaml raw-mock)
+       (m/explain s.mock/Mock)))
+
 (defn gen-path [user-id id]
   (str user-id "/" id "/mock.yml"))
 
