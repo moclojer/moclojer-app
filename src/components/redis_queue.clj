@@ -29,7 +29,10 @@
                                                    (logs/log :error :error-message-error e)
                                                    (println "Error in worker" e)
                                                    {:status :error
-                                                    :throwable e})))}))))]
+                                                    :throwable e})))
+                                    :eoq-backoff-ms 1
+                                    :monitor (fn [event]
+                                               (logs/log :info :monitor-event event))}))))]
 
       (println "Started redis workers")
       (assoc this :workers ws :conn conn)))
