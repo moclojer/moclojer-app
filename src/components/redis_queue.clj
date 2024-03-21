@@ -31,9 +31,9 @@
                                                    {:status :error
                                                     :throwable e})))
                                     :eoq-backoff-ms 1
-                                    :monitor (fn [{:keys [worker] :as event}]
-                                               (logs/log :info :monitor-event event)
-                                               (logs/log :info :worker @worker))}))))]
+                                    #_#_:monitor (fn [{:keys [worker] :as event}]
+                                                   (logs/log :info :monitor-event event)
+                                                   (logs/log :info :worker @worker))}))))]
 
       (println "Started redis workers")
       (assoc this :workers ws :conn conn)))
