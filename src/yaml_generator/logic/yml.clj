@@ -1,5 +1,7 @@
 (ns yaml-generator.logic.yml
   (:require
+   [clojure.edn :as edn]
+   [clojure.pprint :refer [pprint]]
    [malli.core :as m]
    [yaml-generator.schemas.mock :as s.mock]
    [yaml.core :as yaml]))
@@ -10,12 +12,18 @@
 (defn parse-yaml [yml-string]
   (yaml/parse-string yml-string))
 
+(defn parse-yaml-read-literal [raw-mock]
+  (-> (parse-yaml raw-mock)
+      pprint
+      with-out-str
+      edn/read-string))
+
 (defn validate-mock [raw-mock]
-  (->> (parse-yaml raw-mock)
+  (->> (parse-yaml-read-literal raw-mock)
        (m/validate s.mock/Mock)))
 
 (defn explain-mock-validation [raw-mock]
-  (->> (parse-yaml raw-mock)
+  (->> (parse-yaml-read-literal raw-mock)
        (m/explain s.mock/Mock)))
 
 (defn gen-path [user-id id]

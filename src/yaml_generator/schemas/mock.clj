@@ -9,8 +9,8 @@
     [:status int?]
     [:headers map?]
     [:body string?]]
-   [:fn (fn [{:keys [stt]}]
-          (and (>= stt 200) (<= stt 500)))]])
+   [:fn (fn [{:keys [status]}]
+          (and (>= status 200) (<= status 500)))]])
 
 (def Endpoint
   [:map

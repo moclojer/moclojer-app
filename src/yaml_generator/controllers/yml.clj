@@ -6,6 +6,7 @@
    [components.storage :as storage]
    [yaml-generator.logic.yml :as logic.yml]
    [yaml-generator.ports.producers :as ports.producers]))
+
 (defn generate [{:keys [id user-id wildcard content subdomain
                         enabled publication]}
                 {:keys [storage publisher config]}]
@@ -16,9 +17,8 @@
         domain (str/replace host #".moclojer.com" "")
         content-with-host (logic.yml/add-host host-key host content)
         ?file (storage/get-file storage "moclojer" path)
-        valid? (when ?file (logic.yml/validate-mock content))]
+        valid? (logic.yml/validate-mock content)]
 
-    (logs/log :hereee (logic.yml/explain-mock-validation content))
     (logs/log :info :upload :path path :?file ?file)
     (storage/upload! storage "moclojer" path content-with-host)
     (if valid?
@@ -26,13 +26,11 @@
         (ports.producers/mock-unified! path
                                        domain
                                        (= publication "offline")
-                                       publisher)
-        (when (= publication "offline-invalid")
-          (ports.producers/set-publication-status! domain
-                                                   "published"
-                                                   publisher)))
+                                       valid?
+                                       publisher))
       (do
-        (logs/log :warn :invalid-mock ?file)
+        (logs/log :warn :invalid-mock content
+                  :explanation (logic.yml/explain-mock-validation content))
         (ports.producers/set-publication-status! domain
                                                  "offline-invalid"
                                                  publisher)))
@@ -45,7 +43,7 @@
 (defn generate-unified-yml
   ([args components]
    (generate-unified-yml args components true))
-  ([{:keys [path domain create-domain?]}
+  ([{:keys [path domain create-domain? valid-again?]}
     {:keys [storage config publisher]} append?]
    (let [new-mock-file (storage/get-file storage "moclojer" path)
          new-mock-content (when new-mock-file (slurp (io/reader new-mock-file)))
@@ -65,6 +63,10 @@
        (ports.producers/restart-mock! publisher)
        (when create-domain?
          (ports.producers/create-domain! domain publisher))
+       (when valid-again?
+         (ports.producers/set-publication-status! domain
+                                                  "published"
+                                                  publisher))
 
        (catch Exception e
          (logs/log :error :generate-unified
