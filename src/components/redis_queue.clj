@@ -2,13 +2,18 @@
   (:require
    [com.stuartsierra.component :as component]
    [components.logs :as logs]
+   [taoensso.carmine :as car]
    [taoensso.carmine.message-queue :as mq]))
 
 (defrecord RedisWorkers [config database storage publisher http workers]
   component/Lifecycle
   (start [this]
     (let [{:keys [uri]} (-> config :config :redis-worker)
-          conn {:spec {:uri uri}}
+          pool (car/connection-pool {:test-on-borrow? true
+                                     :test-on-return? true
+                                     :test-while-idle? true})
+          conn {:pool pool
+                :spec {:uri uri}}
           components {:database database
                       :storage storage
                       :publisher publisher
@@ -32,12 +37,17 @@
                                                     :throwable e})))}))))]
 
       (println "Started redis workers")
-      (assoc this :workers ws :conn conn)))
+      (merge this {:workers ws
+                   :conn conn
+                   :pool pool})))
   (stop [this]
     (doseq [worker (:workers this)]
       (println "Stopping worker" worker)
       (mq/stop worker))
-    (assoc this :conn nil :workers nil)))
+    (.close (:pool this))
+    (merge this {:conn nil
+                 :pool nil
+                 :workers nil})))
 
 (defn new-redis-queue [workers]
   (->RedisWorkers {} {} {} {} {} workers))
