@@ -26,7 +26,8 @@
         (ports.producers/mock-unified! path
                                        domain
                                        (= publication "offline")
-                                       valid?
+                                       (and (= publication "offline-invalid")
+                                            valid?)
                                        publisher))
       (do
         (logs/log :warn :invalid-mock content

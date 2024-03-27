@@ -1,4 +1,4 @@
-(ns back.integration.yaml-generator.block-invalid-mock
+(ns back.integration.yaml-generator.mock-validation
   (:require
    [back.integration.components.utils :as utils]
    [com.stuartsierra.component :as component]
@@ -51,11 +51,51 @@
    (match?
     (matchers/embeds (-> @redis-publisher/mock-publisher
                          :mock.publication first))
-    {:event {:event {:domain "test-j0suetm"
-                     :new-status "offline-invalid"}}})))
+    {:event {:domain "test-j0suetm"
+             :new-status "offline-invalid"}})))
+
+(def valid-mock-yaml
+  "- endpoint:
+    # Note: the method could be omitted because GET is the default
+    method: GET
+    path: /hello/:username
+    response:
+      # Note: the status could be omitted because 200 is the default
+      status: 200
+      headers:
+        Content-Type: application/json
+      # Note: the body will receive the value passed in the url using the
+      # :username placeholder
+      body: |
+        {
+          \"hello\": \"{{path-params.username}}!\"
+        }")
+
+(defn fallow-valid-yaml []
+  (flow
+   "should allow valid yaml"
+   [components (state-flow.api/get-state)]
+   (state/invoke
+    #(workers/generate-yml-handler {:event {:id (random-uuid)
+                                            :user-id (random-uuid)
+                                            :wildcard "test2"
+                                            :subdomain "j0suetm"
+                                            :content valid-mock-yaml
+                                            :enabled true
+                                            :publication "offline"}}
+                                   components))
+   (match?
+    (matchers/embeds (-> @redis-publisher/mock-publisher
+                         :mock.unified first))
+    {:event {:path string?
+             :domain "test2-j0suetm"
+             :create-domain? true
+             :valid-again? false}})))
+
 (defflow
   flow-block-invalid-yaml
   {:init (utils/start-system! create-and-start-components!)
    :cleanup utils/stop-system!
    :fail-fast? true}
-  (fblock-invalid-yaml))
+  (fblock-invalid-yaml)
+  (fallow-valid-yaml))
