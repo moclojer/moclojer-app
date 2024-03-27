@@ -14,14 +14,15 @@
   "There are 3 possible DNS status:
 
    1. offline
+   2. offline-invalid
    2. publishing
    3. published
 
-   A mock is offline only if its not enabled or
-   not saved yet. When saved, we ping the domain,
-   and while not returning a 200 OK for the max
-   of 15 attempts , it will be :publishing, or
-   :published otherwise.
+   A mock is offline only if its not enabled, not
+   saved yet, or invalid. When saved, we ping the
+   domain, and while not returning a 200 OK for
+   the max of 36 attempts , it will be :publishing,
+   or :published otherwise.
 
    When :offline, it will try to ping as well,
    since newly created mocks are offline, but
@@ -29,7 +30,7 @@
   [{:keys [enabled id]}]
   (let [{:keys [publication attempt]
          :or {attempt 0}} (refx/use-sub [:app.dashboard/mock-pub-stts id])
-        loading? (and enabled (< attempt 15)
+        loading? (and enabled (< attempt 36)
                       (some #(= % publication) ["publishing" "offline"]))]
 
     (hooks/use-effect
@@ -38,7 +39,7 @@
        (js/setTimeout #(refx/dispatch
                         [:app.dashboard/get-mock-pub-stts
                          {:mock-id id}])
-                      2000)))
+                      5000)))
 
     ($ dash-comps/dns-status
        {:status (if enabled
