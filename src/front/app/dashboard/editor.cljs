@@ -19,17 +19,22 @@
   (let [{:keys [data set-dragging-over! handle-file-fn]} props
         {:keys [content id]
          :or {content ""}} data
+        [cur-content set-cur-content!] (hooks/use-state "")
         ref-fn (hooks/use-callback
-                [content]
-                (fn [content]
+                [cur-content]
+                (fn [cur-content]
                   (refx/dispatch-sync
                    [:app.dashboard/edit-mock {:mock-id id
-                                              :content content}])))]
+                                              :content cur-content}])))]
+
+    (hooks/use-effect
+     [id]
+     (set-cur-content! content))
 
     ($ c/default
        {:height "calc(100vh - 171px)"
         :autoFocus true
-        :value content
+        :value cur-content
         :theme theme/githubLight
         :extensions #js [(.define language/StreamLanguage yaml/yaml)
                          (clint/lintGutter) linter/yaml-linter]
