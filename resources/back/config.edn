@@ -32,7 +32,7 @@
           :proxy-port 3128
           :proxy-user #env PROXY_USER
           :proxy-pass #env PROXY_PASS}
-  :max-verification-attempts 3}
+  :max-verification-attempts 6}
  :redis-worker  {:uri #or [#env REDIS_URL "redis://localhost:6379"]}
  :redis-publisher {:uri #or [#env REDIS_URL "redis://localhost:6379"]}
  :database {:dbtype "postgres"

@@ -43,11 +43,11 @@
 (defn verify-domain-non-blocking
   "Asynchronously verifies the domain.
 
-   60000 milliseconds, 60 seconds * 1000"
+   20_000 milliseconds, 20 seconds * 1000"
   [domain attempt {:keys [config http publisher]}]
   (let [max-attempts (or (get-in config [:cloud-providers
-                                         :max-verification-attempts]) 3)
-        timeout (* 60 1000)
+                                         :max-verification-attempts]) 6)
+        timeout (* 20 1000)
         last-attempt? (>= attempt max-attempts)]
 
     (swap! ongoing-verifications conj domain)
@@ -70,7 +70,7 @@
 
 (defn verify-domain
   "Performs recursive attempts on a job that verifies the created domain.
-   Retries 3 times, with each attempt taking 1 minute. If, after 3 minutes,
+   Retries 6 times, with each attempt taking 20 seconds. If, after 2 minutes,
    the domain isn't up, there're high risks, and the staff should be warned.
 
    see also: github.com/taoensso/carmine/blob/3e54188692529d232e2541c0c0fc226814b60c34/test/taoensso/carmine/tests/message_queue.clj#L203"
