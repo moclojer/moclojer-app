@@ -259,3 +259,57 @@
        (logic.yml/unified-yaml (:normal mocks)
                                (:unmodified mocks)
                                false :host))))))
+
+(def test-yaml
+  "
+- this:
+    should:
+      work: true
+    maybe: not
+- this:
+    hello: bye
+")
+
+(def test-edn
+  [{:this {:should {:work true}
+           :maybe "not"}}
+   {:this {:hello "bye"}}])
+
+(deftest parse-read-yaml-literal-test
+  (testing "should read #ordered literal correctly"
+    (is
+     (match?
+      (matchers/embeds (logic.yml/parse-yaml-read-literal test-yaml))
+      test-edn))))
+
+(def valid-mock
+  "- endpoint:
+    method: GET
+    path: /hello/:username
+    response:
+      status: 200
+      headers:
+        Content-Type: application/json
+      body: |
+        {
+          \"hello\": \"{{path-params.username}}!\"
+        }")
+
+(def invalid-mock
+  "- endpoint:
+    method: DELETETETETET
+    path: /hello/:username
+    response:
+      status: 200
+      headers:
+        Content-Type: application/json
+      body2: |
+        {
+          \"hello\": \"{{path-params.username}}!\"
+        }")
+
+(deftest mock-validation
+  (testing "should validate valid mock"
+    (is (logic.yml/validate-mock valid-mock)))
+  (testing "should invalidate invalid mock"
+    (is (not (logic.yml/validate-mock invalid-mock)))))
