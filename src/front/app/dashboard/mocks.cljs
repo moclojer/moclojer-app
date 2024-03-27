@@ -21,7 +21,7 @@
    A mock is offline only if its not enabled, not
    saved yet, or invalid. When saved, we ping the
    domain, and while not returning a 200 OK for
-   the max of 36 attempts , it will be :publishing,
+   the max of 24 attempts, it will be :publishing,
    or :published otherwise.
 
    When :offline, it will try to ping as well,
@@ -30,7 +30,7 @@
   [{:keys [enabled id]}]
   (let [{:keys [publication attempt]
          :or {attempt 0}} (refx/use-sub [:app.dashboard/mock-pub-stts id])
-        loading? (and enabled (< attempt 36)
+        loading? (and enabled (< attempt 24)
                       (some #(= % publication) ["publishing" "offline"]))]
 
     (hooks/use-effect
