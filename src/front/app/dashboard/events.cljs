@@ -67,16 +67,19 @@
  :app.dashboard/create-mock-success
  (fn [{db :db} _]
    {:dispatch [:app.dashboard/get-mocks]
-    :db (assoc db
-               :is-modal-open? false
-               :loading-creating-mock? false)}))
+    :notification {:type :info
+                   :content "Created mock succesfully!"}
+    :db (merge db
+               {:is-modal-open? false
+                :loading-creating-mock? false})}))
 
-(refx/reg-event-db
+(refx/reg-event-fx
  :app.dashboard/create-mock-failure
- (fn [db _]
-   (assoc db
-          :loading-creating-mock? false
-          :error-creating-mock? true)))
+ (fn [{db :db} _]
+   {:notification {:type :error
+                   :content "Error when creating mock!"}
+    :db (merge db {:loading-creating-mock? false
+                   :error-creating-mock? true})}))
 
 (refx/reg-event-fx
  :app.dashboard/save-mock
@@ -98,16 +101,15 @@
 (refx/reg-event-fx
  :app.dashboard/save-mock-success
  (fn [_ _]
-   {:dispatch [:app/enqueue-notification
-               {:type :info
-                :content "Saved successfully!"}]}))
+   {:dispatch [:app.dashboard/get-mocks]
+    :notification {:type :info
+                   :content "Saved successfully!"}}))
 
 (refx/reg-event-fx
  :app.dashboard/save-mock-failed
  (fn [{db :db} _]
-   {:dispatch [:app/enqueue-notification
-               {:type :error
-                :content "Error when saving!"}]
+   {:notification {:type :error
+                   :content "Error when saving!"}
     :db (assoc db :save-edit-mock true)}))
 
 (refx/reg-event-db
@@ -157,15 +159,20 @@
                :on-success [:app.dashboard/wildcard-available]
                :on-failure [:app.dashboard/create-mock-failure]}}))))
 
-(refx/reg-event-db
+(refx/reg-event-fx
  :app.dashboard/delete-mock-success
- (fn [db _]
-   (dissoc db :delete-mock-err)))
+ (fn [{db :db} _]
+   {:dispatch [:app.dashboard/get-mocks]
+    :notification {:type :info
+                   :content "Deleted mock succesfully!"}
+    :db (dissoc db :delete-mock-err)}))
 
-(refx/reg-event-db
+(refx/reg-event-fx
  :app.dashboard/delete-mock-failure
- (fn [db [_ body]]
-   (assoc db :delete-mock-err body)))
+ (fn [{db :db} [_ body]]
+   {:notification {:type :error
+                   :content "Error when deleting mock!"}
+    :db (assoc db :delete-mock-err body)}))
 
 (refx/reg-event-fx
  :app.dashboard/delete-mock
