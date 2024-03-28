@@ -16,25 +16,20 @@
    [reitit.frontend.easy :as rfe]))
 
 (defnc editor [props]
-  (let [{:keys [data set-dragging-over! handle-file-fn]} props
+  (let [{:keys [data set-dragging-over!]} props
         {:keys [content id]
          :or {content ""}} data
-        [cur-content set-cur-content!] (hooks/use-state "")
         ref-fn (hooks/use-callback
-                [cur-content]
-                (fn [cur-content]
+                [content]
+                (fn [content]
                   (refx/dispatch-sync
                    [:app.dashboard/edit-mock {:mock-id id
-                                              :content cur-content}])))]
-
-    (hooks/use-effect
-     [id]
-     (set-cur-content! content))
+                                              :content content}])))]
 
     ($ c/default
        {:height "calc(100vh - 171px)"
         :autoFocus true
-        :value cur-content
+        :value content
         :theme theme/githubLight
         :extensions #js [(.define language/StreamLanguage yaml/yaml)
                          (clint/lintGutter) linter/yaml-linter]
@@ -42,23 +37,18 @@
         :onChange (partial ref-fn)
         :mode "yaml"})))
 
-(defn dragged-file-handler [on-load set-dragging-over! e]
+(defn file-handler [on-load set-dragging-over! e]
   (set-dragging-over! false)
   (.preventDefault e)
-  (if-let [file (->> (if-let [dt-items (some-> e .-dataTransfer .-items)]
-                       (->> (filter #(= (.-kind %) "file") dt-items)
-                            (map #(.getAsFile %)))
-                       (.-files (if-let [dt (some-> e .-dataTransfer)]
-                                  dt
-                                  (some-> e .-target))))
-                     (filter #(= (.-type %) "application/x-yaml"))
-                     first)]
-    (let [reader (js/FileReader.)]
-      (set! (.-onload reader) on-load)
-      (.readAsText reader file))
-    (refx/dispatch-sync [:app/enqueue-notification
-                         {:type :error
-                          :message "File content is invalid!"}])))
+  (when-not (= (.. e -target -value) "")
+    (let [^js/File file (first (.. e -target -files))
+          reader (js/FileReader.)]
+      (.readAsText reader file)
+      (set! (.-onload reader) #(on-load (.-result reader)))
+      (set! (.-onerror reader) #(refx/dispatch-sync [:app/enqueue-notification
+                                                     {:type :error
+                                                      :message "File content is invalid!"}]))
+      (set! (.. e -target -value) ""))))
 
 (defnc drag-drop [{:keys [on-load dragging-over? set-dragging-over! handle-file-fn]}]
   (d/div {:class (str "flex items-center justify-center w-full "
@@ -108,11 +98,12 @@
         mock-id (-> route :parameters :path :mock-id)
         mock-data (refx/use-sub [:app.dashboard/mock mock-id])
         [dragging-over? set-dragging-over!] (hooks/use-state false)
-        handle-file-fn (partial dragged-file-handler
-                                (fn [e]
-                                  (on-load e #(refx/dispatch-sync
-                                               [:app.dashboard/edit-mock {:mock-id mock-id
-                                                                          :content %}])))
+        handle-file-fn (partial file-handler
+                                #(refx/dispatch-sync
+                                  [:app.dashboard/edit-mock
+                                   {:mock-id mock-id
+                                    :content %
+                                    :uploaded? true}])
                                 set-dragging-over!)
         [deleting? set-deleting!] (hooks/use-state false)
         mock-to-delete (refx/use-sub [:app.dashboard/mock-to-delete])]
