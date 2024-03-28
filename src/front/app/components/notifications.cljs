@@ -23,6 +23,12 @@
  (fn [db [_ id]]
    (update-in db [:notifications] dissoc id)))
 
+(refx/reg-fx
+ :notification
+ (fn [notification]
+   (refx/dispatch [:app/enqueue-notification
+                   notification])))
+
 (def toast-data
   {:info {:class "bg-green-50 fill-green-700 text-green-700 border-green-700"
           :svg svg/info}

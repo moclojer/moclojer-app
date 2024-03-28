@@ -195,8 +195,7 @@
            {:class "px-4 py-2 bg-red-500 rounded-lg hover:opacity-80"
             :on-click #(do
                          (close-modal!)
-                         (refx/dispatch-sync [:app.dashboard/delete-mock mock])
-                         (refx/dispatch-sync [:app.dashboard/get-mocks]))}
+                         (refx/dispatch-sync [:app.dashboard/delete-mock mock]))}
            (d/p
             {:class "text-white"}
             "Yes, I want to delete it"))
