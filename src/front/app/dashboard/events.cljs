@@ -126,22 +126,26 @@
 
 (refx/reg-event-fx
  :app.dashboard/edit-mock
- (fn [{db :db} [_ {:keys [mock-id content]}]]
+ (fn [{db :db} [_ {:keys [mock-id content uploaded?]}]]
    {:dispatch [:app.dashboard/edit-mock-success
                {:new-mocks-raw (update-mock-content-by-id (:mocks-raw db)
-                                                          mock-id content)}]
-    :db (-> db
-            (assoc :loading-edit-mock true))}))
+                                                          mock-id content)
+                :uploaded? uploaded?}]
+    :db (assoc db :loading-edit-mock true)}))
 
 (refx/reg-event-db
  :app.dashboard/edit-mock-failed
  (fn [db _]
    (assoc db :failed-edit-mock true)))
 
-(refx/reg-event-db
+(refx/reg-event-fx
  :app.dashboard/edit-mock-success
- (fn [db [_ {new-mocks-raw :new-mocks-raw}]]
-   (assoc db :mocks-raw new-mocks-raw)))
+ (fn [{db :db} [_ {:keys [new-mocks-raw uploaded?]}]]
+   (let [fx {:db (assoc db :mocks-raw new-mocks-raw)}]
+     (if uploaded?
+       (assoc fx :notification {:type :info
+                                :message "File uploaded successfully!"})
+       fx))))
 
 (refx/reg-event-db
  :app.dashboard/wildcard-available
