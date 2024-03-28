@@ -56,7 +56,9 @@
     (let [reader (js/FileReader.)]
       (set! (.-onload reader) on-load)
       (.readAsText reader file))
-    (js/console "TODO: invalid file")))
+    (refx/dispatch-sync [:app/enqueue-notification
+                         {:type :error
+                          :message "File content is invalid!"}])))
 
 (defnc drag-drop [{:keys [on-load dragging-over? set-dragging-over! handle-file-fn]}]
   (d/div {:class (str "flex items-center justify-center w-full "
@@ -111,7 +113,22 @@
                                   (on-load e #(refx/dispatch-sync
                                                [:app.dashboard/edit-mock {:mock-id mock-id
                                                                           :content %}])))
-                                set-dragging-over!)]
+                                set-dragging-over!)
+        [deleting? set-deleting!] (hooks/use-state false)
+        mock-to-delete (refx/use-sub [:app.dashboard/mock-to-delete])]
+
+    ;; since deleting the mock being currently being edited happens
+    ;; outside of this component's state, this logic lets us know
+    ;; when the popup `really delete this mock?` is confirmed (if so).
+    (hooks/use-effect
+     [mock-to-delete]
+     (if (and deleting? (nil? mock-to-delete))
+       (do
+         (set-deleting! false)
+         (rfe/push-state :app.core/mocks))
+       (when (= (:id mock-to-delete) mock-id)
+         (set-deleting! true))))
+
     ($ base/index
        (d/div
         (d/div {:class-name "flex w-full flex-col bg-white px-5 pt-5 lg:p-5"}
@@ -141,9 +158,7 @@
                       (d/div {:class-name "w-full lg:w-1/2 xl:w-1/3 2xl:w-1/4 flex flex-row mt-2 mb-4 lg:my-0 space-x-2"}
                              (d/button {:class-name (str "w-full px-3 py-2 rounded-lg border border-gray-200 "
                                                          "flex flex-row justify-center items-center space-x-2")
-                                        :on-click #(do
-                                                     (refx/dispatch-sync [:app.dashboard/delete-mock {:id mock-id}])
-                                                     (rfe/push-state :app.core/mocks))}
+                                        :on-click #(refx/dispatch-sync [:app.dashboard/set-mock-to-delete {:id mock-id}])}
                                        (d/div {:class-name "text-gray-800 text-sm font-medium"} "remove")
                                        ($ svg/trash))
 
