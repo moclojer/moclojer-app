@@ -165,14 +165,16 @@
    {:dispatch [:app.dashboard/get-mocks]
     :notification {:type :info
                    :content "Deleted mock succesfully!"}
-    :db (dissoc db :delete-mock-err)}))
+    :db (merge db {:delete-mock-err nil
+                   :mock-to-delete nil})}))
 
 (refx/reg-event-fx
  :app.dashboard/delete-mock-failure
  (fn [{db :db} [_ body]]
    {:notification {:type :error
                    :content "Error when deleting mock!"}
-    :db (assoc db :delete-mock-err body)}))
+    :db (merge db {:delete-mock-err body
+                   :mock-to-delete nil})}))
 
 (refx/reg-event-fx
  :app.dashboard/delete-mock
