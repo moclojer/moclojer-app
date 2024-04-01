@@ -20,6 +20,7 @@
                                         s.util/md5hex
                                         (str "." old-fname))
                       new-file-fpath (str (.getParentFile old-file)
+                                          "/"
                                           new-file-name)]
                   (.renameTo old-file (io/file new-file-fpath))
                   (merge hashed-files
