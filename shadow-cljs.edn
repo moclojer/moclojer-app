@@ -11,13 +11,15 @@
                            :http-port 8200
                            :http-root "resources/front/public/"}
                 ;; https://clojurians.slack.com/archives/C6N245JGG/p1601116973064800?thread_ts=1601113184.063700&cid=C6N245JGG
-                :build-hooks [(shadow.html/copy-file
+                :build-hooks [(dev.shadow.hooks/hash-files
+                               ["resources/front/public/assets/css/output.css"
+                                "resources/front/public/assets/js/core.js"])
+                              (dev.shadow.hooks/replace-hashed-files
                                "resources/front/index.src.html"
                                "resources/front/public/index.html")]
                 :dev      {:modules {:core {:init-fn dev.core/init}}
                            :compiler-options {:warning-as-errors true}}
-                :release  {:module-hash-names true
-                           :modules {:core {:init-fn front.app.core/init}}
+                :release  {:modules {:core {:init-fn front.app.core/init}}
                            :closure-defines {front.app.core/DEBUG false
                                              front.app.http/API_URL "https://app.moclojer.com/api"
                                              front.app.auth.supabase/SUPABASE_REDIRECT "https://app.moclojer.com/#/"}
