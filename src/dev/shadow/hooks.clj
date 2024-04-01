@@ -1,9 +1,24 @@
 (ns dev.shadow.hooks
   (:require
+   [babashka.process :as proc]
    [clojure.java.io :as io]
    [clojure.string :as str]
    [shadow.build :as build]
    [shadow.cljs.util :as s.util]))
+
+(defn build-css
+  {:shadow.build/stage :configure}
+  [{::build/keys [mode] :as build-state} watch? src dst]
+  (let [proc-data ["./node_modules/.bin/postcss" src
+                   "-o" dst "--verbose"]]
+    (proc/process
+     (if watch? (conj proc-data "-w") proc-data)
+     {:env (if watch?
+             {"TAILWIND_MODE" "watch"}
+             {"NODE_MODE" (if (= mode :release)
+                            "production"
+                            "build")})}))
+  build-state)
 
 (defn hash-files
   {:shadow.build/stage :flush}
