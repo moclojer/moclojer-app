@@ -12,7 +12,7 @@
     "postcss:release": "npx cross-env NODE_ENV=production postcss src/front/css/tailwind.css -o ./resources/front/public/assets/css/output.css --verbose",
     "app:watch": "npx shadow-cljs watch app",
     "watch": "run-p -l *:watch",
-    "release": "run-s postcss:release shadow:release",
+    "release": "run-s shadow:release",
     "repl": "npx shadow-cljs clj-repl"
   },
   "repository": {

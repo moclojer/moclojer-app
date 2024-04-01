@@ -40,7 +40,8 @@
                               :exclusions [com.taoensso/timbre]}
         io.forward/yaml               {:mvn/version "1.0.11"}
         io.github.cljazz/supabase {:git/sha "a850ed47eb0daa8303f206ea60bd4b3bf59e1e0a"
-                                   :git/url "https://github.com/cljazz/supabase-clj"}}
+                                   :git/url "https://github.com/cljazz/supabase-clj"}
+        babashka/process {:mvn/version "0.5.22"}}
 
  :aliases
  {;; frontend

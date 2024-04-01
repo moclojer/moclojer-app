@@ -1,9 +1,10 @@
 /** @type {import('tailwindcss').Config} */
 
 module.exports = {
-  content: process.env.NODE_ENV == 'production' ?
-    ["./resources/front/public/assets/js/core.*.js"] :
-    ["./resources/front/public/assets/js/cljs-runtime/front.app*.js"],
+  mode: 'jit',
+  purge: {
+    content: ['./src/front/**/*.cljs']
+  },
   safelist: [
     'w-64',
     'w-1/2',
