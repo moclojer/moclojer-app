@@ -2,7 +2,6 @@
   (:require
    ["@codemirror/lint" :as clint]
    ["js-yaml" :as js-yaml]
-   [clojure.string :refer [join]]
    [malli.core :as m]
    [refx.alpha :as refx]))
 
@@ -46,13 +45,16 @@
   (clint/linter
    (fn [view]
      (let [doc (.. view -state -doc)
-           content (->> (.-text doc)
-                        (join \newline)
-                        (.load js-yaml))
-           diagnostics (or (some-> (m/explain MockSchema
-                                              (js->clj content
-                                                       :keywordize-keys true))
-                                   :errors
+           [content valid-yaml?] (try
+                                   [(.load js-yaml (.toString doc)) true]
+                                   (catch :default e
+                                     [{:type (.-reason e)
+                                       :value (.-message e)}
+                                      false]))
+           edn-content (js->clj content :keywordize-keys true)
+           diagnostics (or (some-> (if valid-yaml?
+                                     (:errors (m/explain MockSchema edn-content))
+                                     [content])
                                    build-diagnostics)
                            #js [])]
        (refx/dispatch-sync
