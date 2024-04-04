@@ -1,5 +1,6 @@
 (ns front.app.core
   (:require
+   ["@sentry/react" :as Sentry]
    ["flowbite"]
    ["react-dom/client" :as rdom]
    [front.app.auth.db]
@@ -109,7 +110,26 @@
 (defn render []
   (.render root ($ app)))
 
+(goog-define SENTRY_DNS "")
+
+(defn init-sentry []
+  (.init
+   Sentry
+   #js {:dns SENTRY_DNS
+        :integrations
+        [(.browserTracingIntegration Sentry)
+         (.replayIntegration
+          Sentry
+          #js {:maskAllText false
+               :blockAllMedia false})]
+        :tracesSampleRate 1.0
+        :tracePropagationTargets ["localhost"
+                                  (js/RegExp. "/^https://app.moclojer.com/api")]
+        :replaysSessionSampleRate 0.1
+        :replaysOnErrorSampleRate 1.0}))
+
 (defn setup! []
+  (init-sentry)
   (refx/clear-subscription-cache!)
   (refx/dispatch-sync [::initialize-db])
   (routes/init-routes! routes.bookmarks/routes))
