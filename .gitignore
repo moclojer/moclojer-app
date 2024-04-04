@@ -44,3 +44,9 @@ resources/front/public/index.html
 
 /docker/localstack
 /docker/redis
+
+# Sentry Config File
+.sentryclirc
+
+# Sentry Config File
+.sentryclirc
