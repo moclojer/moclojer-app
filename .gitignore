@@ -47,6 +47,3 @@ resources/front/public/index.html
 
 # Sentry Config File
 .sentryclirc
-
-# Sentry Config File
-.sentryclirc

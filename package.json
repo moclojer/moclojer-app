@@ -12,9 +12,8 @@
     "postcss:release": "npx cross-env NODE_ENV=production postcss src/front/css/tailwind.css -o ./resources/front/public/assets/css/output.css --verbose",
     "app:watch": "npx shadow-cljs watch app",
     "watch": "run-p -l *:watch",
-    "release": "run-s shadow:release sentry:sourcemaps",
+    "release": "run-s shadow:release",
     "repl": "npx shadow-cljs clj-repl",
-    "sentry:sourcemaps": "sentry-cli sourcemaps inject --org moclojer --project moclojer-app-front ./resources/front/public/assets/js"
   },
   "repository": {
     "type": "git",
