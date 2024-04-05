@@ -13,7 +13,7 @@
     "app:watch": "npx shadow-cljs watch app",
     "watch": "run-p -l *:watch",
     "release": "run-s shadow:release",
-    "repl": "npx shadow-cljs clj-repl",
+    "repl": "npx shadow-cljs clj-repl"
   },
   "repository": {
     "type": "git",
