@@ -6,15 +6,15 @@
   "scripts": {
     "ci:karma-make": "npx msw init resources/front/test",
     "ci:tests": "npm run ci:karma-make && npx shadow-cljs compile ci-tests && npx karma start --single-run",
-    "shadow:release": "npx shadow-cljs release app && npm run sentry:sourcemaps && npm run sentry:sourcemaps",
+    "shadow:release": "npx shadow-cljs release app",
     "postcss:build": "npx cross-env TAILWIND_MODE=build postcss src/front/css/tailwind.css -o ./resources/front/public/assets/css/output.css --verbose",
     "postcss:watch": "npx cross-env TAILWIND_MODE=watch postcss src/front/css/tailwind.css -o ./resources/front/public/assets/css/output.css --verbose -w",
     "postcss:release": "npx cross-env NODE_ENV=production postcss src/front/css/tailwind.css -o ./resources/front/public/assets/css/output.css --verbose",
     "app:watch": "npx shadow-cljs watch app",
     "watch": "run-p -l *:watch",
-    "release": "run-s shadow:release",
+    "release": "run-s shadow:release sentry:sourcemaps",
     "repl": "npx shadow-cljs clj-repl",
-    "sentry:sourcemaps": "sentry-cli sourcemaps inject --org moclojer --project moclojer-app-front ./resources/front/public/assets/js && sentry-cli sourcemaps upload --org moclojer --project moclojer-app-front ./resources/front/public/assets/js"
+    "sentry:sourcemaps": "sentry-cli sourcemaps inject --org moclojer --project moclojer-app-front ./resources/front/public/assets/js"
   },
   "repository": {
     "type": "git",
