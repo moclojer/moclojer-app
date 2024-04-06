@@ -41,7 +41,9 @@
         io.forward/yaml               {:mvn/version "1.0.11"}
         io.github.cljazz/supabase {:git/sha "a850ed47eb0daa8303f206ea60bd4b3bf59e1e0a"
                                    :git/url "https://github.com/cljazz/supabase-clj"}
-        babashka/process {:mvn/version "0.5.22"}}
+        babashka/process {:mvn/version "0.5.22"}
+        io.sentry/sentry {:mvn/version "7.6.0"}
+        io.sentry/sentry-clj {:mvn/version "7.6.215"}}
 
  :aliases
  {;; frontend
