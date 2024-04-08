@@ -5,6 +5,7 @@
             [components.logs :as logs]
             [components.redis-publisher :as redis-publisher]
             [components.redis-queue :as redis-queue]
+            [components.sentry :as sentry]
             [components.storage :as storage]
             [yaml-generator.ports.workers :as p.workers])
   (:gen-class))
@@ -14,6 +15,7 @@
 (defn build-system-map []
   (component/system-map
    :config (config/new-config)
+   :sentry (component/using (sentry/new-sentry) [:config])
    :database (component/using (database/new-database) [:config])
    :storage (component/using (storage/new-storage) [:config])
    :publisher (component/using

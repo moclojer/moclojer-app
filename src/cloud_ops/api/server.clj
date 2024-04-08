@@ -1,20 +1,20 @@
 (ns cloud-ops.api.server
-  (:require
-   [cloud-ops.api.ports.workers :as p.workers]
-   [com.stuartsierra.component :as component]
-   [components.config :as config]
-   [components.http :as http]
-   [components.logs :as logs]
-   [components.redis-publisher :as redis-publisher]
-   [components.redis-queue :as redis-queue])
+  (:require [cloud-ops.api.ports.workers :as p.workers]
+            [com.stuartsierra.component :as component]
+            [components.config :as config]
+            [components.http :as http]
+            [components.logs :as logs]
+            [components.redis-publisher :as redis-publisher]
+            [components.redis-queue :as redis-queue]
+            [components.sentry :as sentry])
   (:gen-class))
-
 (def system-atom (atom nil))
 
 (defn build-system-map []
   (component/system-map
    :config (config/new-config)
    :http (http/new-http)
+   :sentry (component/using (sentry/new-sentry) [:config])
    :publisher (component/using
                (redis-publisher/new-redis-publisher) [:config])
    :workers (component/using

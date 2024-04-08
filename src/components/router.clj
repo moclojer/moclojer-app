@@ -1,32 +1,35 @@
 (ns components.router
-  (:require
-   [components.logs :as logs]
-   [com.stuartsierra.component :as component]
-   [muuntaja.core :as m]
-   [reitit.coercion.malli :as reitit.malli]
-   [reitit.dev.pretty :as pretty]
-   [reitit.http :as http]
-   [reitit.http.coercion :as coercion]
-   [reitit.http.interceptors.exception :as exception]
-   [reitit.http.interceptors.multipart :as multipart]
-   [reitit.http.interceptors.muuntaja :as muuntaja]
-   [reitit.http.interceptors.parameters :as parameters]
-   [reitit.pedestal :as pedestal]
-   [reitit.ring :as ring]
-   [reitit.swagger :as swagger]
-   [reitit.swagger-ui :as swagger-ui]))
+  (:require [com.stuartsierra.component :as component]
+            [components.logs :as logs]
+            [components.sentry :as sentry]
+            [muuntaja.core :as m]
+            [reitit.coercion.malli :as reitit.malli]
+            [reitit.dev.pretty :as pretty]
+            [reitit.http :as http]
+            [reitit.http.coercion :as coercion]
+            [reitit.http.interceptors.exception :as exception]
+            [reitit.http.interceptors.multipart :as multipart]
+            [reitit.http.interceptors.muuntaja :as muuntaja]
+            [reitit.http.interceptors.parameters :as parameters]
+            [reitit.pedestal :as pedestal]
+            [reitit.ring :as ring]
+            [reitit.swagger :as swagger]
+            [reitit.swagger-ui :as swagger-ui]))
 
 (defn- coercion-error-handler [status]
   (fn [exception _request]
     (logs/log :error exception :coercion-errors (:errors (ex-data exception)))
+    (sentry/send-event {:throwable exception})
     {:status status
      :body (if (= 400 status)
              (str "Invalid path or request parameters, with the following errors: "
                   (:errors (ex-data exception)))
              "Error checking path or request parameters.")}))
 
-(defn- exception-info-handler [exception _request]
+(defn- exception-info-handler [exception request]
   (logs/log :error exception "Server exception:" :exception exception)
+  (println :exception-request request)
+  (sentry/send-event {:throwable exception})
   {:status 500
    :body   "Internal error."})
 
@@ -66,7 +69,7 @@
 (defn router [routes]
   (pedestal/routing-interceptor
    (http/router routes router-settings)
-    ;; optional default ring handler (if no routes have matched)
+   ;; optional default ring handler (if no routes have matched)
    (ring/routes
     (swagger-ui/create-swagger-ui-handler
      {:path "/"
