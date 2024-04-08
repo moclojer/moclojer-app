@@ -1,6 +1,5 @@
 (ns front.app.dashboard.events
-  (:require
-   [refx.alpha :as refx]))
+  (:require [refx.alpha :as refx]))
 
 (refx/reg-event-db
  :app.dashboard/toggle-menu
@@ -228,6 +227,18 @@
     (reduce
      #(update-mock-pub-stts %1 %2 mock-id
                             "publishing")
+     [] (:mocks-raw db))
+    (assoc db :mocks-raw))))
+
+(refx/reg-event-db
+ :app.dashboard/reset-mock-pub-stts
+ (fn [db [_ mock-id]]
+   (->>
+    (reduce
+     #(conj %1 (if (= mock-id (:id %2))
+                 (merge %2 {:publication "publishing"
+                            :attempt 1})
+                 %2))
      [] (:mocks-raw db))
     (assoc db :mocks-raw))))
 
