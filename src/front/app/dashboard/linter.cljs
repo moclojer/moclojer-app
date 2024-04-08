@@ -17,11 +17,19 @@
    [:fn (fn [{:keys [status]}]
           (and (>= status 200) (<= status 500)))]])
 
+(def WebhookSchema
+  [:map
+   [:sleep-time int?]
+   [:if string?]
+   [:url string?]
+   [:body string?]])
+
 (def EndpointSchema
   [:map
    [:method MethodSchema]
    [:path string?]
-   [:response ResponseSchema]])
+   [:response ResponseSchema]
+   [:webhook {:optional true} WebhookSchema]])
 
 (def MockSchema
   [:vector
