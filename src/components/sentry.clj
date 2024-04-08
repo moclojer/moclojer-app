@@ -1,17 +1,16 @@
 (ns components.sentry
-  (:require
-   [com.stuartsierra.component :as component]
-   [components.logs :as logs]
-   [sentry-clj.core :as sentry]
-   [sentry-clj.tracing :as sentry-tr])
-  (:import
-   [io.sentry CustomSamplingContext]))
+  (:require [com.stuartsierra.component :as component]
+            [components.logs :as logs]
+            [sentry-clj.core :as sentry]
+            [sentry-clj.tracing :as sentry-tr])
+  (:import [io.sentry CustomSamplingContext]))
 
 (defn send-event [event]
   (try
-    (sentry/send-event event)
+    (let [evt-id (sentry/send-event event)]
+      (logs/log :info :sent-event evt-id))
     (catch Exception e
-      (println "failed to submit event to sentry" (ex-data e)))))
+      (println "failed to submit event to sentry" (.getMessage e)))))
 
 (defn set-default-exception-handler []
   (Thread/setDefaultUncaughtExceptionHandler
@@ -31,14 +30,14 @@
     this)
   (stop [_]))
 
-(defn new-sentry [config]
-  (->Sentry config))
+(defn new-sentry []
+  (->Sentry {}))
 
 (comment
   (-> {:config {:sentry {:dns "foobar"
                          :traces-sample-rate 1.0
                          :env "prod"}}}
-      new-sentry
+      ->Sentry
       component/start)
 
   (send-event  {:message "Oh no!"

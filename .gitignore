@@ -19,6 +19,7 @@ node_modules
 .shadow-cljs
 .lsp/.cache
 .clj-kondo/.cache
+.clj-kondo/babashka
 .cpcache/
 .calva
 .idea

@@ -1,9 +1,9 @@
 (ns components.redis-queue
-  (:require
-   [com.stuartsierra.component :as component]
-   [components.logs :as logs]
-   [taoensso.carmine :as car]
-   [taoensso.carmine.message-queue :as mq]))
+  (:require [com.stuartsierra.component :as component]
+            [component.sentry :as sentry]
+            [components.logs :as logs]
+            [taoensso.carmine :as car]
+            [taoensso.carmine.message-queue :as mq]))
 
 (defrecord RedisWorkers [config database storage publisher http workers]
   component/Lifecycle
@@ -32,6 +32,7 @@
                                                  (catch Throwable e
                                                    (logs/log :error :error-message message)
                                                    (logs/log :error :error-message-error e)
+                                                   (sentry/send-event e)
                                                    (println "Error in worker" e)
                                                    {:status :error
                                                     :throwable e})))}))))]

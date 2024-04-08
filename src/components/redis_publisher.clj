@@ -1,9 +1,9 @@
 (ns components.redis-publisher
-  (:require
-   [com.stuartsierra.component :as component]
-   [components.logs :as logs]
-   [taoensso.carmine :as carmine]
-   [taoensso.carmine.message-queue :as mq]))
+  (:require [com.stuartsierra.component :as component]
+            [components.logs :as logs]
+            [components.sentry :as sentry]
+            [taoensso.carmine :as carmine]
+            [taoensso.carmine.message-queue :as mq]))
 
 (defprotocol IPublisher
   (publish! [this queue-name message]))
@@ -28,7 +28,8 @@
                         message))
 
          (catch Exception e
-           (logs/log :error :publish :e e)))))
+           (logs/log :error :publish :e e)
+           (sentry/send-event e)))))
 
 (defn new-redis-publisher []
   (->RedisPublisher {}))
