@@ -73,8 +73,9 @@
      {:class-name (str "px-3 py-2 bg-pink-600 rounded-lg flex justify-center items-center btn-add space-x-2 "
                        (when full-width? "w-full ")
                        (when-not mock-valid? " opacity-50 cursor-not-allowed"))
-      :on-click (fn [_] (when mock-valid?
-                          (refx/dispatch [:app.dashboard/save-mock mock-id])))}
+      :on-click #(when mock-valid?
+                   (refx/dispatch-sync [:app.dashboard/save-mock mock-id])
+                   (refx/dispatch-sync [:app.dashboard/reset-mock-pub-stts mock-id]))}
      (d/div {:class-name "text-white text-xs font-bold leading-[18px]"} " save")
      ($ svg/save))))
 
