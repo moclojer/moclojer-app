@@ -1,7 +1,7 @@
 (ns components.redis-queue
   (:require [com.stuartsierra.component :as component]
-            [component.sentry :as sentry]
             [components.logs :as logs]
+            [components.sentry :as sentry]
             [taoensso.carmine :as car]
             [taoensso.carmine.message-queue :as mq]))
 
