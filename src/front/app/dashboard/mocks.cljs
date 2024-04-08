@@ -1,51 +1,13 @@
 (ns front.app.dashboard.mocks
-  (:require
-   [front.app.components.svg :as svg]
-   [front.app.dashboard.base :as base]
-   [front.app.dashboard.components :as dash-comps]
-   [front.app.lib :refer [defnc]]
-   [helix.core :refer [$ <>]]
-   [helix.dom :as d]
-   [helix.hooks :as hooks]
-   [refx.alpha :as refx]
-   [reitit.frontend.easy :as rfe]))
-
-(defnc mock-dns-status
-  "There are 3 possible DNS status:
-
-   1. offline
-   2. offline-invalid
-   2. publishing
-   3. published
-
-   A mock is offline only if its not enabled, not
-   saved yet, or invalid. When saved, we ping the
-   domain, and while not returning a 200 OK for
-   the max of 24 attempts, it will be :publishing,
-   or :published otherwise.
-
-   When :offline, it will try to ping as well,
-   since newly created mocks are offline, but
-   they do need to be pinged."
-  [{:keys [enabled id]}]
-  (let [{:keys [publication attempt]
-         :or {attempt 0}} (refx/use-sub [:app.dashboard/mock-pub-stts id])
-        loading? (and enabled (< attempt 24)
-                      (some #(= % publication) ["publishing" "offline"]))]
-
-    (hooks/use-effect
-     [publication attempt]
-     (when loading?
-       (js/setTimeout #(refx/dispatch
-                        [:app.dashboard/get-mock-pub-stts
-                         {:mock-id id}])
-                      5000)))
-
-    ($ dash-comps/dns-status
-       {:status (if enabled
-                  (or (keyword publication) :publishing)
-                  :offline)
-        :loading? loading?})))
+  (:require [front.app.components.dns-status :as dns-stt]
+            [front.app.components.svg :as svg]
+            [front.app.dashboard.base :as base]
+            [front.app.lib :refer [defnc]]
+            [helix.core :refer [$ <>]]
+            [helix.dom :as d]
+            [helix.hooks :as hooks]
+            [refx.alpha :as refx]
+            [reitit.frontend.easy :as rfe]))
 
 (defnc api-mock [{:keys [enabled url id]}]
   (d/div {:class (str "w-full py-4 bg-white border-b border-gray-200 flex flex-col items-left cursor-pointer "
@@ -68,8 +30,8 @@
                                                      ($ svg/mock-enabled)
                                                      ($ svg/mock-disabled)))
 
-                                            ($ mock-dns-status {:enabled enabled
-                                                                :id id}))
+                                            ($ dns-stt/mock-dns-status {:enabled enabled
+                                                                        :id id}))
                                      (d/div {:class (str "w-full flex flex-row font-semibold truncate text-ellipsis lg:mt-0 "
                                                          (if enabled
                                                            "text-gray-900"
@@ -122,16 +84,16 @@
         loading-mocks? (refx/use-sub [:app.dashboard/loading-mocks?])]
 
     (hooks/use-effect
-     [mocks]
-     (when (nil? mocks)
-       (refx/dispatch-sync [:app.dashboard/get-mocks current-user])))
+      [mocks]
+      (when (nil? mocks)
+        (refx/dispatch-sync [:app.dashboard/get-mocks current-user])))
 
     (hooks/use-effect
-     [mocks loading-mocks?]
-     (when (and (or (nil? mocks)
-                    (empty? mocks))
-                (not loading-mocks?))
-       (refx/dispatch-sync [:app.dashboard/toggle-mock-modal])))
+      [mocks loading-mocks?]
+      (when (and (or (nil? mocks)
+                     (empty? mocks))
+                 (not loading-mocks?))
+        (refx/dispatch-sync [:app.dashboard/toggle-mock-modal])))
 
     ($ base/index
        (d/div {:class "flex flex-col lg:p-8"}
