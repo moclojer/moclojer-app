@@ -26,9 +26,8 @@
                   (:errors (ex-data exception)))
              "Error checking path or request parameters.")}))
 
-(defn- exception-info-handler [exception request]
+(defn- exception-info-handler [exception _request]
   (logs/log :error exception "Server exception:" :exception exception)
-  (println :exception-request request)
   (sentry/send-event {:throwable exception})
   {:status 500
    :body   "Internal error."})
