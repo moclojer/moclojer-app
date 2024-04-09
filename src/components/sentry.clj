@@ -21,19 +21,26 @@
   (stop [_])
 
   SentryLogger
-  (send-event! [_ event]
-    (try
-      (let [evt-id (sentry/send-event event)]
-        (logs/log :info :sent-event evt-id))
-      (catch Exception e
-        (logs/log :error :sentry :send-event! e))))
+  (send-event! [this event]
+    ;; checking `this` just incase something goes wrong when
+    ;; calling from a dev system, which doesn't initialize
+    ;; this component. Same goes for `set-as-default-exception-handler`.
+    ;; Just not doing anything would be the best deal for now,
+    ;; since sentry isn't part of our logic in any sort of way.
+    (when this
+      (try
+        (let [evt-id (sentry/send-event event)]
+          (logs/log :info :sent-event evt-id))
+        (catch Exception e
+          (logs/log :error :sentry :send-event! e)))))
 
   (set-as-default-exception-handler [this]
-    (Thread/setDefaultUncaughtExceptionHandler
-     (reify Thread$UncaughtExceptionHandler
-       (uncaughtException [_ _ exception]
-         (logs/log :warn :uncaught-exception)
-         (send-event! this {:throwable exception}))))))
+    (when this
+      (Thread/setDefaultUncaughtExceptionHandler
+       (reify Thread$UncaughtExceptionHandler
+         (uncaughtException [_ _ exception]
+           (logs/log :warn :uncaught-exception)
+           (send-event! this {:throwable exception})))))))
 
 (defn new-sentry []
   (->Sentry {}))
