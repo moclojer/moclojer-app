@@ -17,7 +17,7 @@
             [reitit.swagger-ui :as swagger-ui]))
 
 (defn send-sentry-evt-from-req! [req ex]
-  (if-let [sentry-cmp (get-in request [:components :sentry])]
+  (if-let [sentry-cmp (get-in req [:components :sentry])]
     (sentry/send-event! sentry-cmp {:throwable ex})
     (logs/log :error :sentry :send-event :from-request :no-component)))
 
