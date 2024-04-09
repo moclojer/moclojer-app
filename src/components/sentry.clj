@@ -5,19 +5,9 @@
             [sentry-clj.tracing :as sentry-tr])
   (:import [io.sentry CustomSamplingContext]))
 
-(defn send-event [event]
-  (try
-    (let [evt-id (sentry/send-event event)]
-      (logs/log :info :sent-event evt-id))
-    (catch Exception e
-      (println "failed to submit event to sentry" (.getMessage e)))))
-
-(defn set-default-exception-handler []
-  (Thread/setDefaultUncaughtExceptionHandler
-   (reify Thread$UncaughtExceptionHandler
-     (uncaughtException [_ _ exception]
-       (logs/log :warn :uncaught-exception)
-       (send-event {:throwable exception})))))
+(defprotocol SentryLogger
+  (send-event! [this event])
+  (set-as-default-exception-handler [this]))
 
 (defrecord Sentry [config]
   component/Lifecycle
@@ -26,25 +16,41 @@
       (when (:dns sentry-cfg)
         (println "starting sentry" :env (:env sentry-cfg))
         (sentry/init! (:dns sentry-cfg) sentry-cfg)
-        (set-default-exception-handler)))
+        (set-as-default-exception-handler this)))
     this)
-  (stop [_]))
+  (stop [_])
+
+  SentryLogger
+  (send-event! [_ event]
+    (try
+      (let [evt-id (sentry/send-event event)]
+        (logs/log :info :sent-event evt-id))
+      (catch Exception e
+        (logs/log :error :sentry :send-event! e))))
+
+  (set-as-default-exception-handler [this]
+    (Thread/setDefaultUncaughtExceptionHandler
+     (reify Thread$UncaughtExceptionHandler
+       (uncaughtException [_ _ exception]
+         (logs/log :warn :uncaught-exception)
+         (send-event! this {:throwable exception}))))))
 
 (defn new-sentry []
   (->Sentry {}))
 
 (comment
-  (-> {:config {:sentry {:dns "foobar"
-                         :traces-sample-rate 1.0
-                         :env "prod"}}}
-      ->Sentry
-      component/start)
+  (def sc
+    (-> {:config {:sentry {:dns "foobar"
+                           :traces-sample-rate 1.0
+                           :env "prod"}}}
+        ->Sentry
+        component/start))
 
-  (send-event  {:message "Oh no!"
-                :throwable (RuntimeException. "Something has happened")})
+  (send-event! sc {:message "Oh no!"
+                   :throwable (RuntimeException. "Something has happened")})
 
   (sentry-tr/with-start-child-span "task" "logging in"
-    (send-event {:throwable (ex-info "failed to log in" {})}))
+    (send-event! sc {:throwable (ex-info "failed to log in" {})}))
 
   (let [tr (sentry-tr/start-transaction "update-user" "Updates a user in db"
                                         (CustomSamplingContext.)
@@ -52,16 +58,16 @@
     (sentry-tr/with-start-child-span "get-user" "getting user"
       (Thread/sleep 2000)
       (sentry-tr/with-start-child-span "update-user" "updating user"
-        (send-event {:user {:id (str (random-uuid))
-                            :email "teodoro.josue@pm.me"}
-                     :breadcrumbs [{:type "http"
-                                    :category "xhr"
-                                    :data {"method" "PUT"
-                                           "url" "/users/j0suetm"}}
-                                   {:type "query"
-                                    :category "update"
-                                    :data {"query" "UPDATE AAA;; INVALID"}}]
-                     :throwable (ex-info "failed to update user" {})})))
+        (send-event! sc {:user {:id (str (random-uuid))
+                                :email "teodoro.josue@pm.me"}
+                         :breadcrumbs [{:type "http"
+                                        :category "xhr"
+                                        :data {"method" "PUT"
+                                               "url" "/users/j0suetm"}}
+                                       {:type "query"
+                                        :category "update"
+                                        :data {"query" "UPDATE AAA;; INVALID"}}]
+                         :throwable (ex-info "failed to update user" {})})))
 
     (sentry-tr/finish-transaction! tr))
   ;;

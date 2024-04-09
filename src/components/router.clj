@@ -16,19 +16,24 @@
             [reitit.swagger :as swagger]
             [reitit.swagger-ui :as swagger-ui]))
 
+(defn send-sentry-evt-from-req! [req ex]
+  (if-let [sentry-cmp (get-in request [:components :sentry])]
+    (sentry/send-event! sentry-cmp {:throwable ex})
+    (logs/log :error :sentry :send-event :from-request :no-component)))
+
 (defn- coercion-error-handler [status]
-  (fn [exception _request]
+  (fn [exception request]
     (logs/log :error exception :coercion-errors (:errors (ex-data exception)))
-    (sentry/send-event {:throwable exception})
+    (send-sentry-evt-from-req! request exception)
     {:status status
      :body (if (= 400 status)
              (str "Invalid path or request parameters, with the following errors: "
                   (:errors (ex-data exception)))
              "Error checking path or request parameters.")}))
 
-(defn- exception-info-handler [exception _request]
+(defn- exception-info-handler [exception request]
   (logs/log :error exception "Server exception:" :exception exception)
-  (sentry/send-event {:throwable exception})
+  (send-sentry-evt-from-req! request exception)
   {:status 500
    :body   "Internal error."})
 

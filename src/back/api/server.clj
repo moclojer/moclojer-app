@@ -24,12 +24,12 @@
    :router (router/new-router routes/routes)
    :database (component/using (database/new-database) [:config])
    :publisher (component/using (redis-publisher/new-redis-publisher)
-                               [:config])
+                               [:config :sentry])
    :webserver (component/using (webserver/new-webserver)
-                               [:config :http :router :database :publisher])
+                               [:config :http :router :database :publisher :sentry])
    :workers (component/using
              (redis-queue/new-redis-queue p.workers/workers)
-             [:config :database :publisher])))
+             [:config :database :publisher :sentry])))
 
 (defn start-system! [system-map]
   (logs/setup [["*" :info]] :auto)

@@ -16,9 +16,11 @@
    :http (http/new-http)
    :sentry (component/using (sentry/new-sentry) [:config])
    :publisher (component/using
-               (redis-publisher/new-redis-publisher) [:config])
+               (redis-publisher/new-redis-publisher)
+               [:config :sentry])
    :workers (component/using
-             (redis-queue/new-redis-queue p.workers/workers) [:config :http :publisher])))
+             (redis-queue/new-redis-queue p.workers/workers)
+             [:config :http :publisher :sentry])))
 
 (defn start-system! [system-map]
   (logs/setup [["*" :info]] :auto)

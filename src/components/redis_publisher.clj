@@ -8,31 +8,31 @@
 (defprotocol IPublisher
   (publish! [this queue-name message]))
 
-(defrecord RedisPublisher [config]
+(defrecord RedisPublisher [config sentry]
   component/Lifecycle
   (start [this]
     (let [{:keys [uri]} (-> config :config :redis-worker)
           conn {:spec {:uri uri}}]
-      (assoc this :publish-conn conn)))
+      (merge this {:publish-conn conn
+                   :sentry sentry})))
   (stop [this]
-    (assoc this :publish-conn nil))
+    (merge this {:publish-conn nil
+                 :sentry nil}))
 
   IPublisher
   (publish! [this queue-name message]
     (logs/log :info :queue-name queue-name :message message)
     (logs/log :info :conn (:publish-conn this))
-    (try (carmine/wcar (:publish-conn this)
-                       queue-name
-                       (mq/enqueue
-                        queue-name
-                        message))
-
-         (catch Exception e
-           (logs/log :error :publish :e e)
-           (sentry/send-event e)))))
+    (try
+      (carmine/wcar (:publish-conn this)
+                    queue-name
+                    (mq/enqueue queue-name message))
+      (catch Exception e
+        (logs/log :error :publish :e e)
+        (sentry/send-event! (:sentry this) e)))))
 
 (defn new-redis-publisher []
-  (->RedisPublisher {}))
+  (->RedisPublisher {} {}))
 
 ;; mock in memory publisher for testing 
 (def mock-publisher (atom {}))

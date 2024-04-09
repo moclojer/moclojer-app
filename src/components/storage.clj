@@ -1,12 +1,10 @@
 (ns components.storage
-  (:require
-   [clojure.java.io :as io]
-   [cognitect.aws.client.api :as aws]
-   [cognitect.aws.credentials :as cred]
-   [com.stuartsierra.component :as component]
-   [components.config :as config]
-   [components.logs :as logs]))
-
+  (:require [clojure.java.io :as io]
+            [cognitect.aws.client.api :as aws]
+            [cognitect.aws.credentials :as cred]
+            [com.stuartsierra.component :as component]
+            [components.config :as config]
+            [components.logs :as logs]))
 (defprotocol IStorage
   (initialize [this bucket-name])
   (get-bucket [this bucket-name])

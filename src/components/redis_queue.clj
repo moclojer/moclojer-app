@@ -5,7 +5,8 @@
             [taoensso.carmine :as car]
             [taoensso.carmine.message-queue :as mq]))
 
-(defrecord RedisWorkers [config database storage publisher http workers]
+(defrecord RedisWorkers [config database storage publisher
+                         http workers sentry]
   component/Lifecycle
   (start [this]
     (let [{:keys [uri]} (-> config :config :redis-worker)
@@ -18,7 +19,8 @@
                       :storage storage
                       :publisher publisher
                       :config config
-                      :http http}
+                      :http http
+                      :sentry sentry}
           _ (logs/log :info :redis-worker :start-workers)
           ws (doall (for [{:keys [queue-name handler]} workers]
                       (do
@@ -32,7 +34,7 @@
                                                  (catch Throwable e
                                                    (logs/log :error :error-message message)
                                                    (logs/log :error :error-message-error e)
-                                                   (sentry/send-event e)
+                                                   (sentry/send-event! sentry e)
                                                    (println "Error in worker" e)
                                                    {:status :error
                                                     :throwable e})))}))))]
@@ -51,5 +53,5 @@
                  :workers nil})))
 
 (defn new-redis-queue [workers]
-  (->RedisWorkers {} {} {} {} {} workers))
+  (->RedisWorkers {} {} {} {} {} workers {}))
 
