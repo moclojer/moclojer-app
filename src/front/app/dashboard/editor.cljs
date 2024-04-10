@@ -123,51 +123,61 @@
 
     ($ base/index
        (d/div
-        (d/div {:class-name "flex w-full flex-col bg-white px-5 pt-5 lg:p-5"}
-               (d/div {:class-name "bg-white rounded-br-lg flex-col justify-start  inline-flex"}
-                      (d/div {:class-name " rounded-md justify-start items-center gap-4 inline-flex"}
-                             ($ svg/box {:color "black"})
-                             (d/div {:class-name "justify-center items-center flex"}
-                                    (d/div {:class-name "text-gray-700 text-sm font-medium leading-[21px]"} "mocks"))
-                             (d/div {:class-name "w-5 "} ">")
-                             (d/div {:class-name "justify-center items-center flex"}
-                                    (d/div {:class-name "text-gray-700 text-sm font-medium leading-[21px]"} "my"))))
-               (d/div {:class-name "flex flex-col items-left lg:flex-row lg:justify-between"}
-                      (d/div {:class-name "flex flex-row items-center space-x-2"}
-                             (if (:enabled mock-data)
-                               ($ svg/mock-enabled)
-                               ($ svg/mock-disabled))
-                             ($ dns-stt/mock-dns-status
-                                (select-keys mock-data [:enabled :id]))
-                             (let [url (:url mock-data)]
-                               (d/a {:class "flex flex-row space-x-2 group"
-                                     :target "_blank"
-                                     :href (str "https://" url)}
-                                    (d/p {:class "text-zinc-500 text-lg truncate text-ellipsis lg:text-xl font-medium group-hover:underline"}
-                                         url)
-                                    (d/button {:class (str "hidden p-2 rounded-lg bg-transparent fill-gray-800 "
-                                                           "hover:bg-gray-200 group-hover:block")}
-                                              ($ svg/arrow-link)))))
+        (d/div
+         {:class "flex w-full flex-col bg-white px-5 pt-5 lg:p-5"}
+         (d/div
+          {:class "bg-white rounded-br-lg flex-col justify-start inline-flex"}
+          (d/div
+           {:class "rounded-md justify-start items-center space-x-2 inline-flex"}
+           ($ svg/box {:color "black"})
+           (d/button
+            {:class "justify-center items-center flex"
+             :on-click #(rfe/push-state :app.core/mocks)}
+            (d/p
+             {:class "text-gray-700 text-sm font-medium underline"}
+             "mocks"))
+           (d/p ">")
+           (d/div
+            {:class "justify-center items-center flex"}
+            (d/p
+             {:class "text-gray-700 text-sm font-medium"}
+             (or (:subdomain mock-data) "my")))))
+         (d/div {:class-name "flex flex-col items-left lg:flex-row lg:justify-between"}
+                (d/div {:class-name "flex flex-row items-center space-x-2"}
+                       (if (:enabled mock-data)
+                         ($ svg/mock-enabled)
+                         ($ svg/mock-disabled))
+                       ($ dns-stt/mock-dns-status
+                          (select-keys mock-data [:enabled :id]))
+                       (let [url (:url mock-data)]
+                         (d/a {:class "flex flex-row space-x-2 group"
+                               :target "_blank"
+                               :href (str "https://" url)}
+                              (d/p {:class "text-zinc-500 text-lg truncate text-ellipsis lg:text-xl font-medium group-hover:underline"}
+                                   url)
+                              (d/button {:class (str "hidden p-2 rounded-lg bg-transparent fill-gray-800 "
+                                                     "hover:bg-gray-200 group-hover:block")}
+                                        ($ svg/arrow-link)))))
 
-                      (d/div {:class-name "w-full lg:w-1/2 xl:w-1/3 2xl:w-1/4 flex flex-row mt-2 mb-4 lg:my-0 space-x-2"}
-                             (d/button {:class-name (str "w-full px-3 py-2 rounded-lg border border-gray-200 "
-                                                         "flex flex-row justify-center items-center space-x-2")
-                                        :on-click #(refx/dispatch-sync [:app.dashboard/set-mock-to-delete {:id mock-id}])}
-                                       (d/div {:class-name "text-gray-800 text-sm font-medium"} "remove")
-                                       ($ svg/trash))
+                (d/div {:class-name "w-full lg:w-1/2 xl:w-1/3 2xl:w-1/4 flex flex-row mt-2 mb-4 lg:my-0 space-x-2"}
+                       (d/button {:class-name (str "w-full px-3 py-2 rounded-lg border border-gray-200 "
+                                                   "flex flex-row justify-center items-center space-x-2")
+                                  :on-click #(refx/dispatch-sync [:app.dashboard/set-mock-to-delete {:id mock-id}])}
+                                 (d/div {:class-name "text-gray-800 text-sm font-medium"} "remove")
+                                 ($ svg/trash))
 
-                             ($ save-button {:mock-id mock-id
-                                             :full-width? true})
+                       ($ save-button {:mock-id mock-id
+                                       :full-width? true})
 
-                             ($ file-upload-button {:handle-file-fn handle-file-fn})))
-               ($ drag-drop
-                  {:on-load (fn [e]
-                              (on-load e
-                                       #(refx/dispatch [:app.dashboard/edit-mock {:mock-id mock-id
-                                                                                  :content %}])))
-                   :dragging-over? dragging-over?
-                   :set-dragging-over! set-dragging-over!
-                   :handle-file-fn handle-file-fn}))
+                       ($ file-upload-button {:handle-file-fn handle-file-fn})))
+         ($ drag-drop
+            {:on-load (fn [e]
+                        (on-load e
+                                 #(refx/dispatch [:app.dashboard/edit-mock {:mock-id mock-id
+                                                                            :content %}])))
+             :dragging-over? dragging-over?
+             :set-dragging-over! set-dragging-over!
+             :handle-file-fn handle-file-fn}))
         ($ editor {:data mock-data
                    :set-dragging-over! set-dragging-over!
                    :handle-file-fn handle-file-fn})))))
