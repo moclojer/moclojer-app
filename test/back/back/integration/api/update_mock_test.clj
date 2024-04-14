@@ -1,7 +1,6 @@
 (ns back.integration.api.update-mock-test
   (:require
    [back.api.db.customers :as db.customers]
-   [back.api.logic.mocks :as m.logic]
    [back.api.routes :as routes]
    [back.integration.api.helpers :as helpers]
    [back.integration.components.utils :as utils]
@@ -56,72 +55,66 @@
    :cleanup utils/stop-system!
    :fail-fast? true}
   (flow ""
-        [database (state-flow.api/get-state :database)]
+    [database (state-flow.api/get-state :database)]
 
-        (state/invoke
-         #(db.customers/insert! {:customer/uuid #uuid "cd989358-af38-4a2f-a1a1-88096aa425a7"
-                                 :customer/email "test@gmail.com"
-                                 :customer/username "chico"
-                                 :customer/external-uuid #uuid "dcff4c06-1c9e-4abb-a49b-438e1869ec5b"}
-                                database))
+    (state/invoke
+     #(db.customers/insert! {:customer/uuid #uuid "cd989358-af38-4a2f-a1a1-88096aa425a7"
+                             :customer/email "test@gmail.com"
+                             :customer/username "chico"
+                             :customer/external-uuid #uuid "dcff4c06-1c9e-4abb-a49b-438e1869ec5b"}
+                            database))
 
-        (flow "it will send a mock and save it"
-              [resp (helpers/request! {:method :post
+    (flow "it will send a mock and save it"
+      [resp (helpers/request! {:method :post
+                               :headers {"authorization" token}
+                               :uri "/mocks"
+                               :body {:subdomain "chico"
+                                      :wildcard "test"
+                                      :enabled true}})]
+      (match?
+       (matchers/embeds {:status 201
+                         :body {:mock {:subdomain "chico"
+                                       :id string?
+                                       :wildcard "test"
+                                       :user-id "cd989358-af38-4a2f-a1a1-88096aa425a7"
+                                       :enabled true
+                                       :publication "offline"}}})
+       resp)
+      (flow "then will update the content"
+        [resp-get (helpers/request! {:method :put
+                                     :headers {"authorization" token}
+                                     :uri "/mocks"
+                                     :body {:id (-> resp :body :mock :id str)
+                                            :content yml}})]
+
+        (match?
+         (matchers/embeds {:mock {:id #(uuid? (java.util.UUID/fromString %))
+                                  :subdomain "chico"
+                                  :wildcard "test"
+                                  :content yml
+                                  :user-id "cd989358-af38-4a2f-a1a1-88096aa425a7"
+                                  :enabled true
+                                  :publication "offline"}})
+         (-> resp-get :body))
+
+        (flow "then retreive all mocks"
+          [resp-get (helpers/request! {:method :get
                                        :headers {"authorization" token}
                                        :uri "/mocks"
-                                       :body {:subdomain "chico"
-                                              :wildcard "test"
-                                              :enabled true}})]
-              (match?
-               (matchers/embeds {:status 201
-                                 :body {:mock {:subdomain "chico"
-                                               :id string?
-                                               :wildcard "test"
-                                               :user-id "cd989358-af38-4a2f-a1a1-88096aa425a7"
-                                               :enabled true
-                                               :publication "offline"}}})
-               resp)
-              (flow "then will update the content"
-                    [resp-get (helpers/request! {:method :put
-                                                 :headers {"authorization" token}
-                                                 :uri "/mocks"
-                                                 :body {:id (-> resp :body :mock :id str)
-                                                        :content yml}})]
-
-                    (match?
-                     (matchers/embeds {:mock {:id #(uuid? (java.util.UUID/fromString %))
+                                       :body {}})]
+          (match?
+           (matchers/embeds {:mocks [{:subdomain "chico"
+                                      :mock-type "personal"
+                                      :apis [{:id #(uuid? (java.util.UUID/fromString %))
                                               :subdomain "chico"
-                                              :wildcard "test"
+                                              :url "test-chico.moclojer.com"
                                               :content yml
-                                              :user-id "cd989358-af38-4a2f-a1a1-88096aa425a7"
+                                              :wildcard "test"
                                               :enabled true
-                                              :publication "offline"}})
-                     (-> resp-get :body))
+                                              :publication "offline"}]}]})
+           (-> resp-get :body)))
 
-                    (flow "then retreive all mocks"
-                          [resp-get (helpers/request! {:method :get
-                                                       :headers {"authorization" token}
-                                                       :uri "/mocks"
-                                                       :body {}})]
-                          (match?
-                           (matchers/embeds {:mocks [{:subdomain "chico"
-                                                      :mock-type "personal"
-                                                      :apis [{:id #(uuid? (java.util.UUID/fromString %))
-                                                              :subdomain "chico"
-                                                              :url "test-chico.moclojer.com"
-                                                              :content yml
-                                                              :wildcard "test"
-                                                              :enabled true
-                                                              :publication "offline"}]}]})
-                           (-> resp-get :body)))
-
-                    (flow "should have publish a mock calling publisher"
-                          (match? (matchers/embeds (first (:mock.changed @redis-publisher/mock-publisher)))
-                                  {:event
-                                   {:user-id #uuid "cd989358-af38-4a2f-a1a1-88096aa425a7",
-                                    :id  (-> resp-get :body :mock :id (java.util.UUID/fromString))
-                                    :wildcard "test",
-                                    :subdomain "chico",
-                                    :enabled true,
-                                    :content m.logic/default-mock-content
-                                    :publication "offline"}}))))))
+        (flow "should have publish a mock calling publisher"
+          (match? (matchers/embeds (first (:mock.changed @redis-publisher/mock-publisher)))
+                  {:event
+                   {:mock-id  (-> resp-get :body :mock :id (java.util.UUID/fromString))}}))))))

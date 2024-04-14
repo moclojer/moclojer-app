@@ -42,6 +42,22 @@
            (logs/log :warn :uncaught-exception)
            (send-event! this {:throwable exception})))))))
 
+(defrecord MockSentry [config]
+  component/Lifecycle
+  (start [this]
+    (assoc this :sentry-mem {}))
+  (stop [_])
+
+  SentryLogger
+  (send-event! [this event]
+    (let [{:keys [sentry-mem]} this]
+      (assoc sentry-mem :error event)))
+
+  (set-as-default-exception-handler [this] this))
+
+(defn new-mock-sentry []
+  (->MockSentry {}))
+
 (defn new-sentry []
   (->Sentry {}))
 

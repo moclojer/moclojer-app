@@ -16,8 +16,7 @@
                          (db.mocks/insert! database)
                          (adapter.mocks/->wire))]
         (when (:enabled new-mock)
-          (ports.producers/publish-mock-event new-mock
-                                              :mock.changed publisher))
+          (ports.producers/publish-mock-changed-event (:id new-mock) publisher))
         new-mock)
       (throw (ex-info "Mock with given wildcard and subdomain invalid"
                       {:status-code 412
@@ -31,14 +30,13 @@
 (defn update-mock!
   [id content {:keys [database publisher]}]
   (if-let [mock (db.mocks/get-mock-by-id id database)]
-    (let [upd-mock (-> mock
-                       (logic.mocks/update {:content content})
-                       (db.mocks/update! database)
-                       (adapter.mocks/->wire))]
-      (when (:enabled upd-mock)
-        (ports.producers/publish-mock-event upd-mock :mock.changed publisher))
-
-      upd-mock)
+    (let [updated-mock (-> mock
+                           (logic.mocks/update {:content content})
+                           (db.mocks/update! database)
+                           (adapter.mocks/->wire))]
+      (when (:enabled updated-mock)
+        (ports.producers/publish-mock-changed-event (:id updated-mock) publisher))
+      updated-mock)
     (throw (ex-info "Mock with given id invalid"
                     {:status-code 412
                      :cause :invalid-id}))))
@@ -55,7 +53,8 @@
       logic.mocks/publish
       (db.mocks/update! database)
       (adapter.mocks/->wire)
-      (ports.producers/publish-mock-event :mock.changed publisher))
+      :id
+      (ports.producers/publish-mock-changed-event publisher))
   true)
 
 (defn unpublish-mock!
@@ -64,7 +63,8 @@
       logic.mocks/unpublish
       (db.mocks/update! database)
       (adapter.mocks/->wire)
-      (ports.producers/publish-mock-event :mock.changed publisher))
+      :id
+      (ports.producers/publish-mock-changed-event publisher))
   true)
 
 (defn delete-mock!

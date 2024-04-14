@@ -5,12 +5,15 @@
    [components.logs :as logs]
    [components.storage :as storage]
    [yaml-generator.logic.yml :as logic.yml]
-   [yaml-generator.ports.producers :as ports.producers]))
+   [yaml-generator.ports.producers :as ports.producers]
+   [back.api.db.mocks :as db.mocks]))
 
-(defn generate [{:keys [id user-id wildcard content subdomain
-                        enabled publication]}
-                {:keys [storage publisher config]}]
-  (let [path (logic.yml/gen-path user-id id)
+(defn generate [{:keys [mock-id]}
+                {:keys [storage publisher config database]}]
+  (let [{:keys [user_id wildcard
+                content subdomain
+                enabled publication]} (db.mocks/get-mock-by-id mock-id database)
+        path (logic.yml/gen-path user_id mock-id)
         env (get-in config [:config :env])
         host-key (if (= env :dev) :local-host :host)
         host (logic.yml/gen-host wildcard subdomain)
