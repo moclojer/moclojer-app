@@ -1,5 +1,7 @@
 (ns back.integration.yaml-generator.integration-flow-test
-  (:require [back.api.routes :as routes]
+  (:require [back.api.db.customers :as db.customers]
+            [back.api.db.mocks :as db.mocks]
+            [back.api.routes :as routes]
             [back.integration.components.utils :as utils]
             [clojure.java.io :as io]
             [com.stuartsierra.component :as component]
@@ -9,6 +11,7 @@
             [components.redis-publisher :as redis-publisher]
             [components.redis-queue :as redis-queue]
             [components.router :as router]
+            [components.sentry :as sentry]
             [components.storage :as storage]
             [state-flow.api :refer [defflow]]
             [state-flow.assertions.matcher-combinators :refer [match?]]
@@ -81,15 +84,16 @@
     :router (router/new-router routes/routes)
     :database (component/using (database/new-database)
                                [:config])
+    :sentry (component/using (sentry/new-mock-sentry) [:config])
     ;; this test should have redis up to run!
     ;; docker-compose -f docker/docker-compose.yml redis up 
     :publisher (component/using (redis-publisher/new-redis-publisher)
-                                [:config])
+                                [:config :sentry])
     ;; docker-compose -f docker/docker-compose.yml localstack up 
     :storage (component/using (storage/new-storage)
                               [:config])
     :workers (component/using
-              (redis-queue/new-redis-queue p.workers/workers) [:config :database :storage :publisher]))))
+              (redis-queue/new-redis-queue p.workers/workers) [:config :database :storage :publisher :sentry]))))
 
 (def yml "
 - endpoint:
@@ -128,32 +132,47 @@
    :cleanup utils/stop-system!
    :fail-fast? true}
 
-  (flow "create a bucket and consuming message"
+  (flow ""
+    [database (state-flow.api/get-state :database)]
 
-    [create (create-bucket-on-localstack "moclojer")
-     _ (publish-message {:event
-                         {:user-id #uuid "cd989358-af38-4a2f-a1a1-88096aa425a7",
-                          :id mock-id
-                          :wildcard "test",
-                          :subdomain "chico",
-                          :enabled true,
-                          :content yml}} :mock.changed)]
-    (match? create {:Location "/moclojer"})
+    (state/invoke
+     #(db.customers/insert! {:customer/uuid #uuid "cd989358-af38-4a2f-a1a1-88096aa425a7"
+                             :customer/email "test@gmail.com"
+                             :customer/username "chico"
+                             :customer/external-uuid #uuid "dcff4c06-1c9e-4abb-a49b-438e1869ec5b"}
+                            database))
+
+    (state/invoke #(db.mocks/insert!
+                    {:mock/subdomain "chico"
+                     :mock/id mock-id
+                     :mock/content yml
+                     :mock/wildcard "test"
+                     :mock/user_id #uuid "cd989358-af38-4a2f-a1a1-88096aa425a7"
+                     :mock/enabled true
+                     :mock/publication "offline"}
+                    database))
+
+    (flow "create a bucket and consuming message"
+
+      [create (create-bucket-on-localstack "moclojer")
+       _ (publish-message {:event
+                           {:mock-id mock-id}} :mock.changed)]
+      (match? create {:Location "/moclojer"})
 
     ;;
-    (flow "sleeping and check get the file inside the bucket"
+      (flow "sleeping and check get the file inside the bucket"
 
-      (state/invoke (fn [] (Thread/sleep 15000)))
-      [file-result (get-file-on-localstack "moclojer" (str "cd989358-af38-4a2f-a1a1-88096aa425a7/" mock-id "/mock.yml"))]
+        (state/invoke (fn [] (Thread/sleep 15000)))
+        [file-result (get-file-on-localstack "moclojer" (str "cd989358-af38-4a2f-a1a1-88096aa425a7/" mock-id "/mock.yml"))]
 
       ; #TODO for now we are parsing to check the content
-      (match? (yaml/parse-string
-               expected-yml-with-host)
-              (yaml/parse-string
-               file-result))
-      (flow "cleaning up localstack"
-        [r (cleaning-up-localstack-all-files "moclojer")]
-        (match? (list {} {}) r)
-        (flow "delete bucket"
-          [r (delete-bucket-on-localstack "moclojer")]
-          (match? {} r))))))
+        (match? (yaml/parse-string
+                 expected-yml-with-host)
+                (yaml/parse-string
+                 file-result))
+        (flow "cleaning up localstack"
+          [r (cleaning-up-localstack-all-files "moclojer")]
+          (match? (list {} {}) r)
+          (flow "delete bucket"
+            [r (delete-bucket-on-localstack "moclojer")]
+            (match? {} r)))))))
