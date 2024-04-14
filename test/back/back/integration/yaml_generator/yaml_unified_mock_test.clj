@@ -16,7 +16,8 @@
             [state-flow.cljtest]
             [state-flow.core :refer [flow]]
             [state-flow.state :as state]
-            [yaml-generator.ports.workers :as p.workers]))
+            [yaml-generator.ports.workers :as p.workers]
+            [back.api.db.mocks :as db.mocks]))
 
 (defn publish-message [msg queue-name]
   (flow "publish a message"
@@ -133,6 +134,7 @@
     (match? create {:Location "/moclojer"})
 
     (flow "setup mock on bucket for path"
+
       [_ (setup-file-on-localstack "moclojer"
                                    (str "cd989358-af38-4a2f-a1a1-88096aa425a7/" mock-id "/mock.yml")
                                    yml)

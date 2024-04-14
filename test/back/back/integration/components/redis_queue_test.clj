@@ -6,6 +6,7 @@
             [components.database :as database]
             [components.redis-publisher :as redis-publisher]
             [components.redis-queue :as redis-queue]
+            [components.sentry :as sentry]
             [components.storage :as storage]
             [state-flow.api :refer [defflow]]
             [state-flow.assertions.matcher-combinators :refer [match?]]
@@ -18,7 +19,6 @@
   [message _]
   (is (= message {:event "test"}))
   (swap! state (fn [_] message)))
-
 
 (def workers [{:handler fake-worker
                :queue-name :test}])
@@ -39,8 +39,9 @@
    (component/system-map
     :config (config/new-config)
     :database (component/using (database/new-database) [:config])
+    :sentry (component/using (sentry/new-mock-sentry) [:config])
     :publisher (component/using
-                (redis-publisher/new-redis-publisher) [:config])
+                (redis-publisher/new-redis-publisher) [:config :sentry])
     :storage (component/using (storage/new-storage) [:config])
     :workers (component/using
               (redis-queue/new-redis-queue workers) [:config :database :storage :publisher]))))
