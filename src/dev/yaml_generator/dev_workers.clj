@@ -28,7 +28,7 @@
 
 ;; start system
 (defn start-system-dev! [system-map]
-  (logs/setup [["*" :info]] :auto)
+  (logs/setup [["*" :info]] :auto :dev)
   (pg-emb/init-pg)
   (migrations/migrate (migrations/configuration-with-db))
   (->> system-map

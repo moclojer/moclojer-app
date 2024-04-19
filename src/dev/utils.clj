@@ -9,7 +9,7 @@
   ([sys-atom sys-map]
    (start-system-dev! sys-atom sys-map true))
   ([sys-atom sys-map init-pg?]
-   (logs/setup [["*" :info]] :auto)
+   (logs/setup [["*" :info]] :auto :dev)
    (when init-pg?
      (pg-emb/init-pg)
      (migrations/migrate (migrations/configuration-with-db)))
