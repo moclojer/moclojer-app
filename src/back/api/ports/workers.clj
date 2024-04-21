@@ -9,4 +9,4 @@
 
 (def workers
   [{:handler update-mock-publication-status!
-    :queue-name :mock.publication}])
+    :queue-name "mock.publication"}])

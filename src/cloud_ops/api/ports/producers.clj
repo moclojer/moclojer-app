@@ -6,7 +6,7 @@
 (defn verify-domain!
   [domain attempt publisher]
   (try
-    (redis-publisher/publish! publisher :domain.verify
+    (redis-publisher/publish! publisher "domain.verify"
                               {:event {:domain domain
                                        :attempt attempt}})
     (catch Exception e
@@ -15,7 +15,7 @@
 (defn set-publication-status!
   [domain new-status publisher]
   (try
-    (redis-publisher/publish! publisher :mock.publication
+    (redis-publisher/publish! publisher "mock.publication"
                               {:event {:domain domain
                                        :new-status new-status}})
     domain
