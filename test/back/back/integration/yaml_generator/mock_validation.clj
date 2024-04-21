@@ -70,8 +70,8 @@
        #(workers/generate-yml-handler {:event {:mock-id mock-id}}
                                       components))
       (match?
-       (matchers/embeds (-> @redis-publisher/mock-publisher
-                            :mock.publication first))
+       (matchers/embeds (-> (get @redis-publisher/mock-publisher
+                                 "mock.publication") first))
        {:event {:domain "test-chico"
                 :new-status "offline-invalid"}}))))
 
@@ -119,8 +119,8 @@
        #(workers/generate-yml-handler {:event {:mock-id mock-id}}
                                       components))
       (match?
-       (matchers/embeds (-> @redis-publisher/mock-publisher
-                            :mock.unified first))
+       (matchers/embeds (-> (get @redis-publisher/mock-publisher
+                                 "mock.unified") first))
        {:event {:path (str "cd989358-af38-4a2f-a1a1-88096aa425a7/" mock-id "/mock.yml")
                 :domain "test-chico"
                 :create-domain? true
