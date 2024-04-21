@@ -139,7 +139,7 @@
                                    (str "cd989358-af38-4a2f-a1a1-88096aa425a7/" mock-id "/mock.yml")
                                    yml)
        _ (publish-message {:event
-                           {:path (str "cd989358-af38-4a2f-a1a1-88096aa425a7/" mock-id "/mock.yml")}} :mock-unified)]
+                           {:path (str "cd989358-af38-4a2f-a1a1-88096aa425a7/" mock-id "/mock.yml")}} "mock-unified")]
       (flow "sleeping and check get the file inside the bucket unified"
 
         (state/invoke (fn [] (Thread/sleep 10000)))

@@ -156,7 +156,7 @@
 
       [create (create-bucket-on-localstack "moclojer")
        _ (publish-message {:event
-                           {:mock-id mock-id}} :mock.changed)]
+                           {:mock-id mock-id}} "mock.changed")]
       (match? create {:Location "/moclojer"})
 
     ;;
