@@ -77,7 +77,7 @@
                     (select-keys [:id :user-id]))]
     (do
       (db.mocks/delete-mock-by-id (:id mock) database)
-      (ports.producers/publish-mock-event mock :mock.deleted publisher)
+      (ports.producers/publish-mock-event mock "mock.deleted" publisher)
       (constantly true))
     false))
 
