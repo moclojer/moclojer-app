@@ -1,9 +1,8 @@
 (ns dev.utils
-  (:require
-   [com.stuartsierra.component :as component]
-   [components.logs :as logs]
-   [components.migrations :as migrations]
-   [pg-embedded-clj.core :as pg-emb]))
+  (:require [com.stuartsierra.component :as component]
+            [components.logs :as logs]
+            [components.migrations :as migrations]
+            [pg-embedded-clj.core :as pg-emb]))
 
 (defn start-system-dev!
   ([sys-atom sys-map]
