@@ -27,10 +27,7 @@
           :dsn {:api       #or [#env SENTRY_API_TOKEN "foobar"]
                 :yaml-gen  #or [#env SENTRY_YAML_GEN_TOKEN "foobar"]
                 :cloud-ops #or [#env SENTRY_CLOUD_OPS_TOKEN "foobar"]}
-          :traces-sample-rate 1.0
-          :env #profile {:dev "dev"
-                         :prod "prod"
-                         :default "dev"}}
+          :traces-sample-rate 1.0}
  :cloud-providers
  {:digital-ocean {:base-url "https://api.digitalocean.com/v2"
                   :token #or [#env DO_TOKEN "dop_v1_14942e4b3d28fb3e2be4e814b210428329045a9da14736c55cfca6952742b799"]
