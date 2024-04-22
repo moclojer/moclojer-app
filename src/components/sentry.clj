@@ -58,7 +58,7 @@
   (set-as-default-exception-handler [this] this))
 
 (defn new-mock-sentry []
-  (->MockSentry {} {}))
+  (->MockSentry {}))
 
 (defn new-sentry [proj-name]
   (->Sentry {} proj-name))
