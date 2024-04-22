@@ -26,7 +26,7 @@
              [:config :database :storage :publisher :sentry])))
 
 (defn start-system! [system-map]
-  (logs/setup [["*" :info]] :auto)
+  (logs/setup [["*" :info]] :auto :prod)
   (->> system-map
        component/start
        (reset! system-atom)))

@@ -35,23 +35,23 @@
 
 (defn fcreate-domain []
   (flow
-   "should create a domain"
-   [:let [domain "teste-3-j0suetm"]
-    components (state-flow.api/get-state)]
-   (state/invoke
-    #(workers/create-domain-handler {:event {:domain domain}}
-                                    components))
-   (match?
-    (matchers/embeds (-> @redis-publisher/mock-publisher
-                         :domain.verify first))
-    {:event {:domain domain
-             :attempt 1}})
+    "should create a domain"
+    [:let [domain "teste-3-j0suetm"]
+     components (state-flow.api/get-state)]
+    (state/invoke
+     #(workers/create-domain-handler {:event {:domain domain}}
+                                     components))
+    (match?
+     (matchers/embeds (-> (get @redis-publisher/mock-publisher
+                               "domain.verify") first))
+     {:event {:domain domain
+              :attempt 1}})
 
-   (match?
-    (matchers/embeds (-> @redis-publisher/mock-publisher
-                         :mock.publication first))
-    {:event {:domain domain
-             :new-status "publishing"}})))
+    (match?
+     (matchers/embeds (-> (get @redis-publisher/mock-publisher
+                               "mock.publication") first))
+     {:event {:domain domain
+              :new-status "publishing"}})))
 
 (defflow
   flow-create-domain

@@ -20,8 +20,8 @@
 
 (def workers
   [{:handler generate-yml-handler
-    :queue-name :mock.changed}
+    :queue-name "mock.changed"}
    {:handler unified-mock-handler
-    :queue-name :mock.unified}
+    :queue-name "mock.unified"}
    {:handler deleted-mock-handler
-    :queue-name :mock.deleted}])
+    :queue-name "mock.deleted"}])

@@ -6,7 +6,7 @@
 (defn mock-unified!
   [path domain create-domain? valid-again? publisher]
   (try
-    (redis-publisher/publish! publisher :mock.unified
+    (redis-publisher/publish! publisher "mock.unified"
                               {:event {:path path
                                        :domain domain
                                        :create-domain? create-domain?
@@ -17,7 +17,7 @@
 (defn restart-mock!
   [publisher]
   (try
-    (redis-publisher/publish! publisher :restart.mocks
+    (redis-publisher/publish! publisher "restart.mocks"
                               {:event {:path "moclojer.yml"}})
     (catch Exception e
       (logs/log :error :publish-mock-restart-error e))))
@@ -25,7 +25,7 @@
 (defn create-domain!
   [domain publisher]
   (try
-    (redis-publisher/publish! publisher :domain.create
+    (redis-publisher/publish! publisher "domain.create"
                               {:event {:domain domain}})
     (catch Exception e
       (logs/log :error :publish-domain-error e))))
@@ -33,7 +33,7 @@
 (defn set-publication-status!
   [domain new-status publisher]
   (try
-    (redis-publisher/publish! publisher :mock.publication
+    (redis-publisher/publish! publisher "mock.publication"
                               {:event {:domain domain
                                        :new-status new-status}})
     domain
