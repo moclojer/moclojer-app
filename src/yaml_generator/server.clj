@@ -15,7 +15,7 @@
 (defn build-system-map []
   (component/system-map
    :config (config/new-config)
-   :sentry (component/using (sentry/new-sentry) [:config])
+   :sentry (component/using (sentry/new-sentry :cloud-ops) [:config])
    :database (component/using (database/new-database) [:config])
    :storage (component/using (storage/new-storage) [:config])
    :publisher (component/using

@@ -20,7 +20,7 @@
   (component/system-map
    :config (config/new-config)
    :http (http/new-http)
-   :sentry (component/using (sentry/new-sentry) [:config])
+   :sentry (component/using (sentry/new-sentry :api) [:config])
    :router (router/new-router routes/routes)
    :database (component/using (database/new-database) [:config])
    :publisher (component/using (redis-publisher/new-redis-publisher)

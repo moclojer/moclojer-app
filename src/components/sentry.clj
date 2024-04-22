@@ -9,13 +9,15 @@
   (send-event! [this event])
   (set-as-default-exception-handler [this]))
 
-(defrecord Sentry [config]
+(defrecord Sentry [config project-name]
   component/Lifecycle
   (start [this]
     (let [sentry-cfg (get-in config [:config :sentry])]
-      (when (:dns sentry-cfg)
-        (println "starting sentry" :env (:env sentry-cfg))
-        (sentry/init! (:dns sentry-cfg) sentry-cfg)
+      (when-let [dsn (get-in sentry-cfg [:dsn project-name])]
+        (println "starting sentry"
+                 :env (:env sentry-cfg)
+                 :project project-name)
+        (sentry/init! dsn (dissoc sentry-cfg :dsn))
         (set-as-default-exception-handler this)))
     this)
   (stop [_])
@@ -56,18 +58,20 @@
   (set-as-default-exception-handler [this] this))
 
 (defn new-mock-sentry []
-  (->MockSentry {}))
+  (->MockSentry {} {}))
 
-(defn new-sentry []
-  (->Sentry {}))
+(defn new-sentry [proj-name]
+  (->Sentry {} proj-name))
 
 (comment
   (def sc
-    (-> {:config {:sentry {:dns "foobar"
+    (-> {:config {:sentry {:dsn {:api "foobar"}
                            :traces-sample-rate 1.0
                            :env "prod"}}}
-        ->Sentry
+        (->Sentry :api)
         component/start))
+
+  sc
 
   (send-event! sc {:message "Oh no!"
                    :throwable (RuntimeException. "Something has happened")})

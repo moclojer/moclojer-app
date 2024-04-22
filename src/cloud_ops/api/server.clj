@@ -8,13 +8,14 @@
             [components.redis-queue :as redis-queue]
             [components.sentry :as sentry])
   (:gen-class))
+
 (def system-atom (atom nil))
 
 (defn build-system-map []
   (component/system-map
    :config (config/new-config)
    :http (http/new-http)
-   :sentry (component/using (sentry/new-sentry) [:config])
+   :sentry (component/using (sentry/new-sentry :cloud-ops) [:config])
    :publisher (component/using
                (redis-publisher/new-redis-publisher)
                [:config :sentry])
