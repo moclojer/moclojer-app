@@ -1,8 +1,9 @@
 (ns components.webserver
-  (:require [com.stuartsierra.component :as component]
-            [io.pedestal.http :as server]
-            [io.pedestal.interceptor.helpers :refer [before]]
+  (:require [clojure.string :as str]
+            [com.stuartsierra.component :as component]
             [components.logs :as logs]
+            [io.pedestal.http :as server]
+            [io.pedestal.interceptor.helpers :refer [before on-request]]
             [reitit.pedestal :as pedestal]))
 
 (defn- add-system [service]
@@ -16,6 +17,19 @@
              [::server/interceptors]
              #(vec (->> % (cons (add-system service))))))
 
+(def req-logger
+  (on-request
+   ::log-request
+   (fn [req]
+     (logs/log
+      :info
+      :method (-> (:request-method req)
+                  name str/upper-case)
+      :uri (:uri req)
+      :query (:query-string req))
+
+     req)))
+
 (defn base-service [port]
   {::server/port port
    ::server/type :jetty
@@ -23,6 +37,7 @@
    ;; dev false to not lock repl/thread
    ::server/join? true
    ;; no pedestal routes
+   ::server/request-logger req-logger
    ::server/routes []
    ;; allow serving the swagger-ui styles & scripts from self
    ::server/secure-headers {:content-security-policy-settings
