@@ -24,6 +24,6 @@
     (logs/log :error :verify-domain :empty-domain)))
 
 (def workers [{:handler create-domain-handler
-               :queue-name :domain.create}
+               :queue-name "domain.create"}
               {:handler verify-domain-handler
-               :queue-name :domain.verify}])
+               :queue-name "domain.verify"}])

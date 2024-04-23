@@ -49,51 +49,51 @@
 
 (defn fcheck-mock-deletion-publisher [{:keys [id user-id]}]
   (flow
-   "should have published a :mock.deleted event"
-   [deleted-evt (state/invoke
-                 #(first (:mock.deleted @redis-publisher/mock-publisher)))]
-   (match?
-    (matchers/embeds deleted-evt)
-    {:event {:id (parse-uuid id)
-             :user-id user-id}})))
+    "should have published a :mock.deleted event"
+    [deleted-evt (state/invoke
+                  #(first (get @redis-publisher/mock-publisher "mock.deleted")))]
+    (match?
+     (matchers/embeds deleted-evt)
+     {:event {:id (parse-uuid id)
+              :user-id user-id}})))
 
 (defn fcheck-mock-deletion-storage [{:keys [id user-id]}]
   (flow
-   "should have deleted mock from storage"
-   [:let [file-path (str user-id "/" id "/mock.yml")]
-    strg (state-flow.api/get-state :storage)
-    mock-file (state/invoke #(storage/get-file strg "moclojer" file-path))]
-   (match? nil mock-file)))
+    "should have deleted mock from storage"
+    [:let [file-path (str user-id "/" id "/mock.yml")]
+     strg (state-flow.api/get-state :storage)
+     mock-file (state/invoke #(storage/get-file strg "moclojer" file-path))]
+    (match? nil mock-file)))
 
 (defn fdelete-mock [id]
   (flow
-   "should delete given mock"
-   [:let [req (merge (:base-req flow-consts)
-                     {:method :delete
-                      :body {:id id}})]
-    resp (helpers/request! req)]
-   (match?
-    (matchers/embeds {:status 200 :body empty?})
-    resp)
-   [:let [mock {:id id
-                :user-id (get-in flow-consts [:user :customer/uuid])}]]
-   (fcheck-mock-deletion-publisher mock)
-   (fcheck-mock-deletion-storage mock)))
+    "should delete given mock"
+    [:let [req (merge (:base-req flow-consts)
+                      {:method :delete
+                       :body {:id id}})]
+     resp (helpers/request! req)]
+    (match?
+     (matchers/embeds {:status 200 :body empty?})
+     resp)
+    [:let [mock {:id id
+                 :user-id (get-in flow-consts [:user :customer/uuid])}]]
+    (fcheck-mock-deletion-publisher mock)
+    (fcheck-mock-deletion-storage mock)))
 
 (defn fcreate-mock []
   (flow
-   "should create a mock"
-   [:let [req (merge (:base-req flow-consts)
-                     {:method :post
-                      :body (:mock flow-consts)})
-          exp-body {:mock (merge (:mock flow-consts)
-                                 {:id string?
-                                  :user-id string?})}]
-    resp (helpers/request! req)]
-   (match?
-    (matchers/embeds {:status 201 :body exp-body})
-    resp)
-   (fdelete-mock (get-in resp [:body :mock :id]))))
+    "should create a mock"
+    [:let [req (merge (:base-req flow-consts)
+                      {:method :post
+                       :body (:mock flow-consts)})
+           exp-body {:mock (merge (:mock flow-consts)
+                                  {:id string?
+                                   :user-id string?})}]
+     resp (helpers/request! req)]
+    (match?
+     (matchers/embeds {:status 201 :body exp-body})
+     resp)
+    (fdelete-mock (get-in resp [:body :mock :id]))))
 
 (defflow
   flow-delete-mock
@@ -101,7 +101,7 @@
    :cleanup utils/stop-system!
    :fail-fast? true}
   (flow
-   "should create and delete mock"
-   [db (state-flow.api/get-state :database)]
-   (state/invoke #(db.customers/insert! (:user flow-consts) db))
-   (fcreate-mock)))
+    "should create and delete mock"
+    [db (state-flow.api/get-state :database)]
+    (state/invoke #(db.customers/insert! (:user flow-consts) db))
+    (fcreate-mock)))

@@ -12,6 +12,6 @@
 
 (defn publish-mock-changed-event [mock-id publisher]
   (try
-    (redis-publisher/publish! publisher :mock.changed {:event {:mock-id mock-id}})
+    (redis-publisher/publish! publisher "mock.changed" {:event {:mock-id mock-id}})
     (catch Exception e
       (logs/log :error :publish-mock-error e))))

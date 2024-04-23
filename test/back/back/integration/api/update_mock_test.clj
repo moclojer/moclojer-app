@@ -115,6 +115,6 @@
            (-> resp-get :body)))
 
         (flow "should have publish a mock calling publisher"
-          (match? (matchers/embeds (first (:mock.changed @redis-publisher/mock-publisher)))
+          (match? (matchers/embeds (first (get @redis-publisher/mock-publisher "mock.changed")))
                   {:event
                    {:mock-id  (-> resp-get :body :mock :id (java.util.UUID/fromString))}}))))))
