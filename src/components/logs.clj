@@ -15,18 +15,38 @@
      handler
      (reify Filter
        (isLoggable [_ record]
-         (let [hideable ["org.eclipse.jetty" "com.zaxxer.hikari"]]
-           (not-any? #(str/starts-with? (.getLoggerName record) %) hideable)))))))
+         (if-let [^String logger-name (.getLoggerName record)]
+           (not-any? #(.contains logger-name %)
+                     ["jetty" "hikari" "pedestal" "migratus"])
+           ;; returning false explicitly so Java interop doesn't
+           ;; bugout for some reason in the future.
+           false))))))
+
+(defn clean-timbre-appenders []
+  (->> (reduce-kv
+        (fn [acc k _]
+          (assoc acc k nil))
+        {} (:appenders timbre/*config*))
+       (assoc nil :appenders)
+       timbre/merge-config!))
 
 (defn setup [level stream env]
-  (when (= env :prod)
-    (clean-dep-logs))
-  (timbre/merge-config! {:min-level level})
-  (if (= env :dev)
+  (clean-timbre-appenders)
+  (let [prod? (= env :prod)
+        ns-filter (when prod?
+                    #{"components.*" "back.api.*"
+                      "yaml-generator.*" "cloud-ops.api.*"})
+        appenders (if prod?
+                    (tas/install)
+                    {:appenders
+                     {:println
+                      (core-appenders/println-appender
+                        {:stream stream})}})]
+    (when prod? (clean-dep-logs))
     (timbre/merge-config!
-     {:appenders
-      {:println (core-appenders/println-appender {:stream stream})}})
-    (tas/install)))
+      (merge appenders
+             {:min-level level
+              :ns-filter ns-filter}))))
 
 (defmacro log [level & args]
   `(timbre/log ~level ~@args))
