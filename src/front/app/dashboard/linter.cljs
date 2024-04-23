@@ -6,12 +6,17 @@
    [refx.alpha :as refx]))
 
 (def MethodSchema
-  [:enum "GET" "POST" "DELETE"])
+  [:enum
+   "HEAD" "GET" "POST" "DELETE"
+   "PUT" "CONNECT" "OPTIONS" "TRACE"
+   "PATCH"])
 
 (def ResponseSchema
   [:and
    [:map
-    [:status int?]
+    [:status {:optional true
+              :default 200}
+     int?]
     [:headers map?]
     [:body string?]]
    [:fn (fn [{:keys [status]}]
@@ -19,14 +24,20 @@
 
 (def WebhookSchema
   [:map
-   [:sleep-time int?]
-   [:if string?]
+   [:sleep-time {:optional true
+                 :default 60}
+    int?]
+   [:if {:optional true
+         :default true}
+    string?]
    [:url string?]
    [:body string?]])
 
 (def EndpointSchema
   [:map
-   [:method MethodSchema]
+   [:method {:optional true
+             :default "GET"}
+    MethodSchema]
    [:path string?]
    [:response ResponseSchema]
    [:webhook {:optional true} WebhookSchema]])
