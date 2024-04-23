@@ -32,7 +32,7 @@
   [:map
    [:method {:optional true
              :default "GET"}
-    MethodSchema]
+    Method]
    [:path string?]
    [:response Response]
    [:webhook {:optional true} Webhook]])
