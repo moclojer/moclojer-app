@@ -24,9 +24,10 @@
     (logs/log :info :queue-name queue-name :message message)
     (logs/log :info :conn (:publish-conn this))
     (try
-      (carmine/wcar (:publish-conn this)
-                    queue-name
-                    (mq/enqueue queue-name message))
+      (let [msg-resp (carmine/wcar (:publish-conn this)
+                                   queue-name
+                                   (mq/enqueue queue-name message))]
+        (logs/log :info :queue-name queue-name :message-resp msg-resp))
       (catch Exception e
         (logs/log :error :publish :e e)
         (sentry/send-event! (:sentry this) e)))))
