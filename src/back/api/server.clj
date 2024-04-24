@@ -32,7 +32,7 @@
              [:config :database :publisher :sentry])))
 
 (defn start-system! [system-map]
-  (logs/setup [["*" :info]] :auto :dev)
+  (logs/setup [["*" :info]] :auto :prod)
   (migrations/migrate (migrations/configuration-with-db))
   (->> system-map
        component/start

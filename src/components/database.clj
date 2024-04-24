@@ -12,7 +12,8 @@
 (defn db-logger
   "Simple logger for debugging purposes."
   [operation query]
-  (logs/log :info :database :operation operation :query query))
+  (logs/log :info (str "executing database operation " operation)
+            :ctx {:query query}))
 
 (defprotocol DatabaseProvider
   (execute [self command]
@@ -22,8 +23,7 @@
   component/Lifecycle
   (start [this]
     (let [{:keys [jdbc-url]} (get-in config [:config :database])]
-      (logs/log :info "started database component"
-                :ctx {:jdbc-url (to-jdbc-uri jdbc-url)})
+      (logs/log :info "starting database")
       (if datasource
         this
         (assoc this :datasource (connection/->pool HikariDataSource {:jdbcUrl (to-jdbc-uri jdbc-url)})))))
