@@ -9,12 +9,14 @@
   (fn [{:keys [message attempt]}]
     (try
       (logs/log :info "received a message"
-                :ctx {:attempt attempt})
+                :ctx {:mid (:mid message)
+                      :attempt attempt})
       (handler message components)
       {:status :success}
       (catch Throwable e
         (logs/log :error "failed to handle message"
-                  :ctx {:ex-message (.getMessage e)})
+                  :ctx {:mid (:mid message)
+                        :ex-message (.getMessage e)})
         (sentry/send-event! sentry e)
         {:status :error
          :throwable e}))))
@@ -50,7 +52,8 @@
                    :pool pool})))
   (stop [this]
     (doseq [worker (:workers this)]
-      (println "Stopping worker" worker)
+      (logs/log :info "stopping worker"
+                :ctx {:queue-name (:queue-name worker)})
       (mq/stop worker))
     (.close (:pool this))
     (merge this {:conn nil
