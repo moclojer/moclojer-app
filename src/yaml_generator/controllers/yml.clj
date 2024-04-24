@@ -66,8 +66,7 @@
            (or new-mock-content "[]\n")))
 
        (logs/log :info "uploaded unified yaml"
-                 :ctx {:path path
-                       :?file ?file})
+                 :ctx {:path path})
 
        (ports.producers/restart-mock! publisher)
        (when create-domain?
