@@ -37,7 +37,7 @@
                                        publisher))
       (do
         (logs/log :warn "invalid mock content"
-                  :ctx {:content :invalid-mock content
+                  :ctx {:content content
                         :explanation (logic.yml/explain-mock-validation content)})
         (ports.producers/set-publication-status! domain
                                                  "offline-invalid"
