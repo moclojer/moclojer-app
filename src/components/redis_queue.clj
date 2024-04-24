@@ -6,16 +6,16 @@
             [taoensso.carmine.message-queue :as mq]))
 
 (defn create-queue-handler-fn [handler components sentry]
-  (fn [{:keys [message attempt]}]
+  (fn [{:keys [mid message attempt]}]
     (try
       (logs/log :info "received a message"
-                :ctx {:mid (:mid message)
+                :ctx {:mid mid
                       :attempt attempt})
       (handler message components)
       {:status :success}
       (catch Throwable e
         (logs/log :error "failed to handle message"
-                  :ctx {:mid (:mid message)
+                  :ctx {:mid mid
                         :ex-message (.getMessage e)})
         (sentry/send-event! sentry e)
         {:status :error
