@@ -8,7 +8,7 @@
   ([sys-atom sys-map]
    (start-system-dev! sys-atom sys-map true))
   ([sys-atom sys-map init-pg?]
-   (logs/setup [["*" :info]] :auto :prod)
+   (logs/setup [["*" :info]] :auto :dev)
    (when init-pg?
      (pg-emb/init-pg)
      (migrations/migrate (migrations/configuration-with-db)))
@@ -17,7 +17,8 @@
         (reset! sys-atom))))
 
 (defn stop-system-dev!
-  ([sys-atom] (stop-system-dev! sys-atom true))
+  ([sys-atom]
+   (stop-system-dev! sys-atom true))
   ([sys-atom halt-pg?]
    (logs/log :info "stopping system")
    (swap!
