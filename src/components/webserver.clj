@@ -22,11 +22,10 @@
    ::log-request
    (fn [req]
      (logs/log
-      :info
-      :method (-> (:request-method req)
-                  name str/upper-case)
-      :uri (:uri req)
-      :query (:query-string req))
+      :info (str (str/upper-case (:request-method req))
+                 " "
+                 (:uri req))
+      :ctx {:query (:query-string req)})
 
      req)))
 
@@ -71,9 +70,8 @@
     (let [{:webserver/keys [port]
            :keys [env]} (:config config)
           init-fn (if (= env :dev) dev-init prod-init)]
-      (logs/log :info "running webserver config - start")
-      (logs/log :info :webserver :start {:env env :port port})
-      (logs/log :info "running webserver config - end")
+      (logs/log :info "starting webserver config"
+                :ctx {:env env :port port})
       (assoc this :webserver
              (-> (base-service port)
                  (init-fn (:router router))
@@ -82,7 +80,7 @@
                  (server/start)))))
 
   (stop [this]
-    (logs/log :info :webserver :stop)
+    (logs/log :info "stopping webserver")
     (server/stop (:webserver this))
     (dissoc this :webserver)
     this))

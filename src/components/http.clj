@@ -1,9 +1,8 @@
 (ns components.http
-  (:require
-   [clj-http.client :as http]
-   [clj-http.util :as http-util]
-   [com.stuartsierra.component :as component]
-   [components.logs :as logs]))
+  (:require [clj-http.client :as http]
+            [clj-http.util :as http-util]
+            [com.stuartsierra.component :as component]
+            [components.logs :as logs]))
 
 (defn request-fn
   "Accepts :req which should be a map containing the following keys:
@@ -35,13 +34,16 @@
   HttpProvider
   (request
     [_self {:keys [method url] :as request-input}]
-    (logs/log :info :http-out-message :method method :url url)
+    (logs/log :info "sending http request"
+              :ctx {:method method
+                    :url url})
     (let [start-time (System/currentTimeMillis)
           {:keys [status] :as response} (request-fn request-input)
           end-time (System/currentTimeMillis)
           total-time (- end-time start-time)]
-      (logs/log :info :http-out-message-response :response-time-millis total-time
-                :status status)
+      (logs/log :info "received http response"
+                :ctx {:response-time-millis total-time
+                      :status status})
       response)))
 
 (defn new-http [] (map->Http {}))
@@ -54,7 +56,8 @@
   HttpProvider
   (request
     [_self {:keys [method url] :as req}]
-    (logs/log :info :http-out-message :method method :url url)
+    (logs/log :info "sending http request"
+              :ctx {:method method :url url})
     (swap! requests merge
            (assoc req :instant (System/currentTimeMillis)))
     (get-in @responses

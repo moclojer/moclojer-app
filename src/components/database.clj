@@ -22,12 +22,13 @@
   component/Lifecycle
   (start [this]
     (let [{:keys [jdbc-url]} (get-in config [:config :database])]
-      (logs/log :info :database :start {:jdbc-url (to-jdbc-uri jdbc-url)})
+      (logs/log :info "started database component"
+                :ctx {:jdbc-url (to-jdbc-uri jdbc-url)})
       (if datasource
         this
         (assoc this :datasource (connection/->pool HikariDataSource {:jdbcUrl (to-jdbc-uri jdbc-url)})))))
   (stop [this]
-    (logs/log :info :database :stop)
+    (logs/log :info "stopping database")
     (if datasource
       (do
         (.close datasource)

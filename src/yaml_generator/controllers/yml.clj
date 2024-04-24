@@ -1,12 +1,11 @@
 (ns yaml-generator.controllers.yml
-  (:require
-   [clojure.java.io :as io]
-   [clojure.string :as str]
-   [components.logs :as logs]
-   [components.storage :as storage]
-   [yaml-generator.logic.yml :as logic.yml]
-   [yaml-generator.ports.producers :as ports.producers]
-   [back.api.db.mocks :as db.mocks]))
+  (:require [clojure.java.io :as io]
+            [clojure.string :as str]
+            [components.logs :as logs]
+            [components.storage :as storage]
+            [yaml-generator.logic.yml :as logic.yml]
+            [yaml-generator.ports.producers :as ports.producers]
+            [back.api.db.mocks :as db.mocks]))
 
 (defn generate [{:keys [mock-id]}
                 {:keys [storage publisher config database]}]
@@ -22,8 +21,12 @@
         ?file (storage/get-file storage "moclojer" path)
         valid? (logic.yml/validate-mock content)]
 
-    (logs/log :info :upload :path path :?file ?file)
+
     (storage/upload! storage "moclojer" path content-with-host)
+    (logs/log :info "uploaded generated yaml"
+              :ctx {:path path
+                    :?file ?file})
+
     (if valid?
       (when enabled
         (ports.producers/mock-unified! path
@@ -33,12 +36,12 @@
                                             valid?)
                                        publisher))
       (do
-        (logs/log :warn :invalid-mock content
-                  :explanation (logic.yml/explain-mock-validation content))
+        (logs/log :warn "invalid mock content"
+                  :ctx {:content :invalid-mock content
+                        :explanation (logic.yml/explain-mock-validation content)})
         (ports.producers/set-publication-status! domain
                                                  "offline-invalid"
-                                                 publisher)))
-    (logs/log :info :upload-success :path path)))
+                                                 publisher)))))
 
 ;; NOTE: do not confuse :local-host tag in moclojer yamls with the localhost
 ;; network! :local-host is just the local version of the host in prod env.
@@ -55,14 +58,16 @@
          env (get-in config [:config :env])
          host-key (if (= env :dev) :local-host :host)]
      (try
-       (if unified-mock
-         (do
-           (logs/log :info :generate-unified :path path :new-mock new-mock-file)
-           (->> (logic.yml/unified-yaml (slurp (io/reader unified-mock))
-                                        new-mock-content append? host-key)
-                (storage/upload! storage "moclojer" "moclojer.yml")))
-         (storage/upload! storage "moclojer" "moclojer.yml"
-                          (or new-mock-content "[]\n")))
+       (storage/upload!
+         storage "moclojer" "moclojer.yml"
+         (if unified-mock
+           (logic.yml/unified-yaml (slurp (io/reader unified-mock))
+                                   new-mock-content append? host-key)
+           (or new-mock-content "[]\n")))
+
+       (logs/log :info "uploaded unified yaml"
+                 :ctx {:path path
+                       :?file ?file})
 
        (ports.producers/restart-mock! publisher)
        (when create-domain?
@@ -73,13 +78,13 @@
                                                   publisher))
 
        (catch Exception e
-         (logs/log :error :generate-unified
-                   (-> e ex-data :cause)
-                   (.getMessage e)))))))
+         (logs/log :error "failed to generate unified yaml"
+                   :ctx {:ex-message (.getMessage e)}))))))
 
 (defn delete [{:keys [id user-id]} components]
   (let [path (logic.yml/gen-path user-id id)
         storage (:storage components)]
-    (logs/log :info :delete :path path)
     (generate-unified-yml {:path path} components false)
-    (storage/delete-file! storage "moclojer" path)))
+    (storage/delete-file! storage "moclojer" path)
+    (logs/log :info "deleted yaml"
+              :ctx {:path path})))

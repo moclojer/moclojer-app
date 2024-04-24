@@ -17,8 +17,8 @@
                                  :url url})]
       (:status resp))
     (catch Exception e
-      (logs/log :error :verify-domain
-                (if last-attempt? e (.getMessage e))))))
+      (logs/log :error "failed to verify domain"
+                :ctx {:ex-message (.getMessage e)}))))
 
 (defn mount-basic-req
   "Creates a list of parameters that can be later used as a basis
@@ -36,10 +36,11 @@
     (let [req-params (assoc req-params :method :get)
           {:keys [body]} (hp/request http req-params)
           decoded (m/decode "application/json" body)]
-      (logs/log :info :create-domain :cloudflare :get-current-records :ok)
+      (logs/log :info "retrieved cloudflare records")
       (:result decoded))
     (catch Exception e
-      (logs/log :error :create-domain :cloudflare :get-current-records e))))
+      (logs/log :error "failed to retrieve cloudflare records"
+                :ctx {:ex-message (.getMessage e)}))))
 
 (defn create-cf-domain!
   "Creates a new CloudFlare DNS record. Returns true when succesful."
@@ -54,11 +55,14 @@
           new-req-params (merge req-params {:method :post
                                             :body enc-body})]
       (hp/request http new-req-params)
-      (logs/log :info :create-domain :cloudflare :ok)
+      (logs/log :info "created cloudflare domain"
+                :ctx {:domain domain})
 
       true)
     (catch Exception e
-      (logs/log :error :create-domain :cloudflare e))))
+      (logs/log :error "failed to create cloudflare domain"
+                :ctx {:domain domain
+                      :ex-message (.getMessage e)}))))
 
 (defn get-current-do-spec
   "Retrieves the current App Specification from the `moclojer-cloud` app in DO.
@@ -70,10 +74,11 @@
           {:keys [body]} (hp/request http new-req-params)
           decoded (m/decode "application/json" body)
           spec (get-in decoded [:app :spec])]
-      (logs/log :info :create-domain :digital-ocean :get-current-spec :ok)
+      (logs/log :info "retrieved digital ocean spec")
       spec)
     (catch Exception e
-      (logs/log :error :create-domain :digital-ocean :get-current-spec e))))
+      (logs/log :error "failed to retrieve digital ocean spec"
+                :ctx {:ex-message (.getMessage e)}))))
 
 (defn update-do-spec!
   "Updates Digital Ocean `spec`, adding the new domain. Returns true when
@@ -88,8 +93,10 @@
           new-req-params (merge req-params {:method :put
                                             :body enc-spec})]
       (hp/request http new-req-params)
-      (logs/log :info :create-domain :digital-ocean :update-spec :ok)
+      (logs/log :info "updated digital ocean spec")
 
       true)
     (catch Exception e
-      (logs/log :error :create-domain :digital-ocean :update-spec e))))
+      (logs/log :error "failed to update digital ocean spec"
+                :ctx {:new-spec new-spec
+                      :ex-message (.getMessage e)}))))

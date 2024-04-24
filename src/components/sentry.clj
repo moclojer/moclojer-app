@@ -30,16 +30,18 @@
     (when this
       (try
         (let [evt-id (sentry/send-event event)]
-          (logs/log :info :sent-event evt-id))
+          (logs/log :info "sent event"
+                    :ctx {:event-id evt-id}))
         (catch Exception e
-          (logs/log :error :sentry :send-event! e)))))
+          (logs/log :error "failed to send event"
+                    :ctx {:ex-message (.getMessage e)})))))
 
   (set-as-default-exception-handler [this]
     (when this
       (Thread/setDefaultUncaughtExceptionHandler
        (reify Thread$UncaughtExceptionHandler
          (uncaughtException [_ _ exception]
-           (logs/log :warn :uncaught-exception)
+           (logs/log :warn "uncaught exception")
            (send-event! this {:throwable exception})))))))
 
 (defrecord MockSentry [config]

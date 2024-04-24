@@ -37,7 +37,7 @@
 
 ;; stop system
 (defn stop-system-dev! []
-  (logs/log :info :system-stop)
+  (logs/log :info "stopping system")
   (swap!
    system-atom
    (fn [s] (when s (component/stop s))))
@@ -80,5 +80,3 @@
   (stop-system-dev!)
   ;
   )
-
-
