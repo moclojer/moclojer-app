@@ -32,14 +32,14 @@
              [:config :database :publisher :sentry])))
 
 (defn start-system! [system-map]
-  (logs/setup [["*" :info]] :auto :prod)
+  (logs/setup [["*" :info]] :auto :dev)
   (migrations/migrate (migrations/configuration-with-db))
   (->> system-map
        component/start
        (reset! system-atom)))
 
 (defn stop-system! []
-  (logs/log :info :system-stop)
+  (logs/log :info "stopping system")
   (swap!
    system-atom
    (fn [s] (when s (component/stop s)))))
