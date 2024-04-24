@@ -5,17 +5,20 @@
 
 (defn generate-yml-handler
   [{:keys [event]} components]
-  (logs/log :info :generate-yml :received event)
+  (logs/log :info "generating yaml"
+            :ctx {:event event})
   (controller.yml/generate event components))
 
 (defn unified-mock-handler
   [{:keys [event]} components]
-  (logs/log :info :unified-handler :received event)
+  (logs/log :info "generating unified yaml"
+            :ctx {:event event})
   (controller.yml/generate-unified-yml event components))
 
 (defn deleted-mock-handler
   [{:keys [event]} components]
-  (logs/log :info :deleted-mock :received event)
+  (logs/log :info "deleting mock"
+            :ctx {:event event})
   (controller.yml/delete event components))
 
 (def workers

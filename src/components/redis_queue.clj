@@ -5,10 +5,25 @@
             [taoensso.carmine :as car]
             [taoensso.carmine.message-queue :as mq]))
 
+(defn create-queue-handler-fn [handler components sentry]
+  (fn [{:keys [message attempt]}]
+    (try
+      (logs/log :info "received a message"
+                :ctx {:attempt attempt})
+      (handler message components)
+      {:status :success}
+      (catch Throwable e
+        (logs/log :error "failed to handle message"
+                  :ctx {:ex-message (.getMessage e)})
+        (sentry/send-event! sentry e)
+        {:status :error
+         :throwable e}))))
+
 (defrecord RedisWorkers [config database storage publisher
                          http workers sentry]
   component/Lifecycle
   (start [this]
+    (logs/log :info "starting redis workers")
     (let [{:keys [uri]} (-> config :config :redis-worker)
           pool (car/connection-pool {:test-on-borrow? true
                                      :test-on-return? true
@@ -21,23 +36,13 @@
                       :config config
                       :http http
                       :sentry sentry}
-          _ (logs/log :info :redis-worker :start-workers)
           ws (doall (for [{:keys [queue-name handler]} workers]
                       (do
-                        (logs/log :info :queue-name queue-name)
-                        (mq/worker conn queue-name
-                                   {:handler (fn [{:keys [message attempt]}]
-                                               (try
-                                                 (logs/log :info :receive-message attempt)
-                                                 (handler message components)
-                                                 {:status :success}
-                                                 (catch Throwable e
-                                                   (logs/log :error :error-message message)
-                                                   (logs/log :error :error-message-error e)
-                                                   (sentry/send-event! sentry e)
-                                                   (println "Error in worker" e)
-                                                   {:status :error
-                                                    :throwable e})))}))))]
+                        (logs/log :info "starting redis queue"
+                                  :ctx {:queue-name queue-name})
+                        (mq/worker
+                          conn queue-name {:handler (create-queue-handler-fn
+                                                      handler components sentry)}))))]
 
       (println "Started redis workers")
       (merge this {:workers ws
@@ -54,4 +59,3 @@
 
 (defn new-redis-queue [workers]
   (->RedisWorkers {} {} {} {} {} workers {}))
-

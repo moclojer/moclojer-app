@@ -32,7 +32,7 @@
        (reset! system-atom)))
 
 (defn stop-system! []
-  (logs/log :info :system-stop)
+  (logs/log :info "stopping system")
   (swap!
    system-atom
    (fn [s] (when s (component/stop s)))))

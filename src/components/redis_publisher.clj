@@ -21,14 +21,17 @@
 
   IPublisher
   (publish! [this queue-name message]
-    (logs/log :info :queue-name queue-name :message message)
-    (logs/log :info :conn (:publish-conn this))
+    (logs/log :info "publishing a message"
+              :ctx {:queue-name queue-name
+                    :message message})
+    ;; (logs/log :info :conn (:publish-conn this))
     (try
       (carmine/wcar (:publish-conn this)
                     queue-name
                     (mq/enqueue queue-name message))
       (catch Exception e
-        (logs/log :error :publish :e e)
+        (logs/log :error "failed to publish message"
+                  :ctx {:ex-message (.getMessage e)})
         (sentry/send-event! (:sentry this) e)))))
 
 (defn new-redis-publisher []

@@ -19,11 +19,13 @@
 (defn send-sentry-evt-from-req! [req ex]
   (if-let [sentry-cmp (get-in req [:components :sentry])]
     (sentry/send-event! sentry-cmp {:throwable ex})
-    (logs/log :error :sentry :send-event :from-request :no-component)))
+    (logs/log :error "failed to send sentry event (nil component)")))
 
 (defn- coercion-error-handler [status]
   (fn [exception request]
-    (logs/log :error exception :coercion-errors (:errors (ex-data exception)))
+    (logs/log :error "failed to coerce req/resp"
+              :ctx {:ex-message (.getMessage exception)
+                    :coercion (:errors (ex-data exception))})
     (send-sentry-evt-from-req! request exception)
     {:status status
      :body (if (= 400 status)
@@ -32,7 +34,8 @@
              "Error checking path or request parameters.")}))
 
 (defn- exception-info-handler [exception request]
-  (logs/log :error exception "Server exception:" :exception exception)
+  (logs/log :error "server exception"
+            :ctx {:ex-message (.getMessage exception)})
   (send-sentry-evt-from-req! request exception)
   {:status 500
    :body   "Internal error."})

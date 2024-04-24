@@ -78,11 +78,18 @@
         :Contents))
 
   (upload! [this bucket-name filename value]
-    (logs/log :info :upload filename value)
+    (logs/log :info "uploading to storage"
+              :ctx {:bucket bucket-name
+                    :filename filename
+                    :value value})
     (upload! this bucket-name filename value "application/yml"))
 
   (upload! [this bucket-name filename value content-type]
-    (logs/log :info :upload filename value)
+    (logs/log :info "uploading to storage"
+              :ctx {:bucket bucket-name
+                    :filename filename
+                    :content-type content-type
+                    :value value})
     (-> (-> this :storage)
         (aws/invoke {:op :PutObject
                      :Content-Type content-type
