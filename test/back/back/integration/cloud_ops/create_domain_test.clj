@@ -42,14 +42,16 @@
      #(workers/create-domain-handler {:event {:domain domain}}
                                      components))
     (match?
-     (matchers/embeds (-> (get @redis-publisher/mock-publisher
-                               "domain.verify") first))
+     (matchers/embeds (-> @redis-publisher/mock-publisher
+                          (get "domain.verify")
+                          first))
      {:event {:domain domain
               :attempt 1}})
 
     (match?
-     (matchers/embeds (-> (get @redis-publisher/mock-publisher
-                               "mock.publication") first))
+     (matchers/embeds (-> @redis-publisher/mock-publisher
+                          (get "mock.publication")
+                          first))
      {:event {:domain domain
               :new-status "publishing"}})))
 
