@@ -1,9 +1,9 @@
 (ns front.app.dashboard.linter
-  (:require
-   ["@codemirror/lint" :as clint]
-   ["js-yaml" :as js-yaml]
-   [malli.core :as m]
-   [refx.alpha :as refx]))
+  (:require ["@codemirror/lint" :as clint]
+            ["js-yaml" :as js-yaml]
+            [clojure.string :as str]
+            [malli.core :as m]
+            [refx.alpha :as refx]))
 
 (def MethodSchema
   [:enum
@@ -53,29 +53,80 @@
        (when in (str " in " in))))
 
 (defn build-diagnostics [errs]
-  (-> (map (fn [{:keys [type value in]}]
-             {:from 0 :to 0
-              :message (format-diagnostic type value in)})
-           errs)
-      vec
-      clj->js))
+  (if-not (empty? errs)
+    (-> (map (fn [{:keys [type value in]}]
+               {:from 0 :to 0
+                :message (format-diagnostic type value in)})
+             errs)
+        vec
+        clj->js)
+
+    #js []))
+
+(defn lint-yaml
+  [doc-ctt]
+  (try
+    (let [ctt (js->clj (.load js-yaml doc-ctt)
+                       :keywordize-keys true)]
+      {:ctt ctt
+       :errs (:errors (m/explain MockSchema ctt))})
+    (catch :default e
+      {:errs [{:type (.-reason e)
+               :value (.-message e)}]})))
+
+(defn lint-json [raw-ctt]
+  {:errs
+   (try
+     (.parse js/JSON raw-ctt) nil
+     (catch :default e
+       [{:value (.-message e)}]))})
+
+(comment
+  (lint-json "{invalid?}")
+  ;;
+  )
+
+(defn lint-resps-body-by-hdr
+  [yml-ctt hdr-key hdr-val]
+  (map
+   (fn [{:keys [endpoint]}]
+     (let [{:keys [headers body]} (:response endpoint)
+           lower-case-hdrs (reduce-kv
+                            (fn [hdrs k v]
+                              (assoc hdrs
+                                     (str/lower-case (name k))
+                                     (str/lower-case (name v))))
+                            {} headers)]
+       (when (= (get lower-case-hdrs hdr-key) hdr-val)
+         (lint-json body))))
+   yml-ctt))
+
+(comment
+  (lint-resps-body-by-hdr
+   [{:endpoint
+     {:response
+      {:headers {"Content-Type" "Application/JSON"}
+       :body "{\"hello\": \"world\"}"}}}]
+   "content-type"
+   "application/json")
+  ;;
+  )
 
 (def yaml-linter
   (clint/linter
    (fn [view]
-     (let [doc (.. view -state -doc)
-           [content valid-yaml?] (try
-                                   [(.load js-yaml (.toString doc)) true]
-                                   (catch :default e
-                                     [{:type (.-reason e)
-                                       :value (.-message e)}
-                                      false]))
-           edn-content (js->clj content :keywordize-keys true)
-           diagnostics (or (some-> (if valid-yaml?
-                                     (:errors (m/explain MockSchema edn-content))
-                                     [content])
-                                   build-diagnostics)
-                           #js [])]
+     (let [doc-ctt (.. view -state -doc toString)
+           yml-lint (lint-yaml doc-ctt)
+           json-lint (-> (:ctt yml-lint)
+                         (lint-resps-body-by-hdr
+                          "content-type" "application/json"))
+           diags (->> (:errs yml-lint)
+                      (conj (:errs json-lint))
+                      flatten
+                      (filter some?)
+                      build-diagnostics)]
+
        (refx/dispatch-sync
-        [:app.dashboard/set-mock-validation (empty? diagnostics)])
-       diagnostics))))
+        [:app.dashboard/set-mock-validation (empty? diags)])
+
+       diags))))
