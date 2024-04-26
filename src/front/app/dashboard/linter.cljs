@@ -75,11 +75,10 @@
                :value (.-message e)}]})))
 
 (defn lint-json [raw-ctt]
-  {:errs
-   (try
-     (.parse js/JSON raw-ctt) nil
-     (catch :default e
-       [{:value (.-message e)}]))})
+  (try
+    (.parse js/JSON raw-ctt) nil
+    (catch :default e
+      [{:value (.-message e)}])))
 
 (comment
   (lint-json "{invalid?}")
@@ -88,8 +87,8 @@
 
 (defn lint-resps-body-by-hdr
   [yml-ctt hdr-key hdr-val]
-  (map
-   (fn [{:keys [endpoint]}]
+  (reduce
+   (fn [lints {:keys [endpoint]}]
      (let [{:keys [headers body]} (:response endpoint)
            lower-case-hdrs (reduce-kv
                             (fn [hdrs k v]
@@ -98,15 +97,15 @@
                                      (str/lower-case (name v))))
                             {} headers)]
        (when (= (get lower-case-hdrs hdr-key) hdr-val)
-         (lint-json body))))
-   yml-ctt))
+         (update-in lints [:errs] conj (lint-json body)))))
+   {} yml-ctt))
 
 (comment
   (lint-resps-body-by-hdr
    [{:endpoint
      {:response
       {:headers {"Content-Type" "Application/JSON"}
-       :body "{\"hello\": \"world\"}"}}}]
+       :body "{invalidhello\": \"world\"}"}}}]
    "content-type"
    "application/json")
   ;;
