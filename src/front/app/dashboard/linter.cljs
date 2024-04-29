@@ -105,7 +105,11 @@
    [{:endpoint
      {:response
       {:headers {"Content-Type" "Application/JSON"}
-       :body "{invalidhello\": \"world\"}"}}}]
+       :body "{invalidhello\": \"world\"}"}}}
+    {:endpoint
+     {:response
+      {:headers {"Content-Type" "Application/JSON"}
+       :body "{\"oi\": {\"a\": {\"b\" 1}, \"c\" {\"d\": 1}}}"}}}]
    "content-type"
    "application/json")
   ;;
