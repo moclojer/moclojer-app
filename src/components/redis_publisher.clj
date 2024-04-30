@@ -16,10 +16,9 @@
   component/Lifecycle
   (start [this]
     (logs/log :info "starting redis publisher")
-    (let [{:keys [host port]} (get-in config [:config :redis])
-          conn (JedisPooled. host port)]
-      (merge this {:conn conn
-                   :components {:sentry sentry}})))
+    (merge this {:conn (JedisPooled.
+                        (get-in config [:config :redis-publisher :uri]))
+                 :components {:sentry sentry}}))
   (stop [this]
     (logs/log :info "stopping redis publisher")
     (update-in this [:conn] #(.close %)))

@@ -38,10 +38,6 @@
           :proxy-user #env PROXY_USER
           :proxy-pass #env PROXY_PASS}
   :max-verification-attempts 6}
- :redis {:host #or [#env REDIS_URL "localhost"]
-         :port #or [#env REDIS_PORT 6379]}
- ;; not removing the old redis config for now. Remove only once
- ;; we get comfortable with the new implementation.
  :redis-worker  {:uri #or [#env REDIS_URL "redis://localhost:6379"]}
  :redis-publisher {:uri #or [#env REDIS_URL "redis://localhost:6379"]}
  :database {:dbtype "postgres"
