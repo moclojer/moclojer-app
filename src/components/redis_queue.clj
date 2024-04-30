@@ -15,8 +15,8 @@
   component/Lifecycle
   (start [this]
     (logs/log :info "starting redis workers")
-    (let [{:keys [host port]} (get-in config [:config :redis])
-          conn (JedisPooled. host port)
+    (let [conn (JedisPooled.
+                (get-in config [:config :redis-worker :uri]))
           comps {:database  database  :storage storage
                  :publisher publisher :config  config
                  :http      http      :sentry  sentry}]
