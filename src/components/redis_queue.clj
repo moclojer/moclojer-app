@@ -1,64 +1,93 @@
 (ns components.redis-queue
-  (:require [com.stuartsierra.component :as component]
+  (:require [clojure.core.async :as async]
+            [clojure.data.json :as json]
+            [com.stuartsierra.component :as component]
             [components.logs :as logs]
-            [components.sentry :as sentry]
-            [taoensso.carmine :as car]
-            [taoensso.carmine.message-queue :as mq]))
+            [components.sentry :as sentry])
+  (:import [redis.clients.jedis JedisPooled JedisPubSub]))
 
-(defn create-queue-handler-fn [handler components sentry]
-  (fn [{:keys [mid message attempt]}]
-    (try
-      (logs/log :info "received a message"
-                :ctx {:mid mid
-                      :attempt attempt})
-      (handler message components)
-      {:status :success}
-      (catch Throwable e
-        (logs/log :error "failed to handle message"
-                  :ctx {:mid mid
-                        :ex-message (.getMessage e)})
-        (sentry/send-event! sentry e)
-        {:status :error
-         :throwable e}))))
+(defprotocol ISubscriber
+  (unarchive-queue! [this qname on-msg-fn])
+  (subscribe-workers [this workers]))
 
 (defrecord RedisWorkers [config database storage publisher
                          http workers sentry]
   component/Lifecycle
   (start [this]
     (logs/log :info "starting redis workers")
-    (let [{:keys [uri]} (-> config :config :redis-worker)
-          pool (car/connection-pool {:test-on-borrow? true
-                                     :test-on-return? true
-                                     :test-while-idle? true})
-          conn {:pool pool
-                :spec {:uri uri}}
-          components {:database database
-                      :storage storage
-                      :publisher publisher
-                      :config config
-                      :http http
-                      :sentry sentry}
-          ws (doall (for [{:keys [queue-name handler]} workers]
-                      (do
-                        (logs/log :info "starting redis queue"
-                                  :ctx {:queue-name queue-name})
-                        (mq/worker
-                          conn queue-name {:handler (create-queue-handler-fn
-                                                      handler components sentry)}))))]
-
-      (println "Started redis workers")
-      (merge this {:workers ws
-                   :conn conn
-                   :pool pool})))
+    (let [{:keys [host port]} (get-in config [:config :redis])
+          conn (JedisPooled. host port)
+          comps {:database  database  :storage storage
+                 :publisher publisher :config  config
+                 :http      http      :sentry  sentry}]
+      (subscribe-workers
+       (merge this {:conn conn
+                    :components comps})
+       workers)))
   (stop [this]
-    (doseq [worker (:workers this)]
-      (logs/log :info "stopping worker"
-                :ctx {:queue-name (:queue-name worker)})
-      (mq/stop worker))
-    (.close (:pool this))
-    (merge this {:conn nil
-                 :pool nil
-                 :workers nil})))
+    (update-in this [:pubsub] #(.unsubscribe %))
+    (update-in this [:conn] #(.close %)))
+
+  ISubscriber
+  (unarchive-queue! [this qname on-msg-fn]
+    (loop [unarchived-cnt 0]
+      (if-let [msg (.rpop (:conn this) (str "pending." qname))]
+        (do
+          (on-msg-fn msg)
+          (recur (inc unarchived-cnt)))
+        (logs/log :info "unarchived queue"
+                  :ctx {:qname qname
+                        :count unarchived-cnt}))))
+  (subscribe-workers [this workers]
+    (let [workers-by-qname (reduce
+                            (fn [acc {:keys [queue-name handler]}]
+                              (assoc acc queue-name handler))
+                            {} workers)
+          qnames (vec (map :queue-name workers))
+          pubsub (proxy [JedisPubSub] []
+                   (onMessage [qname json-msg]
+                     (logs/log :info "received a message"
+                               :ctx {:qname qname})
+                     (if-let [whandler (get workers-by-qname qname)]
+                       (try
+                         (whandler
+                          (json/read-str json-msg
+                                         :key-fn keyword)
+                          (:components this))
+                         (catch Throwable e
+                           (logs/log :error "failed to handle message"
+                                     :ctx {:ex-message (.getMessage e)})
+                           (sentry/send-event! (get-in this [:components :sentry])
+                                               {:message "failed to handle message"
+                                                :throwable e})))
+                       (logs/log :warn "no work handler for queue"
+                                 :ctx {:qname qname}))))]
+
+      (doseq [qname qnames]
+        (unarchive-queue! this qname #(.onMessage pubsub qname %)))
+
+      (logs/log :info "subscribing workers"
+                :ctx {:workers qnames})
+
+      (async/thread
+        (.subscribe (:conn this) pubsub (into-array qnames)))
+
+      (assoc this :pubsub pubsub))))
 
 (defn new-redis-queue [workers]
   (->RedisWorkers {} {} {} {} {} workers {}))
+
+(comment
+  (def rw
+    (component/start
+     (->RedisWorkers {:config {:redis {:host "localhost"
+                                       :port 6379}}}
+                     nil nil nil nil
+                     [{:handler (fn [ev _cmp] (prn :ev ev))
+                       :queue-name "test.test"}]
+                     nil)))
+
+  (component/stop rw)
+
+  ;;
+  )
