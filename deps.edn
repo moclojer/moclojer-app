@@ -37,8 +37,7 @@
         org.postgresql/postgresql {:mvn/version "42.6.0"}
         org.slf4j/slf4j-simple {:mvn/version "2.0.2"}
         selmer/selmer {:mvn/version "1.12.55"}
-        com.taoensso/carmine {:mvn/version "3.3.0"
-                              :exclusions [com.taoensso/timbre]}
+        redis.clients/jedis {:mvn/version "5.1.2"}
         io.forward/yaml               {:mvn/version "1.0.11"}
         io.github.cljazz/supabase {:git/sha "a850ed47eb0daa8303f206ea60bd4b3bf59e1e0a"
                                    :git/url "https://github.com/cljazz/supabase-clj"}

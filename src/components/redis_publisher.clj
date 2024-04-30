@@ -1,48 +1,63 @@
 (ns components.redis-publisher
-  (:require [com.stuartsierra.component :as component]
-            [components.logs :as logs]
-            [components.sentry :as sentry]
-            [taoensso.carmine :as carmine]
-            [taoensso.carmine.message-queue :as mq]))
+  (:require [clojure.data.json :as json]
+            [com.stuartsierra.component :as component]
+            [components.logs :as logs])
+  (:import [redis.clients.jedis JedisPooled]))
 
 (defprotocol IPublisher
-  (publish! [this queue-name message]))
+  (publish! [this queue-name message])
+  (archive! [this queue-name message]
+    "When a message is sent, but not received/read by
+     any subscribers, we archive it in a separate queue
+     and make sure to pop it when the subscriber is back
+     on track. The created queue will be named pending.<queue-name>."))
 
 (defrecord RedisPublisher [config sentry]
   component/Lifecycle
   (start [this]
-    (let [{:keys [uri]} (-> config :config :redis-worker)
-          conn {:spec {:uri uri}}]
-      (merge this {:publish-conn conn
-                   :sentry sentry})))
+    (logs/log :info "starting redis publisher")
+    (let [{:keys [host port]} (get-in config [:config :redis])
+          conn (JedisPooled. host port)]
+      (merge this {:conn conn
+                   :components {:sentry sentry}})))
   (stop [this]
-    (merge this {:publish-conn nil
-                 :sentry nil}))
+    (logs/log :info "stopping redis publisher")
+    (update-in this [:conn] #(.close %)))
 
   IPublisher
   (publish! [this queue-name message]
-    (logs/log :info "publishing a message"
-              :ctx {:queue-name queue-name
-                    :message message})
-    ;; (logs/log :info :conn (:publish-conn this))
-    (try
-      (let [msg-resp (carmine/wcar (:publish-conn this)
-                                   queue-name
-                                   (mq/enqueue queue-name message))]
-        (logs/log :info :queue-name queue-name :message-resp msg-resp))
-      (catch Exception e
-        (logs/log :error "failed to publish message"
-                  :ctx {:ex-message (.getMessage e)})
-        (sentry/send-event! (:sentry this) e)))))
+    (let [subs-read (.publish (:conn this) queue-name (json/write-str message))]
+      (when (= subs-read 0)
+        (logs/log :warn "no subscribers read message, archiving..."
+                  :ctx {:qname queue-name
+                        :message message})
+        (archive! this queue-name message))))
+  (archive! [this queue-name message]
+    (.lpush (:conn this) (str "pending." queue-name)
+            (into-array [(json/write-str message)]))))
 
 (defn new-redis-publisher []
   (->RedisPublisher {} {}))
+
+(comment
+  (def rp
+    (component/start
+     (->RedisPublisher {:config {:redis {:host "localhost"
+                                         :port 6379}}}
+                       nil)))
+
+  (publish! rp "test.test" {:hello true})
+  (.rpop (:conn rp) "pending.test.test")
+
+  (component/stop rp)
+
+  ;;
+  )
 
 ;; mock in memory publisher for testing 
 (def mock-publisher (atom {}))
 
 (defrecord MockRedisPublisher [config]
-
   component/Lifecycle
   (start [this]
     (assoc this :publish-conn nil))
@@ -59,15 +74,3 @@
 
 (defn mock-redis-publisher []
   (->MockRedisPublisher {}))
-
-(comment
-  ;;invoke stop system
-  (carmine/wcar {:spec {:host "localhost"
-                        :port 6379}}
-                :domain.create
-                (mq/enqueue
-                 :mock.publication
-                 {:event {:domain "test-j0suetm"
-                          :new-status "offline"}}))
-  ;;
-  )
