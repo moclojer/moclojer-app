@@ -57,9 +57,11 @@
                          (catch Throwable e
                            (logs/log :error "failed to handle message"
                                      :ctx {:ex-message (.getMessage e)})
-                           (sentry/send-event! (get-in this [:components :sentry])
-                                               {:message "failed to handle message"
-                                                :throwable e})))
+                           (some-> (get-in this [:components :sentry])
+                                   (sentry/send-event!
+                                    {:status "error"
+                                     :message "failed to handle message"
+                                     :throwable e}))))
                        (logs/log :warn "no work handler for queue"
                                  :ctx {:qname qname}))))]
 

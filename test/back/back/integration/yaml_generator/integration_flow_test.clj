@@ -84,16 +84,17 @@
     :router (router/new-router routes/routes)
     :database (component/using (database/new-database)
                                [:config])
-    :sentry (component/using (sentry/new-mock-sentry) [:config])
+    :sentry (sentry/new-mock-sentry)
     ;; this test should have redis up to run!
     ;; docker-compose -f docker/docker-compose.yml redis up 
     :publisher (component/using (redis-publisher/new-redis-publisher)
                                 [:config :sentry])
-    ;; docker-compose -f docker/docker-compose.yml localstack up 
+    ;; docker-compose -f docker/docker-compose.yml localstack up
     :storage (component/using (storage/new-storage)
                               [:config])
     :workers (component/using
-              (redis-queue/new-redis-queue p.workers/workers) [:config :database :storage :publisher :sentry]))))
+              (redis-queue/new-redis-queue p.workers/workers)
+              [:config :database :storage :publisher :http :sentry]))))
 
 (def yml "
 - endpoint:
@@ -159,13 +160,13 @@
                            {:mock-id mock-id}} "mock.changed")]
       (match? create {:Location "/moclojer"})
 
-    ;;
+      ;;
       (flow "sleeping and check get the file inside the bucket"
 
         (state/invoke (fn [] (Thread/sleep 15000)))
         [file-result (get-file-on-localstack "moclojer" (str "cd989358-af38-4a2f-a1a1-88096aa425a7/" mock-id "/mock.yml"))]
 
-      ; #TODO for now we are parsing to check the content
+        ;; #TODO for now we are parsing to check the content
         (match? (yaml/parse-string
                  expected-yml-with-host)
                 (yaml/parse-string

@@ -20,6 +20,7 @@
 (defn build-system-map []
   (component/system-map
    :config (config/new-config)
+   :sentry (sentry/new-mock-sentry)
    :http (http/new-http)
    :router (router/new-router routes/routes)
    :database (component/using (database/new-database) [:config])
