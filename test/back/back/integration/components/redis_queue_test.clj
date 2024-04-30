@@ -21,7 +21,7 @@
   (swap! state (fn [_] message)))
 
 (def workers [{:handler fake-worker
-               :queue-name :test}])
+               :queue-name "test"}])
 
 (defn publish-message [msg queue-name]
   (flow "publish a message"
@@ -52,7 +52,7 @@
    :fail-fast? true}
   (flow "creates a table and insert a row and retreive"
 
-    [_ (publish-message {:event "test"} :test)]
+    [_ (publish-message {:event "test"} "test")]
 
     (state/invoke (fn [] (Thread/sleep 1000)))
     (flow "sleeping and check the state"
