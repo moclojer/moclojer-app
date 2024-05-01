@@ -1,7 +1,6 @@
 (ns back.integration.yaml-generator.yaml-unified-mock-test
   (:require [back.api.routes :as routes]
             [back.integration.components.utils :as utils]
-            [yaml.core :as yaml]
             [clojure.java.io :as io]
             [com.stuartsierra.component :as component]
             [components.config :as config]
@@ -17,8 +16,7 @@
             [state-flow.core :refer [flow]]
             [state-flow.state :as state]
             [yaml-generator.ports.workers :as p.workers]
-            [back.api.db.mocks :as db.mocks]))
-
+            [yaml.core :as yaml]))
 (defn publish-message [msg queue-name]
   (flow "publish a message"
     [publisher (state-flow.api/get-state :publisher)]
@@ -88,7 +86,8 @@
     :storage (component/using (storage/new-storage)
                               [:config])
     :workers (component/using
-              (redis-queue/new-redis-queue p.workers/workers) [:config :database :storage :publisher]))))
+              (redis-queue/new-redis-queue p.workers/workers true)
+              [:config :database :storage :publisher]))))
 
 (def yml "
 - endpoint:
