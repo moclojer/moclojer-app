@@ -7,11 +7,36 @@
   (:import [redis.clients.jedis JedisPooled JedisPubSub]))
 
 (defprotocol ISubscriber
-  (unarchive-queue! [this qname on-msg-fn])
-  (subscribe-workers [this workers]))
+  (unarchive-queue! [this conn qname on-msg-fn])
+  (subscribe-workers [this conn components workers]))
 
-(defrecord RedisWorkers [config database storage publisher
-                         http workers sentry]
+(defn group-whandlers-by-qname [workers]
+  (reduce
+   (fn [acc {:keys [queue-name handler]}]
+     (assoc acc queue-name handler))
+   {} workers))
+
+(defn create-pubsub [components workers]
+  (let [whandlers-by-qname (group-whandlers-by-qname workers)]
+    (proxy [JedisPubSub] []
+      (onMessage [qname json-msg]
+        (logs/log :info "received a message"
+                  :ctx {:qname qname})
+        (if-let [whandler (get whandlers-by-qname qname)]
+          (try
+            (whandler (json/read-str json-msg :key-fn keyword) components)
+            (catch Throwable e
+              (logs/log :error "failed to handle message"
+                        :ctx {:ex-message (.getMessage e)})
+              (.printStackTrace e)
+              (some-> (:sentry components)
+                      (sentry/send-event! {:status "error"
+                                           :message "failed to handle message"
+                                           :throwable e}))))
+          (logs/log :warn "no work handler for queue"
+                    :ctx {:qname qname}))))))
+
+(defrecord RedisWorkers [config database storage publisher http workers sentry]
   component/Lifecycle
   (start [this]
     (logs/log :info "starting redis workers")
@@ -19,62 +44,39 @@
                 (get-in config [:config :redis-worker :uri]))
           comps {:database  database  :storage storage
                  :publisher publisher :config  config
-                 :http      http      :sentry  sentry}]
-      (subscribe-workers
-       (merge this {:conn conn
-                    :components comps})
-       workers)))
+                 :http      http      :sentry  sentry}
+          pubsub (subscribe-workers this conn comps workers)]
+      (merge this {:conn conn
+                   :components comps
+                   :pubsub pubsub})))
   (stop [this]
     (update-in this [:pubsub] #(.unsubscribe %))
     (update-in this [:conn] #(.close %)))
 
   ISubscriber
-  (unarchive-queue! [this qname on-msg-fn]
+  (unarchive-queue! [_ conn qname on-msg-fn]
     (loop [unarchived-cnt 0]
-      (if-let [msg (.rpop (:conn this) (str "pending." qname))]
+      (if-let [msg (.rpop conn (str "pending." qname))]
         (do
           (on-msg-fn msg)
           (recur (inc unarchived-cnt)))
         (logs/log :info "unarchived queue"
                   :ctx {:qname qname
                         :count unarchived-cnt}))))
-  (subscribe-workers [this workers]
-    (let [workers-by-qname (reduce
-                            (fn [acc {:keys [queue-name handler]}]
-                              (assoc acc queue-name handler))
-                            {} workers)
-          qnames (vec (map :queue-name workers))
-          pubsub (proxy [JedisPubSub] []
-                   (onMessage [qname json-msg]
-                     (logs/log :info "received a message"
-                               :ctx {:qname qname})
-                     (if-let [whandler (get workers-by-qname qname)]
-                       (try
-                         (whandler
-                          (json/read-str json-msg
-                                         :key-fn keyword)
-                          (:components this))
-                         (catch Throwable e
-                           (logs/log :error "failed to handle message"
-                                     :ctx {:ex-message (.getMessage e)})
-                           (some-> (get-in this [:components :sentry])
-                                   (sentry/send-event!
-                                    {:status "error"
-                                     :message "failed to handle message"
-                                     :throwable e}))))
-                       (logs/log :warn "no work handler for queue"
-                                 :ctx {:qname qname}))))]
+  (subscribe-workers [this conn components workers]
+    (let [qnames (vec (map :queue-name workers))
+          pubsub (create-pubsub components workers)]
 
       (doseq [qname qnames]
-        (unarchive-queue! this qname #(.onMessage pubsub qname %)))
+        (unarchive-queue! this conn qname #(.onMessage pubsub qname %)))
 
       (logs/log :info "subscribing workers"
                 :ctx {:workers qnames})
 
       (async/thread
-        (.subscribe (:conn this) pubsub (into-array qnames)))
+        (.subscribe conn pubsub (into-array qnames)))
 
-      (assoc this :pubsub pubsub))))
+      pubsub)))
 
 (defn new-redis-queue [workers]
   (->RedisWorkers {} {} {} {} {} workers {}))

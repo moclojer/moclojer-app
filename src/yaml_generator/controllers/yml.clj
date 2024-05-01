@@ -1,17 +1,17 @@
 (ns yaml-generator.controllers.yml
-  (:require [clojure.java.io :as io]
+  (:require [back.api.db.mocks :as db.mocks]
+            [clojure.java.io :as io]
             [clojure.string :as str]
             [components.logs :as logs]
             [components.storage :as storage]
             [yaml-generator.logic.yml :as logic.yml]
-            [yaml-generator.ports.producers :as ports.producers]
-            [back.api.db.mocks :as db.mocks]))
+            [yaml-generator.ports.producers :as ports.producers]))
 
-(defn generate [{:keys [mock-id]}
-                {:keys [storage publisher config database]}]
-  (let [{:mock/keys [user_id wildcard
+(defn generate [{:keys [mock-id]} {:keys [storage publisher config database]}]
+  (let [pmock-id (if (uuid? mock-id) mock-id (parse-uuid mock-id))
+        {:mock/keys [user_id wildcard
                      content subdomain
-                     enabled publication]} (db.mocks/get-mock-by-id mock-id database)
+                     enabled publication]} (db.mocks/get-mock-by-id pmock-id database)
         path (logic.yml/gen-path user_id mock-id)
         env (get-in config [:config :env])
         host-key (if (= env :dev) :local-host :host)
@@ -20,7 +20,6 @@
         content-with-host (logic.yml/add-host host-key host content)
         ?file (storage/get-file storage "moclojer" path)
         valid? (logic.yml/validate-mock content)]
-
 
     (storage/upload! storage "moclojer" path content-with-host)
     (logs/log :info "uploaded generated yaml"
@@ -59,11 +58,11 @@
          host-key (if (= env :dev) :local-host :host)]
      (try
        (storage/upload!
-         storage "moclojer" "moclojer.yml"
-         (if unified-mock
-           (logic.yml/unified-yaml (slurp (io/reader unified-mock))
-                                   new-mock-content append? host-key)
-           (or new-mock-content "[]\n")))
+        storage "moclojer" "moclojer.yml"
+        (if unified-mock
+          (logic.yml/unified-yaml (slurp (io/reader unified-mock))
+                                  new-mock-content append? host-key)
+          (or new-mock-content "[]\n")))
 
        (logs/log :info "uploaded unified yaml"
                  :ctx {:path path})

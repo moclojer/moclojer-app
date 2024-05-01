@@ -1,8 +1,7 @@
 (ns back.api.db.mocks
-  (:require
-   [components.database :as database]
-   [honey.sql :as sql]
-   [honey.sql.helpers :as sql.helpers]))
+  (:require [components.database :as database]
+            [honey.sql :as sql]
+            [honey.sql.helpers :as sql.helpers]))
 
 (defn insert!
   [mock db]

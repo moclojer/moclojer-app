@@ -5,6 +5,7 @@
             [com.stuartsierra.component :as component]
             [components.config :as config]
             [components.logs :as logs]))
+
 (defprotocol IStorage
   (initialize [this bucket-name])
   (get-bucket [this bucket-name])
@@ -166,15 +167,19 @@
        (map #(delete-file! storage "moclojer" %)))
   #_(get-file storage "moclojer" "1/2/test.yml")
 
+  (upload! storage "moclojer" "moclojer.yml" "[]\n")
+
   (slurp (io/reader
           (get-file storage "moclojer" "moclojer.yml")))
 
-  (upload! storage "moclojer" "moclojer.yml" "[]\n")
+  ;; testing upload/retrieval time diff bug
+  (let [filepath (str (random-uuid) ".yml")]
+    (prn :res (upload! storage "moclojer" filepath "[]\n"))
+    (-> (get-file storage "moclojer" filepath)
+        io/reader slurp))
 
   #_(list-buckets storage)
   (create-bucket! storage "moclojer")
   (delete-file! storage "moclojer" "moclojer.yml")
   ;
   )
-
-
