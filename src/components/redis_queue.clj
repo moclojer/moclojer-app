@@ -8,7 +8,7 @@
 
 (defprotocol ISubscriber
   (unarchive-queue! [this conn qname on-msg-fn])
-  (subscribe-workers [this conn components workers]))
+  (subscribe-workers [this conn components workers blocking?]))
 
 (defn group-work-handlers-by-qname [workers]
   (reduce
@@ -45,7 +45,8 @@
           comps {:database  database  :storage storage
                  :publisher publisher :config  config
                  :http      http      :sentry  sentry}
-          pubsub (subscribe-workers this conn comps workers)]
+          pubsub (subscribe-workers this conn comps workers
+                                    (= (get-in config [:config :env]) :prod))]
       (merge this {:conn conn
                    :components comps
                    :pubsub pubsub})))
@@ -63,7 +64,7 @@
         (logs/log :info "unarchived queue"
                   :ctx {:qname qname
                         :count unarchived-cnt}))))
-  (subscribe-workers [this conn components workers]
+  (subscribe-workers [this conn components workers blocking?]
     (let [qnames (vec (map :queue-name workers))
           pubsub (create-pubsub components workers)]
 
@@ -73,8 +74,9 @@
       (logs/log :info "subscribing workers"
                 :ctx {:workers qnames})
 
-      (async/thread
-        (.subscribe conn pubsub (into-array qnames)))
+      (cond-> (.subscribe conn pubsub (into-array qnames))
+        blocking? identity
+        (not blocking?) async/thread)
 
       pubsub)))
 
