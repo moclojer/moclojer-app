@@ -86,7 +86,7 @@
     :storage (component/using (storage/new-storage)
                               [:config])
     :workers (component/using
-              (redis-queue/new-redis-queue p.workers/workers true)
+              (redis-queue/new-redis-queue p.workers/workers false)
               [:config :database :storage :publisher]))))
 
 (def yml "
