@@ -10,21 +10,21 @@
   (unarchive-queue! [this conn qname on-msg-fn])
   (subscribe-workers [this conn components workers]))
 
-(defn group-whandlers-by-qname [workers]
+(defn group-work-handlers-by-qname [workers]
   (reduce
    (fn [acc {:keys [queue-name handler]}]
      (assoc acc queue-name handler))
    {} workers))
 
 (defn create-pubsub [components workers]
-  (let [whandlers-by-qname (group-whandlers-by-qname workers)]
+  (let [work-handlers-by-qname (group-work-handlers-by-qname workers)]
     (proxy [JedisPubSub] []
       (onMessage [qname json-msg]
         (logs/log :info "received a message"
                   :ctx {:qname qname})
-        (if-let [whandler (get whandlers-by-qname qname)]
+        (if-let [work-handler (get work-handlers-by-qname qname)]
           (try
-            (whandler (json/read-str json-msg :key-fn keyword) components)
+            (work-handler (json/read-str json-msg :key-fn keyword) components)
             (catch Throwable e
               (logs/log :error "failed to handle message"
                         :ctx {:ex-message (.getMessage e)})
