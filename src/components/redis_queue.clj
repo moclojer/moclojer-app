@@ -36,7 +36,7 @@
           (logs/log :warn "no work handler for queue"
                     :ctx {:qname qname}))))))
 
-(defrecord RedisWorkers [config database storage publisher http workers sentry]
+(defrecord RedisWorkers [config database storage publisher http workers sentry blocking?]
   component/Lifecycle
   (start [this]
     (logs/log :info "starting redis workers")
@@ -45,8 +45,7 @@
           comps {:database  database  :storage storage
                  :publisher publisher :config  config
                  :http      http      :sentry  sentry}
-          pubsub (subscribe-workers this conn comps workers
-                                    (= (get-in config [:config :env]) :prod))]
+          pubsub (subscribe-workers this conn comps workers blocking?)]
       (merge this {:conn conn
                    :components comps
                    :pubsub pubsub})))
@@ -74,14 +73,15 @@
       (logs/log :info "subscribing workers"
                 :ctx {:workers qnames})
 
-      (cond-> (.subscribe conn pubsub (into-array qnames))
-        blocking? identity
-        (not blocking?) async/thread)
+      ;; looks ugly, I know :D
+      (if blocking?
+        (.subscribe conn pubsub into-array qnames)
+        (async/thread (.subscribe conn pubsub (into-array qnames))))
 
       pubsub)))
 
-(defn new-redis-queue [workers]
-  (->RedisWorkers {} {} {} {} {} workers {}))
+(defn new-redis-queue [workers blocking?]
+  (->RedisWorkers {} {} {} {} {} workers {} blocking?))
 
 (comment
   (def rw
@@ -91,7 +91,7 @@
                      nil nil nil nil
                      [{:handler (fn [ev _cmp] (prn :ev ev))
                        :queue-name "test.test"}]
-                     nil)))
+                     nil false)))
 
   (component/stop rw)
 

@@ -28,7 +28,7 @@
    :webserver (component/using (webserver/new-webserver)
                                [:config :http :router :database :publisher :sentry])
    :workers (component/using
-             (redis-queue/new-redis-queue p.workers/workers)
+             (redis-queue/new-redis-queue p.workers/workers false)
              [:config :database :publisher :sentry])))
 
 (defn start-system! [system-map]
