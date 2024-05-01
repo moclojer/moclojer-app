@@ -24,7 +24,7 @@
  :sentry {:env #profile {:dev "dev"
                          :prod "prod"
                          :default "prod"}
-          :dns #or [#env SENTRY_AUTH_TOKEN "https://18185c09e9af1bee2bc7fac3787ca171@o4506376447131648.ingest.us.sentry.io/4507012902289408"]}
+          :dns #or [#env SENTRY_AUTH_TOKEN "foobar"]}
  :cloud-providers
  {:digital-ocean {:base-url "https://api.digitalocean.com/v2"
                   :token #or [#env DO_TOKEN "dop_v1_14942e4b3d28fb3e2be4e814b210428329045a9da14736c55cfca6952742b799"]
