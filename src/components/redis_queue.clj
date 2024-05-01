@@ -75,7 +75,7 @@
 
       ;; looks ugly, I know :D
       (if blocking?
-        (.subscribe conn pubsub into-array qnames)
+        (.subscribe conn pubsub (into-array qnames))
         (async/thread (.subscribe conn pubsub (into-array qnames))))
 
       pubsub)))
