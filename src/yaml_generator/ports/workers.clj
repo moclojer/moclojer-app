@@ -1,7 +1,6 @@
 (ns yaml-generator.ports.workers
-  (:require
-   [components.logs :as logs]
-   [yaml-generator.controllers.yml :as controller.yml]))
+  (:require [components.logs :as logs]
+            [yaml-generator.controllers.yml :as controller.yml]))
 
 (defn generate-yml-handler
   [{:keys [event]} components]
