@@ -2,7 +2,7 @@
   (:require [clojure.data.json :as json]
             [com.stuartsierra.component :as component]
             [components.logs :as logs])
-  (:import [redis.clients.jedis JedisPooled]))
+  (:import [redis.clients.jedis JedisPoolConfig JedisPooled]))
 
 (defprotocol IPublisher
   (publish! [this queue-name message])
@@ -17,6 +17,8 @@
   (start [this]
     (logs/log :info "starting redis publisher")
     (merge this {:conn (JedisPooled.
+                        (doto (JedisPoolConfig.)
+                          (.setTestOnBorrow true))
                         (get-in config [:config :redis-publisher :uri]))
                  :components {:sentry sentry}}))
   (stop [this]

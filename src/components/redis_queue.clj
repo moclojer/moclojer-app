@@ -4,7 +4,7 @@
             [com.stuartsierra.component :as component]
             [components.logs :as logs]
             [components.sentry :as sentry])
-  (:import [redis.clients.jedis JedisPooled JedisPubSub]))
+  (:import [redis.clients.jedis JedisPoolConfig JedisPooled JedisPubSub]))
 
 (defprotocol ISubscriber
   (unarchive-queue! [this conn qname on-msg-fn])
@@ -41,6 +41,8 @@
   (start [this]
     (logs/log :info "starting redis workers")
     (let [conn (JedisPooled.
+                (doto (JedisPoolConfig.)
+                  (.setTestOnBorrow true))
                 (get-in config [:config :redis-worker :uri]))
           comps {:database  database  :storage storage
                  :publisher publisher :config  config
