@@ -55,7 +55,7 @@
                     :attempt attempt})
 
     (Thread/sleep timeout)
-    (if (= (http-out/ping-domain domain http last-attempt?) 200)
+    (if (= (http-out/ping-domain domain http) 200)
       (do
         (swap! ongoing-verifications #(vec (remove (fn [ov]
                                                      (= ov domain))
