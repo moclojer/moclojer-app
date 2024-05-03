@@ -27,10 +27,10 @@
           :dns #or [#env SENTRY_AUTH_TOKEN "foobar"]}
  :cloud-providers
  {:digital-ocean {:base-url "https://api.digitalocean.com/v2"
-                  :token #or [#env DO_TOKEN "dop_v1_839f6a4d27e7627fc6520d6537cbf7c731bcfa76848a168efa82c5b3421fddbc"]
+                  :token #or [#env DO_TOKEN "foobar"]
                   :app-id "4dd19675-0b62-4b9a-8082-8ee5d9eab99a"}
   :cloudflare {:base-url "https://api.cloudflare.com/client/v4"
-               :token #or [#env CF_TOKEN "qu5hTLG70HcxeryB19QW2yaIgIs7tgUl5vbt-nPW"]
+               :token #or [#env CF_TOKEN "foobar"]
                :zone-id "c6f10cf4dd7ace4b979d60c22066be23"
                :record-content "goldfish-app-zq7eo.ondigitalocean.app"}
   :proxy {:proxy-host #env PROXY_HOST
