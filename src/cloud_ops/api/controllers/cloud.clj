@@ -16,12 +16,10 @@
         do-spec (controllers.do/get-current-spec components)]
     {:cf-records (if-not (logic.cf/domain-exists? cf-records domain)
                    cf-records
-                   (logs/log :error "failed to create cloudflare domain (already exists)"
-                             :ctx {:domain domain}))
+                   :published)
      :do-spec (if-not (logic.do/domain-exists? (:domains do-spec) domain)
                 do-spec
-                (logs/log :error "failed to create digital ocean domain (already exists)"
-                          :ctx {:domain domain}))}))
+                :published)}))
 
 (defn create-domain!
   "Calls domain creation controllers for both CloudFlare and DigitalOcean,

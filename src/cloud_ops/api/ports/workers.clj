@@ -10,11 +10,15 @@
           (controllers.cloud/get-current-data domain components)]
       (if (and cf-records do-spec)
         (some->
-          cur-data
-          (controllers.cloud/create-domain! domain components)
-          (producers/set-publication-status! "publishing" publisher)
-          (producers/verify-domain! 1 publisher))
-        (producers/set-publication-status! domain "published" publisher)))
+         cur-data
+         (controllers.cloud/create-domain! domain components)
+         (producers/set-publication-status! "publishing" publisher)
+         (producers/verify-domain! 1 publisher))
+        (producers/set-publication-status!
+         domain
+         (if (every? #(= % :published) [cf-records do-spec])
+           "published" "offline-invalid")
+         publisher)))
     (logs/log :error "failed to create domain (empty)")))
 
 (defn verify-domain-handler

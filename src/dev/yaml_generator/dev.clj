@@ -21,7 +21,7 @@
    :publisher (component/using
                (redis-publisher/new-redis-publisher) [:config])
    :workers (component/using
-             (redis-queue/new-redis-queue p.workers/workers)
+             (redis-queue/new-redis-queue p.workers/workers false)
              [:config :database :storage :publisher])))
 
 (comment
