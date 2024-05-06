@@ -71,9 +71,6 @@
     (let [qnames (vec (map :queue-name workers))
           pubsub (create-pubsub components workers)]
 
-      (doseq [qname qnames]
-        (unarchive-queue! this conn qname #(.onMessage pubsub qname %)))
-
       (let [safe-sub-fn #(safely-subscribe-workers this conn pubsub qnames 1)]
         (if blocking?
           (safe-sub-fn)
@@ -84,7 +81,11 @@
     (try
       (logs/log :info "subscribing workers"
                 :ctx {:workers qnames})
+
+      (doseq [qname qnames]
+        (unarchive-queue! this conn qname #(.onMessage pubsub qname %)))
       (.subscribe conn pubsub (into-array qnames))
+
       (catch JedisConnectionException e
         (logs/log :warn "subscriber connection got killed. trying again..."
                   :ctx {:ex-message (.getMessage e)
