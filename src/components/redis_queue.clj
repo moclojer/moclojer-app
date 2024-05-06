@@ -4,11 +4,13 @@
             [com.stuartsierra.component :as component]
             [components.logs :as logs]
             [components.sentry :as sentry])
-  (:import [redis.clients.jedis JedisPoolConfig JedisPooled JedisPubSub]))
+  (:import [redis.clients.jedis JedisPoolConfig JedisPooled JedisPubSub]
+           [redis.clients.jedis.exceptions JedisConnectionException]))
 
 (defprotocol ISubscriber
   (unarchive-queue! [this conn qname on-msg-fn])
-  (subscribe-workers [this conn components workers blocking?]))
+  (subscribe-workers [this conn components workers blocking?])
+  (safely-subscribe-workers [this conn pubsub qnames cur-try]))
 
 (defn group-work-handlers-by-qname [workers]
   (reduce
@@ -72,15 +74,23 @@
       (doseq [qname qnames]
         (unarchive-queue! this conn qname #(.onMessage pubsub qname %)))
 
+      (let [safe-sub-fn #(safely-subscribe-workers this conn pubsub qnames 1)]
+        (if blocking?
+          (safe-sub-fn)
+          (async/thread (safe-sub-fn))))
+
+      pubsub))
+  (safely-subscribe-workers [this conn pubsub qnames cur-try]
+    (try
       (logs/log :info "subscribing workers"
                 :ctx {:workers qnames})
-
-      ;; looks ugly, I know :D
-      (if blocking?
-        (.subscribe conn pubsub (into-array qnames))
-        (async/thread (.subscribe conn pubsub (into-array qnames))))
-
-      pubsub)))
+      (.subscribe conn pubsub (into-array qnames))
+      (catch JedisConnectionException e
+        (logs/log :warn "subscriber connection got killed. trying again..."
+                  :ctx {:ex-message (.getMessage e)
+                        :cur-try cur-try})
+        (Thread/sleep 1000)
+        (safely-subscribe-workers this conn pubsub qnames cur-try)))))
 
 (defn new-redis-queue [workers blocking?]
   (->RedisWorkers {} {} {} {} {} workers {} blocking?))
@@ -88,8 +98,7 @@
 (comment
   (def rw
     (component/start
-     (->RedisWorkers {:config {:redis {:host "localhost"
-                                       :port 6379}}}
+     (->RedisWorkers {:config {:redis-worker {:uri "redis://localhost:6379"}}}
                      nil nil nil nil
                      [{:handler (fn [ev _cmp] (prn :ev ev))
                        :queue-name "test.test"}]

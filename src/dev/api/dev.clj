@@ -36,9 +36,6 @@
   ;; init
   (utils/start-system-dev! sys-atom (build-system-map))
 
-  (redis-publisher/publish! (:publisher @sys-atom) "mock.changed"
-                            {:event {:mock-id (random-uuid)}})
-
   ;; iterate
   (utils/stop-system-dev! sys-atom false)
   ;; re-eval file then
