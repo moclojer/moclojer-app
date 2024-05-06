@@ -4,16 +4,16 @@
             [muuntaja.core :as m]))
 
 (defn ping-domain
-  "Pings `domain` to see if its deployed.
-
-   `last-attempt?` is so we can print the complete error
-   only in the final attempt, so the screen doesn't fill up
-   with error messages of the first 2 attempts."
+  "Pings `domain` to see if its deployed."
   [domain http]
-  (let [url (str "https://" domain ".moclojer.com")
-        resp (hp/request http {:method :get
-                               :url url})]
-    (:status resp)))
+  (try
+    (let [url (str "https://" domain ".moclojer.com")
+          resp (hp/request http {:method :get
+                                 :url url})]
+      (:status resp))
+    (catch Exception e
+      (logs/log :warn "verifying domain"
+                :ctx {:ex-message (.getMessage e)}))))
 
 (defn mount-basic-req
   "Creates a list of parameters that can be later used as a basis
