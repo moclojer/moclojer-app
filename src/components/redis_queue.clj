@@ -90,7 +90,7 @@
                   :ctx {:ex-message (.getMessage e)
                         :cur-try cur-try})
         (Thread/sleep 1000)
-        (safely-subscribe-workers this conn pubsub qnames cur-try)))))
+        (safely-subscribe-workers this conn pubsub qnames (inc cur-try))))))
 
 (defn new-redis-queue [workers blocking?]
   (->RedisWorkers {} {} {} {} {} workers {} blocking?))
