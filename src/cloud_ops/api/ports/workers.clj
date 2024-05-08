@@ -4,31 +4,31 @@
             [components.logs :as logs]))
 
 (defn create-domain-handler
-  [{:keys [event]} {:keys [publisher] :as components}]
-  (if-let [domain (:domain event)]
-    (let [{:keys [cf-records do-spec] :as cur-data}
-          (controllers.cloud/get-current-data domain components)]
-      (if (and cf-records do-spec)
-        (some->
-         cur-data
-         (controllers.cloud/create-domain! domain components)
-         (producers/set-publication-status! "publishing" publisher)
-         (producers/verify-domain! 1 publisher))
-        (producers/set-publication-status!
-         domain
-         (if (every? #(= % :published) [cf-records do-spec])
-           "published" "offline-invalid")
-         publisher)))
-    (logs/log :error "failed to create domain (empty)")))
+  [{:keys [event]} components]
+  (if (some? (:domain event))
+    (controllers.cloud/create-domain! event components)
+    (logs/log :warn "cannot create empty domain")))
 
 (defn verify-domain-handler
   [{:keys [event]} components]
   (if (:domain event)
     (controllers.cloud/verify-domain event components)
-    (logs/log :error "failed to verify domain (empty)")))
+    (logs/log :warn "cannot verify empty domain")))
+
+(defn verify-health
+  [{{:keys [scope constraints]} :event} components]
+  (case scope
+    :all  (logs/log :error "all scope verification not implemented yet")
+    :user (logs/log :error "user scope verification not implemented yet"
+                    :ctx {:constraints constraints})
+    :domain (producers/verify-domain!
+             (assoc constraints :attempt 1)
+             (:publisher components))))
 
 (def workers
   [{:handler create-domain-handler
     :queue-name "domain.create"}
    {:handler verify-domain-handler
-    :queue-name "domain.verify"}])
+    :queue-name "domain.verify"}
+   {:handler verify-health
+    :queue-name "health.verify"}])
