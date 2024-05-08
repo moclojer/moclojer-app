@@ -19,7 +19,7 @@
                (redis-publisher/new-redis-publisher)
                [:config :sentry])
    :workers (component/using
-             (redis-queue/new-redis-queue p.workers/workers true)
+             (redis-queue/new-redis-queue p.workers/workers trueo)
              [:config :http :publisher :sentry])))
 
 (defn start-system! [system-map]

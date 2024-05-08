@@ -1,6 +1,11 @@
 (ns cloud-ops.api.ports.producers
-  (:require [components.logs :as logs]
-            [components.redis-publisher :as redis-publisher]))
+  (:require [components.redis-publisher :as redis-publisher]))
+
+(defn create-domain!
+  [domain retrying? publisher]
+  (redis-publisher/publish! publisher "domain.create"
+                            {:event {:domain domain
+                                     :retrying? retrying?}}))
 
 (defn verify-domain!
   [domain attempt publisher]
@@ -12,6 +17,9 @@
   [domain new-status publisher]
   (redis-publisher/publish! publisher "mock.publication"
                             {:event {:domain domain
-                                     :new-status new-status}})
+                                     :new-status new-status}}))
 
-  domain)
+(defn verify-health!
+  [scope constraints publisher]
+  (redis-publisher/publish! publisher "health.verify"
+                            {:event (merge constraints {:scope scope})}))
