@@ -58,16 +58,18 @@
   (request
     [this req]
 
-    (let [req (select-keys req [:method :url])]
+    (let [mreq (select-keys req [:method :url])
+          resp (-> #(= mreq (select-keys % (keys mreq)))
+                   (filter (:responses this))
+                   first :response
+                   (or {:status 500
+                        :body "mocked response not set"}))]
       (logs/log :info "sending http request"
-                :ctx req)
+                :ctx mreq)
 
-      (-> #(= req (select-keys % (keys req)))
-          (filter (:responses this))
-          first :response
-          (or {:status 500
-               :body "mocked response not set"})
-          (assoc :instant (System/currentTimeMillis))))))
+      (assoc
+       (if (fn? resp) (resp req) resp)
+       :instant (System/currentTimeMillis)))))
 
 (defn new-http-mock
   [responses]
@@ -75,15 +77,24 @@
 
 (comment
   (def m (component/start
-          (new-http-mock [{:id :get-test-ok
-                           :url "https://test.com"
+          (new-http-mock [{:url "https://test.com"
                            :method :get
                            :response
                            {:status 200
-                            :body "hello world"}}])))
+                            :body "hello world"}}
+                          {:url "https://test.com"
+                           :method :put
+                           :response (fn [req]
+                                       {:status 200
+                                        :body (:body req)})}])))
 
   (request m {:url "https://test.com"})
   ;; => {:status 200
   ;;     :body "hello world"
   ;;     :instant 1715218184868}
+
+  (request m {:url "https://test.com"
+              :method :put
+              :body "hello"})
+  ;;
   )

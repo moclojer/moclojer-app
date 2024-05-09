@@ -15,6 +15,7 @@
     (controllers.cloud/verify-domain event components)
     (logs/log :warn "cannot verify empty domain")))
 
+;; TODO: implement remaining scopes, :all and :user
 (defn verify-health-handler
   [{{:keys [scope args]} :event} components]
   (case (keyword scope)

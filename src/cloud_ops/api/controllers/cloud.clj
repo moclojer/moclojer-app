@@ -1,5 +1,6 @@
 (ns cloud-ops.api.controllers.cloud
-  (:require [cloud-ops.api.controllers.cloudflare :as controllers.cf]
+  (:require [clojure.core.async :as async]
+            [cloud-ops.api.controllers.cloudflare :as controllers.cf]
             [cloud-ops.api.controllers.digital-ocean :as controllers.do]
             [cloud-ops.api.logic.cloud :as logic.cloud]
             [cloud-ops.api.ports.http-out :as http-out]
@@ -40,7 +41,7 @@
 ;; concurrently.
 (def ongoing-verifications (atom []))
 
-(defn verify-domain-ping-non-blocking
+(defn verify-domain-ping
   "Asynchronously verifies the domain.
 
   3000 milliseconds, 3 seconds * 1000 attempts
@@ -68,8 +69,7 @@
 
       ;; still pinging?
       (not last-attempt?)
-      (verify-domain-ping-non-blocking
-       domain (inc attempt) retrying? rm-ongoing-fn components)
+      (verify-domain-ping domain (inc attempt) retrying? rm-ongoing-fn components)
 
       ;; last ping, but will retry to create domain?
       retrying?
@@ -142,13 +142,13 @@
       (do
         (swap! ongoing-verifications conj domain)
         ;; if any halts, halt everything
-        (future
+        (async/go
           (reduce
            (fn [res cur-fn]
              (if (= res :ok) (cur-fn) res))
            :ok
            [#(verify-domain-providers domain retrying? rm-ongoing-fn components)
-            #(verify-domain-ping-non-blocking domain 1 retrying? rm-ongoing-fn components)])))
+            #(verify-domain-ping domain 1 retrying? rm-ongoing-fn components)])))
 
       (logs/log :warn "domain already being verified"
                 :ctx {:domain domain}))))
