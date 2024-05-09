@@ -15,20 +15,20 @@
     (controllers.cloud/verify-domain event components)
     (logs/log :warn "cannot verify empty domain")))
 
-(defn verify-health
-  [{{:keys [scope constraints]} :event} components]
-  (case scope
-    :all  (logs/log :error "all scope verification not implemented yet")
-    :user (logs/log :error "user scope verification not implemented yet"
-                    :ctx {:constraints constraints})
-    :domain (producers/verify-domain!
-             (assoc constraints :attempt 1)
-             (:publisher components))))
+(defn verify-health-handler
+  [{{:keys [scope args]} :event} components]
+  (case (keyword scope)
+    :domain (let [{:keys [domain retrying?]
+                   :or {retrying? false}} args]
+              (producers/verify-domain!
+               domain retrying? (:publisher components)))
+
+    (logs/log :warn (str "scope `" scope "` not implemented yet"))))
 
 (def workers
   [{:handler create-domain-handler
     :queue-name "domain.create"}
    {:handler verify-domain-handler
     :queue-name "domain.verify"}
-   {:handler verify-health
+   {:handler verify-health-handler
     :queue-name "health.verify"}])

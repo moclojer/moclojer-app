@@ -24,7 +24,7 @@
 
 (defprotocol HttpProvider
   (request
-    [self request-input]))
+    [this request-input]))
 
 (defrecord Http [_]
   component/Lifecycle
@@ -33,7 +33,7 @@
 
   HttpProvider
   (request
-    [_self {:keys [method url] :as request-input}]
+    [_ {:keys [method url] :as request-input}]
     (logs/log :info "sending http request"
               :ctx {:method method
                     :url url})
@@ -48,27 +48,42 @@
 
 (defn new-http [] (map->Http {}))
 
-(defrecord HttpMock [responses requests]
+(defrecord HttpMock [responses]
   component/Lifecycle
-  (start [this] this)
-  (stop  [this] this)
+  (start [this]
+    (merge this {:responses responses}))
+  (stop [this] this)
 
   HttpProvider
   (request
-    [_self {:keys [method url] :as req}]
-    (logs/log :info "sending http request"
-              :ctx {:method method :url url})
-    (swap! requests merge
-           (assoc req :instant (System/currentTimeMillis)))
-    (get-in @responses
-            [url]
-            {:status 500
-             :body "Response not set in mocks!"})))
+    [this req]
 
-(defn reset-responses! [added-responses {:keys [responses]}]
-  (reset! responses added-responses))
+    (let [req (select-keys req [:method :url])]
+      (logs/log :info "sending http request"
+                :ctx req)
+
+      (-> #(= req (select-keys % (keys req)))
+          (filter (:responses this))
+          first :response
+          (or {:status 500
+               :body "mocked response not set"})
+          (assoc :instant (System/currentTimeMillis))))))
 
 (defn new-http-mock
-  [mocked-responses]
-  (map->HttpMock {:responses (atom mocked-responses)
-                  :requests (atom [])}))
+  [responses]
+  (->HttpMock responses))
+
+(comment
+  (def m (component/start
+          (new-http-mock [{:id :get-test-ok
+                           :url "https://test.com"
+                           :method :get
+                           :response
+                           {:status 200
+                            :body "hello world"}}])))
+
+  (request m {:url "https://test.com"})
+  ;; => {:status 200
+  ;;     :body "hello world"
+  ;;     :instant 1715218184868}
+  )

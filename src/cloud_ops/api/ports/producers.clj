@@ -8,10 +8,10 @@
                                      :retrying? retrying?}}))
 
 (defn verify-domain!
-  [domain attempt publisher]
+  [domain retrying? publisher]
   (redis-publisher/publish! publisher "domain.verify"
                             {:event {:domain domain
-                                     :attempt attempt}}))
+                                     :retrying? retrying?}}))
 
 (defn set-publication-status!
   [domain new-status publisher]
@@ -20,6 +20,7 @@
                                      :new-status new-status}}))
 
 (defn verify-health!
-  [scope constraints publisher]
+  [scope args publisher]
   (redis-publisher/publish! publisher "health.verify"
-                            {:event (merge constraints {:scope scope})}))
+                            {:event {:scope scope
+                                     :args args}}))
