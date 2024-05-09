@@ -12,34 +12,36 @@
 
 (def sys-atom (atom nil))
 
+(def mocked-provider-data
+  (atom {:cf {:result []}
+         :do {:app {:spec {:domains []}}}}))
+
 (def mocked-responses
   {:cf-data-ok {:url "https://api.cloudflare.com/client/v4/zones/c6f10cf4dd7ace4b979d60c22066be23/dns_records"
                 :method :get
                 :response
-                {:status 200
-                 :body (slurp
-                        (m/encode
-                         "application/json"
-                         {:result
-                          [{:name "teste-1.moclojer.com"}
-                           {:name "teste-2.moclojer.com"}
-                           {:name "test-j0suetm.moclojer.com"}]}))}}
+                (fn [_]
+                  {:status 200
+                   :body (slurp (m/encode "application/json" (:cf @mocked-provider-data)))})}
    :do-data-ok {:url "https://api.digitalocean.com/v2/apps/4dd19675-0b62-4b9a-8082-8ee5d9eab99a"
                 :method :get
                 :response
-                {:status 200
-                 :body (slurp
-                        (m/encode
-                         "application/json"
-                         {:app {:spec {:domains [{:domain "teste-1.moclojer.com"}
-                                                 {:domain "teste-2.moclojer.com"}
-                                                 {:domain "test-j0suetm.moclojer.com"}]}}}))}}
+                (fn [_]
+                  {:status 200
+                   :body (slurp (m/encode "application/json" (:do @mocked-provider-data)))})}
    :cf-create-ok {:url "https://api.cloudflare.com/client/v4/zones/c6f10cf4dd7ace4b979d60c22066be23/dns_records"
                   :method :post
-                  :response {:status 200 :body "\"ok\""}}
+                  :response
+                  (fn [{:keys [body]}]
+                    (swap! mocked-provider-data #(update-in % [:cf :result] conj (m/decode "application/json" body)))
+                    {:status 200 :body "\"ok\""})}
    :do-create-ok {:url "https://api.digitalocean.com/v2/apps/4dd19675-0b62-4b9a-8082-8ee5d9eab99a"
                   :method :put
-                  :response {:status 200 :body "\"ok\""}}
+                  :response
+                  (fn [{:keys [body]}]
+                    (swap! mocked-provider-data
+                           #(assoc-in % [:do :app] (m/decode "application/json" body)))
+                    {:status 200 :body "\"ok\""})}
    :domain-ok {:url "https://test-j0suetm.moclojer.com"
                :method :get
                :response
@@ -71,7 +73,7 @@
   ;; init
   (utils/start-system-dev! sys-atom (build-system-map) false)
 
-  (:http @sys-atom)
+  @mocked-provider-data
 
   ;; will verify only once
   (redis-publisher/publish! (:publisher @sys-atom)

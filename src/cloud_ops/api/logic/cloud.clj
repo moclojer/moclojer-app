@@ -8,5 +8,6 @@
   steps, create and verify only the missing one, by failed attempt or
   any other issue."
   [{:keys [cf-records do-spec]} domain]
+  (prn :cf-records cf-records :do-spec do-spec)
   {:cf-records (when-not (logic.cf/domain-exists? cf-records domain) cf-records)
    :do-spec (when-not (logic.do/domain-exists? do-spec domain) do-spec)})
