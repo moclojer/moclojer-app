@@ -22,7 +22,8 @@
                          "application/json"
                          {:result
                           [{:name "teste-1.moclojer.com"}
-                           {:name "teste-2.moclojer.com"}]}))}}
+                           {:name "teste-2.moclojer.com"}
+                           {:name "test-j0suetm.moclojer.com"}]}))}}
    :do-data-ok {:url "https://api.digitalocean.com/v2/apps/4dd19675-0b62-4b9a-8082-8ee5d9eab99a"
                 :method :get
                 :response
@@ -31,7 +32,8 @@
                         (m/encode
                          "application/json"
                          {:app {:spec {:domains [{:domain "teste-1.moclojer.com"}
-                                                 {:domain "teste-2.moclojer.com"}]}}}))}}
+                                                 {:domain "teste-2.moclojer.com"}
+                                                 {:domain "test-j0suetm.moclojer.com"}]}}}))}}
    :cf-create-ok {:url "https://api.cloudflare.com/client/v4/zones/c6f10cf4dd7ace4b979d60c22066be23/dns_records"
                   :method :post
                   :response {:status 200 :body "\"ok\""}}
