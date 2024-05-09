@@ -1,17 +1,16 @@
 (ns back.integration.cloud-ops.create-domain-test
-  (:require
-   [back.integration.components.utils :as utils]
-   [cloud-ops.api.ports.workers :as workers]
-   [com.stuartsierra.component :as component]
-   [components.config :as config]
-   [components.http :as http]
-   [components.redis-publisher :as redis-publisher]
-   [matcher-combinators.matchers :as matchers]
-   [muuntaja.core :as m]
-   [state-flow.api :refer [defflow]]
-   [state-flow.assertions.matcher-combinators :refer [match?]]
-   [state-flow.core :refer [flow]]
-   [state-flow.state :as state]))
+  (:require [back.integration.components.utils :as utils]
+            [cloud-ops.api.ports.workers :as workers]
+            [com.stuartsierra.component :as component]
+            [components.config :as config]
+            [components.http :as http]
+            [components.redis-publisher :as redis-publisher]
+            [matcher-combinators.matchers :as matchers]
+            [muuntaja.core :as m]
+            [state-flow.api :refer [defflow]]
+            [state-flow.assertions.matcher-combinators :refer [match?]]
+            [state-flow.core :refer [flow]]
+            [state-flow.state :as state]))
 
 (def mocked-responses
   {"https://api.cloudflare.com/client/v4/zones/c6f10cf4dd7ace4b979d60c22066be23/dns_records"

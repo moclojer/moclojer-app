@@ -43,12 +43,13 @@
                   :ttl 1}
         enc-body (m/encode "application/json" req-body)
         new-req-params (merge req-params {:method :post
-                                          :body enc-body})]
-    (hp/request http new-req-params)
+                                          :body enc-body})
+        decoded (->> (hp/request http new-req-params)
+                     :body
+                     (m/decode "application/json"))]
     (logs/log :info "created cloudflare domain"
               :ctx {:domain domain})
-
-    true))
+    decoded))
 
 (defn get-current-do-spec
   "Retrieves the current App Specification from the `moclojer-cloud` app in DO.
@@ -72,8 +73,9 @@
   [new-spec http req-params]
   (let [enc-spec (m/encode "application/json" {:spec new-spec})
         new-req-params (merge req-params {:method :put
-                                          :body enc-spec})]
-    (hp/request http new-req-params)
+                                          :body enc-spec})
+        decoded (->> (hp/request http new-req-params)
+                     :body
+                     (m/decode "application/json"))]
     (logs/log :info "updated digital ocean spec")
-
-    true))
+    decoded))

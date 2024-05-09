@@ -8,6 +8,7 @@
             [components.redis-queue :as redis-queue]
             [components.sentry :as sentry])
   (:gen-class))
+
 (def system-atom (atom nil))
 
 (defn build-system-map []
