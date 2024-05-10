@@ -22,19 +22,23 @@
   (logs/log :info "creating domain"
             :ctx {:domain domain :retrying? (not retrying?)})
 
-  (let [{:keys [cf-records do-spec]} (-> (get-current-data components)
-                                         (logic.cloud/remove-existing-data domain))
-        publish? (or cf-records do-spec)]
-    (when publish?
-      (producers/set-publication-status! domain "publishing" publisher)
-
-      (controllers.cf/create-domain! cf-records domain components)
-      (controllers.do/create-domain! do-spec domain components)
-
-      ;; opposing `retrying?` so we just do it once
-      (producers/verify-health! :domain {:domain domain
-                                         :retrying? (not retrying?)}
-                                publisher))))
+  (let [{:keys [cf-records do-spec]} (logic.cloud/remove-existing-data
+                                      (get-current-data components)
+                                      domain)
+        do-domains (:domains do-spec)
+        ;; a nil data means it was removed for already existing
+        both-exist? (and (nil? cf-records) (nil? do-domains))
+        ;; opposing `retrying?` so we just do it once
+        verify!-fn #(producers/verify-health! :domain {:domain domain
+                                                       :retrying? (not retrying?)}
+                                              publisher)]
+    (if both-exist?
+      (verify!-fn)
+      (do
+        (producers/set-publication-status! domain "publishing" publisher)
+        (controllers.cf/create-domain! cf-records domain components)
+        (controllers.do/create-domain! do-spec domain components)
+        (verify!-fn)))))
 
 ;; Not sure if this is the best option, but works fine for now,
 ;; since it isn't expected to have too many verifications ongoing
@@ -89,20 +93,22 @@
 
 (defn verify-domain-providers
   "Verifies if domain was created in each provider spec/data."
-  [domain retrying? rm-ongoing-fn {:keys [publisher] :as components}]
+  [domain retrying? rm-ongoing-fn {:keys [config publisher] :as components}]
 
   (logs/log :info "verifying domain (providers)"
-            :ctx {:domain domain
-                  :retrying? retrying?})
+            :ctx {:domain domain :retrying? retrying?})
 
-  (let [{:keys [cf-records do-spec]}
-        (-> (get-current-data components)
-            (logic.cloud/remove-existing-data domain))]
+  (let [{:keys [cf-records do-spec]} (logic.cloud/remove-existing-data
+                                      (get-current-data components)
+                                      domain)
+        do-domains (:domains do-spec)
+        timeout (get-in config [:cloud-providers :verification-timeout-ms] 3000)]
 
+    (Thread/sleep timeout)
     (cond
       ;; everything ok?
-      ;; to be nil, means it contained the domain, therefore success
-      (and (nil? cf-records) (nil? do-spec))
+      ;; to be nil?, means it contained the domain, therefore success
+      (and (nil? cf-records) (nil? do-domains))
       (do
         (logs/log :info "verified domain (providers)"
                   :ctx {:domain domain})

@@ -3,10 +3,12 @@
 (defn domain-exists?
   "Checks if given `new-domain` is already in the spec `domains`."
   [domains new-domain]
-  (let [complete-domain (str new-domain ".moclojer.com")]
-    (-> #(= (:domain %) complete-domain)
-        (filter domains)
-        seq)))
+  (and
+   (seq domains)
+   (let [complete-domain (str new-domain ".moclojer.com")]
+     (-> #(= (:domain %) complete-domain)
+         (filter domains)
+         seq))))
 
 (defn add-domain-to-spec
   "Appends the `new-domain` to the `spec` domain list."
@@ -17,6 +19,12 @@
     (assoc spec :domains new-domains)))
 
 (comment
+
+  (domain-exists?
+   [{:type "ALIAS", :domain "test-j0suetm.moclojer.com"}]
+   "test-j0suetm")
+
+  (domain-exists? [] "test-j0suetm")
 
   "this is what a spec might look like"
 

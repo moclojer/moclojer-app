@@ -75,12 +75,8 @@
 
   @mocked-provider-data
 
-  ;; will verify only once
-  (redis-publisher/publish! (:publisher @sys-atom)
-                            "domain.create"
-                            {:event {:domain "test-j0suetm"}})
+  ((get-in mocked-responses [:cf-data-ok :response]) nil)
 
-  ;; will fallback and try to recreate
   (redis-publisher/publish! (:publisher @sys-atom)
                             "domain.create"
                             {:event {:domain "test-j0suetm"}})
