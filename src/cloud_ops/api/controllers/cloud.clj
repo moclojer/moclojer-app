@@ -60,6 +60,7 @@
                     :attempt attempt
                     :retrying? retrying?})
 
+    (rm-ongoing-fn)
     (Thread/sleep timeout)
     (cond
       ;; everything ok?
@@ -78,14 +79,12 @@
       ;; last ping, but will retry to create domain?
       retrying?
       (do
-        (rm-ongoing-fn)
         (logs/log :error "failed to verify domain (ping) (timed out). trying to create again...")
         (producers/create-domain! domain true publisher))
 
       ;; did everything we could, throw an error sentry should catch and warn us
       (not retrying?)
       (do
-        (rm-ongoing-fn)
         (logs/log :error "failed to verify domain (ping), even after retrying"
                   :ctx {:domain domain})
         (throw (Exception. (str "failed to verify domain (ping) `"
@@ -104,6 +103,7 @@
         do-domains (:domains do-spec)
         timeout (get-in config [:cloud-providers :verification-timeout-ms] 3000)]
 
+    (rm-ongoing-fn)
     (Thread/sleep timeout)
     (cond
       ;; everything ok?
@@ -117,14 +117,12 @@
       ;; either one isn't right, but will retry
       retrying?
       (do
-        (rm-ongoing-fn)
         (logs/log :error "failed to verify domain (providers). trying to create again...")
         (producers/create-domain! domain true publisher))
 
       ;; did everything we could, throw exception
       (not retrying?)
       (do
-        (rm-ongoing-fn)
         (logs/log :error "failed to verify domain (providers), even after retrying"
                   :ctx {:domain domain})
         (throw (Exception. (str "failed to verify domain (providers) `"

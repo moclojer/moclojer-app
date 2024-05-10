@@ -3,26 +3,31 @@
             [com.stuartsierra.component :as component]
             [components.logs :as logs])
   (:import [redis.clients.jedis JedisPoolConfig JedisPooled]))
-
 (defprotocol IPublisher
   (publish! [this queue-name message])
   (archive! [this queue-name message]
     "When a message is sent, but not received/read by
      any subscribers, we archive it in a separate queue
      and make sure to pop it when the subscriber is back
-     on track. The created queue will be named pending.<queue-name>."))
+     on track. The created queue will be named pending.<queue-name>.")
+  (start-job! [this job]))
 
-(defrecord RedisPublisher [config sentry]
+(defrecord RedisPublisher [config jobs sentry]
   component/Lifecycle
   (start [this]
     (logs/log :info "starting redis publisher")
-    (merge this {:conn (JedisPooled.
-                        (doto (JedisPoolConfig.)
-                          (.setTestOnBorrow true))
-                        (get-in config [:config :redis-publisher :uri]))
-                 :components {:sentry sentry}}))
+    (let [conn (JedisPooled.
+                (doto (JedisPoolConfig.)
+                  (.setTestOnBorrow true))
+                (get-in config [:config :redis-publisher :uri]))
+          conn-this (merge this {:conn conn
+                                 :components {:sentry sentry}})
+          job-futures (for [job jobs] (start-job! conn-this job))]
+      (assoc conn-this :job-futures job-futures)))
   (stop [this]
     (logs/log :info "stopping redis publisher")
+    (doseq [job-future (:job-futures this)]
+      (future-cancel job-future))
     (update-in this [:conn] #(.close %)))
 
   IPublisher
@@ -35,17 +40,38 @@
         (archive! this queue-name message))))
   (archive! [this queue-name message]
     (.lpush (:conn this) (str "pending." queue-name)
-            (into-array [(json/write-str message)]))))
+            (into-array [(json/write-str message)])))
+  ;; TODO: improve this ASAP
+  (start-job! [this {:keys [qname event delay]}]
+    (logs/log :info "starting job" :ctx {:qname qname})
+    (future
+      (loop [i 0]
+        (prn :hello true)
+        (publish! this qname {:event event})
+        (Thread/sleep delay)
+        (recur (inc i))))))
 
-(defn new-redis-publisher []
-  (->RedisPublisher {} {}))
+(defn new-redis-publisher
+  ([queue-jobs] (->RedisPublisher {} queue-jobs {}))
+  ([] (->RedisPublisher {} [] {})))
 
 (comment
   (def rp
     (component/start
-     (->RedisPublisher {:config {:redis {:host "localhost"
-                                         :port 6379}}}
+     (->RedisPublisher {:config {:redis-publisher {:uri "redis://localhost:6379"}}}
+                       [{:qname "test.test"
+                         :event {:hello true}
+                         :delay 5000}]
                        nil)))
+
+  rp
+
+  (def jobs (for [job [{:qname "test.test"
+                        :event {:hello true}
+                        :delay 5000}]]
+              job))
+
+  jobs
 
   (publish! rp "test.test" {:hello true})
   (.rpop (:conn rp) "pending.test.test")
