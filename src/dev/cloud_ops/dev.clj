@@ -63,7 +63,13 @@
                (reduce #(conj %1 %2) [])))
    :sentry (sentry/new-mock-sentry)
    :publisher (component/using
-               (redis-publisher/new-redis-publisher)
+               (redis-publisher/new-redis-publisher
+                [{:qname "health.verify"
+                  ;; change scope to :all when implemented
+                  :event {:scope :domain
+                          :args {:domain "test-j0suetm"
+                                 :retrying? false}}
+                  :delay 3000}])
                [:config :sentry])
    :workers (component/using
              (redis-queue/new-redis-queue p.workers/workers false)
@@ -72,6 +78,8 @@
 (comment
   ;; init
   (utils/start-system-dev! sys-atom (build-system-map) false)
+
+  (:publisher @sys-atom)
 
   @mocked-provider-data
 
