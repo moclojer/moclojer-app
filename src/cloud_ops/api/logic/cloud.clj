@@ -8,6 +8,19 @@
   steps, create and verify only the missing one, by failed attempt or
   any other issue."
   [{:keys [cf-records do-spec]} domain]
-  (prn :cf-records cf-records :do-spec do-spec)
-  {:cf-records (when-not (logic.cf/domain-exists? cf-records domain) cf-records)
-   :do-spec (when-not (logic.do/domain-exists? do-spec domain) do-spec)})
+  {:cf-records (when-not (logic.cf/domain-exists? cf-records domain)
+                 cf-records)
+   :do-spec (when-not (logic.do/domain-exists? (:domains do-spec) domain)
+              do-spec)})
+
+(comment
+  (remove-existing-data {:cf-records [{:name "test-j0suetm"}]
+                         :do-spec {:domains [{:domain "test-j0suetm.moclojer.com"}]}}
+                        "test-j0suetm")
+  ;; => {:cf-records nil, :do-spec nil}
+
+  (remove-existing-data {:cf-records []
+                         :do-spec {:domains []}}
+                        "test-j0suetm")
+  ;;
+  )

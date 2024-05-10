@@ -58,10 +58,9 @@
   [http req-params]
   (let [new-req-params (assoc req-params :method :get)
         {:keys [body]} (hp/request http new-req-params)
-        decoded (m/decode "application/json" body)
-        spec (get-in decoded [:app :spec])]
+        decoded (m/decode "application/json" body)]
     (logs/log :info "retrieved digital ocean spec")
-    spec))
+    (get-in decoded [:app :spec])))
 
 (defn update-do-spec!
   "Updates Digital Ocean `spec`, adding the new domain. Returns true when

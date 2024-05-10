@@ -3,7 +3,16 @@
 (defn domain-exists?
   "Verifies if domain is already in record list"
   [records domain]
-  (let [complete-domain (str domain ".moclojer.com")]
-    (-> #(= (:name %) complete-domain)
-        (filter records)
-        seq)))
+  (and
+   (seq records)
+   (-> #(= (:name %) domain)
+       (filter records)
+       seq)))
+
+(comment
+  (domain-exists? [{:name "test-j0suetm"}] "test-j0suetm")
+  ;; => ({:name "test-j0suetm"})
+
+  (domain-exists? [] "test-j0suetm")
+  ;; => nil
+  )
