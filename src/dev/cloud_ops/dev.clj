@@ -53,14 +53,12 @@
    :config (config/new-config)
    ;; :http (http/new-http)
    :http (http/new-http-mock
-          (->> (select-keys
-                mocked-responses
-                ;; modify this list for different results
-                [:cf-data-ok :do-data-ok
-                 :cf-create-ok :do-create-ok
-                 :domain-ok])
-               vals
-               (reduce #(conj %1 %2) [])))
+          (vals (select-keys
+                 mocked-responses
+                 ;; modify this list for different results
+                 [:cf-data-ok :do-data-ok
+                  :cf-create-ok :do-create-ok
+                  :domain-ok])))
    :sentry (sentry/new-mock-sentry)
    :publisher (component/using
                (redis-publisher/new-redis-publisher
