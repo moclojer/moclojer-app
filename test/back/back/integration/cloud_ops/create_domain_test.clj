@@ -83,7 +83,8 @@
                           first))
      {:event {:scope :domain
               :args {:domain domain
-                     :retrying? true}}})))
+                     :retrying? true
+                     :skip-data? false}}})))
 
 (defflow
   flow-create-domain
