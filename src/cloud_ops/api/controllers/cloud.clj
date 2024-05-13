@@ -30,15 +30,16 @@
         both-exist? (and (nil? cf-records) (nil? do-domains))
         ;; opposing `retrying?` so we just do it once
         verify!-fn #(producers/verify-health! :domain {:domain domain
-                                                       :retrying? (not retrying?)}
+                                                       :retrying? %1
+                                                       :skip-data? %2}
                                               publisher)]
     (if both-exist?
-      (verify!-fn)
+      (verify!-fn false true)
       (do
         (producers/set-publication-status! domain "publishing" publisher)
         (controllers.cf/create-domain! cf-records domain components)
         (controllers.do/create-domain! do-spec domain components)
-        (verify!-fn)))))
+        (verify!-fn (not retrying?) false)))))
 
 ;; Not sure if this is the best option, but works fine for now,
 ;; since it isn't expected to have too many verifications ongoing
@@ -129,7 +130,7 @@
                                 domain "`, even after retrying.")))))))
 
 (defn verify-domain
-  [{:keys [domain retrying?]} components]
+  [{:keys [domain retrying? skip-data?]} components]
   (let [ongoing-ver-domains @ongoing-verifications
         rm-ongoing-fn #(swap! ongoing-verifications
                               (fn [c]
@@ -151,7 +152,9 @@
            (fn [res cur-fn]
              (if (= res :ok) (cur-fn) res))
            :ok
-           [#(verify-domain-providers domain retrying? rm-ongoing-fn components)
+           [#(if skip-data?
+               :ok
+               (verify-domain-providers domain retrying? rm-ongoing-fn components))
             #(verify-domain-ping domain 1 retrying? rm-ongoing-fn components)])))
 
       (logs/log :warn "domain already being verified"

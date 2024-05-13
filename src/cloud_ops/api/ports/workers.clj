@@ -19,10 +19,11 @@
 (defn verify-health-handler
   [{{:keys [scope args]} :event} components]
   (case (keyword scope)
-    :domain (let [{:keys [domain retrying?]
-                   :or {retrying? false}} args]
+    :domain (let [{:keys [domain retrying? skip-data?]
+                   :or {retrying? false
+                        skip-data? false}} args]
               (producers/verify-domain!
-               domain retrying? (:publisher components)))
+               domain retrying? skip-data? (:publisher components)))
 
     (logs/log :warn (str "scope `" scope "` not implemented yet"))))
 
