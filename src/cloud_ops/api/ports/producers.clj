@@ -8,10 +8,11 @@
                                      :retrying? retrying?}}))
 
 (defn verify-domain!
-  [domain retrying? publisher]
+  [domain retrying? skip-data? publisher]
   (redis-publisher/publish! publisher "domain.verify"
                             {:event {:domain domain
-                                     :retrying? retrying?}}))
+                                     :retrying? retrying?
+                                     :skip-data? skip-data?}}))
 
 (defn set-publication-status!
   [domain new-status publisher]
