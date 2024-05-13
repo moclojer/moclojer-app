@@ -22,7 +22,7 @@
                 (get-in config [:config :redis-publisher :uri]))
           conn-this (merge this {:conn conn
                                  :components {:sentry sentry}})
-          job-futures (for [job jobs] (start-job! conn-this job))]
+          job-futures (doall (map #(start-job! conn-this %) jobs))]
       (assoc conn-this :job-futures job-futures)))
   (stop [this]
     (logs/log :info "stopping redis publisher")
@@ -41,7 +41,6 @@
   (archive! [this queue-name message]
     (.lpush (:conn this) (str "pending." queue-name)
             (into-array [(json/write-str message)])))
-  ;; TODO: improve this ASAP
   (start-job! [this {:keys [qname event delay]}]
     (logs/log :info "starting job" :ctx {:qname qname})
     (future

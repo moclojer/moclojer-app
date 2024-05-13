@@ -23,7 +23,8 @@
                   :event {:scope :domain
                           :args {:domain "test-j0suetm"
                                  :retrying? false}}
-                  :delay 3000}])
+                  ;; every 30 seconds
+                  :delay 30000}])
                [:config :sentry])
    :workers (component/using
              (redis-queue/new-redis-queue p.workers/workers true)
