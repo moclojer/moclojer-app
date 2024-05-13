@@ -12,51 +12,82 @@
             [state-flow.core :refer [flow]]
             [state-flow.state :as state]))
 
+(def mocked-provider-data
+  (atom {:cf {:result []}
+         :do {:app {:spec {:domains []}}}}))
+
 (def mocked-responses
-  {"https://api.cloudflare.com/client/v4/zones/c6f10cf4dd7ace4b979d60c22066be23/dns_records"
-   {:status 200
-    :body (m/encode "application/json"
-                    {:result [{:name "teste-1.moclojer.com"}
-                              {:name "teste-2.moclojer.com"}]})}
-   "https://api.digitalocean.com/v2/apps/4dd19675-0b62-4b9a-8082-8ee5d9eab99a"
-   {:status 200
-    :body (m/encode "application/json"
-                    {:app {:spec {:domains [{:domain "teste-1.moclojer.com"}
-                                            {:domain "teste-2.moclojer.com"}]}}})}})
+  {:cf-data-ok {:url "https://api.cloudflare.com/client/v4/zones/c6f10cf4dd7ace4b979d60c22066be23/dns_records"
+                :method :get
+                :response
+                (fn [_]
+                  {:status 200
+                   :body (slurp (m/encode "application/json" (:cf @mocked-provider-data)))})}
+   :do-data-ok {:url "https://api.digitalocean.com/v2/apps/4dd19675-0b62-4b9a-8082-8ee5d9eab99a"
+                :method :get
+                :response
+                (fn [_]
+                  {:status 200
+                   :body (slurp (m/encode "application/json" (:do @mocked-provider-data)))})}
+   :cf-create-ok {:url "https://api.cloudflare.com/client/v4/zones/c6f10cf4dd7ace4b979d60c22066be23/dns_records"
+                  :method :post
+                  :response
+                  (fn [{:keys [body]}]
+                    (swap! mocked-provider-data #(update-in % [:cf :result] conj (m/decode "application/json" body)))
+                    {:status 200 :body "\"ok\""})}
+   :do-create-ok {:url "https://api.digitalocean.com/v2/apps/4dd19675-0b62-4b9a-8082-8ee5d9eab99a"
+                  :method :put
+                  :response
+                  (fn [{:keys [body]}]
+                    (swap! mocked-provider-data
+                           #(assoc-in % [:do :app] (m/decode "application/json" body)))
+                    {:status 200 :body "\"ok\""})}
+   :domain-ok {:url "https://test-j0suetm.moclojer.com"
+               :method :get
+               :response
+               {:status 200
+                :body "{\"created\": true}"}}})
 
 (defn- create-and-start-components! []
   (component/system-map
    :config (config/new-config)
-   :http (http/new-http-mock mocked-responses)
+   :http (http/new-http-mock
+          (vals (select-keys
+                 mocked-responses
+                 ;; modify this list for different results
+                 [:cf-data-ok :do-data-ok
+                  :cf-create-ok :do-create-ok
+                  :domain-ok])))
    :publisher (component/using
                (redis-publisher/mock-redis-publisher)
                [:config])))
 
-(defn fcreate-domain []
+(defn fcreate-domain [domain]
   (flow
-    "should create a domain"
-    [:let [domain "teste-3-j0suetm"]
-     components (state-flow.api/get-state)]
+    "should create domain"
+    [components (state-flow.api/get-state)]
     (state/invoke
      #(workers/create-domain-handler {:event {:domain domain}}
                                      components))
-    (match?
-     (matchers/embeds (-> @redis-publisher/mock-publisher
-                          (get "domain.verify")
-                          first))
-     {:event {:domain domain
-              :attempt 1}})
 
     (match?
      (matchers/embeds (-> @redis-publisher/mock-publisher
                           (get "mock.publication")
                           first))
      {:event {:domain domain
-              :new-status "publishing"}})))
+              :new-status "publishing"}})
+
+    (match?
+     (matchers/embeds (-> @redis-publisher/mock-publisher
+                          (get "health.verify")
+                          first))
+     {:event {:scope :domain
+              :args {:domain domain
+                     :retrying? true}}})))
 
 (defflow
   flow-create-domain
   {:init (utils/start-system! create-and-start-components!)
    :cleanup utils/stop-system!
    :fail-fast? true}
-  (fcreate-domain))
+  (fcreate-domain "test-j0suetm"))
