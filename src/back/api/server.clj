@@ -23,7 +23,11 @@
    :sentry (component/using (sentry/new-sentry) [:config])
    :router (router/new-router routes/routes)
    :database (component/using (database/new-database) [:config])
-   :publisher (component/using (redis-publisher/new-redis-publisher)
+   :publisher (component/using (redis-publisher/new-redis-publisher
+                                [{:qname "mocks.verify"
+                                  :event {}
+                                  ;; every other minute
+                                  :delay 120000}])
                                [:config :sentry])
    :webserver (component/using (webserver/new-webserver)
                                [:config :http :router :database :publisher :sentry])

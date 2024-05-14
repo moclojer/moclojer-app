@@ -3,6 +3,7 @@
             [com.stuartsierra.component :as component]
             [components.logs :as logs])
   (:import [redis.clients.jedis JedisPoolConfig JedisPooled]))
+
 (defprotocol IPublisher
   (publish! [this queue-name message])
   (archive! [this queue-name message]
@@ -45,7 +46,6 @@
     (logs/log :info "starting job" :ctx {:qname qname})
     (future
       (loop [i 0]
-        (prn :hello true)
         (publish! this qname {:event event})
         (Thread/sleep delay)
         (recur (inc i))))))

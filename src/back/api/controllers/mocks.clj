@@ -1,9 +1,9 @@
 (ns back.api.controllers.mocks
-  (:require
-   [back.api.adapters.mocks :as adapter.mocks]
-   [back.api.db.mocks :as db.mocks]
-   [back.api.logic.mocks :as logic.mocks]
-   [back.api.ports.producers :as ports.producers]))
+  (:require [back.api.adapters.mocks :as adapter.mocks]
+            [back.api.db.mocks :as db.mocks]
+            [back.api.logic.mocks :as logic.mocks]
+            [back.api.ports.producers :as ports.producers]
+            [components.logs :as logs]))
 
 (defn create-mock!
   [user-id mock {:keys [database publisher]}]
@@ -100,3 +100,31 @@
     (throw (ex-info "No mock found with given domain"
                     {:cause :invalid-domain
                      :value domain}))))
+
+(def ^:private still-verifying-all? (atom false))
+
+(defn verify-health-all
+  "Sends a batch of 10 mocks for verification at a time. This is
+  so we don't overload our providers. After sending every batches,
+  sleeps for 30 seconds, which is the overall median time that a
+  mock domain takes to be verified."
+  [{:keys [database publisher]}]
+  (if-not @still-verifying-all?
+    (do
+      (reset! still-verifying-all? true)
+      (let [defective-mocks (db.mocks/get-mocks-by-publication
+                             ["offline" "offline-invalid" "publishing"]
+                             database)]
+        (future
+          (loop [batch 0]
+            (let [cur-mocks (->> (drop (* batch 10) defective-mocks)
+                                 (take 10))]
+              (if (>= (count cur-mocks) 1)
+                (do
+                  (doseq [mock cur-mocks]
+                    (ports.producers/verify-domain! (logic.mocks/pack-domain mock)
+                                                    true false publisher))
+                  (Thread/sleep 30)
+                  (recur (inc batch)))
+                (reset! still-verifying-all? false)))))))
+    (logs/log :info "still verifying all. skipping for now...")))

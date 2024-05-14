@@ -1,12 +1,10 @@
 (ns cloud-ops.api.controllers.cloud
-  (:require [clojure.core.async :as async]
-            [cloud-ops.api.controllers.cloudflare :as controllers.cf]
+  (:require [cloud-ops.api.controllers.cloudflare :as controllers.cf]
             [cloud-ops.api.controllers.digital-ocean :as controllers.do]
             [cloud-ops.api.logic.cloud :as logic.cloud]
             [cloud-ops.api.ports.http-out :as http-out]
             [cloud-ops.api.ports.producers :as producers]
             [components.logs :as logs]))
-
 (defn get-current-data
   "Retrieves current data from both CloudFlare and DigitalOcean.
    The naming is agnostic to records and entire specs."
@@ -144,7 +142,7 @@
       (do
         (swap! ongoing-verifications conj domain)
         ;; if any halts, halt everything
-        (async/go
+        (future
           (reduce
            (fn [res cur-fn]
              (if (= res :ok) (cur-fn) res))
