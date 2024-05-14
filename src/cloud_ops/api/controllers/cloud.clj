@@ -14,14 +14,6 @@
   {:cf-records (controllers.cf/get-current-records components)
    :do-spec (controllers.do/get-current-spec components)})
 
-(defn- produce-verify-domain!
-  "Helper function for producing the `verify-health :domain` event"
-  [domain retrying? skip-data? publisher]
-  (producers/verify-health! :domain {:domain domain
-                                     :retrying? retrying?
-                                     :skip-data? skip-data?}
-                            publisher))
-
 (defn create-domain!
   "Calls domain creation controllers for both CloudFlare and DigitalOcean,
    making some safety checks beforehand."
@@ -39,12 +31,12 @@
 
     ;; opposing `retrying?` so we just do it once
     (if both-exist?
-      (produce-verify-domain! domain (not retrying?) retrying? true)
+      (producers/verify-domain! domain (not retrying?) true publisher)
       (do
         (producers/set-publication-status! domain "publishing" publisher)
         (controllers.cf/create-domain! cf-records domain components)
         (controllers.do/create-domain! do-spec domain components)
-        (produce-verify-domain! domain (not retrying?) retrying? false)))))
+        (producers/verify-domain! domain (not retrying?) false publisher)))))
 
 ;; Not sure if this is the best option, but works fine for now,
 ;; since it isn't expected to have too many verifications ongoing

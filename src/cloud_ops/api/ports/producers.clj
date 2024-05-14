@@ -19,9 +19,3 @@
   (redis-publisher/publish! publisher "mock.publication"
                             {:event {:domain domain
                                      :new-status new-status}}))
-
-(defn verify-health!
-  [scope args publisher]
-  (redis-publisher/publish! publisher "health.verify"
-                            {:event {:scope scope
-                                     :args args}}))
