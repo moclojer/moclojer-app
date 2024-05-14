@@ -1,6 +1,5 @@
 (ns components.redis-queue
-  (:require [clojure.core.async :as async]
-            [clojure.data.json :as json]
+  (:require [clojure.data.json :as json]
             [com.stuartsierra.component :as component]
             [components.logs :as logs]
             [components.sentry :as sentry])
@@ -74,7 +73,7 @@
       (let [safe-sub-fn #(safely-subscribe-workers this conn pubsub qnames 1)]
         (if blocking?
           (safe-sub-fn)
-          (async/thread (safe-sub-fn))))
+          (future (safe-sub-fn))))
 
       pubsub))
   (safely-subscribe-workers [this conn pubsub qnames cur-try]

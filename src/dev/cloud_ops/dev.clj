@@ -42,7 +42,7 @@
                     (swap! mocked-provider-data
                            #(assoc-in % [:do :app] (m/decode "application/json" body)))
                     {:status 200 :body "\"ok\""})}
-   :domain-ok {:url "https://test-j0suetm.moclojer.com"
+   :domain-ok {:url "https://teste-josue.moclojer.com"
                :method :get
                :response
                {:status 200
@@ -61,13 +61,7 @@
                   :domain-ok])))
    :sentry (sentry/new-mock-sentry)
    :publisher (component/using
-               (redis-publisher/new-redis-publisher
-                [{:qname "health.verify"
-                  ;; change scope to :all when implemented
-                  :event {:scope :domain
-                          :args {:domain "test-j0suetm"
-                                 :retrying? false}}
-                  :delay 3000}])
+               (redis-publisher/new-redis-publisher)
                [:config :sentry])
    :workers (component/using
              (redis-queue/new-redis-queue p.workers/workers false)

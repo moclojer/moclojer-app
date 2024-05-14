@@ -1,10 +1,8 @@
 (ns back.api.logic.mocks
-  (:require
-   [camel-snake-kebab.core :as csk]
-   [clojure.java.io :as io]
-   [clojure.string :as str])
-  (:import
-   [java.util UUID]))
+  (:require [camel-snake-kebab.core :as csk]
+            [clojure.java.io :as io]
+            [clojure.string :as str])
+  (:import [java.util UUID]))
 
 (defn ->uuid []
   (UUID/randomUUID))
@@ -28,6 +26,10 @@
 
 (defn gen-host [wildcard subdomain]
   (str wildcard "-" subdomain ".moclojer.com"))
+
+(defn pack-domain
+  [{:mock/keys [wildcard subdomain]}]
+  (str wildcard "-" subdomain))
 
 (defn unpack-domain
   "Retrieves the wildcard and the subdomain from a

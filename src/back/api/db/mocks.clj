@@ -62,6 +62,21 @@
                                 [:= :user_id user-id]])
             sql/format))))
 
+(defn get-mocks-by-publication [pub-statuses db & [user-id]]
+  (let [where-pub-status (->> (map
+                               #(identity [:= :publication [:cast % :publication_status]])
+                               pub-statuses)
+                              vec
+                              (into [:or]))]
+    (database/execute
+     db
+     (-> (sql.helpers/select :*)
+         (sql.helpers/from :mock)
+         (sql.helpers/where (if (some? user-id)
+                              (conj [:and [:= :user_id user-id]] where-pub-status)
+                              where-pub-status))
+         sql/format))))
+
 (defn delete-mock-by-id [id db]
   (database/execute
    db
