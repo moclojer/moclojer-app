@@ -20,9 +20,9 @@
   (logs/log :info "creating domain"
             :ctx {:domain domain :retrying? (not retrying?)})
 
-  (let [{:keys [cf-records do-spec]} (logic.cloud/remove-existing-data
-                                      (get-current-data components)
-                                      domain)
+  (let [{:keys [cf-records do-spec] :as a} (logic.cloud/remove-existing-data
+                                            (get-current-data components)
+                                            domain)
         do-domains (:domains do-spec)
         ;; a nil data means it was removed for already existing
         both-exist? (and (nil? cf-records) (nil? do-domains))]

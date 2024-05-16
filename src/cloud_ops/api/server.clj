@@ -16,15 +16,9 @@
    :config (config/new-config)
    :http (http/new-http)
    :sentry (component/using (sentry/new-sentry) [:config])
+   ;; :sentry (sentry/new-mock-sentry)
    :publisher (component/using
-               (redis-publisher/new-redis-publisher
-                [{:qname "health.verify"
-                  ;; change scope to :all when implemented
-                  :event {:scope :domain
-                          :args {:domain "test-j0suetm"
-                                 :retrying? false}}
-                  ;; every 30 seconds
-                  :delay 30000}])
+               (redis-publisher/new-redis-publisher)
                [:config :sentry])
    :workers (component/using
              (redis-queue/new-redis-queue p.workers/workers true)
@@ -52,6 +46,11 @@
 
 (comment
   (start-system! (build-system-map))
+
+  (redis-publisher/publish! (:publisher @system-atom) "domain.create"
+                            {:event {:domain "nao-existe-123-j0suetm"
+                                     :retrying? false}})
+
   (stop-system!)
   ;;
   )

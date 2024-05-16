@@ -5,7 +5,7 @@
   [records domain]
   (and
    (seq records)
-   (-> #(= (:name %) domain)
+   (-> #(= (:name %) (str domain ".moclojer.com"))
        (filter records)
        seq)))
 
