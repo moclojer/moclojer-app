@@ -48,6 +48,16 @@
 
 (defn new-http [] (map->Http {}))
 
+(comment
+  (def hp (component/start (new-http)))
+
+  (request hp {:url "https://google.com"
+               :method :get})
+
+  (component/stop hp)
+  ;;
+  )
+
 (defrecord HttpMock [responses]
   component/Lifecycle
   (start [this]
