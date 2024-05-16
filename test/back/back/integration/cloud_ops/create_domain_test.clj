@@ -79,12 +79,11 @@
 
     (match?
      (matchers/embeds (-> @redis-publisher/mock-publisher
-                          (get "health.verify")
+                          (get "domain.verify")
                           first))
-     {:event {:scope :domain
-              :args {:domain domain
-                     :retrying? true
-                     :skip-data? false}}})))
+     {:event {:domain domain
+              :retrying? true
+              :skip-data? false}})))
 
 (defflow
   flow-create-domain

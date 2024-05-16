@@ -105,9 +105,9 @@
 
 (defn verify-health-all
   "Sends a batch of 10 mocks for verification at a time. This is
-  so we don't overload our providers. After sending every batches,
+  so we don't overload our providers. After sending every batch,
   sleeps for 30 seconds, which is the overall median time that a
-  mock domain takes to be verified."
+  mock domain takes oto be verified."
   [{:keys [database publisher]}]
   (if-not @still-verifying-all?
     (do
