@@ -33,7 +33,9 @@
                   :method :post
                   :response
                   (fn [{:keys [body]}]
-                    (swap! mocked-provider-data #(update-in % [:cf :result] conj (m/decode "application/json" body)))
+                    (swap! mocked-provider-data
+                           #(update-in % [:cf :result] conj (m/decode "application/json"
+                                                                      (update-in body [:name] str ".moclojer.com"))))
                     {:status 200 :body "\"ok\""})}
    :do-create-ok {:url "https://api.digitalocean.com/v2/apps/4dd19675-0b62-4b9a-8082-8ee5d9eab99a"
                   :method :put
