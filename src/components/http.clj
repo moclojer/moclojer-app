@@ -24,7 +24,9 @@
 
 (defprotocol HttpProvider
   (request
-    [this request-input]))
+    [this request-input])
+  (request-or-throw
+    [this req expected-status]))
 
 (defrecord Http [_]
   component/Lifecycle
@@ -44,7 +46,22 @@
       (logs/log :info "received http response"
                 :ctx {:response-time-millis total-time
                       :status status})
-      response)))
+      response))
+  (request-or-throw
+    [this req expected-status]
+    (let [{:keys [status] :as resp} (request this req)]
+      (if (= status expected-status)
+        resp
+        (do
+          (logs/log :error "failed critical request. throwing..."
+                    :ctx {:url (:url req)
+                          :status status
+                          :expected-status expected-status})
+          (throw (ex-info "failed critical request"
+                          {:status status
+                           :expected-status expected-status
+                           :req req
+                           :resp resp})))))))
 
 (defn new-http [] (map->Http {}))
 
@@ -79,7 +96,22 @@
 
       (assoc
        (if (fn? resp) (resp req) resp)
-       :instant (System/currentTimeMillis)))))
+       :instant (System/currentTimeMillis))))
+  (request-or-throw
+    [this req expected-status]
+    (let [{:keys [status] :as resp} (request this req)]
+      (if (= status expected-status)
+        resp
+        (do
+          (logs/log :error "failed critical request. throwing..."
+                    :ctx {:url (:url req)
+                          :status status
+                          :expected-status expected-status})
+          (throw (ex-info "failed critical request"
+                          {:status status
+                           :expected-status expected-status
+                           :req req
+                           :resp resp})))))))
 
 (defn new-http-mock
   [responses]

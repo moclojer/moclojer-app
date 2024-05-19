@@ -3,6 +3,10 @@
             [components.logs :as logs]
             [muuntaja.core :as m]))
 
+;; Since most of the requests here are a critical point of failure,
+;; any unexpected behaviour throws an exepction straight away. We
+;; need to be alerted of anything out of our expectations.
+
 (defn ping-domain
   "Pings `domain` to see if its deployed."
   [domain http]
@@ -27,26 +31,25 @@
 (defn get-current-cf-records
   "Retrieves the current domain records in CloudFlare."
   [http req-params]
-  (let [req-params (assoc req-params :method :get)
-        {:keys [body]} (hp/request http req-params)
-        decoded (m/decode "application/json" body)]
+  (let [req (assoc req-params :method :get)
+        {:keys [body]} (hp/request-or-throw http req 200)
+        {:keys [result]} (m/decode "application/json" body)]
     (logs/log :info "retrieved cloudflare records")
-    (:result decoded)))
+    result))
 
 (defn create-cf-domain!
-  "Creates a new CloudFlare DNS record. Returns true when succesful."
+  "Creates a new CloudFlare DNS record."
   [{:keys [domain record-content]} http req-params]
-  (let [req-body {:content record-content
-                  :name domain
-                  :proxied true
-                  :type "CNAME"
-                  :ttl 1}
-        enc-body (m/encode "application/json" req-body)
-        new-req-params (merge req-params {:method :post
-                                          :body enc-body})
-        decoded (->> (hp/request http new-req-params)
-                     :body
-                     (m/decode "application/json"))]
+  (let [enc-body (m/encode "application/json"
+                           {:content record-content
+                            :name domain
+                            :proxied true
+                            :type "CNAME"
+                            :ttl 1})
+        req (merge req-params {:method :post
+                               :body enc-body})
+        {:keys [body]} (hp/request-or-throw http req 200)
+        decoded (m/decode "application/json" body)]
     (logs/log :info "created cloudflare domain"
               :ctx {:domain domain})
     decoded))
@@ -56,8 +59,8 @@
    This spec contains everything (literally everything) there is stored about
    the app. We actually don't need all of that, so we clean it afterwards."
   [http req-params]
-  (let [new-req-params (assoc req-params :method :get)
-        {:keys [body]} (hp/request http new-req-params)
+  (let [req (assoc req-params :method :get)
+        {:keys [body]} (hp/request-or-throw http req 200)
         decoded (m/decode "application/json" body)]
     (logs/log :info "retrieved digital ocean spec")
     (get-in decoded [:app :spec])))
@@ -71,10 +74,9 @@
    data besides the domain list."
   [new-spec http req-params]
   (let [enc-spec (m/encode "application/json" {:spec new-spec})
-        new-req-params (merge req-params {:method :put
-                                          :body enc-spec})
-        decoded (->> (hp/request http new-req-params)
-                     :body
-                     (m/decode "application/json"))]
+        req (merge req-params {:method :put
+                               :body enc-spec})
+        {:keys [body]} (hp/request-or-throw http req 200)
+        decoded (m/decode "application/json" body)]
     (logs/log :info "updated digital ocean spec")
     decoded))
