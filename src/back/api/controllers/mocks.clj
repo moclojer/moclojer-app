@@ -103,11 +103,11 @@
 
 (def ^:private still-verifying-all? (atom false))
 
-(defn verify-health-all
-  "Sends a batch of 10 mocks for verification at a time. This is
-  so we don't overload our providers. After sending every batch,
-  sleeps for 30 seconds, which is the overall median time that a
-  mock domain takes oto be verified."
+(defn dispatch-domains-verification!
+  "Dispatches a batch of 10 mock domains for verification at a time.
+  This is so we don't overload our providers. After sending every
+  batch, sleeps for 30 seconds, which is the overall median time
+  that a mock domain takes to be verified."
   [{:keys [database publisher]}]
   (if-not @still-verifying-all?
     (do
@@ -128,3 +128,10 @@
                   (recur (inc batch)))
                 (reset! still-verifying-all? false)))))))
     (logs/log :info "still verifying all. skipping for now...")))
+
+(defn dispatch-unified-yml-verification!
+  "Gathers published mocks and sends them dispatches them to be verified."
+  [{:keys [database publisher]}]
+  (let [published-mocks (db.mocks/get-mocks-by-publication ["published"] database)
+        grouped-mocks (logic.mocks/group-by-user published-mocks)]
+    (ports.producers/verify-unified! grouped-mocks publisher)))

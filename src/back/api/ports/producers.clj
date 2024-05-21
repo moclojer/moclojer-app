@@ -13,3 +13,8 @@
                             {:event {:domain domain
                                      :retrying? retrying?
                                      :skip-data? skip-data?}}))
+
+(defn verify-unified!
+  [mocks publisher]
+  (redis-publisher/publish! publisher "unified.verify"
+                            {:event {:mocks mocks}}))

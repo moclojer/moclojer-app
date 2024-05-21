@@ -6,12 +6,18 @@
   (controllers.mocks/update-mock-publication-status!
    domain new-status database))
 
-(defn verify-health-all-mocks!
+(defn dispatch-domains-verification!
   [_ components]
-  (controllers.mocks/verify-health-all components))
+  (controllers.mocks/dispatch-domains-verification! components))
+
+(defn dispatch-unified-yml-verification!
+  [_ components]
+  (controllers.mocks/dispatch-unified-yml-verification! components))
 
 (def workers
   [{:handler update-mock-publication-status!
     :queue-name "mock.publication"}
-   {:handler verify-health-all-mocks!
-    :queue-name "mocks.verify"}])
+   {:handler dispatch-domains-verification!
+    :queue-name "domains.verification.dispatch"}
+   {:handler dispatch-unified-yml-verification!
+    :queue-name "unified.verification.dispatch"}])

@@ -25,10 +25,14 @@
    :router (router/new-router routes/routes)
    :database (component/using (database/new-database) [:config])
    :publisher (component/using (redis-publisher/new-redis-publisher
-                                [{:qname "mocks.verify"
-                                  :event {}
-                                  ;; every other minute
-                                  :delay 120000}])
+                                #_[{:qname "mocks.verify"
+                                    :event {}
+                                    ;; every other minute
+                                    :delay 120000}
+                                   {:qname "yml.verify"
+                                    :event {}
+                                    ;; every 5 minutes
+                                    :delay 300000}])
                                [:config])
    :webserver (component/using (webserver/new-webserver)
                                [:config :http :router :database :publisher])
@@ -39,6 +43,12 @@
 (comment
   ;; init
   (utils/start-system-dev! sys-atom (build-system-map))
+
+  (redis-publisher/publish! (:publisher @sys-atom) "mock.publication"
+                            {:event {:domain "test-josue"
+                                     :new-status "published"}})
+
+  (redis-publisher/publish! (:publisher @sys-atom) "unified.verification.dispatch" {})
 
   ;; iterate
   (utils/stop-system-dev! sys-atom false)

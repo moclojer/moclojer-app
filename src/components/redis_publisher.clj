@@ -58,9 +58,7 @@
   (def rp
     (component/start
      (->RedisPublisher {:config {:redis-publisher {:uri "redis://localhost:6379"}}}
-                       [{:qname "test.test"
-                         :event {:hello true}
-                         :delay 5000}]
+                       []
                        nil)))
 
   rp

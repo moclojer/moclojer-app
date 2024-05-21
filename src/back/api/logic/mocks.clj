@@ -66,6 +66,21 @@
       vals
       vec))
 
+(defn group-by-user [mocks]
+  (reduce
+   (fn [acc mock]
+     (if-let [user-id (:mock/user_id mock)]
+       (update-in acc [user-id] conj (:mock/id mock))
+       acc))
+   {} mocks))
+
+(comment
+  (let [user-id (random-uuid)]
+    (group-by-user [#:mock{:id (random-uuid) :user_id user-id}
+                    #:mock{:id (random-uuid) :user_id user-id}]))
+  ;;
+  )
+
 (defn enable [mock]
   (assoc mock :mock/enabled true))
 
