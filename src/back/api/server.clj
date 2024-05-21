@@ -24,10 +24,14 @@
    :router (router/new-router routes/routes)
    :database (component/using (database/new-database) [:config])
    :publisher (component/using (redis-publisher/new-redis-publisher
-                                [{:qname "mocks.verify"
+                                [{:qname "domains.verification.dispatch"
                                   :event {}
-                                  ;; every other minute
-                                  :delay 120000}])
+                                  ;; every 2 minutes
+                                  :delay 120000}
+                                 {:qname "unified.verification.dispatch"
+                                  :event {}
+                                  ;; every 5 minutes
+                                  :delay 300000}])
                                [:config :sentry])
    :webserver (component/using (webserver/new-webserver)
                                [:config :http :router :database :publisher :sentry])
