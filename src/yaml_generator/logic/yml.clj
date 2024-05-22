@@ -1,10 +1,9 @@
 (ns yaml-generator.logic.yml
-  (:require
-   [clojure.edn :as edn]
-   [clojure.pprint :refer [pprint]]
-   [malli.core :as m]
-   [yaml-generator.schemas.mock :as s.mock]
-   [yaml.core :as yaml]))
+  (:require [clojure.edn :as edn]
+            [clojure.pprint :refer [pprint]]
+            [malli.core :as m]
+            [yaml-generator.schemas.mock :as s.mock]
+            [yaml.core :as yaml]))
 
 (defn to-yaml-string [data]
   (yaml/generate-string data))
@@ -63,3 +62,45 @@
       (throw (ex-info "Invalid moclojer mock"
                       {:cause :missing-host
                        :value new-mock})))))
+
+(defn reduce-paths [mocks]
+  (->> (reduce-kv
+        (fn [acc user-id mock-id]
+          (conj acc (map #(gen-path (name user-id) (name %)) mock-id)))
+        [] mocks)
+       flatten
+       (into [])))
+
+(comment
+  (reduce-paths {:j0suetm [:my-mock :my-another-mock]
+                 :chico [:mock1]})
+  ;; => ["j0suetm/my-mock/mock.yml"
+  ;;     "j0suetm/my-another-mock/mock.yml"
+  ;;     "chico/mock1/mock.yml"]
+  )
+
+(defn filter-missing-mocks [mocks unified host-key]
+  (letfn [(get-host [mock]
+            (get-in mock [:content :endpoint host-key]))
+          (get-path [mock]
+            (get-in mock [:content :endpoint :path]))]
+    (remove
+     (fn [mock]
+       (some #(and (= (get-host mock) (get-host %))
+                   (= (get-path mock) (get-path %)))
+             unified))
+     mocks)))
+
+(comment
+  (filter-missing-mocks
+   [{:content {:endpoint {:path "/hello/:world"
+                          :host "hello-j0suetm.moclojer.com"}}
+     :path "hello"}
+    {:content {:endpoint {:path "/bye/:world"
+                          :host "hello-j0suetm.moclojer.com"}}
+     :path "bye"}]
+   [{:content {:endpoint {:path "/hello/:world"
+                          :host "hello-j0suetm.moclojer.com"}}}]
+   :host)
+  ;;
+  )

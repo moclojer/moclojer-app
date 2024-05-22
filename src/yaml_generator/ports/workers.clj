@@ -20,10 +20,18 @@
             :ctx {:event event})
   (controller.yml/delete event components))
 
+(defn verify-unified-handler
+  [{:keys [event]} components]
+  (logs/log :info "verifying unified mock"
+            :ctx {:event event})
+  (controller.yml/verify-unified event components))
+
 (def workers
   [{:handler generate-yml-handler
     :queue-name "mock.changed"}
    {:handler unified-mock-handler
     :queue-name "mock.unified"}
    {:handler deleted-mock-handler
-    :queue-name "mock.deleted"}])
+    :queue-name "mock.deleted"}
+   {:handler verify-unified-handler
+    :queue-name "unified.verify"}])

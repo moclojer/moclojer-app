@@ -28,6 +28,9 @@
   ;; init
   (utils/start-system-dev! sys-atom (build-system-map) false)
 
+  (storage/delete-file! (:storage @sys-atom) "moclojer" "moclojer.yml")
+  (slurp (storage/get-file (:storage @sys-atom) "moclojer" "moclojer.yml"))
+
   ;; iterate
   (utils/stop-system-dev! sys-atom false)
   ;; reload then
