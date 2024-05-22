@@ -86,3 +86,27 @@
     (storage/delete-file! storage "moclojer" path)
     (logs/log :info "deleted yaml"
               :ctx {:path path})))
+
+(defn get-parsed-mock-content
+  [path storage]
+  (if-let [content (storage/get-file storage "moclojer" path)]
+    {:path path
+     :content (logic.yml/parse-yaml-read-literal (slurp content))}
+    (logs/log :warn "mock file doesn't exist"
+              :ctx {:path path})))
+
+(defn verify-unified
+  [{:keys [mocks]} {:keys [config storage publisher]}]
+  (let [paths (logic.yml/reduce-paths mocks)
+        parsed-mocks (doall (map #(get-parsed-mock-content % storage) paths))
+        parsed-unified (get-parsed-mock-content "moclojer.yml" storage)
+        env (get-in config [:config :env])
+        host-key (if (= env :dev) :local-host :host)
+        missing-mocks (logic.yml/filter-missing-mocks
+                       parsed-mocks parsed-unified host-key)]
+    (doseq [{:keys [endpoint path]} missing-mocks]
+      (logs/log :info "found mock missing from unified. trying to regenerate..."
+                :ctx (assoc (select-keys endpoint [:path host-key])
+                            :s3-path path))
+      (ports.producers/mock-unified! path (get endpoint host-key)
+                                     false false publisher))))
