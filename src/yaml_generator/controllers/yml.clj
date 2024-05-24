@@ -109,4 +109,5 @@
                 :ctx (assoc (select-keys endpoint [:path host-key])
                             :s3-path path))
       (ports.producers/mock-unified! path (get endpoint host-key)
-                                     false false publisher))))
+                                     false false publisher)
+      (Thread/sleep 3000))))
