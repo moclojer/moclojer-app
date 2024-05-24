@@ -80,27 +80,33 @@
   )
 
 (defn filter-missing-mocks [mocks unified host-key]
-  (letfn [(get-host [mock]
-            (get-in mock [:content :endpoint host-key]))
-          (get-path [mock]
-            (get-in mock [:content :endpoint :path]))]
-    (remove
-     (fn [mock]
-       (some #(and (= (get-host mock) (get-host %))
-                   (= (get-path mock) (get-path %)))
-             unified))
-     mocks)))
+  (remove
+   (fn [mock]
+     (every? (fn [{:keys [endpoint]}]
+               (some #(and (= (:path endpoint)
+                              (get-in % [:endpoint :path]))
+                           (= (get endpoint host-key)
+                              (get-in % [:endpoint host-key])))
+                     unified))
+             (:content mock))
+     #_(let [endpoint (get-in mock [:content :endpoint])]
+         (some #(and (= (:path endpoint) (get-in % [:endpoint :path]))
+                     (= (get endpoint host-key) (get-in % [:endpoint host-key])))
+               unified)))
+   mocks))
 
 (comment
   (filter-missing-mocks
-   [{:content {:endpoint {:path "/hello/:world"
-                          :host "hello-j0suetm.moclojer.com"}}
-     :path "hello"}
-    {:content {:endpoint {:path "/bye/:world"
-                          :host "hello-j0suetm.moclojer.com"}}
-     :path "bye"}]
-   [{:content {:endpoint {:path "/hello/:world"
-                          :host "hello-j0suetm.moclojer.com"}}}]
+   [{:path "cd989358-af38-4a2f-a1a1-88096aa425a7/10f62424-c8f7-4793-bc7c-bfe5d26655a5/mock.yml"
+     :content [{:endpoint
+                {:method "GET"
+                 :path "/hello/:username"
+                 :response {:status 200
+                            :headers {:Content-Type "application/json"}
+                            :body "{\n  \"hello\": \"{{path-params.username}}!\"\n}"}
+                 :local-host "test-j0suetm.moclojer.com"}}]}]
+   {:path "moclojer.yml", :content []}
    :host)
+
   ;;
   )
