@@ -1,4 +1,4 @@
-(ns back.integration.yaml-generator.unified-validation
+(ns back.integration.yaml-generator.unified-validation-test
   (:require [back.api.db.customers :as db.customers]
             [back.api.db.mocks :as db.mocks]
             [back.api.ports.workers :as api.workers]
@@ -87,19 +87,29 @@
   (flow
     "should correct and validate unified yaml"
     [{:keys [publisher storage]} (state-flow.api/get-state)]
+
     (state-flow.api/invoke
-     #(redis-publisher/publish! publisher
-                                "unified.verification.dispatch"
-                                {}))
+     (redis-publisher/publish! publisher
+                               "unified.verification.dispatch"
+                               {}))
+
     (match?
      (matchers/embeds (logic.yml/parse-yaml-read-literal
                        (:with-host yml-consts)))
-     (state-flow.api/invoke
-      #(do
-         (Thread/sleep 5000)
-         (some-> (storage/get-file storage "moclojer" "moclojer.yml")
-                 io/reader slurp
-                 logic.yml/parse-yaml-read-literal))))))
+     (state-flow.api/return
+      (let [timeout 5000 ;; 5 seconds
+            deadline (+ (System/currentTimeMillis) timeout)]
+        (loop []
+          (Thread/sleep 500)
+          (if (< (System/currentTimeMillis) deadline)
+            (if-let [content (some-> (storage/get-file storage "moclojer" "moclojer.yml")
+                                     io/reader slurp
+                                     logic.yml/parse-yaml-read-literal)]
+              (if-not (= content [])
+                content
+                (recur))
+              (recur))
+            (prn :timed-out))))))))
 
 (defflow
   flow-unified-validation-test
