@@ -109,7 +109,7 @@
                 content
                 (recur))
               (recur))
-            (prn :timed-out))))))))
+            (throw (Exception. "Timeout reached while waiting for file content")))))))))
 
 (defflow
   flow-unified-validation-test
