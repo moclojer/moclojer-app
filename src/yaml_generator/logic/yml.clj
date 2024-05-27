@@ -85,17 +85,25 @@
      (every? (fn [{:keys [endpoint]}]
                (some #(and (= (:path endpoint)
                               (get-in % [:endpoint :path]))
+                           (= (:method endpoint)
+                              (get-in % [:endpoint :method]))
                            (= (get endpoint host-key)
                               (get-in % [:endpoint host-key])))
-                     unified))
-             (:content mock))
-     #_(let [endpoint (get-in mock [:content :endpoint])]
-         (some #(and (= (:path endpoint) (get-in % [:endpoint :path]))
-                     (= (get endpoint host-key) (get-in % [:endpoint host-key])))
-               unified)))
+                     (:content unified)))
+             (:content mock)))
    mocks))
 
 (comment
+  (filter-missing-mocks
+   [{:path "cd989358-af38-4a2f-a1a1-88096aa425a7/10f62424-c8f7-4793-bc7c-bfe5d26655a5/mock.yml"
+     :content [{:endpoint
+                {:method "GET"
+                 :path "/hello/:username"
+                 :local-host "test-j0suetm.moclojer.com"}}]}]
+   {:path "moclojer.yml", :content []}
+   :host)
+  ;; => ({:path "cd989358-af38-4a2f-a1a1-88096aa425a7/10f62424-c8f7-4793-bc7c-bfe5d26655a5/mock.yml", :content [{:endpoint {:method "GET", :path "/hello/:username", :local-host "test-j0suetm.moclojer.com"}}]})
+
   (filter-missing-mocks
    [{:path "cd989358-af38-4a2f-a1a1-88096aa425a7/10f62424-c8f7-4793-bc7c-bfe5d26655a5/mock.yml"
      :content [{:endpoint
@@ -105,8 +113,14 @@
                             :headers {:Content-Type "application/json"}
                             :body "{\n  \"hello\": \"{{path-params.username}}!\"\n}"}
                  :local-host "test-j0suetm.moclojer.com"}}]}]
-   {:path "moclojer.yml", :content []}
+   {:path "moclojer.yml"
+    :content [{:endpoint
+               {:method "GET"
+                :path "/hello/:username"
+                :response {:status 200
+                           :headers {:Content-Type "application/json"}
+                           :body "{\n  \"hello\": \"{{path-params.username}}!\"\n}"}
+                :local-host "test-j0suetm.moclojer.com"}}]}
    :host)
-
-  ;;
+  ;; => ()
   )
