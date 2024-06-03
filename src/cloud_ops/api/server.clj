@@ -3,7 +3,7 @@
             [com.moclojer.components.core :as components]
             [com.moclojer.components.logs :as logs]
             [com.stuartsierra.component :as component]
-            [components.publisher :as publisher])
+            [com.moclojer.components.publisher :as publisher])
   (:gen-class))
 
 (def system-atom (atom nil))
