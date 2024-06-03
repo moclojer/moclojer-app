@@ -120,6 +120,5 @@
                                      (get-in flow-consts [:user :customer/uuid])
                                      (get-in flow-consts [:mock :mock/id]))
                                     (:with-host yml-consts)))
-    (state/invoke #(storage/upload! storage
-                                    "moclojer" "moclojer.yml" "[]\n"))
+    (state/invoke #(storage/upload! storage "moclojer" "moclojer.yml" "[]\n"))
     (fvalidate-and-recreate-unified)))
