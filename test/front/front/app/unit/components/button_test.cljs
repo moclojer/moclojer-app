@@ -1,6 +1,6 @@
 (ns front.app.unit.components.button-test
-  (:require [front.app.components.button :as components.button]
-            [cljs.test :refer [deftest is testing]]))
+  (:require [cljs.test :refer [deftest is testing]]
+            [front.app.components.button :as components.button]))ts.button]))
 
 (deftest props-classes-test
   (testing "should build classes name"

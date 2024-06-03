@@ -1,41 +1,35 @@
-(ns back.integration.yaml-generator.yaml-generation-test
-  (:require [back.api.db.customers :as db.customers]
-            [back.api.db.mocks :as db.mocks]
-            [back.api.routes :as routes]
-            [back.integration.components.utils :as utils]
-            [clojure.java.io :as io]
-            [com.stuartsierra.component :as component]
-            [components.config :as config]
-            [components.database :as database]
-            [components.http :as http]
-            [components.redis-publisher :as redis-publisher]
-            [components.redis-queue :as redis-queue]
-            [components.router :as router]
-            [components.sentry :as sentry]
-            [components.storage :as storage]
-            [matcher-combinators.matchers :as matchers]
-            [state-flow.api :refer [defflow]]
-            [state-flow.assertions.matcher-combinators :refer [match?]]
-            [state-flow.cljtest]
-            [state-flow.core :refer [flow]]
-            [state-flow.state :as state]
-            [yaml-generator.logic.yml :as logic.yml]
-            [yaml-generator.ports.workers :as p.workers]
-            [yaml.core :as yaml]))
+ (ns back.integration.yaml-generator.yaml-generation-test
+   (:require [back.api.db.customers :as db.customers]
+             [back.api.db.mocks :as db.mocks]
+             [back.api.routes :as routes]
+             [back.integration.components.utils :as utils]
+             [clojure.java.io :as io]
+             [com.moclojer.components.core :as components]
+             [com.moclojer.components.publisher :as publisher]
+             [com.moclojer.components.storage :as storage]
+             [com.stuartsierra.component :as component]
+             [matcher-combinators.matchers :as matchers]
+             [state-flow.api :refer [defflow]]
+             [state-flow.assertions.matcher-combinators :refer [match?]]
+             [state-flow.cljtest]
+             [state-flow.core :refer [flow]]
+             [state-flow.state :as state]
+             [yaml-generator.logic.yml :as logic.yml]
+             [yaml-generator.ports.workers :as p.workers]
+             [yaml.core :as yaml]))
 
-(defn- create-and-start-components! []
+(defn- create-and-start-components []
   (component/start-system
    (component/system-map
-    :config (config/new-config)
-    :http (http/new-http-mock {})
-    :router (router/new-router routes/routes)
-    :database (component/using (database/new-database) [:config])
-    :sentry (sentry/new-mock-sentry)
-    :publisher (component/using (redis-publisher/new-redis-publisher) [:config :sentry])
-    :storage (component/using (storage/new-storage) [:config])
-    :workers (component/using
-              (redis-queue/new-redis-queue p.workers/workers false)
-              [:config :database :storage :publisher :http :sentry]))))
+    :config (components/new-config "~/back/config.edn")
+    :http (components/new-http-mock {})
+    :router (components/new-router routes/routes)
+    :database (component/using (components/new-database) [:config])
+    :sentry (components/new-sentry-mock)
+    :publisher (component/using (components/new-publisher) [:config :sentry])
+    :storage (component/using (components/new-storage) [:config])
+    :workers (component/using (components/new-consumer p.workers/workers false)
+                              [:config :database :storage :publisher :http :sentry]))))
 
 (def yml-consts
   {:sample "
@@ -87,8 +81,8 @@
      storage (state-flow.api/get-state :storage)]
     (state-flow.api/invoke
      #(do
-        (redis-publisher/publish! publisher "mock.changed"
-                                  {:event {:mock-id (get-in flow-consts [:mock :mock/id])}})
+        (publisher/publish! publisher "mock.changed"
+                            {:event {:mock-id (get-in flow-consts [:mock :mock/id])}})
         (Thread/sleep 5000)))
 
     (match?
@@ -103,7 +97,7 @@
 
 (defflow
   flow-yaml-generation-test
-  {:init (utils/start-system! create-and-start-components!)
+  {:init (utils/start-system! create-and-start-components)
    :cleanup utils/stop-system!
    :fail-fast? true}
   (flow

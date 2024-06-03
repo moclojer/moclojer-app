@@ -1,17 +1,18 @@
 (ns dev.utils
-  (:require [com.stuartsierra.component :as component]
-            [components.logs :as logs]
-            [components.migrations :as migrations]
+  (:require [com.moclojer.components.core :as components]
+            [com.moclojer.components.logs :as logs]
+            [com.moclojer.components.migrations :as migrations]
+            [com.stuartsierra.component :as component]
             [pg-embedded-clj.core :as pg-emb]))
 
 (defn start-system-dev!
   ([sys-atom sys-map]
    (start-system-dev! sys-atom sys-map true))
   ([sys-atom sys-map init-pg?]
-   (logs/setup [["*" :info]] :auto :dev)
+   (components/setup-logger [["*" :info]] :auto :dev)
    (when init-pg?
      (pg-emb/init-pg)
-     (migrations/migrate (migrations/configuration-with-db)))
+     (migrations/migrate (migrations/build-complete-db-config "back/config.edn"))
    (->> sys-map
         component/start
         (reset! sys-atom))))

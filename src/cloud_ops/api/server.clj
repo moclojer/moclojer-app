@@ -1,31 +1,28 @@
 (ns cloud-ops.api.server
   (:require [cloud-ops.api.ports.workers :as p.workers]
+            [com.moclojer.components.core :as components]
+            [com.moclojer.components.logs :as logs]
             [com.stuartsierra.component :as component]
-            [components.config :as config]
-            [components.http :as http]
-            [components.logs :as logs]
-            [components.redis-publisher :as redis-publisher]
-            [components.redis-queue :as redis-queue]
-            [components.sentry :as sentry])
+            [components.publisher :as publisher])
   (:gen-class))
 
 (def system-atom (atom nil))
 
 (defn build-system-map []
   (component/system-map
-   :config (config/new-config)
-   :http (http/new-http)
-   :sentry (component/using (sentry/new-sentry) [:config])
-   ;; :sentry (sentry/new-mock-sentry)
+   :config (components/new-config "back/config.edn")
+   :http (components/new-http)
+   :sentry (component/using (components/new-sentry) [:config])
+   ;; :sentry (components/new-sentry-mock)
    :publisher (component/using
-               (redis-publisher/new-redis-publisher)
+               (components/new-publisher)
                [:config :sentry])
    :workers (component/using
-             (redis-queue/new-redis-queue p.workers/workers true)
+             (components/new-consumer p.workers/workers true)
              [:config :http :publisher :sentry])))
 
 (defn start-system! [system-map]
-  (logs/setup [["*" :info]] :auto :prod)
+  (components/setup-logger [["*" :info]] :auto :prod)
   (->> system-map
        component/start
        (reset! system-atom)))
@@ -47,9 +44,9 @@
 (comment
   (start-system! (build-system-map))
 
-  (redis-publisher/publish! (:publisher @system-atom) "domain.create"
-                            {:event {:domain "nao-existe-123-j0suetm"
-                                     :retrying? false}})
+  (publisher/publish! (:publisher @system-atom) "domain.create"
+                      {:event {:domain "nao-existe-123-j0suetm"
+                               :retrying? false}})
 
   (stop-system!)
   ;;

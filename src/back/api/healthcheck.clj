@@ -1,6 +1,5 @@
 (ns back.api.healthcheck
-  (:require
-   [components.database :as database]))
+  (:require [com.moclojer.components.database :as database]))
 
 (def Content
   [:map

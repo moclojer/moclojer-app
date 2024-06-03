@@ -1,12 +1,10 @@
 (ns dev.yaml-generator.dev-workers
-  (:require [com.stuartsierra.component :as component]
-            [components.config :as config]
-            [components.database :as database]
-            [components.logs :as logs]
-            [components.migrations :as migrations]
-            [components.redis-publisher :as redis-publisher]
-            [components.redis-queue :as redis-queue]
-            [components.storage :as storage]
+  (:require [com.moclojer.components.core :as components]
+            [com.moclojer.components.logs :as logs]
+            [com.moclojer.components.migrations :as migrations]
+            [com.moclojer.components.publisher :as publisher]
+            [com.moclojer.components.storage :as storage]
+            [com.stuartsierra.component :as component]
             [pg-embedded-clj.core :as pg-emb]
             [yaml-generator.ports.workers :as p.workers]))
 
@@ -18,19 +16,18 @@
 ;; system map
 (def system-map
   (component/system-map
-   :config (config/new-config)
-   :publisher (component/using (redis-publisher/new-redis-publisher) [:config])
-   :database (component/using (database/new-database) [:config])
-   :workers (component/using
-             (redis-queue/new-redis-queue p.workers/workers) [:config :database :storage :publisher])
-   :storage (component/using
-             (storage/new-storage) [:config])))
+   :config (components/new-config "back/config.edn")
+   :publisher (component/using (components/new-publisher) [:config])
+   :database (component/using (components/new-database) [:config])
+   :workers (component/using (components/new-consumer p.workers/workers)
+                             [:config :database :storage :publisher])
+   :storage (component/using (storage/new-storage) [:config])))
 
 ;; start system
 (defn start-system-dev! [system-map]
-  (logs/setup [["*" :info]] :auto :dev)
+  (components/setup-logger [["*" :info]] :auto :dev)
   (pg-emb/init-pg)
-  (migrations/migrate (migrations/configuration-with-db))
+  (migrations/migrate (migrations/build-complete-db-config "back/config.edn"))
   (->> system-map
        component/start
        (reset! system-atom)))
@@ -43,13 +40,9 @@
    (fn [s] (when s (component/stop s))))
   (pg-emb/halt-pg!))
 
-;;invoke start system 
-
 (comment
-
   (start-system-dev! system-map)
 
-;;invoke stop system 
   (def publisher (:publisher @system-atom))
 
   (def yml "
@@ -68,15 +61,16 @@
         {
           \"hello\": \"{{path-params.username}}!\"
         }")
-  ;;publish msg
-  (-> publisher
-      (redis-publisher/publish! :mock.changed {:event
-                                               {:user-id #uuid "cd989358-af38-4a2f-a1a1-88096aa425a7",
-                                                :id (random-uuid)
-                                                :wildcard "test",
-                                                :subdomain "chico",
-                                                :enabled true,
-                                                :content yml}}))
+
+  (publisher/publish! publisher
+                      :mock.changed {:event
+                                     {:user-id #uuid "cd989358-af38-4a2f-a1a1-88096aa425a7",
+                                      :id (random-uuid)
+                                      :wildcard "test",
+                                      :subdomain "chico",
+                                      :enabled true,
+                                      :content yml}})
+
   (stop-system-dev!)
-  ;
+  ;;
   )

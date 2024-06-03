@@ -1,23 +1,21 @@
 (ns back.integration.api.db.get-username-test
   (:require [back.api.db.customers :as db.customers]
-            [components.config :as config]
-            [components.database :as database]
-            [state-flow.assertions.matcher-combinators :refer [match?]]
             [back.integration.components.utils :as utils]
+            [com.moclojer.components.core :as components]
             [com.stuartsierra.component :as component]
             [state-flow.api :refer [defflow]]
+            [state-flow.assertions.matcher-combinators :refer [match?]]
             [state-flow.core :refer [flow]]
             [state-flow.state :as state]))
 
-(defn- create-and-start-components! []
+(defn- create-and-start-components []
   (component/start-system
    (component/system-map
-    :config (config/new-config)
-    :database (component/using (database/new-database)
-                               [:config]))))
+    :config (components/new-config "~/back/config.edn")
+    :database (component/using (components/new-database) [:config]))))
 
 (defflow flow-db-get-username
-  {:init (utils/start-system! create-and-start-components!)
+  {:init (utils/start-system! create-and-start-components)
    :cleanup utils/stop-system!
    :fail-fast? true}
 

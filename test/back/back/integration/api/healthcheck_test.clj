@@ -1,33 +1,28 @@
 (ns back.integration.api.healthcheck-test
-  (:require
-   [back.api.routes :as routes]
-   [components.config :as config]
-   [components.database :as database]
-   [components.http :as http]
-   [components.router :as router]
-   [components.webserver :as webserver]
-   [back.integration.api.helpers :as helpers]
-   [back.integration.components.utils :as utils]
-   [com.stuartsierra.component :as component]
-   [state-flow.api :refer [defflow]]
-   [matcher-combinators.matchers :as matchers]
-   [state-flow.assertions.matcher-combinators :refer [match?]]
-   [state-flow.core :refer [flow]]))
+  (:require [back.api.routes :as routes]
+            [back.integration.api.helpers :as helpers]
+            [back.integration.components.utils :as utils]
+            [com.moclojer.components.core :as components]
+            [com.stuartsierra.component :as component]
+            [matcher-combinators.matchers :as matchers]
+            [state-flow.api :refer [defflow]]
+            [state-flow.assertions.matcher-combinators :refer [match?]]
+            [state-flow.core :refer [flow]]))
 
-(defn- create-and-start-components! []
+(defn- create-and-start-components []
   (component/start-system
    (component/system-map
-    :config (config/new-config)
-    :http (http/new-http-mock {})
-    :router (router/new-router routes/routes)
-    :database (component/using (database/new-database)
+    :config (components/new-config "~/back/config.edn")
+    :http (components/new-http-mock {})
+    :router (components/new-router routes/routes)
+    :database (component/using (components/new-database)
                                [:config])
-    :webserver (component/using (webserver/new-webserver)
+    :webserver (component/using (components/new-webserver)
                                 [:config :http :router :database]))))
 
 (defflow
   flow-integration-endpoints-test
-  {:init (utils/start-system! create-and-start-components!)
+  {:init (utils/start-system! create-and-start-components)
    :cleanup utils/stop-system!
    :fail-fast? true}
 

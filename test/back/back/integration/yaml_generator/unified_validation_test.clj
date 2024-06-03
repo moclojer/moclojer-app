@@ -5,15 +5,10 @@
             [back.api.routes :as routes]
             [back.integration.components.utils :as utils]
             [clojure.java.io :as io]
+            [com.moclojer.components.core :as components]
+            [com.moclojer.components.publisher :as publisher]
+            [com.moclojer.components.storage :as storage]
             [com.stuartsierra.component :as component]
-            [components.config :as config]
-            [components.database :as database]
-            [components.http :as http]
-            [components.redis-publisher :as redis-publisher]
-            [components.redis-queue :as redis-queue]
-            [components.router :as router]
-            [components.sentry :as sentry]
-            [components.storage :as storage]
             [matcher-combinators.matchers :as matchers]
             [state-flow.api :refer [defflow]]
             [state-flow.assertions.matcher-combinators :refer [match?]]
@@ -23,21 +18,20 @@
             [yaml-generator.logic.yml :as logic.yml]
             [yaml-generator.ports.workers :as yml-gen.workers]))
 
-(defn- create-and-start-components! []
+(defn- create-and-start-components []
   (component/start-system
    (component/system-map
-    :config (config/new-config)
-    :http (http/new-http-mock {})
-    :router (router/new-router routes/routes)
-    :database (component/using (database/new-database) [:config])
-    :sentry (sentry/new-mock-sentry)
-    :publisher (component/using (redis-publisher/new-redis-publisher) [:config :sentry])
-    :storage (component/using (storage/new-storage) [:config])
-    :workers (component/using
-              (redis-queue/new-redis-queue (concat api.workers/workers
-                                                   yml-gen.workers/workers)
-                                           false)
-              [:config :database :storage :publisher :http :sentry]))))
+    :config (components/new-config "~/back/config.edn")
+    :http (components/new-http-mock {})
+    :router (components/new-router routes/routes)
+    :database (component/using (components/new-database) [:config])
+    :sentry (components/new-sentry-mock)
+    :publisher (component/using (components/new-publisher) [:config :sentry])
+    :storage (component/using (components/new-storage) [:config])
+    :workers (component/using (components/new-consumer
+                               (concat api.workers/workers yml-gen.workers/workers)
+                               false)
+                              [:config :database :storage :publisher :http :sentry]))))
 
 (def yml-consts
   {:sample "
@@ -89,9 +83,9 @@
     [{:keys [publisher storage]} (state-flow.api/get-state)]
 
     (state-flow.api/invoke
-     (redis-publisher/publish! publisher
-                               "unified.verification.dispatch"
-                               {}))
+     (publisher/publish! publisher
+                         "unified.verification.dispatch"
+                         {}))
 
     (match?
      (matchers/embeds (logic.yml/parse-yaml-read-literal
@@ -113,7 +107,7 @@
 
 (defflow
   flow-unified-validation-test
-  {:init (utils/start-system! create-and-start-components!)
+  {:init (utils/start-system! create-and-start-components)
    :cleanup utils/stop-system!
    :fail-fast? true}
   (flow

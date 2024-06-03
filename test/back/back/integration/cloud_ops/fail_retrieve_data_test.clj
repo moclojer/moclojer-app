@@ -1,10 +1,8 @@
 (ns back.integration.cloud-ops.fail-retrieve-data-test
   (:require [back.integration.components.utils :as utils]
             [cloud-ops.api.ports.workers :as workers]
+            [com.moclojer.components.core :as components]
             [com.stuartsierra.component :as component]
-            [components.config :as config]
-            [components.http :as http]
-            [components.redis-publisher :as redis-publisher]
             [state-flow.api :as sf]))
 
 (def mocked-responses
@@ -13,17 +11,16 @@
     :response {:status 500
                :body ""}}])
 
-(defn- create-and-start-components! []
+(defn- create-and-start-components []
   (component/system-map
-   :config (config/new-config)
-   :http (http/new-http-mock mocked-responses)
-   :publisher (component/using
-               (redis-publisher/mock-redis-publisher)
-               [:config])))
+   :config (components/new-config "~/back/config.edn")
+   :http (components/new-http-mock mocked-responses)
+   :publisher (component/using (components/new-publisher-mock)
+                               [:config])))
 
 (sf/defflow
   flow-fail-retrieve-data
-  {:init (utils/start-system! create-and-start-components!)
+  {:init (utils/start-system! create-and-start-components)
    :cleanup utils/stop-system!
    :fail-fast? true}
   (sf/flow

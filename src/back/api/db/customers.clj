@@ -1,8 +1,7 @@
 (ns back.api.db.customers
-  (:require
-   [components.database :as database]
-   [honey.sql :as sql]
-   [honey.sql.helpers :as sql.helpers]))
+  (:require [com.moclojer.components.database :as database]
+            [honey.sql :as sql]
+            [honey.sql.helpers :as sql.helpers]))
 
 (defn insert!
   [transaction db]

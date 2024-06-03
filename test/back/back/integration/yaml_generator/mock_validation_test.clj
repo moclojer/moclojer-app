@@ -3,11 +3,11 @@
             [back.api.db.mocks :as db.mocks]
             [back.integration.components.utils :as utils]
             [com.stuartsierra.component :as component]
-            [components.config :as config]
-            [components.database :as database]
-            [components.redis-publisher :as redis-publisher]
-            [components.sentry :as sentry]
-            [components.storage :as storage]
+            [com.moclojer.components.core :as components]
+            [com.moclojer.components.database :as database]
+            [com.moclojer.components.publisher :as publisher]
+            [com.moclojer.components.sentry :as sentry]
+            [com.moclojer.components.storage :as storage]
             [matcher-combinators.matchers :as matchers]
             [state-flow.api :refer [defflow]]
             [state-flow.assertions.matcher-combinators :refer [match?]]
@@ -15,19 +15,16 @@
             [state-flow.state :as state]
             [yaml-generator.ports.workers :as workers]))
 
-(defn- create-and-start-components! []
+(defn- create-and-start-components []
   (component/start-system
    (component/system-map
-    :config (config/new-config)
-    :sentry (component/using (sentry/new-mock-sentry) [:config])
+    :config (components/new-config "~/back/config.edn")
+    :sentry (component/using (components/new-sentry-mock) [:config])
     ;; this test should have redis up to run!
     ;; docker-compose -f docker/docker-compose.yml redis up 
-    :database (component/using (database/new-database)
-                               [:config])
-    :publisher (component/using (redis-publisher/mock-redis-publisher)
-                                [:config :sentry])
-    :storage (component/using (storage/new-storage)
-                              [:config]))))
+    :database (component/using (components/new-database) [:config])
+    :publisher (component/using (components/new-publisher-mock) [:config :sentry])
+    :storage (component/using (components/new-storage) [:config]))))
 
 (def invalid-mock-yaml
   "- endpoint:
@@ -68,9 +65,9 @@
       [components (state-flow.api/get-state)]
       (state/invoke
        #(workers/generate-yml-handler {:event {:mock-id mock-id}}
-                                      components))
+                                      components)
       (match?
-       (matchers/embeds (-> (get @redis-publisher/mock-publisher
+       (matchers/embeds (-> (get @publisher/mock-publisher
                                  "mock.publication") first))
        {:event {:domain "test-chico"
                 :new-status "offline-invalid"}}))))
@@ -117,9 +114,9 @@
       [components (state-flow.api/get-state)]
       (state/invoke
        #(workers/generate-yml-handler {:event {:mock-id mock-id}}
-                                      components))
+                                      components)
       (match?
-       (matchers/embeds (-> (get @redis-publisher/mock-publisher
+       (matchers/embeds (-> (get @publisher/mock-publisher
                                  "mock.unified") first))
        {:event {:path (str "cd989358-af38-4a2f-a1a1-88096aa425a7/" mock-id "/mock.yml")
                 :domain "test-chico"
@@ -128,14 +125,14 @@
 
 (defflow
   flow-block-valid-yaml
-  {:init (utils/start-system! create-and-start-components!)
+  {:init (utils/start-system! create-and-start-components)
    :cleanup utils/stop-system!
    :fail-fast? true}
   (fallow-valid-yaml))
 
 (defflow
   flow-block-invalid-yaml
-  {:init (utils/start-system! create-and-start-components!)
+  {:init (utils/start-system! create-and-start-components)
    :cleanup utils/stop-system!
    :fail-fast? true}
   (fblock-invalid-yaml))

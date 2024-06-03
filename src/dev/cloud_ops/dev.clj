@@ -1,11 +1,8 @@
 (ns dev.cloud-ops.dev
   (:require [cloud-ops.api.ports.workers :as p.workers]
+            [com.moclojer.components.core :as components]
+            [com.moclojer.components.publisher :as publisher]
             [com.stuartsierra.component :as component]
-            [components.config :as config]
-            [components.http :as http]
-            [components.redis-publisher :as redis-publisher]
-            [components.redis-queue :as redis-queue]
-            [components.sentry :as sentry]
             [dev.utils :as utils]
             [muuntaja.core :as m])
   (:gen-class))
@@ -52,22 +49,20 @@
 
 (defn build-system-map []
   (component/system-map
-   :config (config/new-config)
+   :config (components/new-config "back/config.edn")
    ;; :http (http/new-http)
-   :http (http/new-http-mock
+   :http (components/new-http-mock
           (vals (select-keys
                  mocked-responses
                  ;; modify this list for different results
                  [:cf-data-ok :do-data-ok
                   :cf-create-ok :do-create-ok
                   :domain-ok])))
-   :sentry (sentry/new-mock-sentry)
-   :publisher (component/using
-               (redis-publisher/new-redis-publisher)
-               [:config :sentry])
-   :workers (component/using
-             (redis-queue/new-redis-queue p.workers/workers false)
-             [:config :http :publisher :sentry])))
+   :sentry (components/new-mock-sentry)
+   :publisher (component/using (components/new-publisher)
+                               [:config :sentry])
+   :workers (component/using (components/new-consumer p.workers/workers false)
+                             [:config :http :publisher :sentry])))
 
 (comment
   ;; init
@@ -79,9 +74,10 @@
 
   ((get-in mocked-responses [:cf-data-ok :response]) nil)
 
-  (redis-publisher/publish! (:publisher @sys-atom)
-                            "domain.create"
-                            {:event {:domain "test-j0suetm"}})
+  (publisher/publish! (:publisher @sys-atom)
+                      "domain.create"
+                      {:event {:domain "test-j0suetm"}})
+
   ;; iterate
   (utils/stop-system-dev! sys-atom false)
   ;; re-eval file then
