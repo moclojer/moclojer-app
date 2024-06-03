@@ -15,8 +15,7 @@
              [state-flow.core :refer [flow]]
              [state-flow.state :as state]
              [yaml-generator.logic.yml :as logic.yml]
-             [yaml-generator.ports.workers :as p.workers]
-             [yaml.core :as yaml]))
+             [yaml-generator.ports.workers :as p.workers]))
 
 (defn- create-and-start-components []
   (component/start-system
@@ -86,14 +85,14 @@
         (Thread/sleep 5000)))
 
     (match?
-     (matchers/embeds (yaml/parse-string (:sample yml-consts)))
+     (matchers/embeds (logic.yml/parse-yaml-&-body (:sample yml-consts)))
      (state-flow.api/return
       (some-> (storage/get-file storage "moclojer"
                                 (logic.yml/gen-path
                                  (get-in flow-consts [:user :customer/uuid])
                                  (get-in flow-consts [:mock :mock/id])))
               io/reader slurp
-              yaml/parse-string)))))
+              logic.yml/parse-yaml-&-body)))))
 
 (defflow
   flow-yaml-generation-test
