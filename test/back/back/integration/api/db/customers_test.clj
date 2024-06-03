@@ -11,7 +11,7 @@
 (defn- create-and-start-components []
   (component/start-system
    (component/system-map
-    :config (components/new-config "~/back/config.edn")
+    :config (components/new-config "back/config.edn")
     :database (component/using (components/new-database) [:config]))))
 
 (defflow flow-db-insert-user-test

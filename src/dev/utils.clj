@@ -12,7 +12,7 @@
    (components/setup-logger [["*" :info]] :auto :dev)
    (when init-pg?
      (pg-emb/init-pg)
-     (migrations/migrate (migrations/build-complete-db-config "back/config.edn"))
+     (migrations/migrate (migrations/build-complete-db-config "back/config.edn")))
    (->> sys-map
         component/start
         (reset! sys-atom))))

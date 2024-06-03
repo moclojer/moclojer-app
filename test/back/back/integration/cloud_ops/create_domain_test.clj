@@ -49,7 +49,7 @@
 
 (defn- create-and-start-components []
   (component/system-map
-   :config (components/new-config "~/back/config.edn")
+   :config (components/new-config "back/config.edn")
    :http (components/new-http-mock
           (vals (select-keys
                  mocked-responses

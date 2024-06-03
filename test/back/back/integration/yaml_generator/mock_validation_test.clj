@@ -18,7 +18,7 @@
 (defn- create-and-start-components []
   (component/start-system
    (component/system-map
-    :config (components/new-config "~/back/config.edn")
+    :config (components/new-config "back/config.edn")
     :sentry (component/using (components/new-sentry-mock) [:config])
     ;; this test should have redis up to run!
     ;; docker-compose -f docker/docker-compose.yml redis up 
