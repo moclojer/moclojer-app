@@ -1,21 +1,21 @@
 (ns cloud-ops.api.ports.producers
-  (:require [components.redis-publisher :as redis-publisher]))
+  (:require [com.moclojer.components.publisher :as publisher]))
 
 (defn create-domain!
   [domain retrying? publisher]
-  (redis-publisher/publish! publisher "domain.create"
-                            {:event {:domain domain
-                                     :retrying? retrying?}}))
+  (publisher/publish! publisher "domain.create"
+                      {:event {:domain domain
+                               :retrying? retrying?}}))
 
 (defn verify-domain!
   [domain retrying? skip-data? publisher]
-  (redis-publisher/publish! publisher "domain.verify"
-                            {:event {:domain domain
-                                     :retrying? retrying?
-                                     :skip-data? skip-data?}}))
+  (publisher/publish! publisher "domain.verify"
+                      {:event {:domain domain
+                               :retrying? retrying?
+                               :skip-data? skip-data?}}))
 
 (defn set-publication-status!
   [domain new-status publisher]
-  (redis-publisher/publish! publisher "mock.publication"
-                            {:event {:domain domain
-                                     :new-status new-status}}))
+  (publisher/publish! publisher "mock.publication"
+                      {:event {:domain domain
+                               :new-status new-status}}))

@@ -1,10 +1,9 @@
 (ns back.integration.cloud-ops.create-domain-test
   (:require [back.integration.components.utils :as utils]
             [cloud-ops.api.ports.workers :as workers]
+            [com.moclojer.components.core :as components]
+            [com.moclojer.components.publisher :as publisher]
             [com.stuartsierra.component :as component]
-            [components.config :as config]
-            [components.http :as http]
-            [components.redis-publisher :as redis-publisher]
             [matcher-combinators.matchers :as matchers]
             [muuntaja.core :as m]
             [state-flow.api :refer [defflow]]
@@ -48,19 +47,18 @@
                {:status 200
                 :body "{\"created\": true}"}}})
 
-(defn- create-and-start-components! []
+(defn- create-and-start-components []
   (component/system-map
-   :config (config/new-config)
-   :http (http/new-http-mock
+   :config (components/new-config "~/back/config.edn")
+   :http (components/new-http-mock
           (vals (select-keys
                  mocked-responses
                  ;; modify this list for different results
                  [:cf-data-ok :do-data-ok
                   :cf-create-ok :do-create-ok
                   :domain-ok])))
-   :publisher (component/using
-               (redis-publisher/mock-redis-publisher)
-               [:config])))
+   :publisher (component/using (components/new-publisher-mock)
+                               [:config])))
 
 (defn fcreate-domain [domain]
   (flow
@@ -71,14 +69,14 @@
                                      components))
 
     (match?
-     (matchers/embeds (-> @redis-publisher/mock-publisher
+     (matchers/embeds (-> @publisher/mock-publisher
                           (get "mock.publication")
                           first))
      {:event {:domain domain
               :new-status "publishing"}})
 
     (match?
-     (matchers/embeds (-> @redis-publisher/mock-publisher
+     (matchers/embeds (-> @publisher/mock-publisher
                           (get "domain.verify")
                           first))
      {:event {:domain domain
@@ -87,7 +85,7 @@
 
 (defflow
   flow-create-domain
-  {:init (utils/start-system! create-and-start-components!)
+  {:init (utils/start-system! create-and-start-components)
    :cleanup utils/stop-system!
    :fail-fast? true}
   (fcreate-domain "test-j0suetm"))

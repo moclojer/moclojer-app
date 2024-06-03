@@ -3,7 +3,7 @@
             [back.api.db.mocks :as db.mocks]
             [back.api.logic.mocks :as logic.mocks]
             [back.api.ports.producers :as ports.producers]
-            [components.logs :as logs]))
+            [com.moclojer.components.logs :as logs]))
 
 (defn create-mock!
   [user-id mock {:keys [database publisher]}]

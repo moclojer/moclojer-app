@@ -4,7 +4,8 @@
             [cloud-ops.api.logic.cloud :as logic.cloud]
             [cloud-ops.api.ports.http-out :as http-out]
             [cloud-ops.api.ports.producers :as producers]
-            [components.logs :as logs]))
+            [com.moclojer.components.logs :as logs]))
+
 (defn get-current-data
   "Retrieves current data from both CloudFlare and DigitalOcean.
    The naming is agnostic to records and entire specs."

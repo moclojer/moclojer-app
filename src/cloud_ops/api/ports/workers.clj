@@ -1,6 +1,6 @@
 (ns cloud-ops.api.ports.workers
   (:require [cloud-ops.api.controllers.cloud :as controllers.cloud]
-            [components.logs :as logs]))
+            [com.moclojer.components.logs :as logs]))
 
 (defn create-domain-handler
   [{:keys [event]} components]

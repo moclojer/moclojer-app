@@ -2,8 +2,8 @@
   (:require [back.api.db.mocks :as db.mocks]
             [clojure.java.io :as io]
             [clojure.string :as str]
-            [components.logs :as logs]
-            [components.storage :as storage]
+            [com.moclojer.components.logs :as logs]
+            [com.moclojer.components.storage :as storage]
             [yaml-generator.logic.yml :as logic.yml]
             [yaml-generator.ports.producers :as ports.producers]))
 

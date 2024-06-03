@@ -1,8 +1,8 @@
 (ns back.integration.components.utils
   (:require
    [com.stuartsierra.component :as component]
-   [components.logs :as logs]
-   [components.migrations :as migrations]
+   [com.moclojer.components.logs :as logs]
+   [com.moclojer.components.migrations :as migrations]
    [pg-embedded-clj.core :as pg-emb]))
 
 (defn start-system!
@@ -10,7 +10,7 @@
   (fn []
     (logs/setup :info :auto :dev)
     (pg-emb/init-pg)
-    (migrations/migrate (migrations/configuration-with-db))
+    (migrations/migrate (migrations/build-complete-db-config "back/config.edn"))
     (system-start-fn)))
 
 (defn stop-system!

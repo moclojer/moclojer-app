@@ -2,14 +2,10 @@
   (:require [back.api.routes :as routes]
             [back.integration.components.utils :as utils]
             [clojure.java.io :as io]
+            [com.moclojer.components.core :as components]
+            [com.moclojer.components.publisher :as publisher]
+            [com.moclojer.components.storage :as storage]
             [com.stuartsierra.component :as component]
-            [components.config :as config]
-            [components.database :as database]
-            [components.http :as http]
-            [components.redis-publisher :as redis-publisher]
-            [components.redis-queue :as redis-queue]
-            [components.router :as router]
-            [components.storage :as storage]
             [state-flow.api :refer [defflow]]
             [state-flow.assertions.matcher-combinators :refer [match?]]
             [state-flow.cljtest]
@@ -17,12 +13,13 @@
             [state-flow.state :as state]
             [yaml-generator.ports.workers :as p.workers]
             [yaml.core :as yaml]))
+
 (defn publish-message [msg queue-name]
   (flow "publish a message"
     [publisher (state-flow.api/get-state :publisher)]
 
     (-> publisher
-        (redis-publisher/publish!
+        (publisher/publish!
          queue-name
          msg)
         state-flow.api/return)))
@@ -70,24 +67,20 @@
         slurp
         state-flow.api/return)))
 
-(defn- create-and-start-components! []
+(defn- create-and-start-components []
   (component/start-system
    (component/system-map
-    :config (config/new-config)
-    :http (http/new-http-mock {})
-    :router (router/new-router routes/routes)
-    :database (component/using (database/new-database)
-                               [:config])
+    :config (components/new-config "~/back/config.edn")
+    :http (components/new-http-mock {})
+    :router (components/new-router routes/routes)
+    :database (component/using (components/new-database) [:config])
     ;; this test should have redis up to run!
     ;; docker-compose -f docker/docker-compose.yml redis up 
-    :publisher (component/using (redis-publisher/new-redis-publisher)
-                                [:config])
+    :publisher (component/using (components/new-publisher) [:config])
     ;; docker-compose -f docker/docker-compose.yml localstack up 
-    :storage (component/using (storage/new-storage)
-                              [:config])
-    :workers (component/using
-              (redis-queue/new-redis-queue p.workers/workers false)
-              [:config :database :storage :publisher]))))
+    :storage (component/using (components/new-storage) [:config])
+    :workers (component/using (components/new-consumer p.workers/workers false)
+                              [:config :database :storage :publisher]))))
 
 (def yml "
 - endpoint:
@@ -123,7 +116,7 @@
 (def mock-id (random-uuid))
 
 (defflow integration-flow-test-updated-yml-publish-and-read
-  {:init (utils/start-system! create-and-start-components!)
+  {:init (utils/start-system! create-and-start-components)
    :cleanup utils/stop-system!
    :fail-fast? true}
 

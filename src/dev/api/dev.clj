@@ -1,15 +1,9 @@
 (ns dev.api.dev
   (:require [back.api.ports.workers :as p.workers]
             [back.api.routes :as routes]
+            [com.moclojer.components.core :as components]
+            [com.moclojer.components.publisher :as publisher]
             [com.stuartsierra.component :as component]
-            [components.config :as config]
-            [components.database :as database]
-            [components.http :as http]
-            [components.redis-publisher :as redis-publisher]
-            [components.redis-queue :as redis-queue]
-            [components.router :as router]
-            [components.sentry :as sentry]
-            [components.webserver :as webserver]
             [dev.utils :as utils])
   (:gen-class))
 
@@ -19,12 +13,12 @@
 
 (defn build-system-map []
   (component/system-map
-   :config (config/new-config)
-   :sentry (sentry/new-mock-sentry)
-   :http (http/new-http)
-   :router (router/new-router routes/routes)
-   :database (component/using (database/new-database) [:config])
-   :publisher (component/using (redis-publisher/new-redis-publisher
+   :config (components/new-config "back/config.edn")
+   :sentry (components/new-sentry-mock)
+   :http (components/new-http)
+   :router (components/new-router routes/routes)
+   :database (component/using (components/new-database) [:config])
+   :publisher (component/using (components/new-publisher
                                 #_[{:qname "mocks.verify"
                                     :event {}
                                     ;; every other minute
@@ -34,21 +28,20 @@
                                     ;; every 5 minutes
                                     :delay 300000}])
                                [:config])
-   :webserver (component/using (webserver/new-webserver)
+   :webserver (component/using (components/new-webserver)
                                [:config :http :router :database :publisher])
-   :workers (component/using
-             (redis-queue/new-redis-queue p.workers/workers false)
-             [:config :database :publisher])))
+   :workers (component/using (components/new-consumer p.workers/workers false)
+                             [:config :database :publisher])))
 
 (comment
   ;; init
   (utils/start-system-dev! sys-atom (build-system-map))
 
-  (redis-publisher/publish! (:publisher @sys-atom) "mock.publication"
-                            {:event {:domain "test-josue"
-                                     :new-status "published"}})
+  (publisher/publish! (:publisher @sys-atom) "mock.publication"
+                      {:event {:domain "test-josue"
+                               :new-status "published"}})
 
-  (redis-publisher/publish! (:publisher @sys-atom) "unified.verification.dispatch" {})
+  (publisher/publish! (:publisher @sys-atom) "unified.verification.dispatch" {})
 
   ;; iterate
   (utils/stop-system-dev! sys-atom false)

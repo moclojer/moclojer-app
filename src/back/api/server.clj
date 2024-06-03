@@ -1,29 +1,22 @@
 (ns back.api.server
   (:require [back.api.ports.workers :as p.workers]
             [back.api.routes :as routes]
-            [com.stuartsierra.component :as component]
-            [components.config :as config]
-            [components.database :as database]
-            [components.http :as http]
-            [components.logs :as logs]
-            [components.migrations :as migrations]
-            [components.redis-publisher :as redis-publisher]
-            [components.redis-queue :as redis-queue]
-            [components.router :as router]
-            [components.sentry :as sentry]
-            [components.webserver :as webserver])
+            [com.moclojer.components.core :as components]
+            [com.moclojer.components.logs :as logs]
+            [com.moclojer.components.migrations :as migrations]
+            [com.stuartsierra.component :as component])
   (:gen-class))
 
 (def system-atom (atom nil))
 
 (defn build-system-map []
   (component/system-map
-   :config (config/new-config)
-   :http (http/new-http)
-   :sentry (component/using (sentry/new-sentry) [:config])
-   :router (router/new-router routes/routes)
-   :database (component/using (database/new-database) [:config])
-   :publisher (component/using (redis-publisher/new-redis-publisher
+   :config (components/new-config "back/config.edn")
+   :http (components/new-http)
+   :sentry (component/using (components/new-sentry) [:config])
+   :router (components/new-router routes/routes)
+   :database (component/using (components/new-database) [:config])
+   :publisher (component/using (components/new-publisher
                                 [{:qname "domains.verification.dispatch"
                                   :event {}
                                   ;; every 2 minutes
@@ -33,15 +26,15 @@
                                   ;; every 5 minutes
                                   :delay 300000}])
                                [:config :sentry])
-   :webserver (component/using (webserver/new-webserver)
+   :webserver (component/using (components/new-webserver)
                                [:config :http :router :database :publisher :sentry])
    :workers (component/using
-             (redis-queue/new-redis-queue p.workers/workers false)
+             (components/new-consumer p.workers/workers false)
              [:config :database :publisher :sentry])))
 
 (defn start-system! [system-map]
-  (logs/setup [["*" :info]] :auto :prod)
-  (migrations/migrate (migrations/configuration-with-db))
+  (components/setup-logger [["*" :info]] :auto :prod)
+  (migrations/migrate (migrations/build-complete-db-config "back/config.edn"))
   (->> system-map
        component/start
        (reset! system-atom)))

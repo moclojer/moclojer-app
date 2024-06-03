@@ -1,6 +1,6 @@
 (ns cloud-ops.api.ports.http-out
-  (:require [components.http :as hp]
-            [components.logs :as logs]
+  (:require [com.moclojer.components.http :as http]
+            [com.moclojer.components.logs :as logs]
             [muuntaja.core :as m]))
 
 ;; Since most of the requests here are a critical point of failure,
@@ -12,8 +12,8 @@
   [domain http]
   (try
     (let [url (str "https://" domain ".moclojer.com")
-          resp (hp/request http {:method :get
-                                 :url url})]
+          resp (http/request http {:method :get
+                                   :url url})]
       (:status resp))
     (catch Exception e
       (logs/log :warn "verifying domain"
@@ -32,7 +32,7 @@
   "Retrieves the current domain records in CloudFlare."
   [http req-params]
   (let [req (assoc req-params :method :get)
-        {:keys [body]} (hp/request-or-throw http req 200)
+        {:keys [body]} (http/request-or-throw http req 200)
         {:keys [result]} (m/decode "application/json" body)]
     (logs/log :info "retrieved cloudflare records")
     result))
@@ -48,7 +48,7 @@
                             :ttl 1})
         req (merge req-params {:method :post
                                :body enc-body})
-        {:keys [body]} (hp/request-or-throw http req 200)
+        {:keys [body]} (http/request-or-throw http req 200)
         decoded (m/decode "application/json" body)]
     (logs/log :info "created cloudflare domain"
               :ctx {:domain domain})
@@ -60,7 +60,7 @@
    the app. We actually don't need all of that, so we clean it afterwards."
   [http req-params]
   (let [req (assoc req-params :method :get)
-        {:keys [body]} (hp/request-or-throw http req 200)
+        {:keys [body]} (http/request-or-throw http req 200)
         decoded (m/decode "application/json" body)]
     (logs/log :info "retrieved digital ocean spec")
     (get-in decoded [:app :spec])))
@@ -76,7 +76,7 @@
   (let [enc-spec (m/encode "application/json" {:spec new-spec})
         req (merge req-params {:method :put
                                :body enc-spec})
-        {:keys [body]} (hp/request-or-throw http req 200)
+        {:keys [body]} (http/request-or-throw http req 200)
         decoded (m/decode "application/json" body)]
     (logs/log :info "updated digital ocean spec")
     decoded))

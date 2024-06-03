@@ -1,12 +1,7 @@
 (ns yaml-generator.server
-  (:require [com.stuartsierra.component :as component]
-            [components.config :as config]
-            [components.database :as database]
-            [components.logs :as logs]
-            [components.redis-publisher :as redis-publisher]
-            [components.redis-queue :as redis-queue]
-            [components.sentry :as sentry]
-            [components.storage :as storage]
+  (:require [com.moclojer.components.core :as components]
+            [com.moclojer.components.logs :as logs]
+            [com.stuartsierra.component :as component]
             [yaml-generator.ports.workers :as p.workers])
   (:gen-class))
 
@@ -14,19 +9,16 @@
 
 (defn build-system-map []
   (component/system-map
-   :config (config/new-config)
-   :sentry (component/using (sentry/new-sentry) [:config])
-   :database (component/using (database/new-database) [:config])
-   :storage (component/using (storage/new-storage) [:config])
-   :publisher (component/using
-               (redis-publisher/new-redis-publisher)
-               [:config :sentry])
-   :workers (component/using
-             (redis-queue/new-redis-queue p.workers/workers true)
-             [:config :database :storage :publisher :sentry])))
+   :config (components/new-config "back/config.edn")
+   :sentry (component/using (components/new-sentry) [:config])
+   :database (component/using (components/new-database) [:config])
+   :storage (component/using (components/new-storage) [:config])
+   :publisher (component/using (components/new-publisher) [:config :sentry])
+   :workers (component/using (components/new-consumer p.workers/workers true)
+                             [:config :database :storage :publisher :sentry])))
 
 (defn start-system! [system-map]
-  (logs/setup [["*" :info]] :auto :prod)
+  (components/setup-logger [["*" :info]] :auto :prod)
   (->> system-map
        component/start
        (reset! system-atom)))
