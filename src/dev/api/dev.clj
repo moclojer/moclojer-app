@@ -34,6 +34,12 @@
                              [:config :database :publisher])))
 
 (comment
+  (def c (component/start (components/new-config "back/config.edn")))
+  c
+  ;;
+  )
+
+(comment
   ;; init
   (utils/start-system-dev! sys-atom (build-system-map))
 

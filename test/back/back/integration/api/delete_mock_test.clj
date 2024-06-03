@@ -16,7 +16,7 @@
 (defn- create-and-start-components []
   (component/start-system
    (component/system-map
-    :config (components/new-config "~/back/config.edn")
+    :config (components/new-config "back/config.edn")
     :http (components/new-http-mock [])
     :router (components/new-router routes/routes)
     :storage (component/using (components/new-storage) [:config])

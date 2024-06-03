@@ -9,7 +9,8 @@
         lambdaisland/fetch {:mvn/version "1.1.60"}
 
         ;; back
-        com.moclojer/components {:mvn/version "0.0.2"}
+        com.moclojer/components {:git/url "https://github.com/moclojer/components.git"
+                                 :git/sha "ad3ba26b129b55d54f004e8b8d3a46f3594e4547"}
         com.cognitect.aws/api          {:mvn/version "0.8.561"}
         com.cognitect.aws/endpoints    {:mvn/version "1.1.12.230"}
         com.cognitect.aws/s3           {:mvn/version "822.2.1145.0"}
@@ -17,10 +18,11 @@
         buddy/buddy-sign {:mvn/version "3.5.351"}
         cheshire/cheshire {:mvn/version "5.11.0"}
         clj-http/clj-http {:mvn/version "3.12.3"}
-        com.fzakaria/slf4j-timbre {:mvn/version "0.3.21"}
         com.github.seancorfield/honeysql {:mvn/version "2.3.928"}
         com.github.seancorfield/next.jdbc {:mvn/version "1.3.834"}
         com.stuartsierra/component {:mvn/version "1.1.0"}
+        viesti/timbre-json-appender {:mvn/version "0.2.13"}
+        com.fzakaria/slf4j-timbre {:mvn/version "0.3.21"}
         com.taoensso/timbre {:mvn/version "6.3.1"}
         metosin/malli {:mvn/version "0.11.0"}
         metosin/muuntaja {:mvn/version "0.6.8"}
@@ -55,7 +57,7 @@
   :clojure-lsp {:replace-deps {com.github.clojure-lsp/clojure-lsp-standalone {:mvn/version "2022.09.01-15.27.31"}}
                 :main-opts ["-m" "clojure-lsp.main"]}
   ;; clj -M:migratus
-  :migratus {:main-opts ["-m" "components.migrations"]}
+  :migratus {:main-opts ["-m" "com.moclojer.components.migrations"]}
   ;; clj -X:run
   :run {:main-opts ["-m" "back.api.server"]
         :exec-fn back.api.server/-main}
