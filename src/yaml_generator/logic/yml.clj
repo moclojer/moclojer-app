@@ -2,6 +2,7 @@
   (:require [clojure.edn :as edn]
             [clojure.pprint :refer [pprint]]
             [malli.core :as m]
+            [muuntaja.core :as mu]
             [yaml-generator.schemas.mock :as s.mock]
             [yaml.core :as yaml]))
 
@@ -10,6 +11,29 @@
 
 (defn parse-yaml [yml-string]
   (yaml/parse-string yml-string))
+
+(defn parse-yaml-&-body [yml-string]
+  (map #(update-in % [:endpoint :response :body]
+                   (partial mu/decode "application/json"))
+       (parse-yaml yml-string)))
+
+(comment
+  (def foobar-mock "
+- endpoint:
+    method: GET
+    path: /hello/:username
+    response:
+      status: 200
+      headers:
+        Content-Type: application/json
+      body: >
+        {
+          \"hello\": \"{{path-params.username}}!\"
+        }")
+
+  (parse-yaml-&-body foobar-mock)
+  ;;
+  )
 
 (defn parse-yaml-read-literal [raw-mock]
   (-> (parse-yaml raw-mock)
