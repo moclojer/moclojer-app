@@ -83,9 +83,7 @@
     [{:keys [publisher storage]} (state-flow.api/get-state)]
 
     (state-flow.api/invoke
-     (publisher/publish! publisher
-                         "unified.verification.dispatch"
-                         {}))
+     #(publisher/publish! publisher "unified.verification.dispatch" {}))
 
     (match?
      (matchers/embeds (logic.yml/parse-yaml-read-literal
