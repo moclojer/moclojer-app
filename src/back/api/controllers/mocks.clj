@@ -41,11 +41,16 @@
                     {:status-code 412
                      :cause :invalid-id}))))
 
+(defn inspect [a]
+  (prn :a a)
+  a)
+
 (defn get-mocks
   [filters {:keys [database]}]
   (->> (db.mocks/get-mocks filters database)
        (map adapter.mocks/->wire)
-       (logic.mocks/group "personal")))
+       (logic.mocks/group "personal")
+       inspect))
 
 (defn publish-mock!
   [id {:keys [database publisher]}]
@@ -90,12 +95,12 @@
                      :cause :invalid-id
                      :value id}))))
 
-(defn update-mock-publication-status!
+(defn update-mock-dns-status!
   [domain new-status db]
   (if-let [mock (-> (logic.mocks/unpack-domain domain)
                     (db.mocks/get-mock-by-wildcard db))]
-    (-> (logic.mocks/update-publication-status mock new-status)
-        (select-keys [:mock/id :mock/publication])
+    (-> (logic.mocks/update-dns-status mock new-status)
+        (select-keys [:mock/id :mock/dns_status])
         (db.mocks/update! db))
     (throw (ex-info "No mock found with given domain"
                     {:cause :invalid-domain

@@ -22,7 +22,8 @@
          {} mock)
         (merge {:mock/id new-uuid
                 :mock/content (or content default-mock-content)
-                :mock/publication "offline"}))))
+                :mock/dns_status "offline"
+                :mock/unification_status "offline"}))))
 
 (defn gen-host [wildcard subdomain]
   (str wildcard "-" subdomain ".moclojer.com"))
@@ -54,7 +55,8 @@
                url {:url (gen-host (:wildcard mock) subdomain)}
                old-apis (vec (:apis subdomain-group))
                new-apis (->> (select-keys mock [:wildcard :subdomain :url :enabled
-                                                :id :content :publication])
+                                                :id :content :dns-status
+                                                :unification-status])
                              (merge url)
                              (conj old-apis))]
            (assoc grouped-mocks
@@ -98,7 +100,7 @@
 (defn unpublish [mock]
   (assoc mock :mock/enabled false))
 
-(defn update-publication-status [mock new-status]
+(defn update-dns-status [mock new-status]
   (assoc mock :mock/publication new-status))
 
 (defn filter-by-id [mocks id]
