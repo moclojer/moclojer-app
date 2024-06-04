@@ -1,0 +1,13 @@
+ALTER TABLE mock ADD COLUMN dns_status publication_status DEFAULT 'offline';
+--;;
+ALTER TABLE mock ADD COLUMN unification_status publication_status DEFAULT 'offline';
+--;;
+UPDATE mock mm SET dns_status = mm.publication;
+--;;
+UPDATE mock mm SET unification_status = mm.publication;
+--;;
+ALTER TABLE mock ALTER COLUMN dns_status SET NOT NULL;
+--;;
+ALTER TABLE mock ALTER COLUMN unification_status SET NOT NULL;
+--;;
+ALTER TABLE mock DROP COLUMN publication;
