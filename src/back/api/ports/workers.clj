@@ -1,10 +1,9 @@
 (ns back.api.ports.workers
   (:require [back.api.controllers.mocks :as controllers.mocks]))
 
-(defn update-mock-publication-status!
+(defn update-mock-dns-status!
   [{{:keys [domain new-status]} :event} {:keys [database]}]
-  (controllers.mocks/update-mock-publication-status!
-   domain new-status database))
+  (controllers.mocks/update-mock-dns-status! domain new-status database))
 
 (defn dispatch-domains-verification!
   [_ components]
@@ -15,8 +14,8 @@
   (controllers.mocks/dispatch-unified-yml-verification! components))
 
 (def workers
-  [{:handler update-mock-publication-status!
-    :queue-name "mock.publication"}
+  [{:handler update-mock-dns-status!
+    :queue-name "mock.dns_status"}
    {:handler dispatch-domains-verification!
     :queue-name "domains.verification.dispatch"}
    {:handler dispatch-unified-yml-verification!

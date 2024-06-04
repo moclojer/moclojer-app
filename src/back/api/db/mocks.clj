@@ -3,32 +3,32 @@
             [honey.sql :as sql]
             [honey.sql.helpers :as sql.helpers]))
 
+(defn- cast-mock [mock]
+  (letfn [(cast-if [m status]
+            (if status
+              (update-in m [status] #(identity [:cast % :publication_status]))
+              m))]
+    (-> (cast-if mock :mock/dns_status)
+        (cast-if :mock/unification_status))))
+
 (defn insert!
   [mock db]
-  (let [pub-stt (:mock/publication mock)
-        casted-mock (->> [:cast pub-stt :publication_status]
-                         (assoc mock :mock/publication))]
-    (->> (-> (sql.helpers/insert-into :mock)
-             (sql.helpers/values [casted-mock])
-             (sql.helpers/returning :*)
-             (sql/format {:quoted false}))
-         (database/execute db)
-         first)))
+  (->> (-> (sql.helpers/insert-into :mock)
+           (sql.helpers/values [(cast-mock mock)])
+           (sql.helpers/returning :*)
+           (sql/format {:quoted false}))
+       (database/execute db)
+       first))
 
 (defn update!
   [mock db]
-  (let [pub-stt (:mock/publication mock)
-        casted-mock (if pub-stt
-                      (->> [:cast pub-stt :publication_status]
-                           (assoc mock :mock/publication))
-                      mock)]
-    (->> (-> (sql.helpers/update :mock)
-             (sql.helpers/set casted-mock)
-             (sql.helpers/where [:= :id (:mock/id mock)])
-             (sql.helpers/returning :*)
-             (sql/format {:quoted false}))
-         (database/execute db)
-         first)))
+  (->> (-> (sql.helpers/update :mock)
+           (sql.helpers/set (cast-mock mock))
+           (sql.helpers/where [:= :id (:mock/id mock)])
+           (sql.helpers/returning :*)
+           (sql/format {:quoted false}))
+       (database/execute db)
+       first))
 
 (defn get-mock-by-id [id db]
   (->> (database/execute
@@ -54,13 +54,12 @@
                 sql/format)))))
 
 (defn get-mocks [{:keys [user-id]} db]
-  (->> (database/execute
-        db
-        (-> (sql.helpers/select :*)
-            (sql.helpers/from :mock)
-            (sql.helpers/where [:or
-                                [:= :user_id user-id]])
-            sql/format))))
+  (database/execute
+   db
+   (-> (sql.helpers/select :*)
+       (sql.helpers/from :mock)
+       (sql.helpers/where [:= :user_id user-id])
+       sql/format)))
 
 (defn get-mocks-by-publication [pub-statuses db & [user-id]]
   (let [where-pub-status (->> (map
