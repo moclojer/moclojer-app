@@ -15,8 +15,7 @@
       (let [new-mock (-> (logic.mocks/create (merge uid mock))
                          (db.mocks/insert! database)
                          (adapter.mocks/->wire))]
-        (when (:enabled new-mock)
-          (ports.producers/publish-mock-changed-event (:id new-mock) publisher))
+        (ports.producers/generate-single-yml! (:id new-mock) publisher)
         new-mock)
       (throw (ex-info "Mock with given wildcard and subdomain invalid"
                       {:status-code 412
@@ -34,23 +33,17 @@
                            (logic.mocks/update {:content content})
                            (db.mocks/update! database)
                            (adapter.mocks/->wire))]
-      (when (:enabled updated-mock)
-        (ports.producers/publish-mock-changed-event (:id updated-mock) publisher))
+      (ports.producers/generate-single-yml! (:id updated-mock) publisher)
       updated-mock)
     (throw (ex-info "Mock with given id invalid"
                     {:status-code 412
                      :cause :invalid-id}))))
 
-(defn inspect [a]
-  (prn :a a)
-  a)
-
 (defn get-mocks
   [filters {:keys [database]}]
   (->> (db.mocks/get-mocks filters database)
        (map adapter.mocks/->wire)
-       (logic.mocks/group "personal")
-       inspect))
+       (logic.mocks/group "personal")))
 
 (defn publish-mock!
   [id {:keys [database publisher]}]
@@ -59,7 +52,7 @@
       (db.mocks/update! database)
       (adapter.mocks/->wire)
       :id
-      (ports.producers/publish-mock-changed-event publisher))
+      (ports.producers/generate-single-yml! publisher))
   true)
 
 (defn unpublish-mock!
@@ -69,26 +62,25 @@
       (db.mocks/update! database)
       (adapter.mocks/->wire)
       :id
-      (ports.producers/publish-mock-changed-event publisher))
+      (ports.producers/generate-single-yml! publisher))
   true)
 
 (defn delete-mock!
   [session id {:keys [database publisher]}]
   ;; filtering so we can check if the session user
   ;; owns the mock to be deleted.
-  (if-let [mock (-> (db.mocks/get-mocks session database)
-                    (logic.mocks/filter-by-id id)
-                    (adapter.mocks/->wire)
-                    (select-keys [:id :user-id]))]
+  (if-let [{:keys [id user-id]} (-> (db.mocks/get-mocks session database)
+                                    (logic.mocks/filter-by-id id)
+                                    (adapter.mocks/->wire))]
     (do
-      (db.mocks/delete-mock-by-id (:id mock) database)
-      (ports.producers/publish-mock-event mock "mock.deleted" publisher)
-      (constantly true))
+      (db.mocks/delete-mock-by-id id database)
+      (ports.producers/delete-single-yml! id user-id publisher)
+      true)
     false))
 
 (defn get-mock-publication-status
   [id db]
-  (if-let [mock (db.mocks/get-mock-by-id id db)]
+  (if-let [mock (db.mocks/get-mock-by-id (parse-uuid (str id)) db)]
     (:mock/publication mock)
     (throw (ex-info "No mock found with given id"
                     {:status-code 400
@@ -106,6 +98,17 @@
                     {:cause :invalid-domain
                      :value domain}))))
 
+(defn update-mock-unification-status!
+  [mock-id new-status db]
+  (if-let [mock (db.mocks/get-mock-by-id (parse-uuid (str mock-id)) db)]
+    (-> (logic.mocks/update-unification-status mock new-status)
+        (select-keys [:mock/id :mock/unification_status])
+        (db.mocks/update! db))
+    (throw (ex-info "No mock found with given id"
+                    {:status-code 400
+                     :cause :invalid-id
+                     :value mock-id}))))
+
 (def ^:private still-verifying-all? (atom false))
 
 (defn dispatch-domains-verification!
@@ -118,6 +121,7 @@
     (do
       (reset! still-verifying-all? true)
       (let [defective-mocks (db.mocks/get-mocks-by-publication
+                             :dns_status
                              ["offline" "offline-invalid" "publishing"]
                              database)]
         (future
@@ -129,7 +133,7 @@
                   (doseq [mock cur-mocks]
                     (ports.producers/verify-domain! (logic.mocks/pack-domain mock)
                                                     true false publisher))
-                  (Thread/sleep 30)
+                  (Thread/sleep 30000)
                   (recur (inc batch)))
                 (reset! still-verifying-all? false)))))))
     (logs/log :info "still verifying all. skipping for now...")))
@@ -137,6 +141,7 @@
 (defn dispatch-unified-yml-verification!
   "Gathers published mocks and sends them dispatches them to be verified."
   [{:keys [database publisher]}]
-  (let [published-mocks (db.mocks/get-mocks-by-publication ["published"] database)
+  (let [published-mocks (db.mocks/get-mocks-by-publication :unification_status
+                                                           ["published"] database)
         grouped-mocks (logic.mocks/group-by-user published-mocks)]
-    (ports.producers/verify-unified! grouped-mocks publisher)))
+    (ports.producers/verify-unified-yml! grouped-mocks publisher)))

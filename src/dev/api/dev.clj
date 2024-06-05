@@ -43,11 +43,8 @@
   ;; init
   (utils/start-system-dev! sys-atom (build-system-map))
 
-  (publisher/publish! (:publisher @sys-atom) "mock.publication"
-                      {:event {:domain "test-josue"
-                               :new-status "published"}})
-
-  (publisher/publish! (:publisher @sys-atom) "unified.verification.dispatch" {})
+  (publisher/publish! (:publisher @sys-atom) "yml.unified.verification.fired" {})
+  (publisher/publish! (:publisher @sys-atom) "domains.verification.fired" {})
 
   ;; iterate
   (utils/stop-system-dev! sys-atom false)

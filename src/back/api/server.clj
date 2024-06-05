@@ -17,11 +17,11 @@
    :router (components/new-router routes/routes)
    :database (component/using (components/new-database) [:config])
    :publisher (component/using (components/new-publisher
-                                [{:qname "domains.verification.dispatch"
+                                [{:qname "domains.verification.fired"
                                   :event {}
                                   ;; every 2 minutes
                                   :delay 120000}
-                                 {:qname "unified.verification.dispatch"
+                                 {:qname "yml.unified.verification.fired"
                                   :event {}
                                   ;; every 5 minutes
                                   :delay 300000}])

@@ -101,7 +101,10 @@
   (assoc mock :mock/enabled false))
 
 (defn update-dns-status [mock new-status]
-  (assoc mock :mock/publication new-status))
+  (assoc mock :mock/dns_status new-status))
+
+(defn update-unification-status [mock new-status]
+  (assoc mock :mock/unification_status new-status))
 
 (defn filter-by-id [mocks id]
   (->> mocks

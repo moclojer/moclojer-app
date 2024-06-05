@@ -1,6 +1,7 @@
 (ns yaml-generator.logic.yml
   (:require [clojure.edn :as edn]
             [clojure.pprint :refer [pprint]]
+            [clojure.string :as str]
             [malli.core :as m]
             [muuntaja.core :as mu]
             [yaml-generator.schemas.mock :as s.mock]
@@ -54,6 +55,16 @@
 
 (defn gen-host [wildcard subdomain]
   (str wildcard "-" subdomain ".moclojer.com"))
+
+(defn unpack-path [path]
+  (->> (str/split path #"/")
+       (take 2)
+       (zipmap [:user-id :mock-id])))
+
+(comment
+  (unpack-path "j0suetm/hello/mock.yml")
+  ;; => {:user-id "j0suetm", :mock-id "hello"}
+  )
 
 (defn add-host [host-key host content]
   (let [yml (parse-yaml content)]
