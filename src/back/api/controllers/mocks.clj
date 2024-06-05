@@ -81,7 +81,8 @@
 (defn get-mock-publication-status
   [id db]
   (if-let [mock (db.mocks/get-mock-by-id (parse-uuid (str id)) db)]
-    (:mock/publication mock)
+    (-> (adapter.mocks/->wire mock)
+        (select-keys [:dns-status :unification-status]))
     (throw (ex-info "No mock found with given id"
                     {:status-code 400
                      :cause :invalid-id

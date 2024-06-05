@@ -1,15 +1,14 @@
 (ns front.app.dashboard.components
-  (:require
-   [clojure.string :as str]
-   [front.app.auth.supabase :as supabase]
-   [front.app.components.svg :as svg]
-   [front.app.lib :refer [defnc]]
-   [helix.core :refer [$]]
-   [helix.dom :as d]
-   [helix.hooks :as hooks]
-   [promesa.core :as p]
-   [refx.alpha :as refx]
-   [reitit.frontend.easy :as rfe]))
+  (:require [clojure.string :as str]
+            [front.app.auth.supabase :as supabase]
+            [front.app.components.svg :as svg]
+            [front.app.lib :refer [defnc]]
+            [helix.core :refer [$]]
+            [helix.dom :as d]
+            [helix.hooks :as hooks]
+            [promesa.core :as p]
+            [refx.alpha :as refx]
+            [reitit.frontend.easy :as rfe]))
 
 (def gravatar-base-url "https://gravatar.com/avatar/")
 (def auth0-cdn-base-url "https://cdn.auth0.com/avatars/")
@@ -37,28 +36,28 @@
     ;; https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/digest
     ;; https://cdn.auth0.com/avatars/jt.png
     (hooks/use-effect
-     [pfp-url]
-     (when (and pfp-loading? (nil? pfp-url))
-       (if-let [email (some->> (:email user-data)
-                               str/trim
-                               str/lower-case
-                               (.encode (js/TextEncoder. "utf-8")))]
-         (-> (.digest (.-subtle js/crypto) "SHA-256" email)
-             (p/then
-              (fn [hash-buf]
-                (-> (.from js/Array (js/Uint8Array. hash-buf))
-                    (.map #(-> (.toString % 16)
-                               (.padStart 2 "0")))
-                    (.join ""))))
-             (p/then
-              (fn [hex]
-                (set-pfp-url! (str gravatar-base-url hex
-                                   "?default=" default-pfp-url))))
-             (p/catch
-              (fn [err]
-                (.log js/console "failed to digest email hash:" err)
-                (set-pfp-url! default-pfp-url))))
-         (set-pfp-url! default-pfp-url))))
+      [pfp-url]
+      (when (and pfp-loading? (nil? pfp-url))
+        (if-let [email (some->> (:email user-data)
+                                str/trim
+                                str/lower-case
+                                (.encode (js/TextEncoder. "utf-8")))]
+          (-> (.digest (.-subtle js/crypto) "SHA-256" email)
+              (p/then
+               (fn [hash-buf]
+                 (-> (.from js/Array (js/Uint8Array. hash-buf))
+                     (.map #(-> (.toString % 16)
+                                (.padStart 2 "0")))
+                     (.join ""))))
+              (p/then
+               (fn [hex]
+                 (set-pfp-url! (str gravatar-base-url hex
+                                    "?default=" default-pfp-url))))
+              (p/catch
+               (fn [err]
+                 (.log js/console "failed to digest email hash:" err)
+                 (set-pfp-url! default-pfp-url))))
+          (set-pfp-url! default-pfp-url))))
 
     (d/div {:class-name "hidden lg:block"}
            (d/button {:type "button"
@@ -143,18 +142,18 @@
         mobile? (<= (:width window-size) 1000)]
 
     (hooks/use-effect
-     :once
-     (let [handle-resize-fn #(set-window-size! {:width (.-innerWidth js/window)
-                                                :height (.-innerHeight js/window)})]
-       (.addEventListener js/window "resize" handle-resize-fn)
-       (handle-resize-fn)
+      :once
+      (let [handle-resize-fn #(set-window-size! {:width (.-innerWidth js/window)
+                                                 :height (.-innerHeight js/window)})]
+        (.addEventListener js/window "resize" handle-resize-fn)
+        (handle-resize-fn)
 
-       #(.removeEventListener js/window "resize " handle-resize-fn)))
+        #(.removeEventListener js/window "resize " handle-resize-fn)))
 
     (hooks/use-effect
-     [mocks-raw]
-     (when (nil? mocks-raw)
-       (refx/dispatch-sync [:app.dashboard/get-mocks current-user])))
+      [mocks-raw]
+      (when (nil? mocks-raw)
+        (refx/dispatch-sync [:app.dashboard/get-mocks current-user])))
 
     (d/div {:class-name "flex overflow-hidden pt-16 bg-gray-50 dark:bg-gray-900"}
            (d/aside {:id "sidebar"
@@ -262,7 +261,7 @@
                                      (d/span {:class-name "ml-3"}
                                              "Logout")))))))))
 
-(defnc dns-status [{:keys [status loading?]}]
+(defnc status-card [{:keys [status loading? title]}]
   (d/div {:class (str "px-3 mr-2 flex flex-row space-x-2 items-center rounded-md dns-"
                       (name status) (when loading? " opacity-70 animate-pulse"))}
          ($ (case status
@@ -271,4 +270,4 @@
               :publishing svg/dns-publishing
               :published svg/dns-published
               :default svg/dns-offline))
-         (d/p {:class "text-sm font-semibold"} "DNS")))
+         (d/p {:class "text-sm font-semibold"} title)))

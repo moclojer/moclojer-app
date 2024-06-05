@@ -19,6 +19,11 @@
 (def PublicationStatus
   [:enum "offline" "offline-invalid" "publishing" "published"])
 
+(def MockPublicationStatus
+  [:map
+   [:dns-status PublicationStatus]
+   [:unification-status PublicationStatus]])
+
 (def Mock
   [:map
    [:id uuid?]
@@ -117,4 +122,10 @@
                        :enabled true
                        :content "aoetuhaoeu"
                        :dns-status "offline"
-                       :unification-status "offline"}]}]))
+                       :unification-status "offline"}]}])
+
+  (m/explain MockPublicationStatus
+             {:dns-status "offline", :unification-status "published"})
+
+  ;;
+  )

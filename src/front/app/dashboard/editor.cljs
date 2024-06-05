@@ -4,7 +4,7 @@
             ["@codemirror/lint" :as clint]
             ["@uiw/codemirror-theme-github" :as theme]
             ["@uiw/react-codemirror" :as c]
-            [front.app.components.dns-status :as dns-stt]
+            [front.app.components.publication-status :as pub-stt]
             [front.app.components.svg :as svg]
             [front.app.dashboard.base :as base]
             [front.app.dashboard.linter :as linter]
@@ -147,8 +147,16 @@
                        (if (:enabled mock-data)
                          ($ svg/mock-enabled)
                          ($ svg/mock-disabled))
-                       ($ dns-stt/mock-dns-status
-                          (select-keys mock-data [:enabled :id]))
+
+                       ($ pub-stt/publication-status
+                          (merge (select-keys mock-data [:enabled :id])
+                                 {:stt-type :dns-status
+                                  :title "DNS"}))
+                       ($ pub-stt/publication-status
+                          (merge (select-keys mock-data [:enabled :id])
+                                 {:stt-type :unification-status
+                                  :title "SERVER"}))
+
                        (let [url (:url mock-data)]
                          (d/a {:class "flex flex-row space-x-2 group"
                                :target "_blank"

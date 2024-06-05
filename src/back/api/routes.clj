@@ -114,9 +114,7 @@
            :parameters {:path {:id uuid?}}
            :interceptors [(error-handler-interceptor)
                           (extract-user-interceptor)]
-           :responses {200 {:body
-                            {:dns-status schemas.wire-out/PublicationStatus
-                             :unification-status schemas.wire-out/PublicationStatus}}}
+           :responses {200 {:body schemas.wire-out/MockPublicationStatus}}
            :handler ports.http-in/handler-get-mock-publication-status}}]
 
    ["/mocks/:id/publish"
