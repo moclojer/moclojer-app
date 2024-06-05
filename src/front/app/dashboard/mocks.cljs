@@ -1,5 +1,5 @@
 (ns front.app.dashboard.mocks
-  (:require [front.app.components.dns-status :as dns-stt]
+  (:require [front.app.components.publication-status :as pub-stt]
             [front.app.components.svg :as svg]
             [front.app.dashboard.base :as base]
             [front.app.lib :refer [defnc]]
@@ -30,8 +30,18 @@
                                                      ($ svg/mock-enabled)
                                                      ($ svg/mock-disabled)))
 
-                                            ($ dns-stt/mock-dns-status {:enabled enabled
-                                                                        :id id}))
+                                            ($ pub-stt/publication-status
+                                               {:enabled enabled
+                                                :id id
+                                                :stt-type :dns-status
+                                                :title "DNS"})
+
+                                            ($ pub-stt/publication-status
+                                               {:enabled enabled
+                                                :id id
+                                                :stt-type :unification-status
+                                                :title "SERVER"}))
+
                                      (d/div {:class (str "w-full flex flex-row font-semibold truncate text-ellipsis lg:mt-0 "
                                                          (if enabled
                                                            "text-gray-900"

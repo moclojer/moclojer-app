@@ -1,10 +1,8 @@
 (ns back.api.ports.http-in
-  (:require
-   [back.api.adapters.customers :as adapters.customers]
-   [back.api.controllers.login :as controllers.login]
-   [back.api.controllers.mocks :as controllers.mocks]
-   [back.api.controllers.user :as controllers.user]))
-
+  (:require [back.api.adapters.customers :as adapters.customers]
+            [back.api.controllers.login :as controllers.login]
+            [back.api.controllers.mocks :as controllers.mocks]
+            [back.api.controllers.user :as controllers.user]))
 (defn handler-create-user!
   [{{{:keys [access-token]} :body} :parameters
     components :components}]
@@ -117,4 +115,4 @@
   (let [id (get-in params [:path :id])
         pub-stts (controllers.mocks/get-mock-publication-status id database)]
     {:status 200
-     :body {:publication pub-stts}}))
+     :body pub-stts}))

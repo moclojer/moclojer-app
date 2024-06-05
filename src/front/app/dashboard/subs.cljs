@@ -1,6 +1,5 @@
 (ns front.app.dashboard.subs
-  (:require
-   [refx.alpha :as refx]))
+  (:require [refx.alpha :as refx]))
 
 (defn conj-if [xs & ys]
   (reduce (fn [xs y]
@@ -26,7 +25,7 @@
    (-> #(= (:id %) mock-id)
        (filter mocks)
        first
-       (select-keys [:publication :attempt]))))
+       (select-keys [:dns-status :unification-status :attempt]))))
 
 (refx/reg-sub
  :app.user/orgs

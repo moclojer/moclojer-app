@@ -202,21 +202,22 @@
              :on-failure [:app.dashboard/set-mock-pub-stts-failure mock-id]}})))
 
 (defn update-mock-pub-stts
-  [mocks mock mock-id status]
+  [mocks mock mock-id pub-stts]
   (let [attempt ((fnil inc 0)
                  (:attempt mock))]
     (conj mocks (if (= (:id mock) mock-id)
-                  (assoc mock
-                         :publication status
+                  (assoc (merge mock pub-stts)
                          :attempt attempt)
                   mock))))
 
 (refx/reg-event-db
  :app.dashboard/set-mock-pub-stts-success
- (fn [db [_ mock-id {{:keys [publication]} :body}]]
+ (fn [db [_ mock-id {:keys [body]}]]
    (->>
     (reduce
-     #(update-mock-pub-stts %1 %2 mock-id (or publication "publishing"))
+     #(update-mock-pub-stts %1 %2 mock-id
+                            (or body {:dns-status "publishing"
+                                      :unification-status "publishing"}))
      [] (:mocks-raw db))
     (assoc db :mocks-raw))))
 
@@ -226,7 +227,8 @@
    (->>
     (reduce
      #(update-mock-pub-stts %1 %2 mock-id
-                            "publishing")
+                            {:dns-status "offline"
+                             :unification-status "offline"})
      [] (:mocks-raw db))
     (assoc db :mocks-raw))))
 
@@ -236,7 +238,8 @@
    (->>
     (reduce
      #(conj %1 (if (= mock-id (:id %2))
-                 (merge %2 {:publication "publishing"
+                 (merge %2 {:dns-status "publishing"
+                            :unification-status "publishing"
                             :attempt 1})
                  %2))
      [] (:mocks-raw db))
