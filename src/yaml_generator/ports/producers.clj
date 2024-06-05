@@ -1,13 +1,11 @@
 (ns yaml-generator.ports.producers
   (:require [com.moclojer.components.publisher :as publisher]))
 
-(defn mock-unified!
-  [path domain create-domain? valid-again? publisher]
-  (publisher/publish! publisher "mock.unified"
-                      {:event {:path path
-                               :domain domain
-                               :create-domain? create-domain?
-                               :valid-again? valid-again?}}))
+(defn generate-unified-yml!
+  [gen-yml-path append? publisher]
+  (publisher/publish! publisher "yml.single.generated"
+                      {:event {:gen-yml-path gen-yml-path
+                               :append? append?}}))
 
 (defn restart-mock!
   [publisher]
@@ -19,10 +17,9 @@
   (publisher/publish! publisher "domain.create"
                       {:event {:domain domain}}))
 
-(defn set-publication-status!
-  [domain new-status publisher]
-  (publisher/publish! publisher "mock.publication"
-                      {:event {:domain domain
-                               :new-status new-status}})
-
-  domain)
+(defn set-unification-status!
+  [mock-id new-status publisher]
+  (publisher/publish! publisher "yml.unified.generated"
+                      {:event {:mock.unification-status
+                               {:mock-id mock-id
+                                :new-status new-status}}}))

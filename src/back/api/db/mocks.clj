@@ -5,11 +5,16 @@
 
 (defn- cast-mock [mock]
   (letfn [(cast-if [m status]
-            (if status
+            (if (get m status)
               (update-in m [status] #(identity [:cast % :publication_status]))
               m))]
     (-> (cast-if mock :mock/dns_status)
         (cast-if :mock/unification_status))))
+
+(comment
+  (cast-mock {:mock/dns_status "test"})
+  ;;
+  )
 
 (defn insert!
   [mock db]
@@ -61,10 +66,10 @@
        (sql.helpers/where [:= :user_id user-id])
        sql/format)))
 
-(defn get-mocks-by-publication [pub-statuses db & [user-id]]
+(defn get-mocks-by-publication [stt-type pub-stts db & [user-id]]
   (let [where-pub-status (->> (map
-                               #(identity [:= :publication [:cast % :publication_status]])
-                               pub-statuses)
+                               #(identity [:= stt-type [:cast % :publication_status]])
+                               pub-stts)
                               vec
                               (into [:or]))]
     (database/execute

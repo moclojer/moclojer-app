@@ -1,12 +1,11 @@
 (ns back.api.routes
-  (:require
-   [back.api.healthcheck :as healthcheck]
-   [back.api.interceptors.error-handler :refer [error-handler-interceptor]]
-   [back.api.interceptors.extract-user :refer [extract-user-interceptor]]
-   [back.api.ports.http-in :as ports.http-in]
-   [back.api.schemas.wire-in :as schemas.wire-in]
-   [back.api.schemas.wire-out :as schemas.wire-out]
-   [reitit.swagger :as swagger]))
+  (:require [back.api.healthcheck :as healthcheck]
+            [back.api.interceptors.error-handler :refer [error-handler-interceptor]]
+            [back.api.interceptors.extract-user :refer [extract-user-interceptor]]
+            [back.api.ports.http-in :as ports.http-in]
+            [back.api.schemas.wire-in :as schemas.wire-in]
+            [back.api.schemas.wire-out :as schemas.wire-out]
+            [reitit.swagger :as swagger]))
 
 (def routes
   [["/swagger.json"
@@ -116,7 +115,8 @@
            :interceptors [(error-handler-interceptor)
                           (extract-user-interceptor)]
            :responses {200 {:body
-                            {:publication schemas.wire-out/MockPublication}}}
+                            {:dns-status schemas.wire-out/PublicationStatus
+                             :unification-status schemas.wire-out/PublicationStatus}}}
            :handler ports.http-in/handler-get-mock-publication-status}}]
 
    ["/mocks/:id/publish"
