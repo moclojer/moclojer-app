@@ -61,7 +61,8 @@
                 :ctx {:gen-yml-path gen-yml-path})
 
       (ports.producers/restart-mock! publisher)
-      (ports.producers/set-unification-status! mock-id "published" publisher)
+      (when append?
+        (ports.producers/set-unification-status! mock-id "published" publisher))
 
       (catch Exception e
         (logs/log :error "failed to generate unified yaml"
