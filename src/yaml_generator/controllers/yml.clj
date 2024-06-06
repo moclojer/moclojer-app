@@ -2,7 +2,6 @@
   (:require [back.api.adapters.mocks :as adapters.mocks]
             [back.api.db.mocks :as db.mocks]
             [clojure.java.io :as io]
-            [clojure.string :as str]
             [com.moclojer.components.logs :as logs]
             [com.moclojer.components.storage :as storage]
             [yaml-generator.logic.yml :as logic.yml]
@@ -10,16 +9,14 @@
 
 (defn generate-single-yml!
   [mock-id {:keys [storage publisher config database]}]
-  (let [{:keys [user-id wildcard
-                content subdomain
-                unification-status]} (-> (parse-uuid (str mock-id))
-                                         (db.mocks/get-mock-by-id database)
-                                         adapters.mocks/->wire)
+  (let [{:keys [user-id wildcard enabled
+                content subdomain]} (-> (parse-uuid (str mock-id))
+                                        (db.mocks/get-mock-by-id database)
+                                        adapters.mocks/->wire)
         path (logic.yml/gen-path user-id mock-id)
         env (get-in config [:config :env])
         host-key (if (= env :dev) :local-host :host)
         host (logic.yml/gen-host wildcard subdomain)
-        domain (str/replace host #".moclojer.com" "")
         content-with-host (logic.yml/add-host host-key host content)
         ?file (storage/get-file storage "moclojer" path)
         valid? (logic.yml/validate-mock content)]
@@ -30,7 +27,8 @@
                     :?file ?file})
 
     (if valid?
-      (ports.producers/generate-unified-yml! path true publisher)
+      (when enabled
+        (ports.producers/generate-unified-yml! path true publisher))
       (do
         (logs/log :warn "invalid mock content"
                   :ctx {:content content
@@ -98,8 +96,5 @@
       (logs/log :info "found mock missing from unified. trying to regenerate..."
                 :ctx (assoc (select-keys endpoint [:path host-key])
                             :s3-path path))
-      (ports.producers/generate-unified-yml! path
-                                             (str/replace (get endpoint host-key)
-                                                          ".moclojer.com" "")
-                                             false publisher)
+      (ports.producers/generate-unified-yml! path false publisher)
       (Thread/sleep 3000))))

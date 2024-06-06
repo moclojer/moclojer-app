@@ -4,9 +4,9 @@
 
 (defn generate-single-yml-handler
   [{:keys [event]} components]
-  (logs/log :info "generating single yaml"
-            :ctx {:event event})
   (when-let [{:keys [mock-id]} (:yml.single.generate event)]
+    (logs/log :info "generating single yaml"
+              :ctx {:event event})
     (controller.yml/generate-single-yml! mock-id components)))
 
 (defn delete-single-yml-handler
@@ -18,9 +18,9 @@
 
 (defn generate-unified-yml-handler
   [{:keys [event]} components]
-  (logs/log :info "generating unified yaml"
-            :ctx {:event event})
   (when-let [{:keys [gen-yml-path]} event]
+    (logs/log :info "generating unified yaml"
+              :ctx {:event event})
     (controller.yml/generate-unified-yml! gen-yml-path true components)))
 
 (defn verify-unified-yml-handler

@@ -12,11 +12,6 @@
   (publisher/publish! publisher "restart.mocks"
                       {:event {:path "moclojer.yml"}}))
 
-(defn create-domain!
-  [domain publisher]
-  (publisher/publish! publisher "domain.create"
-                      {:event {:domain domain}}))
-
 (defn set-unification-status!
   [mock-id new-status publisher]
   (publisher/publish! publisher "yml.unified.generated"
