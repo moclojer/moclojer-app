@@ -19,20 +19,23 @@
                 :response
                 (fn [_]
                   {:status 200
-                   :body (slurp (m/encode "application/json" (:cf @mocked-provider-data)))})}
+                   :body (slurp (m/encode "application/json"
+                                          (:cf @mocked-provider-data)))})}
    :do-data-ok {:url "https://api.digitalocean.com/v2/apps/4dd19675-0b62-4b9a-8082-8ee5d9eab99a"
                 :method :get
                 :response
                 (fn [_]
                   {:status 200
-                   :body (slurp (m/encode "application/json" (:do @mocked-provider-data)))})}
+                   :body (slurp (m/encode "application/json"
+                                          (:do @mocked-provider-data)))})}
    :cf-create-ok {:url "https://api.cloudflare.com/client/v4/zones/c6f10cf4dd7ace4b979d60c22066be23/dns_records"
                   :method :post
                   :response
                   (fn [{:keys [body]}]
                     (swap! mocked-provider-data
-                           #(update-in % [:cf :result] conj (m/decode "application/json"
-                                                                      (update-in body [:name] str ".moclojer.com"))))
+                           #(update-in % [:cf :result]
+                                       conj (-> (m/decode "application/json" body)
+                                                (update-in [:name] str ".moclojer.com"))))
                     {:status 200 :body "\"ok\""})}
    :do-create-ok {:url "https://api.digitalocean.com/v2/apps/4dd19675-0b62-4b9a-8082-8ee5d9eab99a"
                   :method :put
@@ -58,7 +61,7 @@
                  [:cf-data-ok :do-data-ok
                   :cf-create-ok :do-create-ok
                   :domain-ok])))
-   :sentry (components/new-mock-sentry)
+   :sentry (components/new-sentry-mock)
    :publisher (component/using (components/new-publisher)
                                [:config :sentry])
    :workers (component/using (components/new-consumer p.workers/workers false)
@@ -75,8 +78,8 @@
   ((get-in mocked-responses [:cf-data-ok :response]) nil)
 
   (publisher/publish! (:publisher @sys-atom)
-                      "domain.create"
-                      {:event {:domain "test-j0suetm"}})
+                      "mock.updated"
+                      {:event {:domain.create {:domain "teste-josue"}}})
 
   ;; iterate
   (utils/stop-system-dev! sys-atom false)

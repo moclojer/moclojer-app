@@ -16,7 +16,7 @@
 (defn create-domain!
   "Calls domain creation controllers for both CloudFlare and DigitalOcean,
    making some safety checks beforehand."
-  [{:keys [domain retrying?]} {:keys [publisher] :as components}]
+  [domain retrying? {:keys [publisher] :as components}]
 
   (logs/log :info "creating domain"
             :ctx {:domain domain :retrying? (not retrying?)})
@@ -32,7 +32,7 @@
     (if both-exist?
       (producers/verify-domain! domain (not retrying?) true publisher)
       (do
-        (producers/set-publication-status! domain "publishing" publisher)
+        (producers/set-dns-status! domain "publishing" publisher)
         (controllers.cf/create-domain! cf-records domain components)
         (controllers.do/create-domain! do-spec domain components)
         (producers/verify-domain! domain (not retrying?) false publisher)))))
@@ -63,7 +63,7 @@
       ;; everything ok?
       (= (http-out/ping-domain domain http) 200)
       (do
-        (producers/set-publication-status! domain "published" publisher)
+        (producers/set-dns-status! domain "published" publisher)
         (logs/log :info "verified domain (ping)"
                   :ctx {:domain domain
                         :final-attempt attempt})
@@ -126,7 +126,7 @@
                                 domain "`, even after retrying.")))))))
 
 (defn verify-domain
-  [{:keys [domain retrying? skip-data?]} components]
+  [domain retrying? skip-data? components]
   (let [ongoing-ver-domains @ongoing-verifications
         rm-ongoing-fn #(swap! ongoing-verifications
                               (fn [c]
