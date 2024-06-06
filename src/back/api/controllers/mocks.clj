@@ -16,6 +16,10 @@
                          (db.mocks/insert! database)
                          (adapter.mocks/->wire))]
         (ports.producers/generate-single-yml! (:id new-mock) publisher)
+        (when (:enabled new-mock)
+          (prn :new-mock new-mock)
+          (ports.producers/create-domain! (logic.mocks/pack-domain new-mock)
+                                          publisher))
         new-mock)
       (throw (ex-info "Mock with given wildcard and subdomain invalid"
                       {:status-code 412
@@ -32,8 +36,16 @@
     (let [updated-mock (-> mock
                            (logic.mocks/update {:content content})
                            (db.mocks/update! database)
-                           (adapter.mocks/->wire))]
+                           (adapter.mocks/->wire))
+          ->wired-old-mock (adapter.mocks/->wire mock)]
+
       (ports.producers/generate-single-yml! (:id updated-mock) publisher)
+
+      (when (and (= (:dns-status ->wired-old-mock) "offline")
+                 (:enabled ->wired-old-mock))
+        (ports.producers/create-domain! (logic.mocks/pack-domain ->wired-old-mock)
+                                        publisher))
+
       updated-mock)
     (throw (ex-info "Mock with given id invalid"
                     {:status-code 412
@@ -132,8 +144,9 @@
               (if (>= (count cur-mocks) 1)
                 (do
                   (doseq [mock cur-mocks]
-                    (ports.producers/verify-domain! (logic.mocks/pack-domain mock)
-                                                    true false publisher))
+                    (-> (adapter.mocks/->wire mock)
+                        logic.mocks/pack-domain
+                        (ports.producers/verify-domain! true false publisher)))
                   (Thread/sleep 30000)
                   (recur (inc batch)))
                 (reset! still-verifying-all? false)))))))

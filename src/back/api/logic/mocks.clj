@@ -29,7 +29,7 @@
   (str wildcard "-" subdomain ".moclojer.com"))
 
 (defn pack-domain
-  [{:mock/keys [wildcard subdomain]}]
+  [{:keys [wildcard subdomain]}]
   (str wildcard "-" subdomain))
 
 (defn unpack-domain

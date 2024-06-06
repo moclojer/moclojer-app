@@ -10,6 +10,11 @@
                       {:event {:yml.single.delete {:mock-id mock-id
                                                    :user-id user-id}}}))
 
+(defn create-domain! [domain publisher]
+  (publisher/publish! publisher "mock.updated"
+                      {:event {:domain.create {:domain domain
+                                               :retrying? true}}}))
+
 (defn verify-domain!
   [domain retrying? skip-data? publisher]
   (publisher/publish! publisher "domain.verification.dispatched"
