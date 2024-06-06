@@ -1,21 +1,18 @@
 (ns cloud-ops.api.ports.workers
-  (:require [cloud-ops.api.controllers.cloud :as controllers.cloud]
-            [com.moclojer.components.logs :as logs]))
+  (:require [cloud-ops.api.controllers.cloud :as controllers.cloud]))
 
 (defn create-domain-handler
   [{:keys [event]} components]
-  (if (some? (:domain event))
-    (controllers.cloud/create-domain! event components)
-    (logs/log :warn "cannot create empty domain")))
+  (when-let [{:keys [domain retrying?]} (:domain.create event)]
+    (controllers.cloud/create-domain! domain retrying? components)))
 
 (defn verify-domain-handler
   [{:keys [event]} components]
-  (if (:domain event)
-    (controllers.cloud/verify-domain event components)
-    (logs/log :warn "cannot verify empty domain")))
+  (when-let [{:keys [domain retrying? skip-data?]} event]
+    (controllers.cloud/verify-domain domain retrying? skip-data? components)))
 
 (def workers
   [{:handler create-domain-handler
-    :queue-name "domain.create"}
+    :queue-name "mock.updated"}
    {:handler verify-domain-handler
-    :queue-name "domain.verify"}])
+    :queue-name "domain.verification.dispatched"}])

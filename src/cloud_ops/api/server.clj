@@ -2,8 +2,8 @@
   (:require [cloud-ops.api.ports.workers :as p.workers]
             [com.moclojer.components.core :as components]
             [com.moclojer.components.logs :as logs]
-            [com.stuartsierra.component :as component]
-            [com.moclojer.components.publisher :as publisher])
+            [com.moclojer.components.publisher :as publisher]
+            [com.stuartsierra.component :as component])
   (:gen-class))
 
 (def system-atom (atom nil))

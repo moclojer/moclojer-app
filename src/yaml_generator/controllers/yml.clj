@@ -6,7 +6,6 @@
             [com.moclojer.components.storage :as storage]
             [yaml-generator.logic.yml :as logic.yml]
             [yaml-generator.ports.producers :as ports.producers]))
-
 (defn generate-single-yml!
   [mock-id {:keys [storage publisher config database]}]
   (let [{:keys [user-id wildcard enabled

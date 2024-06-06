@@ -17,9 +17,7 @@
                          (adapter.mocks/->wire))]
         (ports.producers/generate-single-yml! (:id new-mock) publisher)
         (when (:enabled new-mock)
-          (prn :new-mock new-mock)
-          (ports.producers/create-domain! (logic.mocks/pack-domain new-mock)
-                                          publisher))
+          (ports.producers/create-domain! (logic.mocks/pack-domain new-mock) publisher))
         new-mock)
       (throw (ex-info "Mock with given wildcard and subdomain invalid"
                       {:status-code 412
