@@ -48,8 +48,8 @@
                   #(first (get @publisher/mock-publisher "mock.deleted")))]
     (match?
      (matchers/embeds deleted-evt)
-     {:event {:id (parse-uuid id)
-              :user-id user-id}})))
+     {:event {:yml.single.delete {:mock-id (parse-uuid id)
+                                  :user-id user-id}}})))
 
 (defn fcheck-mock-deletion-storage [{:keys [id user-id]}]
   (flow

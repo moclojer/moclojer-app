@@ -4,7 +4,6 @@
             [back.integration.api.helpers :as helpers]
             [back.integration.components.utils :as utils]
             [com.moclojer.components.core :as components]
-            [com.moclojer.components.database :as database]
             [com.stuartsierra.component :as component]
             [matcher-combinators.matchers :as matchers]
             [state-flow.api :refer [defflow]]
@@ -58,7 +57,8 @@
                                        :wildcard "test"
                                        :user-id "cd989358-af38-4a2f-a1a1-88096aa425a7"
                                        :enabled true
-                                       :publication "offline"}}})
+                                       :dns-status "offline"
+                                       :unification-status "offline"}}})
        resp)
       (flow "retrieve the mock"
         [resp-get (helpers/request! {:method :get
@@ -73,5 +73,6 @@
                                             :subdomain "chico"
                                             :wildcard "test"
                                             :enabled true
-                                            :publication "offline"}]}]})
+                                            :dns-status "offline"
+                                            :unification-status "offline"}]}]})
          (-> resp-get :body))))))

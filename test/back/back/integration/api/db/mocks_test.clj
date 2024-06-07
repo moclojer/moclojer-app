@@ -28,7 +28,8 @@
                          :mock/wildcard "test"
                          :mock/subdomain "chico"
                          :mock/enabled true
-                         :mock/publication "offline"}
+                         :mock/dns_status "offline"
+                         :mock/unification_status "offline"}
                         database))
 
     (flow "then get by uuid"
@@ -37,7 +38,8 @@
                 :mock/subdomain "chico"
                 :mock/wildcard "test"
                 :mock/enabled true
-                :mock/publication "offline"}]
+                :mock/dns_status "offline"
+                :mock/unification_status "offline"}]
               (db.mocks/get-mocks {:user-id #uuid "916d0b8b-af1b-4178-8aa1-0531c582dcd1"} database)))))
 
 (defflow flow-db-get-mock-by-id
@@ -54,7 +56,8 @@
                          :mock/wildcard "test"
                          :mock/subdomain "chico"
                          :mock/enabled true
-                         :mock/publication "offline"}
+                         :mock/dns_status "offline"
+                         :mock/unification_status "offline"}
                         database))
 
     (flow "then get by uuid"
@@ -63,7 +66,8 @@
                :mock/subdomain "chico"
                :mock/wildcard "test"
                :mock/enabled true
-               :mock/publication "offline"}
+               :mock/dns_status "offline"
+               :mock/unification_status "offline"}
               (db.mocks/get-mock-by-id
                #uuid "41571d31-d9c2-4216-b6f6-d3c7bcc27570"
                database)))))
@@ -82,7 +86,8 @@
                          :mock/wildcard "test"
                          :mock/subdomain "chico"
                          :mock/enabled true
-                         :mock/publication "offline"}
+                         :mock/dns_status "offline"
+                         :mock/unification_status "offline"}
                         database))
 
     (flow "then get by uuid"
@@ -92,12 +97,14 @@
                :mock/wildcard "test"
                :mock/content "chico string content"
                :mock/enabled true
-               :mock/publication "offline"}
+               :mock/dns_status "offline"
+               :mock/unification_status "offline"}
               (db.mocks/update! {:mock/id #uuid "41571d31-d9c2-4216-b6f6-d3c7bcc27570"
                                  :mock/user_id #uuid "916d0b8b-af1b-4178-8aa1-0531c582dcd1"
                                  :mock/wildcard "test"
                                  :mock/content "chico string content"
                                  :mock/subdomain "chico"
                                  :mock/enabled true
-                                 :mock/publication "offline"}
+                                 :mock/dns_status "offline"
+                                 :mock/unification_status "offline"}
                                 database)))))

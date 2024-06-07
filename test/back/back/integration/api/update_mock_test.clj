@@ -72,7 +72,8 @@
                                        :wildcard "test"
                                        :user-id "cd989358-af38-4a2f-a1a1-88096aa425a7"
                                        :enabled true
-                                       :publication "offline"}}})
+                                       :dns-status "offline"
+                                       :unification-status "offline"}}})
        resp)
       (flow "then will update the content"
         [resp-get (helpers/request! {:method :put
@@ -88,7 +89,8 @@
                                   :content yml
                                   :user-id "cd989358-af38-4a2f-a1a1-88096aa425a7"
                                   :enabled true
-                                  :publication "offline"}})
+                                  :dns-status "offline"
+                                  :unification-status "offline"}})
          (-> resp-get :body))
 
         (flow "then retreive all mocks"
@@ -105,10 +107,12 @@
                                               :content yml
                                               :wildcard "test"
                                               :enabled true
-                                              :publication "offline"}]}]})
+                                              :dns-status "offline"
+                                              :unification-status "offline"}]}]})
            (-> resp-get :body)))
 
         (flow "should have publish a mock calling publisher"
-          (match? (matchers/embeds (first (get @publisher/mock-publisher "mock.changed")))
+          (match? (matchers/embeds (first (get @publisher/mock-publisher "mock.updated")))
                   {:event
-                   {:mock-id  (-> resp-get :body :mock :id (java.util.UUID/fromString))}}))))))
+                   {:yml.single.generate
+                    {:mock-id  (-> resp-get :body :mock :id (java.util.UUID/fromString))}}}))))))
