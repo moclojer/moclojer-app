@@ -18,8 +18,9 @@
     :http (components/new-http-mock [])
     :router (components/new-router routes/routes)
     :database (component/using (components/new-database) [:config])
+    :publisher (components/new-publisher-mock)
     :webserver (component/using (components/new-webserver)
-                                [:config :http :router :database]))))
+                                [:config :http :router :database :publisher]))))
 
 (def flow-consts
   {:base-req {:headers
@@ -52,7 +53,11 @@
      fst-resp (helpers/request! req)
      snd-resp (helpers/request! req)]
     (match?
-     (matchers/embeds {:status 201 :body fst-exp-body})
+     (matchers/embeds {:status 201 :body (update-in fst-exp-body
+                                                    [:mock]
+                                                    merge
+                                                    {:dns-status "offline"
+                                                     :unification-status "offline"})})
      fst-resp)
     (match?
      (matchers/embeds {:status 412 :body snd-exp-body})
