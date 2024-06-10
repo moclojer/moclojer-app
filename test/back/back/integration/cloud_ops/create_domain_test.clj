@@ -51,12 +51,11 @@
   (component/system-map
    :config (components/new-config "back/config.edn")
    :http (components/new-http-mock
-          (vals (select-keys
-                 mocked-responses
-                 ;; modify this list for different results
-                 [:cf-data-ok :do-data-ok
-                  :cf-create-ok :do-create-ok
-                  :domain-ok])))
+          (vals (select-keys mocked-responses
+                             ;; modify this list for different results
+                             [:cf-data-ok :do-data-ok
+                              :cf-create-ok :do-create-ok
+                              :domain-ok])))
    :publisher (component/using (components/new-publisher-mock)
                                [:config])))
 
@@ -65,20 +64,17 @@
     "should create domain"
     [components (state-flow.api/get-state)]
     (state/invoke
-     #(workers/create-domain-handler {:event {:domain domain}}
+     #(workers/create-domain-handler {:event {:domain.create {:domain domain}}}
                                      components))
 
     (match?
-     (matchers/embeds (-> @publisher/mock-publisher
-                          (get "mock.publication")
-                          first))
+     (matchers/embeds (first (get @publisher/mock-publisher "domain.updated")))
      {:event {:domain domain
               :new-status "publishing"}})
 
     (match?
-     (matchers/embeds (-> @publisher/mock-publisher
-                          (get "domain.verify")
-                          first))
+     (matchers/embeds (first (get @publisher/mock-publisher
+                                  "domain.verification.dispatched")))
      {:event {:domain domain
               :retrying? true
               :skip-data? false}})))
