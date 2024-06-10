@@ -1,13 +1,10 @@
-(ns back.integration.yaml-generator.mock-validation
+(ns back.integration.yaml-generator.mock-validation-test
   (:require [back.api.db.customers :as db.customers]
             [back.api.db.mocks :as db.mocks]
             [back.integration.components.utils :as utils]
-            [com.stuartsierra.component :as component]
             [com.moclojer.components.core :as components]
-            [com.moclojer.components.database :as database]
             [com.moclojer.components.publisher :as publisher]
-            [com.moclojer.components.sentry :as sentry]
-            [com.moclojer.components.storage :as storage]
+            [com.stuartsierra.component :as component]
             [matcher-combinators.matchers :as matchers]
             [state-flow.api :refer [defflow]]
             [state-flow.assertions.matcher-combinators :refer [match?]]
@@ -58,19 +55,24 @@
                      :mock/wildcard "test"
                      :mock/user_id #uuid "cd989358-af38-4a2f-a1a1-88096aa425a7"
                      :mock/enabled true
-                     :mock/publication "offline"}
+                     :mock/dns_status "offline"
+                     :mock/unification_status "offline"}
                     database))
     (flow
       "should block invalid yaml"
       [components (state-flow.api/get-state)]
       (state/invoke
-       #(workers/generate-yml-handler {:event {:mock-id mock-id}}
-                                      components)
+       #(workers/generate-single-yml-handler
+         {:event
+          {:yml.single.generate {:mock-id mock-id}}}
+         components))
       (match?
-       (matchers/embeds (-> (get @publisher/mock-publisher
-                                 "mock.publication") first))
-       {:event {:domain "test-chico"
-                :new-status "offline-invalid"}}))))
+       (matchers/embeds (first (get @publisher/mock-publisher
+                                    "yml.unified.generated")))
+       {:event
+        {:mock.unification-status
+         {:mock-id mock-id
+          :new-status "offline-invalid"}}}))))
 
 (def valid-mock-yaml
   "- endpoint:
@@ -107,21 +109,25 @@
                      :mock/wildcard "test"
                      :mock/user_id #uuid "cd989358-af38-4a2f-a1a1-88096aa425a7"
                      :mock/enabled true
-                     :mock/publication "offline"}
+                     :mock/dns_status "offline"
+                     :mock/unification_status "offline"}
                     database))
     (flow
       "should allow valid yaml"
       [components (state-flow.api/get-state)]
       (state/invoke
-       #(workers/generate-yml-handler {:event {:mock-id mock-id}}
-                                      components)
+       #(workers/generate-single-yml-handler
+         {:event
+          {:yml.single.generate
+           {:mock-id mock-id}}}
+         components))
+      (state-flow.api/invoke #(prn @publisher/mock-publisher))
       (match?
-       (matchers/embeds (-> (get @publisher/mock-publisher
-                                 "mock.unified") first))
-       {:event {:path (str "cd989358-af38-4a2f-a1a1-88096aa425a7/" mock-id "/mock.yml")
-                :domain "test-chico"
-                :create-domain? true
-                :valid-again? false}}))))
+       (matchers/embeds (first (get @publisher/mock-publisher
+                                    "yml.single.generated")))
+       {:event
+        {:gen-yml-path (str "cd989358-af38-4a2f-a1a1-88096aa425a7/" mock-id "/mock.yml")
+         :append? true}}))))
 
 (defflow
   flow-block-valid-yaml

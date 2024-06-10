@@ -71,7 +71,8 @@
           :mock/wildcard "test"
           :mock/user_id #uuid "cd989358-af38-4a2f-a1a1-88096aa425a7"
           :mock/enabled false
-          :mock/publication "offline"}})
+          :mock/dns_status "offline"
+          :mock/unification_status "offline"}})
 
 (defn fgenerate-and-save-mock []
   (flow
@@ -80,19 +81,33 @@
      storage (state-flow.api/get-state :storage)]
     (state-flow.api/invoke
      #(do
-        (publisher/publish! publisher "mock.changed"
-                            {:event {:mock-id (get-in flow-consts [:mock :mock/id])}})
+        (publisher/publish! publisher "mock.updated"
+                            {:event
+                             {:yml.single.generate
+                              {:mock-id (get-in flow-consts [:mock :mock/id])}}})
         (Thread/sleep 5000)))
 
     (match?
      (matchers/embeds (logic.yml/parse-yaml-&-body (:sample yml-consts)))
      (state-flow.api/return
-      (some-> (storage/get-file storage "moclojer"
-                                (logic.yml/gen-path
-                                 (get-in flow-consts [:user :customer/uuid])
-                                 (get-in flow-consts [:mock :mock/id])))
-              io/reader slurp
-              logic.yml/parse-yaml-&-body)))))
+      (let [timeout 5000 ;; 5 seconds
+            deadline (+ (System/currentTimeMillis) timeout)]
+        (loop []
+          (Thread/sleep 500)
+          (if (< (System/currentTimeMillis) deadline)
+            (if-let [content (some-> (storage/get-file storage "moclojer"
+                                                       (logic.yml/gen-path
+                                                        (get-in flow-consts
+                                                                [:user :customer/uuid])
+                                                        (get-in flow-consts
+                                                                [:mock :mock/id])))
+                                     io/reader slurp
+                                     logic.yml/parse-yaml-&-body)]
+              (if-not (= content [])
+                content
+                (recur))
+              (recur))
+            (throw (Exception. "Timeout reached while waiting for file content")))))))))
 
 (defflow
   flow-yaml-generation-test
