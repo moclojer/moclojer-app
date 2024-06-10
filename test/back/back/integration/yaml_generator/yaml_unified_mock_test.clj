@@ -6,13 +6,13 @@
             [com.moclojer.components.publisher :as publisher]
             [com.moclojer.components.storage :as storage]
             [com.stuartsierra.component :as component]
+            [matcher-combinators.matchers :as matchers]
             [state-flow.api :refer [defflow]]
             [state-flow.assertions.matcher-combinators :refer [match?]]
             [state-flow.cljtest]
             [state-flow.core :refer [flow]]
-            [state-flow.state :as state]
-            [yaml-generator.ports.workers :as p.workers]
-            [yaml.core :as yaml]))
+            [yaml-generator.logic.yml :as logic.yml]
+            [yaml-generator.ports.workers :as p.workers]))
 
 (defn publish-message [msg queue-name]
   (flow "publish a message"
@@ -60,12 +60,20 @@
 (defn get-file-on-localstack [n k]
   (flow "get a file on localstack"
     [storage (state-flow.api/get-state :storage)]
-
-    (-> storage
-        (storage/get-file n k)
-        io/reader
-        slurp
-        state-flow.api/return)))
+    (state-flow.api/return
+     (let [timeout 5000 ;; 5 seconds
+           deadline (+ (System/currentTimeMillis) timeout)]
+       (loop []
+         (Thread/sleep 500)
+         (if (< (System/currentTimeMillis) deadline)
+           (if-let [content (some-> (storage/get-file storage n k)
+                                    io/reader slurp
+                                    logic.yml/parse-yaml-&-body)]
+             (if-not (= content [])
+               content
+               (recur))
+             (recur))
+           (throw (Exception. "Timeout reached while waiting for file content"))))))))
 
 (defn- create-and-start-components []
   (component/start-system
@@ -132,16 +140,11 @@
                                    yml)
        _ (publish-message {:event
                            {:path (str "cd989358-af38-4a2f-a1a1-88096aa425a7/" mock-id "/mock.yml")}} "mock-unified")]
-      (flow "sleeping and check get the file inside the bucket unified"
+      (flow "check retrieved unified yml"
 
-        (state/invoke (fn [] (Thread/sleep 10000)))
-        [file-result (get-file-on-localstack "moclojer" (str "cd989358-af38-4a2f-a1a1-88096aa425a7/" mock-id "/mock.yml"))]
-
-      ; #TODO for now we are parsing to check the content
-        (match? (yaml/parse-string
-                 expected-yml-with-host)
-                (yaml/parse-string
-                 file-result))
+        (match?
+         (matchers/embeds (logic.yml/parse-yaml-&-body expected-yml-with-host))
+         (get-file-on-localstack "moclojer" (str "cd989358-af38-4a2f-a1a1-88096aa425a7/" mock-id "/mock.yml")))
 
         (flow "cleaning up localstack"
           [r (cleaning-up-localstack-all-files "moclojer")]

@@ -75,7 +75,8 @@
           :mock/wildcard "test"
           :mock/user_id #uuid "cd989358-af38-4a2f-a1a1-88096aa425a7"
           :mock/enabled false
-          :mock/publication "published"}})
+          :mock/dns_status "published"
+          :mock/unification_status "published"}})
 
 (defn fvalidate-and-recreate-unified []
   (flow
@@ -83,10 +84,10 @@
     [{:keys [publisher storage]} (state-flow.api/get-state)]
 
     (state-flow.api/invoke
-     #(publisher/publish! publisher "unified.verification.dispatch" {}))
+     #(publisher/publish! publisher "yml.unified.verification.fired" {}))
 
     (match?
-     (matchers/embeds (logic.yml/parse-yaml-read-literal
+     (matchers/embeds (logic.yml/parse-yaml-&-body
                        (:with-host yml-consts)))
      (state-flow.api/return
       (let [timeout 5000 ;; 5 seconds
@@ -96,7 +97,7 @@
           (if (< (System/currentTimeMillis) deadline)
             (if-let [content (some-> (storage/get-file storage "moclojer" "moclojer.yml")
                                      io/reader slurp
-                                     logic.yml/parse-yaml-read-literal)]
+                                     logic.yml/parse-yaml-&-body)]
               (if-not (= content [])
                 content
                 (recur))
