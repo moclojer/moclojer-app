@@ -11,9 +11,12 @@
 (defn create-domain! [cur-records domain {:keys [config http]}]
   (when cur-records
     (let [{:keys [cloudflare proxy]} (get-in config [:config :cloud-providers])
-          {:keys [base-url zone-id token record-content]} cloudflare
+          {:keys [base-url zone-id token]} cloudflare
           url (str base-url "/zones/" zone-id "/dns_records")
           req-params (http-out/mount-basic-req url token proxy)]
-      (-> {:domain domain
-           :record-content record-content}
-          (http-out/create-cf-domain! http req-params)))))
+      (http-out/create-cf-domain! domain
+                                  (pr-str #:record
+                                           {:service :cloud-ops
+                                            :created-at (* (System/currentTimeMillis)
+                                                           1000)})
+                                  http req-params))))

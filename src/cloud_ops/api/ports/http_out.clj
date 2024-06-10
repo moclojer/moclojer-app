@@ -39,8 +39,7 @@
 
 (defn create-cf-domain!
   "Creates a new CloudFlare DNS record."
-  [{:keys [domain record-content]} http req-params]
-  (prn :domain domain :record record-content :req-params req-params)
+  [domain record-content http req-params]
   (let [enc-body (m/encode "application/json"
                            {:content record-content
                             :name domain
