@@ -27,7 +27,8 @@
     [components (sf/get-state)
      err-url (sf/invoke #(try
                            (workers/create-domain-handler
-                            {:event {:domain "test-j0suetm"}} components)
+                            {:event {:domain.create {:domain "test-j0suetm"}}}
+                            components)
                            (catch Throwable e
                              (-> e ex-data :req :url))))]
     (sf/match? "https://api.cloudflare.com/client/v4/zones/c6f10cf4dd7ace4b979d60c22066be23/dns_records"
