@@ -73,7 +73,7 @@
                content
                (recur))
              (recur))
-           (throw (Exception. "Timeout reached while waiting for file content"))))))))
+           (throw (TimeoutException. "Failed to retrieve file content within the 5-second timeout")))))))
 
 (defn- create-and-start-components []
   (component/start-system
