@@ -8,7 +8,7 @@
 ;; need to be alerted of anything out of our expectations.
 
 (defn ping-domain
-  "Pings `domain` to see if its deployed."
+  "Pings `domain` to see if it's deployed."
   [domain http]
   (try
     (let [url (str "https://" domain ".moclojer.com")
@@ -39,9 +39,10 @@
 
 (defn create-cf-domain!
   "Creates a new CloudFlare DNS record."
-  [domain record-content http req-params]
+  [domain content comment http req-params]
   (let [enc-body (m/encode "application/json"
-                           {:content record-content
+                           {:content content
+                            :comment comment
                             :name domain
                             :proxied true
                             :type "CNAME"
@@ -53,6 +54,15 @@
     (logs/log :info "created cloudflare domain"
               :ctx {:domain domain})
     decoded))
+
+(defn delete-cf-domain!
+  "Deletes a CloudFlare DNS record."
+  [http req-params]
+  (let [req (assoc req-params :method :delete)
+        {:keys [body]} (http/request-or-throw http req 200)
+        {{:keys [id]} :result} (m/decode "application/json" body)]
+    (logs/log :info "deleted cloudflare domain"
+              :ctx {:id id})))
 
 (defn get-current-do-spec
   "Retrieves the current App Specification from the `moclojer-cloud` app in DO.

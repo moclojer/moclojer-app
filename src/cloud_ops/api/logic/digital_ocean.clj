@@ -18,6 +18,13 @@
         new-domains (conj domains new-domain-spec)]
     (assoc spec :domains new-domains)))
 
+(defn rm-domain-from-spec
+  "Removes the `domain` from the `spec` domain list."
+  [spec domain]
+  (let [domains (:domains spec)
+        new-domains (remove #(= (:domain %) (str domain ".moclojer.com")) domains)]
+    (assoc spec :domains new-domains)))
+
 (comment
 
   (domain-exists?
@@ -25,6 +32,13 @@
    "test-j0suetm")
 
   (domain-exists? [] "test-j0suetm")
+
+  (add-domain-to-spec {:domains []} "teste-j0suetm")
+  ;;=> {:domains [{:type "ALIAS", :domain "teste-j0suetm.moclojer.com"}]}
+
+  (rm-domain-from-spec {:domains [{:domain "teste-j0suetm.moclojer.com"}]}
+                       "teste-j0suetm")
+  ;;=> {:domains ()}
 
   "this is what a spec might look like"
 

@@ -10,6 +10,10 @@
                       {:event {:yml.single.delete {:mock-id mock-id
                                                    :user-id user-id}}}))
 
+(defn delete-domain! [domain publisher]
+  (publisher/publish! publisher "mock.deleted"
+                      {:event {:domain.delete {:domain domain}}}))
+
 (defn create-domain! [domain publisher]
   (publisher/publish! publisher "mock.updated"
                       {:event {:domain.create {:domain domain

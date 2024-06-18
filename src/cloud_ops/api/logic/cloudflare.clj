@@ -10,7 +10,7 @@
        seq)))
 
 (comment
-  (domain-exists? [{:name "test-j0suetm"}] "test-j0suetm")
+  (domain-exists? [{:name "test-j0suetm.moclojer.com"}] "test-j0suetm")
   ;; => ({:name "test-j0suetm"})
 
   (domain-exists? [] "test-j0suetm")

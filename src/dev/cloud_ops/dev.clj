@@ -35,9 +35,10 @@
                     (swap! mocked-provider-data
                            #(update-in % [:cf :result]
                                        conj (-> (m/decode "application/json" body)
-                                                (update-in [:name] str ".moclojer.com"))))
+                                                (update :name str ".moclojer.com")
+                                                (assoc :id "1234"))))
                     {:status 200 :body "\"ok\""})}
-   :do-create-ok {:url "https://api.digitalocean.com/v2/apps/4dd19675-0b62-4b9a-8082-8ee5d9eab99a"
+   :do-update-ok {:url "https://api.digitalocean.com/v2/apps/4dd19675-0b62-4b9a-8082-8ee5d9eab99a"
                   :method :put
                   :response
                   (fn [{:keys [body]}]
@@ -48,7 +49,17 @@
                :method :get
                :response
                {:status 200
-                :body "{\"created\": true}"}}})
+                :body "{\"created\": true}"}}
+   :cf-delete-ok {:url "https://api.cloudflare.com/client/v4/zones/c6f10cf4dd7ace4b979d60c22066be23/dns_records/1234"
+                  :method :delete
+                  :response
+                  (fn [_]
+                    (swap! mocked-provider-data
+                           update-in [:cf :result]
+                           (fn [records]
+                             (remove #(= (:id %) "1234") records)))
+                    {:status 200
+                     :body "{}"})}})
 
 (defn build-system-map []
   (component/system-map
@@ -59,8 +70,8 @@
                  mocked-responses
                  ;; modify this list for different results
                  [:cf-data-ok :do-data-ok
-                  :cf-create-ok :do-create-ok
-                  :domain-ok])))
+                  :cf-create-ok :do-update-ok
+                  :domain-ok :cf-delete-ok])))
    :sentry (components/new-sentry-mock)
    :publisher (component/using (components/new-publisher)
                                [:config :sentry])
