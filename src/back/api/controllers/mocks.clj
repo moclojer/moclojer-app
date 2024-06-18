@@ -79,14 +79,18 @@
   [session id {:keys [database publisher]}]
   ;; filtering so we can check if the session user
   ;; owns the mock to be deleted.
-  (if-let [{:keys [id user-id]} (-> (db.mocks/get-mocks session database)
-                                    (logic.mocks/filter-by-id id)
-                                    (adapter.mocks/->wire))]
-    (do
+  (if-let [mock (-> (db.mocks/get-mocks session database)
+                    (logic.mocks/filter-by-id id)
+                    (adapter.mocks/->wire))]
+    (let [{:keys [id user-id]} mock]
       (db.mocks/delete-mock-by-id id database)
       (ports.producers/delete-single-yml! id user-id publisher)
+      (ports.producers/delete-domain! (logic.mocks/pack-domain mock) publisher)
       true)
-    false))
+    (throw (ex-info "No mock found with given id"
+                    {:status-code 400
+                     :cause :invalid-id
+                     :value :id}))))
 
 (defn get-mock-publication-status
   [id db]

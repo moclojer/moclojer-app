@@ -2,6 +2,8 @@
   (:require [cloud-ops.api.controllers.cloudflare :as controllers.cf]
             [cloud-ops.api.controllers.digital-ocean :as controllers.do]
             [cloud-ops.api.logic.cloud :as logic.cloud]
+            [cloud-ops.api.logic.cloudflare :as logic.cf]
+            [cloud-ops.api.logic.digital-ocean :as logic.do]
             [cloud-ops.api.ports.http-out :as http-out]
             [cloud-ops.api.ports.producers :as producers]
             [com.moclojer.components.logs :as logs]))
@@ -17,10 +19,6 @@
   "Calls domain creation controllers for both CloudFlare and DigitalOcean,
    making some safety checks beforehand."
   [domain retrying? {:keys [publisher] :as components}]
-
-  (logs/log :info "creating domain"
-            :ctx {:domain domain :retrying? (not retrying?)})
-
   (let [{:keys [cf-records do-spec]} (logic.cloud/remove-existing-data
                                       (get-current-data components)
                                       domain)
@@ -36,6 +34,15 @@
         (controllers.cf/create-domain! cf-records domain components)
         (controllers.do/create-domain! do-spec domain components)
         (producers/verify-domain! domain (not retrying?) false publisher)))))
+
+(defn delete-domain!
+  "Calls domain deletion controllers for both CloudFlare and DigitalOcean."
+  [domain components]
+  (let [{:keys [cf-records do-spec]} (get-current-data components)]
+    (when-let [?record (first (logic.cf/domain-exists? cf-records domain))]
+      (controllers.cf/delete-domain! (:id ?record) components))
+    (when (logic.do/domain-exists? (:domains do-spec) domain)
+      (controllers.do/delete-domain! do-spec domain components))))
 
 ;; Not sure if this is the best option, but works fine for now,
 ;; since it isn't expected to have too many verifications ongoing
