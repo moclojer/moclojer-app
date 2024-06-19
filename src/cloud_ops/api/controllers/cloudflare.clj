@@ -11,14 +11,14 @@
      :base-req req-params}))
 
 (defn get-current-records [{:keys [config http]}]
-  (logs/log :info "retrieving CF domains")
+  (logs/log :info "retrieving cloudflare domains")
   (->> (mount-records-base-req config)
        :base-req
        (http-out/get-current-cf-records http)))
 
 (defn create-domain! [cur-records domain {:keys [config http]}]
   (when cur-records
-    (logs/log :info "creating CF domain"
+    (logs/log :info "creating cloudflare domain"
               :ctx {:domain domain})
     (let [{:keys [cf-config base-req]} (mount-records-base-req config)]
       (http-out/create-cf-domain! domain
@@ -30,7 +30,7 @@
                                   http base-req))))
 
 (defn delete-domain! [domain-id {:keys [config http]}]
-  (logs/log :info "deleting CF domain"
+  (logs/log :info "deleting cloudflare domain"
             :ctx {:domain-id domain-id})
   (http-out/delete-cf-domain! http
                               (-> (mount-records-base-req config)
