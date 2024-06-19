@@ -16,6 +16,7 @@
         com.cognitect.aws/s3           {:mvn/version "822.2.1145.0"}
         org.clojure/core.async {:mvn/version "1.6.681"}
         buddy/buddy-sign {:mvn/version "3.5.351"}
+        slugify/slugify {:mvn/version "0.0.1"}
         cheshire/cheshire {:mvn/version "5.11.0"}
         clj-http/clj-http {:mvn/version "3.12.3"}
         com.github.seancorfield/honeysql {:mvn/version "2.3.928"}
