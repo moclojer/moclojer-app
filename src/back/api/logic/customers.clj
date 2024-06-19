@@ -1,22 +1,12 @@
 (ns back.api.logic.customers
-  (:import [java.util UUID]))
-
-(defn uuid-from-string
-  {:malli/schema [:=> [:cat :string] :uuid]}
-  [seed]
-  (-> seed
-      .getBytes
-      UUID/nameUUIDFromBytes))
-
-(defn ->uuid []
-  (UUID/randomUUID))
+  (:require [clojure.string :as str]))
 
 (defn create
   [{:keys [email id]}]
-  {:customer/uuid (->uuid)
+  {:customer/uuid (random-uuid)
    :customer/email email
    :customer/external-uuid (parse-uuid id)})
 
 (defn add-username [user username]
   [user username]
-  (assoc user :customer/username username))
+  (assoc user :customer/username (str/lower-case username)))
