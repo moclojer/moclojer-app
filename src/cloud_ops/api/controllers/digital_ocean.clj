@@ -18,14 +18,14 @@
 
 (defn create-domain! [cur-spec domain {:keys [config http]}]
   (when cur-spec
-    (logs/log :info "creating DO domain"
+    (logs/log :info "creating digital ocean domain"
               :ctx {:domain domain})
     (-> (logic.do/add-domain-to-spec cur-spec domain)
         (http-out/update-do-spec! http (mount-app-base-req config)))))
 
 (defn delete-domain! [cur-spec domain {:keys [config http]}]
   (when cur-spec
-    (logs/log :info "deleting DO domain"
+    (logs/log :info "deleting digital ocean domain"
               :ctx {:domain domain})
     (-> (logic.do/rm-domain-from-spec cur-spec domain)
         (http-out/update-do-spec! http (mount-app-base-req config)))))
