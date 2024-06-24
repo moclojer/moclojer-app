@@ -8,10 +8,10 @@
             [yaml-generator.ports.producers :as ports.producers]))
 
 (defn generate-single-yml!
-  [mock-id {:keys [storage publisher config database]}]
+  [mock-id {:keys [storage publisher config database]} ctx]
   (let [{:keys [user-id wildcard enabled
                 content subdomain]} (-> (parse-uuid (str mock-id))
-                                        (db.mocks/get-mock-by-id database)
+                                        (db.mocks/get-mock-by-id database ctx)
                                         adapters.mocks/->wire)
         path (logic.yml/gen-path user-id mock-id)
         env (get-in config [:config :env])
@@ -21,27 +21,30 @@
         ?file (storage/get-file storage "moclojer" path)
         valid? (logic.yml/validate-mock content)]
 
-    (storage/upload! storage "moclojer" path content-with-host)
+    (storage/upload! storage "moclojer" path content-with-host ctx)
     (logs/log :info "uploaded generated yaml"
-              :ctx {:path path
-                    :?file ?file})
+              :ctx (merge ctx {:path path
+                               :?file ?file}))
 
     (if valid?
       (when enabled
-        (ports.producers/generate-unified-yml! path true publisher))
+        (ports.producers/generate-unified-yml! path true publisher ctx))
       (do
         (logs/log :warn "invalid mock content"
-                  :ctx {:content content
-                        :explanation (logic.yml/explain-mock-validation content)})
-        (ports.producers/set-unification-status! mock-id "offline-invalid"
-                                                 publisher)))))
+                  :ctx (merge ctx
+                              {:content content
+                               :explanation (logic.yml/explain-mock-validation content)}))
+        (ports.producers/set-unification-status! mock-id
+                                                 "offline-invalid"
+                                                 publisher
+                                                 ctx)))))
 
 ;; NOTE: do not confuse :local-host tag in moclojer yamls with the localhost
 ;; network! :local-host is just the local version of the host in prod env.
 ;; It's there just so we can update the unified yml.
 
 (defn generate-unified-yml!
-  [gen-yml-path append? {:keys [storage config publisher]}]
+  [gen-yml-path append? {:keys [storage config publisher]} ctx]
   (let [new-mock-file (storage/get-file storage "moclojer" gen-yml-path)
         new-mock-content (when new-mock-file (slurp (io/reader new-mock-file)))
         unified-mock (storage/get-file storage "moclojer" "moclojer.yml")
@@ -53,48 +56,49 @@
                        (if unified-mock
                          (logic.yml/unified-yaml (slurp (io/reader unified-mock))
                                                  new-mock-content append? host-key)
-                         (or new-mock-content "[]\n")))
+                         (or new-mock-content "[]\n"))
+                       ctx)
 
       (logs/log :info "uploaded unified yaml"
-                :ctx {:gen-yml-path gen-yml-path})
+                :ctx (assoc ctx :gen-yml-path gen-yml-path))
 
-      (ports.producers/restart-mock! publisher)
+      (ports.producers/restart-mock! publisher ctx)
       (when append?
-        (ports.producers/set-unification-status! mock-id "published" publisher))
+        (ports.producers/set-unification-status! mock-id "published" publisher ctx))
 
       (catch Exception e
         (logs/log :error "failed to generate unified yaml"
-                  :ctx {:ex-message (.getMessage e)})
-        (ports.producers/set-unification-status! mock-id "offline" publisher)))))
+                  :ctx (assoc ctx :ex-message (.getMessage e)))
+        (ports.producers/set-unification-status! mock-id "offline" publisher ctx)))))
 
-(defn delete-single-yml! [mock-id user-id components]
+(defn delete-single-yml! [mock-id user-id components ctx]
   (let [path (logic.yml/gen-path user-id mock-id)
         storage (:storage components)]
-    (generate-unified-yml! path false components)
+    (generate-unified-yml! path false components ctx)
     (storage/delete-file! storage "moclojer" path)
     (logs/log :info "deleted yaml"
-              :ctx {:path path})))
+              :ctx (assoc ctx :path path))))
 
 (defn get-parsed-yml-content
-  [path storage]
+  [path storage ctx]
   (if-let [content (storage/get-file storage "moclojer" path)]
     {:path path
      :content (logic.yml/parse-yaml-read-literal (slurp content))}
     (logs/log :warn "mock file doesn't exist"
-              :ctx {:path path})))
+              :ctx (assoc ctx :path path))))
 
 (defn verify-unified-yml!
-  [{:keys [mocks]} {:keys [config storage publisher]}]
+  [{:keys [mocks]} {:keys [config storage publisher]} ctx]
   (let [paths (logic.yml/reduce-paths mocks)
-        parsed-mocks (doall (map #(get-parsed-yml-content % storage) paths))
-        parsed-unified (get-parsed-yml-content "moclojer.yml" storage)
+        parsed-mocks (doall (map #(get-parsed-yml-content % storage ctx) paths))
+        parsed-unified (get-parsed-yml-content "moclojer.yml" storage ctx)
         env (get-in config [:config :env])
         host-key (if (= env :dev) :local-host :host)
         missing-mocks (logic.yml/filter-missing-mocks
                        parsed-mocks parsed-unified host-key)]
     (doseq [{:keys [endpoint path]} missing-mocks]
       (logs/log :info "found mock missing from unified. trying to regenerate..."
-                :ctx (assoc (select-keys endpoint [:path host-key])
-                            :s3-path path))
-      (ports.producers/generate-unified-yml! path false publisher)
+                :ctx (merge ctx (assoc (select-keys endpoint [:path host-key])
+                                       :s3-path path)))
+      (ports.producers/generate-unified-yml! path false publisher ctx)
       (Thread/sleep 3000))))
