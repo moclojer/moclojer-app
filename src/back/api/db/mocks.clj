@@ -17,54 +17,67 @@
   )
 
 (defn insert!
-  [mock db ctx]
-  (-> (sql.helpers/insert-into :mock)
-      (sql.helpers/values [(cast-mock mock)])
-      (sql.helpers/returning :*)
-      (sql/format {:quoted false})
-      ((db.utils/build-execute-with-ctx db ctx))
-      first))
+  ([mock db]
+   (insert! mock db {}))
+  ([mock db ctx]
+   (-> (sql.helpers/insert-into :mock)
+       (sql.helpers/values [(cast-mock mock)])
+       (sql.helpers/returning :*)
+       (sql/format {:quoted false})
+       ((db.utils/build-execute-with-ctx db ctx))
+       first)))
 
 (defn update!
-  [mock db ctx]
-  (-> (sql.helpers/update :mock)
-      (sql.helpers/set (cast-mock mock))
-      (sql.helpers/where [:= :id (:mock/id mock)])
-      (sql.helpers/returning :*)
-      (sql/format {:quoted false})
-      ((db.utils/build-execute-with-ctx db ctx))
-      first))
+  ([mock db]
+   (update! mock db {}))
+  ([mock db ctx]
+   (-> (sql.helpers/update :mock)
+       (sql.helpers/set (cast-mock mock))
+       (sql.helpers/where [:= :id (:mock/id mock)])
+       (sql.helpers/returning :*)
+       (sql/format {:quoted false})
+       ((db.utils/build-execute-with-ctx db ctx))
+       first)))
 
-(defn get-mock-by-id [id db ctx]
-  (-> (sql.helpers/select :*)
-      (sql.helpers/from :mock)
-      (sql.helpers/where [:= :id id])
-      sql/format
-      ((db.utils/build-execute-with-ctx db ctx))
-      first))
+(defn get-mock-by-id
+  ([id db]
+   (get-mock-by-id id db {}))
+  ([id db ctx]
+   (-> (sql.helpers/select :*)
+       (sql.helpers/from :mock)
+       (sql.helpers/where [:= :id id])
+       sql/format
+       ((db.utils/build-execute-with-ctx db ctx))
+       first)))
 
 (defn get-mock-by-wildcard
-  [{:keys [wildcard subdomain & user-id]} db ctx]
-  (let [where [:and
-               [:= :wildcard wildcard]
-               [:= :subdomain subdomain]]]
-    (-> (sql.helpers/select :*)
-        (sql.helpers/from :mock)
-        (sql.helpers/where (if user-id
-                             (conj where [:= :user_id user-id])
-                             where))
-        sql/format
-        ((db.utils/build-execute-with-ctx db ctx))
-        first)))
+  ([mock db]
+   (get-mock-by-wildcard mock db {}))
+  ([{:keys [wildcard subdomain & user-id]} db ctx]
+   (let [where [:and
+                [:= :wildcard wildcard]
+                [:= :subdomain subdomain]]]
+     (-> (sql.helpers/select :*)
+         (sql.helpers/from :mock)
+         (sql.helpers/where (if user-id
+                              (conj where [:= :user_id user-id])
+                              where))
+         sql/format
+         ((db.utils/build-execute-with-ctx db ctx))
+         first))))
 
-(defn get-mocks [{:keys [user-id]} db ctx]
-  (-> (sql.helpers/select :*)
-      (sql.helpers/from :mock)
-      (sql.helpers/where [:= :user_id user-id])
-      sql/format
-      ((db.utils/build-execute-with-ctx db ctx))))
+(defn get-mocks
+  ([user db]
+   (get-mocks user db {}))
+  ([{:keys [user-id]} db ctx]
+   (-> (sql.helpers/select :*)
+       (sql.helpers/from :mock)
+       (sql.helpers/where [:= :user_id user-id])
+       sql/format
+       ((db.utils/build-execute-with-ctx db ctx)))))
 
-(defn get-mocks-by-publication [stt-type pub-stts db ctx & [user-id]]
+(defn get-mocks-by-publication
+  [stt-type pub-stts db ctx & [user-id]]
   (let [where-pub-status (->> (map
                                #(identity [:= stt-type [:cast % :publication_status]])
                                pub-stts)
@@ -78,8 +91,11 @@
         sql/format
         ((db.utils/build-execute-with-ctx db ctx)))))
 
-(defn delete-mock-by-id [id db ctx]
-  (-> (sql.helpers/delete-from :mock)
-      (sql.helpers/where [:= :id id])
-      sql/format
-      ((db.utils/build-execute-with-ctx db ctx))))
+(defn delete-mock-by-id
+  ([id db]
+   (delete-mock-by-id id db {}))
+  ([id db ctx]
+   (-> (sql.helpers/delete-from :mock)
+       (sql.helpers/where [:= :id id])
+       sql/format
+       ((db.utils/build-execute-with-ctx db ctx)))))
