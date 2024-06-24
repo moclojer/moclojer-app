@@ -22,7 +22,7 @@
 
 (defn dispatch-unified-yml-verification!
   [_ components]
-  (controllers.mocks/dispatch-unified-yml-verification! components nil))
+  (controllers.mocks/dispatch-unified-yml-verification! components {}))
 
 (def workers
   [{:handler update-mock-dns-status!
