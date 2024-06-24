@@ -9,7 +9,8 @@
       (sql.helpers/values [transaction])
       (sql.helpers/returning :*)
       sql/format
-      ((db.utils/build-execute-with-ctx db ctx))))
+      ((db.utils/build-execute-with-ctx db ctx))
+      first))
 
 (defn update!
   [{:customer/keys [uuid] :as user} db ctx]
@@ -17,7 +18,8 @@
       (sql.helpers/set user)
       (sql.helpers/where [:= :uuid uuid])
       sql/format
-      ((db.utils/build-execute-with-ctx db ctx))))
+      ((db.utils/build-execute-with-ctx db ctx))
+      first))
 
 (defn get-customers [db ctx]
   (-> (sql.helpers/select :*)

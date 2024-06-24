@@ -6,18 +6,19 @@
             [com.moclojer.components.logs :as logs]))
 
 (defn create-mock!
-  [user-id mock {:keys [database publisher]}]
+  [user-id mock {:keys [database publisher]} ctx]
   (let [uid {:user-id user-id}
         existing-mock (-> (select-keys mock [:wildcard :subdomain])
                           (merge uid)
-                          (db.mocks/get-mock-by-wildcard database))]
+                          (db.mocks/get-mock-by-wildcard database ctx))]
     (if (empty? existing-mock)
       (let [new-mock (-> (logic.mocks/create (merge uid mock))
-                         (db.mocks/insert! database)
+                         (db.mocks/insert! database ctx)
                          (adapter.mocks/->wire))]
-        (ports.producers/generate-single-yml! (:id new-mock) publisher)
+        (ports.producers/generate-single-yml! (:id new-mock) publisher ctx)
         (when (:enabled new-mock)
-          (ports.producers/create-domain! (logic.mocks/pack-domain new-mock) publisher))
+          (ports.producers/create-domain! (logic.mocks/pack-domain new-mock)
+                                          publisher ctx))
         new-mock)
       (throw (ex-info "Mock with given wildcard and subdomain invalid"
                       {:status-code 412
@@ -25,19 +26,19 @@
                        :value (adapter.mocks/->wire existing-mock)})))))
 
 (defn wildcard-available?
-  [mock {:keys [database]}]
-  (empty? (db.mocks/get-mock-by-wildcard mock database)))
+  [mock {:keys [database]} ctx]
+  (empty? (db.mocks/get-mock-by-wildcard mock database ctx)))
 
 (defn update-mock!
-  [id content {:keys [database publisher]}]
-  (if-let [mock (db.mocks/get-mock-by-id id database)]
+  [id content {:keys [database publisher]} ctx]
+  (if-let [mock (db.mocks/get-mock-by-id id database ctx)]
     (let [updated-mock (-> mock
                            (logic.mocks/update {:content content})
-                           (db.mocks/update! database)
+                           (db.mocks/update! database ctx)
                            (adapter.mocks/->wire))
           ->wired-old-mock (adapter.mocks/->wire mock)]
 
-      (ports.producers/generate-single-yml! (:id updated-mock) publisher)
+      (ports.producers/generate-single-yml! (:id updated-mock) publisher ctx)
 
       (when (and (= (:dns-status ->wired-old-mock) "offline")
                  (:enabled ->wired-old-mock))
@@ -50,42 +51,42 @@
                      :cause :invalid-id}))))
 
 (defn get-mocks
-  [filters {:keys [database]}]
-  (->> (db.mocks/get-mocks filters database)
+  [filters {:keys [database]} ctx]
+  (->> (db.mocks/get-mocks filters database ctx)
        (map adapter.mocks/->wire)
        (logic.mocks/group "personal")))
 
 (defn publish-mock!
-  [id {:keys [database publisher]}]
-  (-> (db.mocks/get-mock-by-id id database)
+  [id {:keys [database publisher]} ctx]
+  (-> (db.mocks/get-mock-by-id id database ctx)
       logic.mocks/publish
-      (db.mocks/update! database)
+      (db.mocks/update! database ctx)
       (adapter.mocks/->wire)
       :id
-      (ports.producers/generate-single-yml! publisher))
+      (ports.producers/generate-single-yml! publisher ctx))
   true)
 
 (defn unpublish-mock!
-  [id {:keys [database publisher]}]
-  (-> (db.mocks/get-mock-by-id id database)
+  [id {:keys [database publisher]} ctx]
+  (-> (db.mocks/get-mock-by-id id database ctx)
       logic.mocks/unpublish
-      (db.mocks/update! database)
+      (db.mocks/update! database ctx)
       (adapter.mocks/->wire)
       :id
-      (ports.producers/generate-single-yml! publisher))
+      (ports.producers/generate-single-yml! publisher ctx))
   true)
 
 (defn delete-mock!
-  [session id {:keys [database publisher]}]
+  [session id {:keys [database publisher]} ctx]
   ;; filtering so we can check if the session user
   ;; owns the mock to be deleted.
-  (if-let [mock (-> (db.mocks/get-mocks session database)
+  (if-let [mock (-> (db.mocks/get-mocks session database ctx)
                     (logic.mocks/filter-by-id id)
                     (adapter.mocks/->wire))]
     (let [{:keys [id user-id]} mock]
-      (db.mocks/delete-mock-by-id id database)
-      (ports.producers/delete-single-yml! id user-id publisher)
-      (ports.producers/delete-domain! (logic.mocks/pack-domain mock) publisher)
+      (db.mocks/delete-mock-by-id id database ctx)
+      (ports.producers/delete-single-yml! id user-id publisher ctx)
+      (ports.producers/delete-domain! (logic.mocks/pack-domain mock) publisher ctx)
       true)
     (throw (ex-info "No mock found with given id"
                     {:status-code 400
@@ -93,8 +94,8 @@
                      :value :id}))))
 
 (defn get-mock-publication-status
-  [id db]
-  (if-let [mock (db.mocks/get-mock-by-id (parse-uuid (str id)) db)]
+  [id db ctx]
+  (if-let [mock (db.mocks/get-mock-by-id (parse-uuid (str id)) db ctx)]
     (-> (adapter.mocks/->wire mock)
         (select-keys [:dns-status :unification-status]))
     (throw (ex-info "No mock found with given id"
@@ -103,22 +104,22 @@
                      :value id}))))
 
 (defn update-mock-dns-status!
-  [domain new-status db]
+  [domain new-status db ctx]
   (if-let [mock (-> (logic.mocks/unpack-domain domain)
-                    (db.mocks/get-mock-by-wildcard db))]
+                    (db.mocks/get-mock-by-wildcard db ctx))]
     (-> (logic.mocks/update-dns-status mock new-status)
         (select-keys [:mock/id :mock/dns_status])
-        (db.mocks/update! db))
+        (db.mocks/update! db ctx))
     (throw (ex-info "No mock found with given domain"
                     {:cause :invalid-domain
                      :value domain}))))
 
 (defn update-mock-unification-status!
-  [mock-id new-status db]
-  (if-let [mock (db.mocks/get-mock-by-id (parse-uuid (str mock-id)) db)]
+  [mock-id new-status db ctx]
+  (if-let [mock (db.mocks/get-mock-by-id (parse-uuid (str mock-id)) db ctx)]
     (-> (logic.mocks/update-unification-status mock new-status)
         (select-keys [:mock/id :mock/unification_status])
-        (db.mocks/update! db))
+        (db.mocks/update! db ctx))
     (throw (ex-info "No mock found with given id"
                     {:status-code 400
                      :cause :invalid-id
@@ -131,14 +132,15 @@
   This is so we don't overload our providers. After sending every
   batch, sleeps for 30 seconds, which is the overall median time
   that a mock domain takes to be verified."
-  [{:keys [database publisher]}]
+  [{:keys [database publisher]} ctx]
   (if-not @still-verifying-all?
     (do
       (reset! still-verifying-all? true)
       (let [defective-mocks (db.mocks/get-mocks-by-publication
                              :dns_status
                              ["offline" "offline-invalid" "publishing"]
-                             database)]
+                             database
+                             ctx)]
         (future
           (loop [batch 0]
             (let [cur-mocks (->> (drop (* batch 10) defective-mocks)
@@ -148,7 +150,7 @@
                   (doseq [mock cur-mocks]
                     (-> (adapter.mocks/->wire mock)
                         logic.mocks/pack-domain
-                        (ports.producers/verify-domain! true false publisher)))
+                        (ports.producers/verify-domain! true false publisher ctx)))
                   (Thread/sleep 30000)
                   (recur (inc batch)))
                 (reset! still-verifying-all? false)))))))
@@ -156,8 +158,10 @@
 
 (defn dispatch-unified-yml-verification!
   "Gathers published mocks and sends them dispatches them to be verified."
-  [{:keys [database publisher]}]
+  [{:keys [database publisher]} ctx]
   (let [published-mocks (db.mocks/get-mocks-by-publication :unification_status
-                                                           ["published"] database)
+                                                           ["published"]
+                                                           database
+                                                           ctx)
         grouped-mocks (logic.mocks/group-by-user published-mocks)]
-    (ports.producers/verify-unified-yml! grouped-mocks publisher)))
+    (ports.producers/verify-unified-yml! grouped-mocks publisher ctx)))
