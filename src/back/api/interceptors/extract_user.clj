@@ -1,8 +1,7 @@
 (ns back.api.interceptors.extract-user
-  (:require
-   [back.api.db.customers :as db.customers]
-   [buddy.sign.jwt :as jwt]
-   [clojure.string :as string]))
+  (:require [back.api.db.customers :as db.customers]
+            [buddy.sign.jwt :as jwt]
+            [clojure.string :as string]))
 
 (defn get-user-sub [auth secret]
   (let [token (second (string/split auth #" "))]
@@ -18,7 +17,7 @@
                decoded (get-user-sub auth secret)
                database (-> request :components :database)
                external-id (-> decoded :sub parse-uuid)
-               user (db.customers/get-by-external-id external-id database)
+               user (db.customers/get-by-external-id external-id database (:ctx request))
                session-data {:org (:customer/username user)
                              :user-id (:customer/uuid user)}]
            (-> ctx

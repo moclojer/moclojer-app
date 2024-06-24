@@ -1,22 +1,28 @@
 (ns back.api.ports.workers
-  (:require [back.api.controllers.mocks :as controllers.mocks]))
+  (:require [back.api.controllers.mocks :as controllers.mocks]
+            [com.moclojer.components.logs :as logs]))
 
 (defn update-mock-dns-status!
-  [{{:keys [domain new-status]} :event} {:keys [database]}]
-  (controllers.mocks/update-mock-dns-status! domain new-status database))
+  [{:keys [event]} {:keys [database]}]
+  (when-let [{:keys [domain new-status ctx]} event]
+    (logs/log :info "updating mock dns status"
+              :ctx event)
+    (controllers.mocks/update-mock-dns-status! domain new-status database ctx)))
 
 (defn update-mock-unification-status!
   [{event :event} {:keys [database]}]
-  (when-let [{:keys [mock-id new-status]} (:mock.unification-status event)]
-    (controllers.mocks/update-mock-unification-status! mock-id new-status database)))
+  (when-let [{:keys [mock-id new-status ctx]} (:mock.unification-status event)]
+    (logs/log :info "updating mock unification status"
+              :ctx (:mock.unification-status event))
+    (controllers.mocks/update-mock-unification-status! mock-id new-status database ctx)))
 
 (defn dispatch-domains-verification!
   [_ components]
-  (controllers.mocks/dispatch-domains-verification! components))
+  (controllers.mocks/dispatch-domains-verification! components {}))
 
 (defn dispatch-unified-yml-verification!
   [_ components]
-  (controllers.mocks/dispatch-unified-yml-verification! components))
+  (controllers.mocks/dispatch-unified-yml-verification! components nil))
 
 (def workers
   [{:handler update-mock-dns-status!

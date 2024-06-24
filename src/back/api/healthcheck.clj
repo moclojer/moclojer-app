@@ -13,7 +13,8 @@
   [{:keys [database]}]
   (database/execute
    database
-   ["select 1"]))
+   ["select 1"]
+   {}))
 
 (defn live [{components :components}]
   (live-db components)
