@@ -4,30 +4,30 @@
 
 (defn generate-single-yml-handler
   [{:keys [event]} components]
-  (when-let [{:keys [mock-id]} (:yml.single.generate event)]
+  (when-let [{:keys [mock-id ctx]} (:yml.single.generate event)]
     (logs/log :info "generating single yaml"
-              :ctx {:event event})
-    (controller.yml/generate-single-yml! mock-id components)))
+              :ctx event)
+    (controller.yml/generate-single-yml! mock-id components ctx)))
 
 (defn delete-single-yml-handler
   [{:keys [event]} components]
-  (when-let [{:keys [mock-id user-id]} (:yml.single.delete event)]
+  (when-let [{:keys [mock-id user-id ctx]} (:yml.single.delete event)]
     (logs/log :info "deleting single yaml"
-              :ctx {:event event})
-    (controller.yml/delete-single-yml! mock-id user-id components)))
+              :ctx event)
+    (controller.yml/delete-single-yml! mock-id user-id components ctx)))
 
 (defn generate-unified-yml-handler
   [{:keys [event]} components]
-  (when-let [{:keys [gen-yml-path]} event]
+  (when-let [{:keys [gen-yml-path ctx]} event]
     (logs/log :info "generating unified yaml"
-              :ctx {:event event})
-    (controller.yml/generate-unified-yml! gen-yml-path true components)))
+              :ctx event)
+    (controller.yml/generate-unified-yml! gen-yml-path true components ctx)))
 
 (defn verify-unified-yml-handler
   [{:keys [event]} components]
   (logs/log :info "verifying unified mock"
-            :ctx {:event event})
-  (controller.yml/verify-unified-yml! event components))
+            :ctx event)
+  (controller.yml/verify-unified-yml! event components (:ctx event)))
 
 (def workers
   [{:handler generate-single-yml-handler
