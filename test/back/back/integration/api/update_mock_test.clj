@@ -112,7 +112,10 @@
            (-> resp-get :body)))
 
         (flow "should have publish a mock calling publisher"
-          (match? (matchers/embeds (first (get @publisher/mock-publisher "mock.updated")))
-                  {:event
-                   {:yml.single.generate
-                    {:mock-id  (-> resp-get :body :mock :id (java.util.UUID/fromString))}}}))))))
+          (match?
+           (matchers/embeds
+            {:event
+             {:yml.single.generate
+              {:mock-id  (-> resp-get :body :mock :id (java.util.UUID/fromString))}}})
+           (update-in (first (get @publisher/mock-publisher "mock.updated"))
+                      [:event :yml.single.generate] dissoc :ctx)))))))

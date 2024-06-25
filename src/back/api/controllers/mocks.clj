@@ -43,7 +43,8 @@
       (when (and (= (:dns-status ->wired-old-mock) "offline")
                  (:enabled ->wired-old-mock))
         (ports.producers/create-domain! (logic.mocks/pack-domain ->wired-old-mock)
-                                        publisher))
+                                        publisher
+                                        ctx))
 
       updated-mock)
     (throw (ex-info "Mock with given id invalid"
