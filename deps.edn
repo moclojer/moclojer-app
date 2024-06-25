@@ -9,8 +9,9 @@
         lambdaisland/fetch {:mvn/version "1.1.60"}
 
         ;; back
-        com.moclojer/components {:git/url "https://github.com/moclojer/components.git"
-                                 :git/sha "b60999615bb94d51ad10f8a782bbc351b1b4ff27"}
+        com.moclojer/components {#_#_:git/url "https://github.com/moclojer/components.git"
+                                 #_#_:git/sha "b60999615bb94d51ad10f8a782bbc351b1b4ff27"
+                                 :mvn/version "0.0.5"}
         com.cognitect.aws/api          {:mvn/version "0.8.561"}
         com.cognitect.aws/endpoints    {:mvn/version "1.1.12.230"}
         com.cognitect.aws/s3           {:mvn/version "822.2.1145.0"}
