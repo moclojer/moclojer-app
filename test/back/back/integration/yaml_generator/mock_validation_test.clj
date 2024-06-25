@@ -67,12 +67,12 @@
           {:yml.single.generate {:mock-id mock-id}}}
          components))
       (match?
-       (matchers/embeds (first (get @publisher/mock-publisher
-                                    "yml.unified.generated")))
-       {:event
-        {:mock.unification-status
-         {:mock-id mock-id
-          :new-status "offline-invalid"}}}))))
+       (matchers/embeds {:event
+                         {:mock.unification-status
+                          {:mock-id mock-id
+                           :new-status "offline-invalid"}}})
+       (update-in (first (get @publisher/mock-publisher "yml.unified.generated"))
+                  [:event :mock.unification-status] dissoc :ctx)))))
 
 (def valid-mock-yaml
   "- endpoint:
@@ -123,11 +123,11 @@
          components))
       (state-flow.api/invoke #(prn @publisher/mock-publisher))
       (match?
-       (matchers/embeds (first (get @publisher/mock-publisher
-                                    "yml.single.generated")))
-       {:event
-        {:gen-yml-path (str "cd989358-af38-4a2f-a1a1-88096aa425a7/" mock-id "/mock.yml")
-         :append? true}}))))
+       (matchers/embeds {:event
+                         {:gen-yml-path (str "cd989358-af38-4a2f-a1a1-88096aa425a7/" mock-id "/mock.yml")
+                          :append? true}})
+       (update-in (first (get @publisher/mock-publisher "yml.single.generated"))
+                  [:event] dissoc :ctx)))))
 
 (defflow
   flow-block-valid-yaml

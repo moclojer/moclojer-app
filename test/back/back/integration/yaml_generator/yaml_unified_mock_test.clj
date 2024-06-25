@@ -54,7 +54,7 @@
     [storage (state-flow.api/get-state :storage)]
 
     (-> storage
-        (storage/upload! bucket k v)
+        (storage/upload! bucket k v {})
         state-flow.api/return)))
 
 (defn get-file-on-localstack [n k]
@@ -73,7 +73,7 @@
                content
                (recur))
              (recur))
-           (throw (TimeoutException. "Failed to retrieve file content within the 5-second timeout")))))))
+           (throw (Exception. "Failed to retrieve file content within the 5-second timeout"))))))))
 
 (defn- create-and-start-components []
   (component/start-system
@@ -144,11 +144,4 @@
 
         (match?
          (matchers/embeds (logic.yml/parse-yaml-&-body expected-yml-with-host))
-         (get-file-on-localstack "moclojer" (str "cd989358-af38-4a2f-a1a1-88096aa425a7/" mock-id "/mock.yml")))
-
-        (flow "cleaning up localstack"
-          [r (cleaning-up-localstack-all-files "moclojer")]
-          (match? (list {}) r)
-          (flow "delete bucket"
-            [r (delete-bucket-on-localstack "moclojer")]
-            (match? {} r)))))))
+         (get-file-on-localstack "moclojer" (str "cd989358-af38-4a2f-a1a1-88096aa425a7/" mock-id "/mock.yml")))))))
