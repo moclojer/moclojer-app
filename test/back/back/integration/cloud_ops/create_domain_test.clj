@@ -68,16 +68,17 @@
                                      components))
 
     (match?
-     (matchers/embeds (first (get @publisher/mock-publisher "domain.updated")))
-     {:event {:domain domain
-              :new-status "publishing"}})
+     (matchers/embeds {:event {:domain domain
+                               :new-status "publishing"}})
+     (update-in (first (get @publisher/mock-publisher "domain.updated"))
+                [:event] dissoc :ctx))
 
     (match?
-     (matchers/embeds (first (get @publisher/mock-publisher
-                                  "domain.verification.dispatched")))
-     {:event {:domain domain
-              :retrying? true
-              :skip-data? false}})))
+     (matchers/embeds {:event {:domain domain
+                               :retrying? true
+                               :skip-data? false}})
+     (update-in (first (get @publisher/mock-publisher "domain.verification.dispatched"))
+                [:event] dissoc :ctx))))
 
 (defflow
   flow-create-domain
