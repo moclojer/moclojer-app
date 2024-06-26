@@ -72,7 +72,7 @@
   ([user-id db ctx]
    (-> (sql.helpers/select :*)
        (sql.helpers/from [:mock :m])
-       (sql.helpers/left-join [:customer :c] [:= :m.org_id :c.org_id])
+       (sql.helpers/left-join [:org_user :ou] [:= :ou.user_id :c.uuid])
        (sql.helpers/where [:or
                            [:= :m.user_id user-id]
                            [:= :c.uuid user-id]])
@@ -102,14 +102,3 @@
        (sql.helpers/where [:= :id id])
        sql/format
        ((db.utils/build-execute-with-ctx db ctx)))))
-
-(defn get-by-org-id
-  ([org-id db]
-   (get-by-org-id org-id db {}))
-  ([org-id db ctx]
-   (-> (sql.helpers/select :*)
-       (sql.helpers/from :mock)
-       (sql.helpers/where [:= :org_id org-id])
-       sql/format
-       ((db.utils/build-execute-with-ctx db ctx))
-       first)))

@@ -2,6 +2,7 @@
   (:require [back.api.adapters.customers :as adapters.customers]
             [back.api.controllers.login :as controllers.login]
             [back.api.controllers.mocks :as controllers.mocks]
+            [back.api.controllers.orgs :as controllers.orgs]
             [back.api.controllers.user :as controllers.user]))
 
 (defn handler-create-user!
@@ -129,3 +130,21 @@
         pub-stts (controllers.mocks/get-mock-publication-status id database ctx)]
     {:status 200
      :body pub-stts}))
+
+(defn handler-get-orgs
+  [{:keys [session-data components ctx]}]
+  (let [user-id (:user-id session-data)]
+    {:status 200
+     :body (controllers.orgs/get-orgs-by-user-id user-id components ctx)}))
+
+;; TODO
+(defn handler-create-org
+  [{:keys [session-data params components ctx]}]
+  (let [org (get-in params [:body :org])
+        user-id (:user-id session-data)
+        new-org (controllers.orgs/create-org! org components ctx)
+        old-members (controllers.user/get-users-by-org-id (:id org) components ctx)
+        new-members (controllers.orgs/add-user-to-org! (:id org) user-id
+                                                       components ctx)]
+    {:status 201
+     :body ()}))

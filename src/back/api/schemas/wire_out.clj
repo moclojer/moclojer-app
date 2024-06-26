@@ -129,3 +129,13 @@
 
   ;;
   )
+
+;; --- orgs
+
+(def OrgWithUsers
+  [:map
+   [:subdomain string?]
+   [:users [:vector string?]]])
+
+(def OrgsWithUsers
+  [:vector OrgWithUsers])
