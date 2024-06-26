@@ -67,12 +67,15 @@
          first))))
 
 (defn get-mocks
-  ([user db]
-   (get-mocks user db {}))
-  ([{:keys [user-id]} db ctx]
+  ([user-id db]
+   (get-mocks user-id db {}))
+  ([user-id db ctx]
    (-> (sql.helpers/select :*)
-       (sql.helpers/from :mock)
-       (sql.helpers/where [:= :user_id user-id])
+       (sql.helpers/from [:mock :m])
+       (sql.helpers/left-join [:customer :c] [:= :m.org_id :c.org_id])
+       (sql.helpers/where [:or
+                           [:= :m.user_id user-id]
+                           [:= :c.uuid user-id]])
        sql/format
        ((db.utils/build-execute-with-ctx db ctx)))))
 
@@ -99,3 +102,14 @@
        (sql.helpers/where [:= :id id])
        sql/format
        ((db.utils/build-execute-with-ctx db ctx)))))
+
+(defn get-by-org-id
+  ([org-id db]
+   (get-by-org-id org-id db {}))
+  ([org-id db ctx]
+   (-> (sql.helpers/select :*)
+       (sql.helpers/from :mock)
+       (sql.helpers/where [:= :org_id org-id])
+       sql/format
+       ((db.utils/build-execute-with-ctx db ctx))
+       first)))
