@@ -66,3 +66,14 @@
        sql/format
        ((db.utils/build-execute-with-ctx db ctx))
        first)))
+
+(defn get-by-org-id
+  ([id db]
+   (get-by-org-id id db {}))
+  ([id db ctx]
+   (-> (sql.helpers/select :*)
+       (sql.helpers/from [:customer :c])
+       (sql.helpers/left-join [:org_user :ou] [:= :ou.user_id :c.uuid])
+       (sql.helpers/where [:= :ou.user_id id])
+       sql/format
+       ((db.utils/build-execute-with-ctx db ctx)))))

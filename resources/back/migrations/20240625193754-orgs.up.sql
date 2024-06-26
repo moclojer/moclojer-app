@@ -7,6 +7,22 @@ CREATE TABLE IF NOT EXISTS org (
 
 --;;
 
+CREATE TABLE IF NOT EXISTS org_user (
+  id BIGSERIAL NOT NULL PRIMARY KEY,
+  org_id uuid NOT NULL,
+  user_id uuid NOT NULL,
+
+  CONSTRAINT fk_org_user_org
+             FOREIGN KEY(org_id)
+             REFERENCES org(id),
+
+  CONSTRAINT fk_org_user_user
+             FOREIGN KEY(user_id)
+             REFERENCES customer(uuid)
+);
+
+--;;
+
 ALTER TABLE mock ADD COLUMN org_id uuid NULL;
 
 --;;

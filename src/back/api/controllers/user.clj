@@ -23,9 +23,10 @@
 (defn edit-user! [user username database ctx]
   (let [user (logic.customers/add-username user username)
         _ (db.customers/update! user database ctx)
-        user-updated (db.customers/get-by-id (:customer/uuid user)
-                                             database
-                                             ctx)]
+        user-updated (db.customers/get-by-id (:customer/uuid user) database ctx)]
     (-> user-updated
         (adapter.customers/->wire))))
 
+(defn get-users-by-org-id
+  [org-id database ctx]
+  (map adapter.customers/->wire (db.customers/get-by-org-id org-id database ctx)))

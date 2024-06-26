@@ -1,1 +1,9 @@
 ALTER TABLE mock DROP COLUMN org_id CASCADE;
+
+--;;
+
+DROP TABLE org_user CASCADE;
+
+--;;
+
+DROP TABLE org CASCADE;

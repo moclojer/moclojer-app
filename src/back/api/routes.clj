@@ -72,6 +72,32 @@
            :responses {200 {:body schemas.wire-out/Available}}
            :handler ports.http-in/handler-username-available?}}]
 
+   ["/orgs"
+    {:get {:summary "Get orgs user is in"
+           :interceptors [(error-handler-interceptor)
+                          (extract-user-interceptor)]
+           :responses {200 {:body schemas.wire-out/OrgsWithUsers}}
+           :handler ports.http-in/handler-get-orgs}
+     :post {:summary "Create an org"
+            :parameters {:body {:org schemas.wire-in/Org}}
+            :interceptors [(error-handler-interceptor)
+                           (extract-user-interceptor)]
+            :responses {201 {:body schemas.wire-out/OrgWithUsers}}
+            :handler ports.http-in/handler-create-org}}]
+
+   ["/orgs/:id/members"
+    {:get {:summary "Get org members"
+           #_TODO}
+     :post {:summary "Add member to org"
+            #_TODO}}]
+
+   ["/orgs/:org-id"
+    {:get {:summary "Get an organization"
+           :parameters {:path {:id uuid?}}
+           :interceptors [(error-handler-interceptor)
+                          (extract-user-interceptor)]
+           :responses {200 {:body {}}}}}]
+
    ["/mocks"
     {:swagger {:tags ["mocks"]}
      :post {:summary "Create a mock"
