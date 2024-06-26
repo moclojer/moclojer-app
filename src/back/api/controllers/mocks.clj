@@ -52,8 +52,8 @@
                      :cause :invalid-id}))))
 
 (defn get-mocks
-  [filters {:keys [database]} ctx]
-  (->> (db.mocks/get-mocks filters database ctx)
+  [user-id {:keys [database]} ctx]
+  (->> (db.mocks/get-mocks user-id database ctx)
        (map adapter.mocks/->wire)
        (logic.mocks/group "personal")))
 

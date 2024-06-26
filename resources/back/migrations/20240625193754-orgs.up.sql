@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS org (
 ALTER TABLE mock ADD COLUMN org_id uuid NULL;
 
 --;;
-̓
+
 UPDATE mock SET org_id = user_id;
 
 --;;
