@@ -104,11 +104,11 @@
 
 (defn handler-username-available?
   [{{{:keys [username]} :path} :parameters
-    {:keys [database]} :components
+    components :components
     ctx :ctx}]
-  (let [available (controllers.user/username-available? username database ctx)]
-    {:status 200
-     :body available}))
+  {:status 200
+   :body {:available (and (controllers.user/username-available? username components ctx)
+                          (controllers.orgs/orgname-available? username components ctx))}})
 
 (defn handler-wildcard-available?
   [{{mock :path} :parameters
