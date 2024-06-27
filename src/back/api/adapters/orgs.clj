@@ -1,9 +1,9 @@
 (ns back.api.adapters.orgs)
 
 (defn ->wire
-  [{:org/keys [id subdomain created_at updated_at]}]
+  [{:org/keys [id orgname created_at updated_at]}]
   {:id id
-   :subdomain subdomain
+   :orgname orgname
    :created-at created_at
    :updated-at updated_at})
 

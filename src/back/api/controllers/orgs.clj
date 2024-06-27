@@ -16,8 +16,8 @@
 
 (defn create-org!
   [org {:keys [database]} ctx]
-  (if-let [?existing-org (db.orgs/get-by-subdomain (:subdomain org) database ctx)]
-    (throw (ex-info "Org with given subdomain invalid"
+  (if-let [?existing-org (db.orgs/get-by-orgname (:orgname org) database ctx)]
+    (throw (ex-info "Org with given orgname invalid"
                     {:status-code 412
                      :cause :invalid-wildcard
                      :value (adapter.orgs/->wire ?existing-org)}))

@@ -21,4 +21,4 @@
 
 (def  Org
   [:map
-   [:subdomain string?]])
+   [:orgname string?]])
