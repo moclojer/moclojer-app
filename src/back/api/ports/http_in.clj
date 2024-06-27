@@ -35,12 +35,12 @@
   ;; So we just return the extracted user.
   (let [same-user? (= (some-> ext-user :customer/uuid str) id)
         user (if same-user?
-               ext-user
+               (adapters.customers/->wire ext-user)
                (controllers.user/get-user-by-id id database ctx))
-        valid-user? (some-> user :customer/uuid uuid?)]
+        valid-user? (some-> user :uuid uuid?)]
     (if valid-user?
       {:status 200
-       :body {:user (adapters.customers/->wire user)}}
+       :body {:user user}}
       {:status 404})))
 
 (defn handler-get-user-by-external-id
@@ -139,22 +139,17 @@
     {:status 200
      :body {:orgs (map #(->> (controllers.user/get-users-by-org-id
                               (:id %) components ctx)
-                             (logic.orgs/group-org-with-users %)
-                             (into []))
-                       orgs)}
-     #_#_:body (map (fn [org]
-                      (let [org-users (->> (controllers.user/get-users-by-org-id
-                                            (:id org) components ctx)
-                                           (map #(select-keys % [:id :username :email])))
-                            grouped-org (logic.orgs/group-org-with-users org org-users)]
-                        grouped-org))
-                    orgs)}))
+                             (logic.orgs/group-org-with-users %))
+                       orgs)}}))
 
 (defn handler-create-org
-  [{:keys [session-data params components ctx]}]
-  (let [org (get-in params [:body :org])
+  [{:keys [session-data parameters components ctx]}]
+  (let [{:keys [database]} components
+        org (get-in parameters [:body :org])
         user-id (:user-id session-data)
         new-org (controllers.orgs/create-org! org components ctx)
-        new-member (controllers.orgs/add-org-user! (:id org) user-id components ctx)]
+        {:keys [user-id]} (controllers.orgs/add-org-user!
+                           new-org user-id true components ctx)
+        new-user (controllers.user/get-user-by-id user-id database ctx)]
     {:status 201
-     :body (logic.orgs/group-org-with-users new-org [new-member])}))
+     :body {:org (logic.orgs/group-org-with-users new-org [new-user])}}))

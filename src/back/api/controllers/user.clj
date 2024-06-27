@@ -12,9 +12,7 @@
 
 (defn get-user-by-id
   [id database ctx]
-  (let [user (db.customers/get-by-id
-              id database ctx)]
-    user))
+  (adapter.customers/->wire (db.customers/get-by-id id database ctx)))
 
 (defn get-user-by-external-id
   [id database ctx]

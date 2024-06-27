@@ -54,7 +54,6 @@
    (-> (sql.helpers/select :*)
        (sql.helpers/from [:org :o])
        (sql.helpers/left-join [:org_user :ou] [:= :ou.org_id :o.id])
-       (sql.helpers/where [:= :ou.org_id user-id])
+       (sql.helpers/where [:= :ou.user_id user-id])
        sql/format
        ((db.utils/build-execute-with-ctx db ctx)))))
-
