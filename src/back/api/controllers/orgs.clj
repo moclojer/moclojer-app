@@ -26,8 +26,10 @@
         (adapter.orgs/->wire))))
 
 (defn add-org-user!
-  [org-id user-id {:keys [database] :as components} ctx]
-  (let [{:keys [id]} (get-org-by-id org-id components ctx)]
+  "If we're pasing an `org-id` that we're sure already `exists?`, for
+   example after creating the org, we don't need to retrieve it again."
+  [org user-id exists? {:keys [database] :as components} ctx]
+  (let [{:keys [id]} (if exists? org (get-org-by-id (:id org) components ctx))]
     (-> (logic.orgs/create-org-user id user-id)
         (db.orgs/insert-user! database ctx)
         (adapter.orgs/->wire-org-user))))

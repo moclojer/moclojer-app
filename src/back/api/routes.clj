@@ -82,7 +82,7 @@
             :parameters {:body {:org schemas.wire-in/Org}}
             :interceptors [(error-handler-interceptor)
                            (extract-user-interceptor)]
-            :responses {201 {:body schemas.wire-out/OrgWithUsers}}
+            :responses {201 {:body {:org schemas.wire-out/OrgWithUsers}}}
             :handler ports.http-in/handler-create-org}}]
 
    ["/orgs/:id/members"

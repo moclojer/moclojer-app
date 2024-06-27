@@ -9,4 +9,4 @@
    :org_user/user_id user-id})
 
 (defn group-org-with-users [org users]
-  (assoc org :users (into [] users)))
+  (assoc org :users users))
