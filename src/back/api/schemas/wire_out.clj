@@ -135,7 +135,7 @@
 (def OrgWithUsers
   [:map
    [:subdomain string?]
-   [:users [:vector string?]]])
+   [:users [:vector User]]])
 
 (def OrgsWithUsers
   [:vector OrgWithUsers])

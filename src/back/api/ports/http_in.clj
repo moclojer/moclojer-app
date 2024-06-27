@@ -3,7 +3,8 @@
             [back.api.controllers.login :as controllers.login]
             [back.api.controllers.mocks :as controllers.mocks]
             [back.api.controllers.orgs :as controllers.orgs]
-            [back.api.controllers.user :as controllers.user]))
+            [back.api.controllers.user :as controllers.user]
+            [back.api.logic.orgs :as logic.orgs]))
 
 (defn handler-create-user!
   [{{{:keys [access-token]} :body} :parameters
@@ -133,18 +134,27 @@
 
 (defn handler-get-orgs
   [{:keys [session-data components ctx]}]
-  (let [user-id (:user-id session-data)]
+  (let [user-id (:user-id session-data)
+        orgs (controllers.orgs/get-orgs-by-user-id user-id components ctx)]
     {:status 200
-     :body (controllers.orgs/get-orgs-by-user-id user-id components ctx)}))
+     :body {:orgs (map #(->> (controllers.user/get-users-by-org-id
+                              (:id %) components ctx)
+                             (logic.orgs/group-org-with-users %)
+                             (into []))
+                       orgs)}
+     #_#_:body (map (fn [org]
+                      (let [org-users (->> (controllers.user/get-users-by-org-id
+                                            (:id org) components ctx)
+                                           (map #(select-keys % [:id :username :email])))
+                            grouped-org (logic.orgs/group-org-with-users org org-users)]
+                        grouped-org))
+                    orgs)}))
 
-;; TODO
 (defn handler-create-org
   [{:keys [session-data params components ctx]}]
   (let [org (get-in params [:body :org])
         user-id (:user-id session-data)
         new-org (controllers.orgs/create-org! org components ctx)
-        old-members (controllers.user/get-users-by-org-id (:id org) components ctx)
-        new-members (controllers.orgs/add-user-to-org! (:id org) user-id
-                                                       components ctx)]
+        new-member (controllers.orgs/add-org-user! (:id org) user-id components ctx)]
     {:status 201
-     :body ()}))
+     :body (logic.orgs/group-org-with-users new-org [new-member])}))

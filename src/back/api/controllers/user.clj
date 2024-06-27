@@ -28,5 +28,5 @@
         (adapter.customers/->wire))))
 
 (defn get-users-by-org-id
-  [org-id database ctx]
+  [org-id {:keys [database]} ctx]
   (map adapter.customers/->wire (db.customers/get-by-org-id org-id database ctx)))

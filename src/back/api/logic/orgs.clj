@@ -7,3 +7,6 @@
 (defn create-org-user [org-id user-id]
   {:org_user/org_id org-id
    :org_user/user_id user-id})
+
+(defn group-org-with-users [org users]
+  (assoc org :users (into [] users)))
