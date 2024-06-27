@@ -21,6 +21,7 @@
    (-> (sql.helpers/update :customer)
        (sql.helpers/set user)
        (sql.helpers/where [:= :uuid uuid])
+       (sql.helpers/returning :*)
        sql/format
        ((db.utils/build-execute-with-ctx db ctx))
        first)))

@@ -1,6 +1,7 @@
 CREATE TABLE IF NOT EXISTS org (
   id uuid NOT NULL PRIMARY KEY,
-  subdomain VARCHAR(255) NOT NULL,
+  -- hate to see it, but we can't use the field `name`
+  orgname VARCHAR(255) NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
 );

@@ -25,13 +25,13 @@
        ((db.utils/build-execute-with-ctx db ctx))
        first)))
 
-(defn get-by-subdomain
-  ([subdomain db]
-   (get-by-subdomain subdomain db {}))
-  ([subdomain db ctx]
+(defn get-by-orgname
+  ([orgname db]
+   (get-by-orgname orgname db {}))
+  ([orgname db ctx]
    (-> (sql.helpers/select :*)
        (sql.helpers/from :org)
-       (sql.helpers/where [:= :subdomain subdomain])
+       (sql.helpers/where [:= :orgname orgname])
        sql/format
        ((db.utils/build-execute-with-ctx db ctx))
        first)))

@@ -1,8 +1,8 @@
 (ns back.api.logic.orgs)
 
-(defn create [{:keys [subdomain]}]
+(defn create [{:keys [orgname]}]
   {:org/id (random-uuid)
-   :org/subdomain subdomain})
+   :org/orgname orgname})
 
 (defn create-org-user [org-id user-id]
   {:org_user/org_id org-id

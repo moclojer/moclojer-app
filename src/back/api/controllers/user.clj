@@ -18,12 +18,11 @@
   [id database ctx]
   (db.customers/get-by-external-id id database ctx))
 
-(defn edit-user! [user username database ctx]
-  (let [user (logic.customers/add-username user username)
-        _ (db.customers/update! user database ctx)
-        user-updated (db.customers/get-by-id (:customer/uuid user) database ctx)]
-    (-> user-updated
-        (adapter.customers/->wire))))
+(defn edit-user! [user-id username database ctx]
+  (-> {:customer/uuid user-id}
+      (logic.customers/add-username username)
+      (db.customers/update! database ctx)
+      (adapter.customers/->wire)))
 
 (defn get-users-by-org-id
   [org-id {:keys [database]} ctx]

@@ -15,14 +15,12 @@
      :body {:user user}}))
 
 (defn edit-user!
-  [{{{:keys [id]} :path
-     {:keys [username]} :body} :parameters
+  [{{{:keys [username]} :body} :parameters
+    {:keys [user-id]} :session-data
     {:keys [database]} :components
     ctx :ctx}]
-  (let [user-saved (controllers.user/get-user-by-id id database ctx)
-        user (controllers.user/edit-user! user-saved username database ctx)]
-    {:status 200
-     :body {:user user}}))
+  {:status 200
+   :body {:user (controllers.user/edit-user! user-id username database ctx)}})
 
 (defn handler-get-user
   [{{{:keys [id]} :path} :parameters
