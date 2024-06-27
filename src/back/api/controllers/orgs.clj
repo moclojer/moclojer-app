@@ -33,3 +33,7 @@
     (-> (logic.orgs/create-org-user id user-id)
         (db.orgs/insert-user! database ctx)
         (adapter.orgs/->wire-org-user))))
+
+(defn orgname-available?
+  [orgname {:keys [database]} ctx]
+  (nil? (db.orgs/get-by-orgname orgname database ctx)))

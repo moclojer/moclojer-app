@@ -4,11 +4,8 @@
             [back.api.logic.customers :as logic.customers]))
 
 (defn username-available?
-  [username database ctx]
-  (let [user (db.customers/get-by-username username database ctx)]
-    (if user
-      {:available false}
-      {:available true})))
+  [username {:keys [database]} ctx]
+  (nil? (db.customers/get-by-username username database ctx)))
 
 (defn get-user-by-id
   [id database ctx]
