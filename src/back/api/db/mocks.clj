@@ -70,12 +70,12 @@
   ([user-id db]
    (get-mocks user-id db {}))
   ([user-id db ctx]
-   (-> (sql.helpers/select :*)
+   (-> (sql.helpers/select :m.*)
        (sql.helpers/from [:mock :m])
-       (sql.helpers/left-join [:org_user :ou] [:= :ou.user_id :c.uuid])
+       (sql.helpers/left-join [:org_user :ou] [:= :ou.org_id :m.org_id])
        (sql.helpers/where [:or
                            [:= :m.user_id user-id]
-                           [:= :c.uuid user-id]])
+                           [:= :ou.user_id user-id]])
        sql/format
        ((db.utils/build-execute-with-ctx db ctx)))))
 

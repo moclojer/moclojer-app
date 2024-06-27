@@ -19,6 +19,6 @@
 (def MockDelete
   [:map [:id string?]])
 
-(def Org
+(def  Org
   [:map
    [:subdomain string?]])

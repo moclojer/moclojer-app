@@ -25,9 +25,9 @@
         (db.orgs/insert! database ctx)
         (adapter.orgs/->wire))))
 
-(defn add-user-to-org!
+(defn add-org-user!
   [org-id user-id {:keys [database] :as components} ctx]
-  (-> (get-org-by-id org-id components ctx)
-      (:org/id)
-      (logic.orgs/create-org-user user-id)
-      (db.orgs/insert-user! database ctx)))
+  (let [{:keys [id]} (get-org-by-id org-id components ctx)]
+    (-> (logic.orgs/create-org-user id user-id)
+        (db.orgs/insert-user! database ctx)
+        (adapter.orgs/->wire-org-user))))

@@ -76,7 +76,7 @@
     {:get {:summary "Get orgs user is in"
            :interceptors [(error-handler-interceptor)
                           (extract-user-interceptor)]
-           :responses {200 {:body schemas.wire-out/OrgsWithUsers}}
+           :responses {200 {:body {:orgs schemas.wire-out/OrgsWithUsers}}}
            :handler ports.http-in/handler-get-orgs}
      :post {:summary "Create an org"
             :parameters {:body {:org schemas.wire-in/Org}}
