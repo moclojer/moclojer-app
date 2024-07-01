@@ -16,11 +16,13 @@ CREATE TABLE IF NOT EXISTS org_user (
 
   CONSTRAINT fk_org_user_org
              FOREIGN KEY(org_id)
-             REFERENCES org(id),
+             REFERENCES org(id)
+             ON DELETE CASCADE,
 
   CONSTRAINT fk_org_user_user
              FOREIGN KEY(user_id)
              REFERENCES customer(uuid)
+             ON DELETE CASCADE
 );
 
 --;;
@@ -35,4 +37,5 @@ UPDATE mock SET org_id = user_id;
 
 ALTER TABLE mock ADD CONSTRAINT fk_mock_org_id
                  FOREIGN KEY(org_id)
-                 REFERENCES org(id);
+                 REFERENCES org(id)
+                 ON DELETE SET NULL;

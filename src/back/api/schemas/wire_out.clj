@@ -135,6 +135,12 @@
 
 ;; --- orgs
 
+(def Org
+  [:map
+   [:id string?]
+   [:slug string?]
+   [:orgname string?]])
+
 (def OrgWithUsers
   [:map
    [:id string?]

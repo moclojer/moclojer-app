@@ -36,17 +36,6 @@
        ((db.utils/build-execute-with-ctx db ctx))
        first)))
 
-(defn insert-user!
-  ([org-user db]
-   (insert-user! org-user db {}))
-  ([org-user db ctx]
-   (-> (sql.helpers/insert-into :org_user)
-       (sql.helpers/values [org-user])
-       (sql.helpers/returning :*)
-       sql/format
-       ((db.utils/build-execute-with-ctx db ctx))
-       first)))
-
 (defn get-by-user-id
   ([user-id db]
    (get-by-user-id user-id db {}))
@@ -57,3 +46,35 @@
        (sql.helpers/where [:= :ou.user_id user-id])
        sql/format
        ((db.utils/build-execute-with-ctx db ctx)))))
+
+(defn update!
+  ([new-org db]
+   (update! new-org db {}))
+  ([{:org/keys [id] :as new-org} db ctx]
+   (-> (sql.helpers/update :org)
+       (sql.helpers/set new-org)
+       (sql.helpers/where [:= :id id])
+       (sql.helpers/returning :*)
+       sql/format
+       ((db.utils/build-execute-with-ctx db ctx))
+       first)))
+
+(defn delete!
+  ([org db]
+   (delete! org db {}))
+  ([{:org/keys [id]} db ctx]
+   (-> (sql.helpers/delete-from :org)
+       (sql.helpers/where [:= :id id])
+       sql/format
+       ((db.utils/build-execute-with-ctx db ctx)))))
+
+(defn insert-user!
+  ([org-user db]
+   (insert-user! org-user db {}))
+  ([org-user db ctx]
+   (-> (sql.helpers/insert-into :org_user)
+       (sql.helpers/values [org-user])
+       (sql.helpers/returning :*)
+       sql/format
+       ((db.utils/build-execute-with-ctx db ctx))
+       first)))

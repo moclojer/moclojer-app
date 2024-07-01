@@ -4,6 +4,11 @@
             [back.api.logic.orgs :as logic.orgs]
             [com.moclojer.components.logs :as logs]))
 
+(defn slug-available?
+  [slug {:keys [database]} ctx]
+  (logs/log :info "checking org slug availability")
+  (nil? (db.orgs/get-by-slug slug database ctx)))
+
 (defn get-org-by-id
   [id {:keys [database]} ctx]
   (logs/log :info "retrieving org by id"
@@ -27,6 +32,22 @@
       (db.orgs/insert! database ctx)
       (adapter.orgs/->wire)))
 
+(defn update-org!
+  [org {:keys [database]} ctx]
+  (logs/log :info "updating org"
+            :ctx (assoc ctx :org org))
+  (-> (logic.orgs/->db-update org)
+      (db.orgs/update! database ctx)
+      (adapter.orgs/->wire)))
+
+(defn delete-org!
+  [org {:keys [database]} ctx]
+  (logs/log :info "deleting org"
+            (assoc ctx :org org))
+  (-> (logic.orgs/->db-delete org)
+      (db.orgs/delete! database ctx))
+  true)
+
 (defn add-org-user!
   "If we're pasing an `org-id` that we're sure already `exists?`, for
    example after creating the org, we don't need to retrieve it again."
@@ -39,8 +60,3 @@
     (-> (logic.orgs/create-org-user id user-id)
         (db.orgs/insert-user! database ctx)
         (adapter.orgs/->wire-org-user))))
-
-(defn slug-available?
-  [slug {:keys [database]} ctx]
-  (logs/log :info "checking org slug availability")
-  (nil? (db.orgs/get-by-slug slug database ctx)))
