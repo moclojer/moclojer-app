@@ -1,6 +1,7 @@
 (ns back.api.controllers.user
   (:require [back.api.adapters.customers :as adapter.customers]
             [back.api.db.customers :as db.customers]
+            [com.moclojer.components.logs :as logs]
             [back.api.logic.customers :as logic.customers]))
 
 (defn username-available?
@@ -23,4 +24,6 @@
 
 (defn get-users-by-org-id
   [org-id {:keys [database]} ctx]
+  (logs/log :info "retrieving users by org id"
+            :ctx ctx)
   (map adapter.customers/->wire (db.customers/get-by-org-id org-id database ctx)))

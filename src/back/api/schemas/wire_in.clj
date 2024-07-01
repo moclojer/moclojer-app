@@ -19,6 +19,11 @@
 (def MockDelete
   [:map [:id string?]])
 
-(def  Org
+(def OrgCreate
   [:map
+   [:orgname string?]])
+
+(def Org
+  [:map
+   [:slug string?]
    [:orgname string?]])

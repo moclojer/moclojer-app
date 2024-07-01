@@ -108,7 +108,7 @@
     ctx :ctx}]
   {:status 200
    :body {:available (and (controllers.user/username-available? username components ctx)
-                          (controllers.orgs/orgname-available? username components ctx))}})
+                          (controllers.orgs/slug-available? username components ctx))}})
 
 (defn handler-wildcard-available?
   [{{mock :path} :parameters
@@ -151,3 +151,8 @@
         new-user (controllers.user/get-user-by-id user-id database ctx)]
     {:status 201
      :body {:org (logic.orgs/group-org-with-users new-org [new-user])}}))
+
+(defn handler-get-org-users
+  [{:keys [parameters components ctx]}]
+  (let [org-id (get-in parameters [:path :id])]
+    #_TODO))

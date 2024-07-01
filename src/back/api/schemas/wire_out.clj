@@ -16,6 +16,9 @@
    [:email string?]
    [:username {:optional true} string?]])
 
+(def Users
+  [:vector User])
+
 (def PublicationStatus
   [:enum "offline" "offline-invalid" "publishing" "published"])
 
@@ -134,6 +137,7 @@
 
 (def OrgWithUsers
   [:map
+   [:slug string?]
    [:orgname string?]
    [:users [:vector User]]])
 
