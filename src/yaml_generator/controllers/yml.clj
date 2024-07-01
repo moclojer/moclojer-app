@@ -9,11 +9,12 @@
 
 (defn generate-single-yml!
   [mock-id {:keys [storage publisher config database]} ctx]
-  (let [{:keys [user-id wildcard enabled
+  (let [{:keys [user-id org-id wildcard enabled
                 content subdomain]} (-> (parse-uuid (str mock-id))
                                         (db.mocks/get-mock-by-id database ctx)
                                         adapters.mocks/->wire)
-        path (logic.yml/gen-path user-id mock-id)
+        owner-id (or org-id user-id)
+        path (logic.yml/gen-path owner-id mock-id)
         env (get-in config [:config :env])
         host-key (if (= env :dev) :local-host :host)
         host (logic.yml/gen-host wildcard subdomain)
@@ -71,8 +72,8 @@
                   :ctx (assoc ctx :ex-message (.getMessage e)))
         (ports.producers/set-unification-status! mock-id "offline" publisher ctx)))))
 
-(defn delete-single-yml! [mock-id user-id components ctx]
-  (let [path (logic.yml/gen-path user-id mock-id)
+(defn delete-single-yml! [mock-id owner-id components ctx]
+  (let [path (logic.yml/gen-path owner-id mock-id)
         storage (:storage components)]
     (generate-unified-yml! path false components ctx)
     (storage/delete-file! storage "moclojer" path)

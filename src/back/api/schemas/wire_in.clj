@@ -11,6 +11,9 @@
    [:enabled boolean?]
    [:content {:optional true} string?]])
 
+(def MockCreate
+  (conj Mock [:org-id {:optional true} string?]))
+
 (def MockUpdate
   [:map
    [:id string?]

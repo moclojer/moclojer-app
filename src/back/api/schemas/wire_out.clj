@@ -31,6 +31,7 @@
   [:map
    [:id uuid?]
    [:user-id uuid?]
+   [:org-id {:optional true} uuid?]
    [:wildcard string?]
    [:content {:optional true} string?]
    [:subdomain string?]
@@ -76,13 +77,13 @@
 
   (m/validate User user-example-2)
 
-  (def mock  {:id #uuid "19b3a076-8fd6-4b46-94fa-3650419b2a8f",
-              :user-id #uuid "cd989358-af38-4a2f-a1a1-88096aa425a7",
-              :wildcard "test"
-              :subdomain "chico",
-              :enabled true
-              :dns-status "published"
-              :unification-status "published"})
+  (def mock {:id #uuid "19b3a076-8fd6-4b46-94fa-3650419b2a8f",
+             :user-id #uuid "cd989358-af38-4a2f-a1a1-88096aa425a7",
+             :wildcard "test"
+             :subdomain "chico",
+             :enabled true
+             :dns-status "published"
+             :unification-status "published"})
 
   (m/validate Mock mock)
 

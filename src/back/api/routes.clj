@@ -134,7 +134,7 @@
    ["/mocks"
     {:swagger {:tags ["mocks"]}
      :post {:summary "Create a mock"
-            :parameters {:body schemas.wire-in/Mock}
+            :parameters {:body schemas.wire-in/MockCreate}
             :interceptors [(error-handler-interceptor)
                            (extract-user-interceptor)]
             :responses {201 {:body {:mock schemas.wire-out/Mock}}
