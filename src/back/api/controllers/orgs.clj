@@ -6,6 +6,8 @@
 
 (defn get-org-by-id
   [id {:keys [database]} ctx]
+  (logs/log :info "retrieving org by id"
+            :ctx (assoc ctx :org-id id))
   (or (adapter.orgs/->wire (db.orgs/get-by-id id database ctx))
       (throw (ex-info "Org with given id doesn't exist"
                       {:status-code 412
@@ -13,6 +15,8 @@
 
 (defn get-orgs-by-user-id
   [user-id {:keys [database]} ctx]
+  (logs/log :info "retrieving orgs by user id"
+            :ctx (assoc ctx :user-id user-id))
   (map adapter.orgs/->wire (db.orgs/get-by-user-id user-id database ctx)))
 
 (defn create-org!

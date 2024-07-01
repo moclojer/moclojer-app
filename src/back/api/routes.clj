@@ -86,14 +86,15 @@
             :handler ports.http-in/handler-create-org}}]
 
    ["/orgs/:id"
-    {:get {:summary "Get an organization"
+    {:get {:summary "Get an org"
            :parameters {:path {:id uuid?}}
            :interceptors [(error-handler-interceptor)
                           (extract-user-interceptor)]
-           :responses {200 {:body {}}}}}]
+           :responses {200 {:body {:org schemas.wire-out/OrgWithUsers}}}
+           :handler ports.http-in/handler-get-org}}]
 
    ["/orgs/:id/users"
-    {:get {:summary "Get org users"
+    {:get {:summary "Get an org's users"
            :interceptors [(error-handler-interceptor)
                           (extract-user-interceptor)]
            :parameters {:path {:id string?}}
