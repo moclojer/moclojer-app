@@ -23,7 +23,6 @@
   [:map
    [:orgname string?]])
 
-(def Org
+(def OrgUpdate
   [:map
-   [:slug string?]
    [:orgname string?]])

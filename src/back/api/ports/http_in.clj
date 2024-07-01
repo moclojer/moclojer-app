@@ -107,8 +107,7 @@
     components :components
     ctx :ctx}]
   {:status 200
-   :body {:available (and (controllers.user/username-available? username components ctx)
-                          (controllers.orgs/slug-available? username components ctx))}})
+   :body {:available (controllers.user/username-available? username components ctx)}})
 
 (defn handler-wildcard-available?
   [{{mock :path} :parameters
@@ -152,7 +151,37 @@
     {:status 201
      :body {:org (logic.orgs/group-org-with-users new-org [new-user])}}))
 
-(defn handler-get-org-users
+(defn handler-get-org
   [{:keys [parameters components ctx]}]
-  (let [org-id (get-in parameters [:path :id])]
+  (let [id (get-in parameters [:path :id])
+        org (controllers.orgs/get-org-by-id id components ctx)
+        users (controllers.user/get-users-by-org-id (:id org) components ctx)]
+    {:status 200
+     :body {:org (logic.orgs/group-org-with-users org users)}}))
+
+(defn handler-update-org
+  [{:keys [parameters components ctx]}]
+  (let [id (get-in parameters [:path :id])
+        org (assoc (get-in parameters [:body :org])
+                   :id id)]
+    {:status 200
+     :body {:org (controllers.orgs/update-org! org components ctx)}}))
+
+(defn handler-delete-org
+  [{:keys [parameters components ctx]}]
+  (let [id (get-in parameters [:path :id])]
+    {:status 200
+     :body {:success (controllers.orgs/delete-org! {:id id} components ctx)}}))
+
+(defn handler-get-org-users
+  [{:keys [parameters _components _ctx]}]
+  (let [_org-id (get-in parameters [:path :id])]
     #_TODO))
+
+(defn handler-add-org-user
+  [_]
+  #_TODO)
+
+(defn handler-delete-org-user
+  [_]
+  #_TODO)

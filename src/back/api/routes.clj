@@ -91,7 +91,20 @@
            :interceptors [(error-handler-interceptor)
                           (extract-user-interceptor)]
            :responses {200 {:body {:org schemas.wire-out/OrgWithUsers}}}
-           :handler ports.http-in/handler-get-org}}]
+           :handler ports.http-in/handler-get-org}
+     :put {:summary "Update an org"
+           :parameters {:path {:id uuid?}
+                        :body {:org schemas.wire-in/OrgUpdate}}
+           :interceptors [(error-handler-interceptor)
+                          (extract-user-interceptor)]
+           :responses {200 {:body {:org schemas.wire-out/Org}}}
+           :handler ports.http-in/handler-update-org}
+     :delete {:summary "delete an org"
+              :parameters {:path {:id uuid?}}
+              :interceptors [(error-handler-interceptor)
+                             (extract-user-interceptor)]
+              :responses {200 {:body {:success boolean?}}}
+              :handler ports.http-in/handler-delete-org}}]
 
    ["/orgs/:id/users"
     {:get {:summary "Get an org's users"
@@ -101,7 +114,15 @@
            :responses {200 {:body {:users schemas.wire-out/Users}}}
            :handler ports.http-in/handler-get-org-users}
      :post {:summary "Add user to org"
-            #_TODO}}]
+            :parameters {:path {:id string?}}
+            :responses {201 {:body {:users schemas.wire-out/Users}}}
+            :handler ports.http-in/handler-add-org-user}
+     :delete {:summary "Remove user from org"
+              :interceptors [(error-handler-interceptor)
+                             (extract-user-interceptor)]
+              :parameters {:path {:id string?}}
+              :responses {200 {:body {:users schemas.wire-out/Users}}}
+              :handler ports.http-in/handler-delete-org-user}}]
 
    ["/mocks"
     {:swagger {:tags ["mocks"]}
