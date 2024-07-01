@@ -25,13 +25,13 @@
        ((db.utils/build-execute-with-ctx db ctx))
        first)))
 
-(defn get-by-orgname
-  ([orgname db]
-   (get-by-orgname orgname db {}))
-  ([orgname db ctx]
+(defn get-by-slug
+  ([slug db]
+   (get-by-slug slug db {}))
+  ([slug db ctx]
    (-> (sql.helpers/select :*)
        (sql.helpers/from :org)
-       (sql.helpers/where [:= :orgname orgname])
+       (sql.helpers/where [:= :slug slug])
        sql/format
        ((db.utils/build-execute-with-ctx db ctx))
        first)))
