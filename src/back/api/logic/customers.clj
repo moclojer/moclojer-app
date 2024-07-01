@@ -14,3 +14,14 @@
 (defn add-username [user username]
   [user username]
   (assoc user :customer/username (str/replace (slugify username) #"-" "")))
+
+(defn exists?
+  [users id]
+  (some? (seq (filter #(= (str (:uuid %)) (str id)) users))))
+
+(comment
+  (exists? [{:uuid 123}] 123)
+  ;; => true
+  (exists? [{:uuid 123}] 1234)
+  ;; => false
+  )

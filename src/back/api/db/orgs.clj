@@ -78,3 +78,14 @@
        sql/format
        ((db.utils/build-execute-with-ctx db ctx))
        first)))
+
+(defn delete-user!
+  ([org-user db]
+   (delete-user! org-user db {}))
+  ([{:org_user/keys [org_id user_id]} db ctx]
+   (-> (sql.helpers/delete-from :org_user)
+       (sql.helpers/where [:and
+                           [:= :org_id org_id]
+                           [:= :user_id user_id]])
+       sql/format
+       ((db.utils/build-execute-with-ctx db ctx)))))
