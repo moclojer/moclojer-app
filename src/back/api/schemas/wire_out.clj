@@ -137,6 +137,7 @@
 
 (def OrgWithUsers
   [:map
+   [:id string?]
    [:slug string?]
    [:orgname string?]
    [:users [:vector User]]])

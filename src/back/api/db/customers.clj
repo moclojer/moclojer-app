@@ -75,6 +75,6 @@
    (-> (sql.helpers/select :*)
        (sql.helpers/from [:customer :c])
        (sql.helpers/left-join [:org_user :ou] [:= :ou.user_id :c.uuid])
-       (sql.helpers/where [:= :ou.org_id id])
+       (sql.helpers/where [:= :ou.org_id [:cast id :uuid]])
        sql/format
        ((db.utils/build-execute-with-ctx db ctx)))))
