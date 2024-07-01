@@ -7,23 +7,29 @@
 
 (defn create-mock!
   [user-id mock {:keys [database publisher]} ctx]
-  (let [uid {:user-id user-id}
-        existing-mock (-> (select-keys mock [:wildcard :subdomain])
-                          (merge uid)
-                          (db.mocks/get-mock-by-wildcard database ctx))]
-    (if (empty? existing-mock)
-      (let [new-mock (-> (logic.mocks/create (merge uid mock))
+  (logs/log :info "creating mock"
+            :ctx (merge ctx
+                        {:mock mock
+                         :user-id user-id}))
+  (let [owner (assoc {:user-id (parse-uuid (str user-id))}
+                     :org-id (parse-uuid (str (:org-id mock))))
+        ?existing-mock (-> (select-keys mock [:wildcard :subdomain])
+                           (merge owner)
+                           (logic.mocks/->db-by-wildcard)
+                           (db.mocks/get-mock-by-wildcard database ctx))]
+    (if (seq ?existing-mock)
+      (throw (ex-info "Mock with given wildcard and subdomain invalid"
+                      {:status-code 412
+                       :cause :invalid-wildcard
+                       :value (adapter.mocks/->wire ?existing-mock)}))
+      (let [new-mock (-> (logic.mocks/create (merge mock owner))
                          (db.mocks/insert! database ctx)
                          (adapter.mocks/->wire))]
         (ports.producers/generate-single-yml! (:id new-mock) publisher ctx)
         (when (:enabled new-mock)
           (ports.producers/create-domain! (logic.mocks/pack-domain new-mock)
                                           publisher ctx))
-        new-mock)
-      (throw (ex-info "Mock with given wildcard and subdomain invalid"
-                      {:status-code 412
-                       :cause :invalid-wildcard
-                       :value (adapter.mocks/->wire existing-mock)})))))
+        new-mock))))
 
 (defn wildcard-available?
   [mock {:keys [database]} ctx]
@@ -53,6 +59,8 @@
 
 (defn get-mocks
   [user-id {:keys [database]} ctx]
+  (logs/log :info "retrieving mocks"
+            :ctx (assoc ctx :user-id user-id))
   (->> (db.mocks/get-mocks user-id database ctx)
        (map adapter.mocks/->wire)
        (logic.mocks/group "personal")))
@@ -78,16 +86,17 @@
   true)
 
 (defn delete-mock!
-  [session id {:keys [database publisher]} ctx]
-  ;; filtering so we can check if the session user
-  ;; owns the mock to be deleted.
-  (if-let [mock (-> (db.mocks/get-mocks session database ctx)
-                    (logic.mocks/filter-by-id id)
-                    (adapter.mocks/->wire))]
-    (let [{:keys [id user-id]} mock]
+  [{:keys [user-id]} id {:keys [database publisher]} ctx]
+  (logs/log :info "deleting mock"
+            :ctx (assoc ctx :mock-id id))
+  (if-let [{:keys [id org-id user-id] :as ?mock}
+           (some-> (db.mocks/get-mocks user-id database ctx)
+                   (logic.mocks/filter-by-id id)
+                   (adapter.mocks/->wire))]
+    (do
       (db.mocks/delete-mock-by-id id database ctx)
-      (ports.producers/delete-single-yml! id user-id publisher ctx)
-      (ports.producers/delete-domain! (logic.mocks/pack-domain mock) publisher ctx)
+      (ports.producers/delete-single-yml! id (or org-id user-id) publisher ctx)
+      (ports.producers/delete-domain! (logic.mocks/pack-domain ?mock) publisher ctx)
       true)
     (throw (ex-info "No mock found with given id"
                     {:status-code 400

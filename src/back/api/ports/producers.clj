@@ -6,10 +6,10 @@
                       {:event {:yml.single.generate {:mock-id mock-id
                                                      :ctx ctx}}}))
 
-(defn delete-single-yml! [mock-id user-id publisher ctx]
+(defn delete-single-yml! [mock-id owner-id publisher ctx]
   (publisher/publish! publisher "mock.deleted"
                       {:event {:yml.single.delete {:mock-id mock-id
-                                                   :user-id user-id
+                                                   :owner-id owner-id
                                                    :ctx ctx}}}))
 
 (defn delete-domain! [domain publisher ctx]

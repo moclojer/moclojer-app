@@ -50,8 +50,8 @@
   (->> (parse-yaml-read-literal raw-mock)
        (m/explain s.mock/Mock)))
 
-(defn gen-path [user-id id]
-  (str user-id "/" id "/mock.yml"))
+(defn gen-path [owner-id id]
+  (str owner-id "/" id "/mock.yml"))
 
 (defn gen-host [wildcard subdomain]
   (str wildcard "-" subdomain ".moclojer.com"))
@@ -59,11 +59,13 @@
 (defn unpack-path [path]
   (->> (str/split path #"/")
        (take 2)
-       (zipmap [:user-id :mock-id])))
+       (zipmap [:owner-id :mock-id])))
 
 (comment
   (unpack-path "j0suetm/hello/mock.yml")
-  ;; => {:user-id "j0suetm", :mock-id "hello"}
+  ;; => {:owner-id "j0suetm", :mock-id "hello"}
+  (unpack-path "buser/api-cupons/mock.yml")
+  ;; => {:owner-id "buser", :mock-id "api-cupons"}
   )
 
 (defn add-host [host-key host content]
@@ -100,8 +102,8 @@
 
 (defn reduce-paths [mocks]
   (->> (reduce-kv
-        (fn [acc user-id mock-id]
-          (conj acc (map #(gen-path (name user-id) (name %)) mock-id)))
+        (fn [acc owner-id mock-id]
+          (conj acc (map #(gen-path (name owner-id) (name %)) mock-id)))
         [] mocks)
        flatten
        (into [])))

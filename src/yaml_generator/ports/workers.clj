@@ -11,10 +11,10 @@
 
 (defn delete-single-yml-handler
   [{:keys [event]} components]
-  (when-let [{:keys [mock-id user-id ctx]} (:yml.single.delete event)]
+  (when-let [{:keys [mock-id owner-id ctx]} (:yml.single.delete event)]
     (logs/log :info "deleting single yaml"
               :ctx event)
-    (controller.yml/delete-single-yml! mock-id user-id components ctx)))
+    (controller.yml/delete-single-yml! mock-id owner-id components ctx)))
 
 (defn generate-unified-yml-handler
   [{:keys [event]} components]

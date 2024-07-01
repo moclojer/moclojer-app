@@ -1,17 +1,13 @@
 (ns back.api.logic.mocks
   (:require [camel-snake-kebab.core :as csk]
             [clojure.java.io :as io]
-            [clojure.string :as str])
-  (:import [java.util UUID]))
-
-(defn ->uuid []
-  (UUID/randomUUID))
+            [clojure.string :as str]))
 
 (def default-mock-content
   (slurp (io/resource "back/default-mock.yaml")))
 
 (defn create [mock]
-  (let [new-uuid (->uuid)
+  (let [new-uuid (random-uuid)
         content (:content mock)]
     (-> (reduce-kv
          (fn [acc k v]
@@ -110,3 +106,10 @@
   (->> mocks
        (filter #(= (-> % :mock/id str) (str id)))
        first))
+
+(defn ->db-by-wildcard [{:keys [wildcard subdomain user-id org-id]}]
+  (let [owner-key (if org-id :mock/org_id :mock/user_id)
+        owner-id (or org-id user-id)]
+    {:mock/wildcard wildcard
+     :mock/subdomain subdomain
+     owner-key owner-id}))

@@ -8,7 +8,8 @@
             (if (get m status)
               (update-in m [status] #(identity [:cast % :publication_status]))
               m))]
-    (-> (cast-if mock :mock/dns_status)
+    (-> mock
+        (cast-if :mock/dns_status)
         (cast-if :mock/unification_status))))
 
 (comment
@@ -53,15 +54,15 @@
 (defn get-mock-by-wildcard
   ([mock db]
    (get-mock-by-wildcard mock db {}))
-  ([{:keys [wildcard subdomain & user-id]} db ctx]
+  ([{:mock/keys [wildcard subdomain user_id org_id]} db ctx]
    (let [where [:and
                 [:= :wildcard wildcard]
                 [:= :subdomain subdomain]]]
      (-> (sql.helpers/select :*)
          (sql.helpers/from :mock)
-         (sql.helpers/where (if user-id
-                              (conj where [:= :user_id user-id])
-                              where))
+         (sql.helpers/where (conj where (if org_id
+                                          [:= :org_id org_id]
+                                          [:= :user_id user_id])))
          sql/format
          ((db.utils/build-execute-with-ctx db ctx))
          first))))
