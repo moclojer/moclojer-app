@@ -43,7 +43,10 @@
      ;; -j0suetm -> j0suetm
      :subdomain (subs subdomain 1)}))
 
-(defn group [mock-type mocks]
+(defn group
+  "Groups mocks based on subdomain. If the mock subdomain isn't the same
+  as the given `username`, then it's an org-typed mock. Personal otherwise."
+  [mocks username]
   (-> (reduce
        (fn [grouped-mocks mock]
          (let [subdomain (:subdomain mock)
@@ -58,7 +61,7 @@
            (assoc grouped-mocks
                   subdomain
                   {:subdomain subdomain
-                   :mock-type mock-type
+                   :mock-type (if (= subdomain username) "personal" "org")
                    :apis new-apis})))
        {} mocks)
       vals

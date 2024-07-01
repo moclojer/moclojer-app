@@ -68,10 +68,10 @@
      :body {:mock mock}}))
 
 (defn handler-get-mocks
-  [{session :session-data
-    components :components
-    ctx :ctx}]
-  (let [mocks (controllers.mocks/get-mocks (:user-id session) components ctx)]
+  [{:keys [session-data components ctx]}]
+  (let [user (controllers.user/get-user-by-id
+              (:user-id session-data) (:database components) ctx)
+        mocks (controllers.mocks/get-mocks user components ctx)]
     {:status 200
      :body {:mocks mocks}}))
 

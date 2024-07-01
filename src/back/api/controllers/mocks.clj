@@ -58,12 +58,14 @@
                      :cause :invalid-id}))))
 
 (defn get-mocks
-  [user-id {:keys [database]} ctx]
+  [{:keys [uuid username]} {:keys [database]} ctx]
   (logs/log :info "retrieving mocks"
-            :ctx (assoc ctx :user-id user-id))
-  (->> (db.mocks/get-mocks user-id database ctx)
-       (map adapter.mocks/->wire)
-       (logic.mocks/group "personal")))
+            :ctx (merge ctx {:user/uuid uuid
+                             :user/username username}))
+  (logic.mocks/group
+   (->> (db.mocks/get-mocks (parse-uuid (str uuid)) database ctx)
+        (map adapter.mocks/->wire))
+   username))
 
 (defn publish-mock!
   [id {:keys [database publisher]} ctx]
