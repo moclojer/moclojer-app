@@ -4,6 +4,7 @@
             [back.api.controllers.mocks :as controllers.mocks]
             [back.api.controllers.orgs :as controllers.orgs]
             [back.api.controllers.user :as controllers.user]
+            [back.api.logic.customers :as logic.users]
             [back.api.logic.orgs :as logic.orgs]))
 
 (defn handler-create-user!
@@ -174,14 +175,34 @@
      :body {:success (controllers.orgs/delete-org! {:id id} components ctx)}}))
 
 (defn handler-get-org-users
-  [{:keys [parameters _components _ctx]}]
-  (let [_org-id (get-in parameters [:path :id])]
-    #_TODO))
+  [{:keys [parameters components ctx]}]
+  (let [id (get-in parameters [:path :id])]
+    {:status 200
+     :body {:users (controllers.user/get-users-by-org-id id components ctx)}}))
 
 (defn handler-add-org-user
-  [_]
-  #_TODO)
+  [{:keys [parameters components ctx]}]
+  (let [org-id (get-in parameters [:path :id])
+        user-id (get-in parameters [:body :user-id])
+        org (controllers.orgs/get-org-by-id org-id components ctx)
+        old-users (controllers.user/get-users-by-org-id (:id org) components ctx)]
+    (if (logic.users/exists? old-users user-id)
+      (throw (ex-info "user is already in org"
+                      {:status-code 412
+                       :cause :user-already-in-org
+                       :value {:org-id org-id
+                               :user-id user-id}}))
+      (let [new-org-user (controllers.orgs/add-org-user!
+                          org user-id false components ctx)
+            new-user (controllers.user/get-user-by-id
+                      (:user-id new-org-user) (:database components) ctx)]
+        {:status 200
+         :body {:users (conj old-users new-user)}}))))
 
 (defn handler-delete-org-user
-  [_]
-  #_TODO)
+  [{:keys [parameters components ctx]}]
+  (let [org-id (get-in parameters [:path :org-id])
+        user-id (get-in parameters [:path :user-id])]
+    {:status 200
+     :body {:success (controllers.orgs/remove-org-user! org-id user-id components ctx)
+            :users (controllers.user/get-users-by-org-id org-id components ctx)}}))

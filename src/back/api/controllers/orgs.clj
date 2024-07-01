@@ -13,7 +13,7 @@
   [id {:keys [database]} ctx]
   (logs/log :info "retrieving org by id"
             :ctx (assoc ctx :org-id id))
-  (or (adapter.orgs/->wire (db.orgs/get-by-id id database ctx))
+  (or (adapter.orgs/->wire (db.orgs/get-by-id (parse-uuid (str id)) database ctx))
       (throw (ex-info "Org with given id doesn't exist"
                       {:status-code 412
                        :cause :invalid-id}))))
@@ -46,17 +46,31 @@
             (assoc ctx :org org))
   (-> (logic.orgs/->db-delete org)
       (db.orgs/delete! database ctx))
+  ;; TODO: dispatch org.deleted event for yml generator
   true)
 
 (defn add-org-user!
   "If we're pasing an `org-id` that we're sure already `exists?`, for
    example after creating the org, we don't need to retrieve it again."
-  [org user-id exists? {:keys [database] :as components} ctx]
+  [org user-id org-exists? {:keys [database] :as components} ctx]
   (logs/log :info "adding user into org"
             (merge ctx {:org-id (:id org)
                         :user-id user-id
-                        :exists? exists?}))
-  (let [{:keys [id]} (if exists? org (get-org-by-id (:id org) components ctx))]
+                        :org-exists? org-exists?}))
+  (let [{:keys [id]} (if-not org-exists?
+                       (get-org-by-id (parse-uuid (str (:id org))) components ctx)
+                       org)]
     (-> (logic.orgs/create-org-user id user-id)
         (db.orgs/insert-user! database ctx)
         (adapter.orgs/->wire-org-user))))
+
+(defn remove-org-user!
+  [org-id user-id {:keys [database] :as components} ctx]
+  (logs/log :info "removing user from org"
+            (merge ctx {:org-id org-id
+                        :user-id user-id}))
+  (-> (get-org-by-id (parse-uuid (str org-id)) components ctx)
+      (:id)
+      (logic.orgs/create-org-user user-id)
+      (db.orgs/delete-user! database ctx))
+  true)

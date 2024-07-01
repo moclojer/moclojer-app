@@ -114,14 +114,21 @@
            :responses {200 {:body {:users schemas.wire-out/Users}}}
            :handler ports.http-in/handler-get-org-users}
      :post {:summary "Add user to org"
-            :parameters {:path {:id string?}}
+            :interceptors [(error-handler-interceptor)
+                           (extract-user-interceptor)]
+            :parameters {:path {:id string?}
+                         :body {:user-id string?}}
             :responses {201 {:body {:users schemas.wire-out/Users}}}
-            :handler ports.http-in/handler-add-org-user}
-     :delete {:summary "Remove user from org"
+            :handler ports.http-in/handler-add-org-user}}]
+
+   ["/orgs/:org-id/users/:user-id"
+    {:delete {:summary "Remove user from org"
               :interceptors [(error-handler-interceptor)
                              (extract-user-interceptor)]
-              :parameters {:path {:id string?}}
-              :responses {200 {:body {:users schemas.wire-out/Users}}}
+              :parameters {:path {:org-id string?
+                                  :user-id string?}}
+              :responses {200 {:body {:success boolean?
+                                      :users schemas.wire-out/Users}}}
               :handler ports.http-in/handler-delete-org-user}}]
 
    ["/mocks"
