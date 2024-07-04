@@ -1,4 +1,4 @@
-(ns back.integration.api.org.create-org-test
+(ns back.integration.api.create-org-test
   (:require [back.api.db.customers :as db.customers]
             [back.api.routes :as routes]
             [back.integration.api.helpers :as helpers]
@@ -10,6 +10,7 @@
             [state-flow.assertions.matcher-combinators :refer [match?]]
             [state-flow.core :refer [flow]]
             [state-flow.state :as state]))
+
 (defn- create-and-start-components []
   (component/start-system
    (component/system-map
