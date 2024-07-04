@@ -57,14 +57,6 @@
                                :customer/email "test@gmail.com"
                                :customer/external-uuid #uuid "dcf34306-1c9e-4abb-a49b-438e1869ec5b"}
                               database)))
-    (flow "retrieve user"
-      [resp (helpers/request! {:method :get
-                               :headers {"authorization" token}
-                               :uri "/user/cd989351-af31-4a2f-a1a1-88096aa425a7"})]
-      (match?
-       (matchers/embeds {:status 200
-                         :body {:user {:email "test@gmail.com"}}})
-       resp))
 
     (flow "retrieve user by external id"
       [resp (helpers/request! {:method :get

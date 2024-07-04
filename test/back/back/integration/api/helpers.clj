@@ -12,7 +12,7 @@
 
 (defn- parsed-response
   [{:keys [headers body] :as request}]
-  (if (string/includes? (get headers "Content-Type") "application/json")
+  (if (string/includes? (get headers "Content-Type" "") "application/json")
     (assoc request :body (json/decode body true))
     request))
 
