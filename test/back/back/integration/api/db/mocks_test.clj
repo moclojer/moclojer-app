@@ -40,7 +40,7 @@
                 :mock/enabled true
                 :mock/dns_status "offline"
                 :mock/unification_status "offline"}]
-              (db.mocks/get-mocks {:user-id #uuid "916d0b8b-af1b-4178-8aa1-0531c582dcd1"} database)))))
+              (db.mocks/get-mocks #uuid "916d0b8b-af1b-4178-8aa1-0531c582dcd1" database)))))
 
 (defflow flow-db-get-mock-by-id
   {:init (utils/start-system! create-and-start-components)

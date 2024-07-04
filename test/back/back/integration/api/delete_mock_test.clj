@@ -48,7 +48,7 @@
                   #(first (get @publisher/mock-publisher "mock.deleted")))]
     (match?
      (matchers/embeds {:event {:yml.single.delete {:mock-id (parse-uuid id)
-                                                   :user-id user-id}}})
+                                                   :owner-id user-id}}})
      (update-in deleted-evt [:yml.single.delete] dissoc :ctx))))
 
 (defn fcheck-mock-deletion-storage [{:keys [id user-id]}]
