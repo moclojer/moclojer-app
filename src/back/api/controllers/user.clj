@@ -10,7 +10,12 @@
 
 (defn get-user-by-id
   [id database ctx]
-  (adapter.customers/->wire (db.customers/get-by-id id database ctx)))
+  (adapter.customers/->wire
+   (or (db.customers/get-by-id id database ctx)
+       (throw (ex-info "No user with given id was found"
+                       {:status-code 412
+                        :cause :invalid-id
+                        :value (assoc ctx :user-id id)})))))
 
 (defn get-user-by-external-id
   [id database ctx]
