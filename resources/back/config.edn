@@ -33,10 +33,6 @@
                :token #or [#env CF_TOKEN "foobar"]
                :zone-id "c6f10cf4dd7ace4b979d60c22066be23"
                :record-content "goldfish-app-zq7eo.ondigitalocean.app"}
-  :proxy {:proxy-host #or [#env PROXY_HOST "162.243.162.62"]
-          :proxy-port 3128
-          :proxy-user #or [#env PROXY_USER "moclojer"]
-          :proxy-pass #or [#env PROXY_PASS "foobar"]}
   :max-verification-attempts 20
   :verification-timeout-ms 3000}
  :mq {:uri #or [#env REDIS_URL "redis://localhost:6379"]}

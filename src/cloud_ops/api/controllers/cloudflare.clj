@@ -3,10 +3,10 @@
             [com.moclojer.components.logs :as logs]))
 
 (defn- mount-records-base-req [config]
-  (let [{:keys [cloudflare proxy]} (get-in config [:config :cloud-providers])
+  (let [{:keys [cloudflare]} (get-in config [:config :cloud-providers])
         {:keys [base-url zone-id token]} cloudflare
         url (str base-url "/zones/" zone-id "/dns_records")
-        req-params (http-out/mount-basic-req url token proxy)]
+        req-params (http-out/mount-basic-req url token)]
     {:cf-config cloudflare
      :base-req req-params}))
 
