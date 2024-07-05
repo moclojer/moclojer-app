@@ -33,7 +33,9 @@
 
 (defn wildcard-available?
   [mock {:keys [database]} ctx]
-  (empty? (db.mocks/get-mock-by-wildcard mock database ctx)))
+  (-> (logic.mocks/->db-by-wildcard mock)
+      (db.mocks/get-mock-by-wildcard database ctx)
+      (empty?)))
 
 (defn update-mock!
   [id content {:keys [database publisher]} ctx]
@@ -118,6 +120,7 @@
 (defn update-mock-dns-status!
   [domain new-status db ctx]
   (if-let [mock (-> (logic.mocks/unpack-domain domain)
+                    (logic.mocks/->db-by-wildcard)
                     (db.mocks/get-mock-by-wildcard db ctx))]
     (-> (logic.mocks/update-dns-status mock new-status)
         (select-keys [:mock/id :mock/dns_status])

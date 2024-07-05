@@ -112,7 +112,9 @@
 
 (defn ->db-by-wildcard [{:keys [wildcard subdomain user-id org-id]}]
   (let [owner-key (if org-id :mock/org_id :mock/user_id)
-        owner-id (or org-id user-id)]
-    {:mock/wildcard wildcard
-     :mock/subdomain subdomain
-     owner-key owner-id}))
+        owner-id (or org-id user-id)
+        base-mock {:mock/wildcard wildcard
+                   :mock/subdomain subdomain}]
+    (if owner-id
+      (assoc base-mock owner-key owner-id)
+      base-mock)))
