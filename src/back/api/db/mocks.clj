@@ -57,12 +57,15 @@
   ([{:mock/keys [wildcard subdomain user_id org_id]} db ctx]
    (let [where [:and
                 [:= :wildcard wildcard]
-                [:= :subdomain subdomain]]]
+                [:= :subdomain subdomain]]
+         owner-where (if org_id
+                       [:= :org_id org_id]
+                       [:= :user_id user_id])]
      (-> (sql.helpers/select :*)
          (sql.helpers/from :mock)
-         (sql.helpers/where (conj where (if org_id
-                                          [:= :org_id org_id]
-                                          [:= :user_id user_id])))
+         (sql.helpers/where (if (or user_id org_id)
+                              (conj where owner-where)
+                              where))
          sql/format
          ((db.utils/build-execute-with-ctx db ctx))
          first))))

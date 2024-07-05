@@ -110,9 +110,8 @@
     {:keys [user-id]} :session-data
     components :components
     ctx :ctx}]
-  (let [available (controllers.mocks/wildcard-available? (merge mock {:user-id user-id})
-                                                         components
-                                                         ctx)]
+  (let [available (controllers.mocks/wildcard-available?
+                   (merge mock {:user-id user-id}) components ctx)]
     {:status 200
      :body {:available available}}))
 
