@@ -23,11 +23,10 @@
 (defn mount-basic-req
   "Creates a list of parameters that can be later used as a basis
    on http requests to cloud providers' API."
-  [url token proxy]
-  (merge {:url url
-          :headers {:Content-Type "application/json"
-                    :Authorization (str "Bearer " token)}}
-         proxy))
+  [url token]
+  {:url url
+   :headers {:Content-Type "application/json"
+             :Authorization (str "Bearer " token)}})
 
 (defn get-current-cf-records
   "Retrieves the current domain records in CloudFlare."
