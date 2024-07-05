@@ -31,10 +31,6 @@ ALTER TABLE mock ADD COLUMN org_id uuid NULL;
 
 --;;
 
-UPDATE mock SET org_id = user_id;
-
---;;
-
 ALTER TABLE mock ADD CONSTRAINT fk_mock_org_id
                  FOREIGN KEY(org_id)
                  REFERENCES org(id)
