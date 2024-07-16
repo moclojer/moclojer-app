@@ -25,8 +25,8 @@
 
 (def workers
   [{:handler create-domain-handler
-    :queue-name "mock.updated"}
+    :channel "mock.updated"}
    {:handler delete-domain-handler
-    :queue-name "mock.deleted"}
+    :channel "mock.deleted"}
    {:handler verify-domain-handler
-    :queue-name "domain.verification.dispatched"}])
+    :channel "domain.verification.dispatched"}])

@@ -2,7 +2,7 @@
   (:require [back.api.ports.workers :as p.workers]
             [back.api.routes :as routes]
             [com.moclojer.components.core :as components]
-            [com.moclojer.components.publisher :as publisher]
+            [com.moclojer.components.mq :as mq]
             [com.stuartsierra.component :as component]
             [dev.utils :as utils])
   (:gen-class))
@@ -18,37 +18,33 @@
    :http (components/new-http)
    :router (components/new-router routes/routes)
    :database (component/using (components/new-database) [:config])
-   :publisher (component/using (components/new-publisher
-                                #_[{:qname "mocks.verify"
-                                    :event {}
-                                    ;; every other minute
-                                    :delay 120000}
-                                   {:qname "yml.verify"
-                                    :event {}
-                                    ;; every 5 minutes
-                                    :delay 300000}])
-                               [:config])
+   :mq (component/using
+        (components/new-mq
+         p.workers/workers
+         #_[{:channel "mocks.verify"
+             :event {}
+             ;; every other minute
+             :sleep 120000}
+            {:qname "yml.verify"
+             :event {}
+             ;; every 5 minutes
+             :sleep 300000}]
+         false)
+        [:config :database :sentry])
    :webserver (component/using (components/new-webserver)
-                               [:config :http :router :database :publisher])
-   :workers (component/using (components/new-consumer p.workers/workers false)
-                             [:config :database :publisher])))
-
-(comment
-  (def c (component/start (components/new-config "back/config.edn")))
-  c
-  ;;
-  )
+                               [:config :http :router :database :mq])))
 
 (comment
   ;; init
   (utils/start-system-dev! sys-atom (build-system-map))
 
-  (publisher/publish! (:publisher @sys-atom) "yml.unified.verification.fired" {})
-  (publisher/publish! (:publisher @sys-atom) "domains.verification.fired" {})
+  (mq/try-op! (:mq @sys-atom) :publish! ["yml.unified.verification.fired" {}] {})
+  (mq/try-op! (:mq @sys-atom) :publish! ["domains.verification.fired" {}] {})
 
   ;; iterate
   (utils/stop-system-dev! sys-atom false)
   ;; re-eval file then
   (utils/start-system-dev! sys-atom (build-system-map) false)
+
   ;; finish
   (utils/stop-system-dev! sys-atom))

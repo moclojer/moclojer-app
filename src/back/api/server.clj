@@ -16,21 +16,21 @@
    :sentry (component/using (components/new-sentry) [:config])
    :router (components/new-router routes/routes)
    :database (component/using (components/new-database) [:config])
-   :publisher (component/using (components/new-publisher
-                                [{:qname "domains.verification.fired"
-                                  :event {}
-                                  ;; every 2 minutes
-                                  :delay 120000}
-                                 {:qname "yml.unified.verification.fired"
-                                  :event {}
-                                  ;; every 5 minutes
-                                  :delay 300000}])
-                               [:config :sentry])
+   :mq (component/using
+        (components/new-mq
+         p.workers/workers
+         [{:qname "domains.verification.fired"
+           :event {}
+           ;; every 2 minutes
+           :sleep 120000}
+          {:qname "yml.unified.verification.fired"
+           :event {}
+           ;; every 5 minutes
+           :sleep 300000}]
+         false)
+        [:config :database :sentry])
    :webserver (component/using (components/new-webserver)
-                               [:config :http :router :database :publisher :sentry])
-   :workers (component/using
-             (components/new-consumer p.workers/workers false)
-             [:config :database :publisher :sentry])))
+                               [:config :http :router :database :mq :sentry])))
 
 (defn start-system! [system-map]
   (components/setup-logger [["*" :info]] :auto :prod)

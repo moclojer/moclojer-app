@@ -18,7 +18,7 @@
 (defn create-domain!
   "Calls domain creation controllers for both CloudFlare and DigitalOcean,
    making some safety checks beforehand."
-  [domain retrying? {:keys [publisher] :as components} ctx]
+  [domain retrying? {:keys [mq] :as components} ctx]
   (let [{:keys [cf-records do-spec]} (logic.cloud/remove-existing-data
                                       (get-current-data components ctx)
                                       domain)
@@ -28,12 +28,12 @@
 
     ;; opposing `retrying?` so we just do it once
     (if both-exist?
-      (producers/verify-domain! domain (not retrying?) true publisher ctx)
+      (producers/verify-domain! domain (not retrying?) true mq ctx)
       (do
-        (producers/set-dns-status! domain "publishing" publisher ctx)
+        (producers/set-dns-status! domain "publishing" mq ctx)
         (controllers.cf/create-domain! cf-records domain components ctx)
         (controllers.do/create-domain! do-spec domain components ctx)
-        (producers/verify-domain! domain (not retrying?) false publisher ctx)))))
+        (producers/verify-domain! domain (not retrying?) false mq ctx)))))
 
 (defn delete-domain!
   "Calls domain deletion controllers for both CloudFlare and DigitalOcean."
@@ -55,7 +55,7 @@
   3000 milliseconds, 3 seconds * 1000 attempts
   20 attempts per domain verification, 1 minute"
   [domain attempt retrying? rm-ongoing-fn
-   {:keys [config http publisher] :as components} ctx]
+   {:keys [config http mq] :as components} ctx]
   (let [max-attempts (get-in config [:cloud-providers :max-verification-attempts] 20)
         timeout (get-in config [:cloud-providers :verification-timeout-ms] 3000)
         last-attempt? (>= attempt max-attempts)]
@@ -71,7 +71,7 @@
       ;; everything ok?
       (= (http-out/ping-domain domain http ctx) 200)
       (do
-        (producers/set-dns-status! domain "published" publisher ctx)
+        (producers/set-dns-status! domain "published" mq ctx)
         (logs/log :info "verified domain (ping)"
                   :ctx {:domain domain
                         :final-attempt attempt})
@@ -86,7 +86,7 @@
       (do
         (logs/log :error "failed to verify domain (ping) (timed out). trying to create again..."
                   :ctx ctx)
-        (producers/create-domain! domain true publisher ctx))
+        (producers/create-domain! domain true mq ctx))
 
       ;; did everything we could, throw an error sentry should catch and warn us
       (not retrying?)
@@ -99,7 +99,7 @@
 
 (defn verify-domain-providers
   "Verifies if domain was created in each provider spec/data."
-  [domain retrying? rm-ongoing-fn {:keys [config publisher] :as components} ctx]
+  [domain retrying? rm-ongoing-fn {:keys [config mq] :as components} ctx]
 
   (logs/log :info "verifying domain (providers)"
             :ctx (merge ctx {:domain domain :retrying? retrying?}))
@@ -125,7 +125,7 @@
       retrying?
       (do
         (logs/log :error "failed to verify domain (providers). trying to create again...")
-        (producers/create-domain! domain true publisher ctx))
+        (producers/create-domain! domain true mq ctx))
 
       ;; did everything we could, throw exception
       (not retrying?)

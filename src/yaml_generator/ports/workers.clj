@@ -31,10 +31,10 @@
 
 (def workers
   [{:handler generate-single-yml-handler
-    :queue-name "mock.updated"}
+    :channel "mock.updated"}
    {:handler delete-single-yml-handler
-    :queue-name "mock.deleted"}
+    :channel "mock.deleted"}
    {:handler generate-unified-yml-handler
-    :queue-name "yml.single.generated"}
+    :channel "yml.single.generated"}
    {:handler verify-unified-yml-handler
-    :queue-name "yml.unified.verification.dispatched"}])
+    :channel "yml.unified.verification.dispatched"}])

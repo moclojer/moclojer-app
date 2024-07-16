@@ -26,10 +26,10 @@
 
 (def workers
   [{:handler update-mock-dns-status!
-    :queue-name "domain.updated"}
+    :channel "domain.updated"}
    {:handler update-mock-unification-status!
-    :queue-name "yml.unified.generated"}
+    :channel "yml.unified.generated"}
    {:handler dispatch-domains-verification!
-    :queue-name "domains.verification.fired"}
+    :channel "domains.verification.fired"}
    {:handler dispatch-unified-yml-verification!
-    :queue-name "yml.unified.verification.fired"}])
+    :channel "yml.unified.verification.fired"}])

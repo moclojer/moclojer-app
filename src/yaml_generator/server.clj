@@ -13,9 +13,9 @@
    :sentry (component/using (components/new-sentry) [:config])
    :database (component/using (components/new-database) [:config])
    :storage (component/using (components/new-storage) [:config])
-   :publisher (component/using (components/new-publisher) [:config :sentry])
-   :workers (component/using (components/new-consumer p.workers/workers true)
-                             [:config :database :storage :publisher :sentry])))
+   :mq (component/using
+        (components/new-mq p.workers/workers true)
+        [:config :database :storage :mq :sentry])))
 
 (defn start-system! [system-map]
   (components/setup-logger [["*" :info]] :auto :prod)

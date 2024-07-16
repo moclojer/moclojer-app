@@ -2,7 +2,7 @@
   (:require [com.moclojer.components.core :as components]
             [com.moclojer.components.logs :as logs]
             [com.moclojer.components.migrations :as migrations]
-            [com.moclojer.components.publisher :as publisher]
+            [com.moclojer.components.mq :as mq]
             [com.moclojer.components.storage :as storage]
             [com.stuartsierra.component :as component]
             [pg-embedded-clj.core :as pg-emb]
@@ -17,10 +17,9 @@
 (def system-map
   (component/system-map
    :config (components/new-config "back/config.edn")
-   :publisher (component/using (components/new-publisher) [:config])
+   :mq (component/using (components/new-mq p.workers/workers false)
+                        [:config :database :storage :mq])
    :database (component/using (components/new-database) [:config])
-   :workers (component/using (components/new-consumer p.workers/workers)
-                             [:config :database :storage :publisher])
    :storage (component/using (storage/new-storage) [:config])))
 
 ;; start system
@@ -43,7 +42,7 @@
 (comment
   (start-system-dev! system-map)
 
-  (def publisher (:publisher @system-atom))
+  (def mq (:mq @system-atom))
 
   (def yml "
 - endpoint:
@@ -62,14 +61,14 @@
           \"hello\": \"{{path-params.username}}!\"
         }")
 
-  (publisher/publish! publisher
-                      :mock.changed {:event
-                                     {:user-id #uuid "cd989358-af38-4a2f-a1a1-88096aa425a7",
-                                      :id (random-uuid)
-                                      :wildcard "test",
-                                      :subdomain "chico",
-                                      :enabled true,
-                                      :content yml}})
+  (mq/publish! mq
+               :mock.changed {:event
+                              {:user-id #uuid "cd989358-af38-4a2f-a1a1-88096aa425a7",
+                               :id (random-uuid)
+                               :wildcard "test",
+                               :subdomain "chico",
+                               :enabled true,
+                               :content yml}})
 
   (stop-system-dev!)
   ;;
