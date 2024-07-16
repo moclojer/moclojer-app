@@ -1,5 +1,6 @@
 (ns dev.yaml-generator.dev
   (:require [com.moclojer.components.core :as components]
+            [com.moclojer.components.mq :as mq]
             [com.moclojer.components.storage :as storage]
             [com.stuartsierra.component :as component]
             [dev.utils :as utils]
@@ -14,9 +15,8 @@
    :sentry (components/new-sentry-mock)
    :database (component/using (components/new-database) [:config])
    :storage (component/using (components/new-storage) [:config])
-   :publisher (component/using (components/new-publisher) [:config])
-   :workers (component/using (components/new-consumer p.workers/workers false)
-                             [:config :database :storage :publisher])))
+   :mq (component/using (components/new-mq p.workers/workers false)
+                        [:config :database :storage :sentry])))
 
 (comment
   ;; init
@@ -24,6 +24,8 @@
 
   (storage/delete-file! (:storage @sys-atom) "moclojer" "moclojer.yml")
   (slurp (storage/get-file (:storage @sys-atom) "moclojer" "moclojer.yml"))
+
+  (mq/try-op! (:mq @sys-atom) :publish! ["yml.unified.verification.dispatched" {}] {})
 
   ;; iterate
   (utils/stop-system-dev! sys-atom false)

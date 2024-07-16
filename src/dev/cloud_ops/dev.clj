@@ -1,7 +1,7 @@
 (ns dev.cloud-ops.dev
   (:require [cloud-ops.api.ports.workers :as p.workers]
             [com.moclojer.components.core :as components]
-            [com.moclojer.components.publisher :as publisher]
+            [com.moclojer.components.mq :as mq]
             [com.stuartsierra.component :as component]
             [dev.utils :as utils]
             [muuntaja.core :as m])
@@ -73,24 +73,23 @@
                   :cf-create-ok :do-update-ok
                   :domain-ok :cf-delete-ok])))
    :sentry (components/new-sentry-mock)
-   :publisher (component/using (components/new-publisher)
-                               [:config :sentry])
-   :workers (component/using (components/new-consumer p.workers/workers false)
-                             [:config :http :publisher :sentry])))
+   :mq (component/using
+        (components/new-mq p.workers/workers false)
+        [:config :http :sentry])))
 
 (comment
   ;; init
   (utils/start-system-dev! sys-atom (build-system-map) false)
 
-  (:publisher @sys-atom)
+  (:mq @sys-atom)
 
   @mocked-provider-data
 
   ((get-in mocked-responses [:cf-data-ok :response]) nil)
 
-  (publisher/publish! (:publisher @sys-atom)
-                      "mock.updated"
-                      {:event {:domain.create {:domain "teste-josue"}}})
+  (mq/try-op! :publish! (:mq @sys-atom)
+              "mock.updated"
+              {:event {:domain.create {:domain "teste-josue"}}})
 
   ;; iterate
   (utils/stop-system-dev! sys-atom false)
@@ -98,4 +97,4 @@
   (utils/start-system-dev! sys-atom (build-system-map) false)
 
   ;; finish
-  (utils/stop-system-dev! sys-atom))
+  (utils/stop-system-dev! sys-atom false))

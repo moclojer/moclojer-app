@@ -2,7 +2,7 @@
   (:require [cloud-ops.api.ports.workers :as p.workers]
             [com.moclojer.components.core :as components]
             [com.moclojer.components.logs :as logs]
-            [com.moclojer.components.publisher :as publisher]
+            [com.moclojer.components.mq :as mq]
             [com.stuartsierra.component :as component])
   (:gen-class))
 
@@ -14,12 +14,9 @@
    :http (components/new-http)
    :sentry (component/using (components/new-sentry) [:config])
    ;; :sentry (components/new-sentry-mock)
-   :publisher (component/using
-               (components/new-publisher)
-               [:config :sentry])
-   :workers (component/using
-             (components/new-consumer p.workers/workers true)
-             [:config :http :publisher :sentry])))
+   :mq (component/using
+        (components/new-mq p.workers/workers true)
+        [:config :http :sentry])))
 
 (defn start-system! [system-map]
   (components/setup-logger [["*" :info]] :auto :prod)
@@ -44,9 +41,9 @@
 (comment
   (start-system! (build-system-map))
 
-  (publisher/publish! (:publisher @system-atom) "domain.create"
-                      {:event {:domain "nao-existe-123-j0suetm"
-                               :retrying? false}})
+  (mq/try-op! :publish! (:mq @system-atom) "domain.create"
+              {:event {:domain "nao-existe-123-j0suetm"
+                       :retrying? false}})
 
   (stop-system!)
   ;;
