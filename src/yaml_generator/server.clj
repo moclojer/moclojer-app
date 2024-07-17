@@ -15,7 +15,7 @@
    :storage (component/using (components/new-storage) [:config])
    :mq (component/using
         (components/new-mq p.workers/workers true)
-        [:config :database :storage :mq :sentry])))
+        [:config :database :storage :sentry])))
 
 (defn start-system! [system-map]
   (components/setup-logger [["*" :info]] :auto :prod)

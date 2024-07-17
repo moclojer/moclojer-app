@@ -19,11 +19,11 @@
    :mq (component/using
         (components/new-mq
          p.workers/workers
-         [{:qname "domains.verification.fired"
+         [{:channel "domains.verification.fired"
            :event {}
            ;; every 2 minutes
            :sleep 120000}
-          {:qname "yml.unified.verification.fired"
+          {:channel "yml.unified.verification.fired"
            :event {}
            ;; every 5 minutes
            :sleep 300000}]
