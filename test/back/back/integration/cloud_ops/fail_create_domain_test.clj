@@ -31,7 +31,7 @@
   (component/system-map
    :config (components/new-config "back/config.edn")
    :http (components/new-http-mock mocked-responses)
-   :publisher (component/using (components/new-publisher-mock) [:config])))
+   :mq (components/new-mq-mock)))
 
 (sf/defflow
   flow-fail-create-domain

@@ -4,7 +4,7 @@
             [back.integration.api.helpers :as helpers]
             [back.integration.components.utils :as utils]
             [com.moclojer.components.core :as components]
-            [com.moclojer.components.publisher :as publisher]
+            [com.moclojer.components.mq :as mq]
             [com.moclojer.components.storage :as storage]
             [com.stuartsierra.component :as component]
             [matcher-combinators.matchers :as matchers]
@@ -21,9 +21,9 @@
     :router (components/new-router routes/routes)
     :storage (component/using (components/new-storage) [:config])
     :database (component/using (components/new-database) [:config])
-    :publisher (component/using (components/new-publisher-mock) [:config])
+    :mq (components/new-mq-mock)
     :webserver (component/using (components/new-webserver)
-                                [:config :http :router :database :publisher]))))
+                                [:config :http :router :database :mq]))))
 
 (def flow-consts
   {:base-req {:headers
@@ -41,11 +41,11 @@
           :wildcard "test"
           :enabled true}})
 
-(defn fcheck-mock-deletion-publisher [{:keys [id user-id]}]
+(defn fcheck-mock-deletion-mq [{:keys [id user-id]}]
   (flow
     "should have published a :mock.deleted event"
     [deleted-evt (state/invoke
-                  #(first (get @publisher/mock-publisher "mock.deleted")))]
+                  #(second (get @mq/mock-channels "mock.deleted")))]
     (match?
      (matchers/embeds {:event {:yml.single.delete {:mock-id (parse-uuid id)
                                                    :owner-id user-id}}})
@@ -71,7 +71,7 @@
      resp)
     [:let [mock {:id id
                  :user-id (get-in flow-consts [:user :customer/uuid])}]]
-    (fcheck-mock-deletion-publisher mock)
+    (fcheck-mock-deletion-mq mock)
     (fcheck-mock-deletion-storage mock)))
 
 (defn fcreate-mock []

@@ -19,9 +19,9 @@
     :http (components/new-http-mock [])
     :router (components/new-router routes/routes)
     :database (component/using (components/new-database) [:config])
-    :publisher (components/new-publisher-mock)
+    :mq (components/new-mq-mock)
     :webserver (component/using (components/new-webserver)
-                                [:config :http :router :database :publisher]))))
+                                [:config :http :router :database :mq]))))
 
 (defn fcreate-org-user
   [org user]

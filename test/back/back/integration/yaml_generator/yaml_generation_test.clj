@@ -5,7 +5,7 @@
              [back.integration.components.utils :as utils]
              [clojure.java.io :as io]
              [com.moclojer.components.core :as components]
-             [com.moclojer.components.publisher :as publisher]
+             [com.moclojer.components.mq :as mq]
              [com.moclojer.components.storage :as storage]
              [com.stuartsierra.component :as component]
              [matcher-combinators.matchers :as matchers]
@@ -25,10 +25,9 @@
     :router (components/new-router routes/routes)
     :database (component/using (components/new-database) [:config])
     :sentry (components/new-sentry-mock)
-    :publisher (component/using (components/new-publisher) [:config :sentry])
     :storage (component/using (components/new-storage) [:config])
-    :workers (component/using (components/new-consumer p.workers/workers false)
-                              [:config :database :storage :publisher :http :sentry]))))
+    :mq (component/using (components/new-mq p.workers/workers false)
+                         [:config :sentry :database :storage :http]))))
 
 (def yml-consts
   {:sample "
@@ -77,30 +76,31 @@
 (defn fgenerate-and-save-mock []
   (flow
     "should save generated yml to storage"
-    [publisher (state-flow.api/get-state :publisher)
+    [mq (state-flow.api/get-state :mq)
      storage (state-flow.api/get-state :storage)]
     (state-flow.api/invoke
      #(do
-        (publisher/publish! publisher "mock.updated"
-                            {:event
-                             {:yml.single.generate
-                              {:mock-id (get-in flow-consts [:mock :mock/id])}}})
+        (mq/try-op! mq :publish!
+                    ["mock.updated"
+                     {:event
+                      {:yml.single.generate
+                       {:mock-id (get-in flow-consts [:mock :mock/id])}}}]
+                    {})
         (Thread/sleep 5000)))
 
     (match?
      (matchers/embeds (logic.yml/parse-yaml-&-body (:sample yml-consts)))
      (state-flow.api/return
-      (let [timeout 5000 ;; 5 seconds
+      (let [timeout 10000 ;; 10 seconds
             deadline (+ (System/currentTimeMillis) timeout)]
         (loop []
           (Thread/sleep 500)
           (if (< (System/currentTimeMillis) deadline)
-            (if-let [content (some-> (storage/get-file storage "moclojer"
-                                                       (logic.yml/gen-path
-                                                        (get-in flow-consts
-                                                                [:user :customer/uuid])
-                                                        (get-in flow-consts
-                                                                [:mock :mock/id])))
+            (if-let [content (some-> (storage/get-file
+                                      storage "moclojer"
+                                      (logic.yml/gen-path
+                                       (get-in flow-consts [:user :customer/uuid])
+                                       (get-in flow-consts [:mock :mock/id])))
                                      io/reader slurp
                                      logic.yml/parse-yaml-&-body)]
               (if-not (= content [])

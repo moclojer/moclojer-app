@@ -3,7 +3,7 @@
             [back.integration.components.utils :as utils]
             [clojure.java.io :as io]
             [com.moclojer.components.core :as components]
-            [com.moclojer.components.publisher :as publisher]
+            [com.moclojer.components.mq :as mq]
             [com.moclojer.components.storage :as storage]
             [com.stuartsierra.component :as component]
             [matcher-combinators.matchers :as matchers]
@@ -16,12 +16,9 @@
 
 (defn publish-message [msg queue-name]
   (flow "publish a message"
-    [publisher (state-flow.api/get-state :publisher)]
+    [mq (state-flow.api/get-state :mq)]
 
-    (-> publisher
-        (publisher/publish!
-         queue-name
-         msg)
+    (-> (mq/try-op! mq :publish! [queue-name msg] {})
         state-flow.api/return)))
 
 (defn create-bucket-on-localstack [n]
@@ -83,12 +80,11 @@
     :router (components/new-router routes/routes)
     :database (component/using (components/new-database) [:config])
     ;; this test should have redis up to run!
-    ;; docker-compose -f docker/docker-compose.yml redis up 
-    :publisher (component/using (components/new-publisher) [:config])
-    ;; docker-compose -f docker/docker-compose.yml localstack up 
-    :storage (component/using (components/new-storage) [:config])
-    :workers (component/using (components/new-consumer p.workers/workers false)
-                              [:config :database :storage :publisher]))))
+    ;; docker-compose -f docker/docker-compose.yml redis up
+    :mq (component/using (components/new-mq p.workers/workers false)
+                         [:config :database :storage])
+    ;; docker-compose -f docker/docker-compose.yml localstack up
+    :storage (component/using (components/new-storage) [:config]))))
 
 (def yml "
 - endpoint:

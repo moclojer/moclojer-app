@@ -2,7 +2,7 @@
   (:require [back.integration.components.utils :as utils]
             [cloud-ops.api.ports.workers :as workers]
             [com.moclojer.components.core :as components]
-            [com.moclojer.components.publisher :as publisher]
+            [com.moclojer.components.mq :as mq]
             [com.stuartsierra.component :as component]
             [matcher-combinators.matchers :as matchers]
             [muuntaja.core :as m]
@@ -56,8 +56,7 @@
                              [:cf-data-ok :do-data-ok
                               :cf-create-ok :do-create-ok
                               :domain-ok])))
-   :publisher (component/using (components/new-publisher-mock)
-                               [:config])))
+   :mq (components/new-mq-mock)))
 
 (defn fcreate-domain [domain]
   (flow
@@ -70,14 +69,14 @@
     (match?
      (matchers/embeds {:event {:domain domain
                                :new-status "publishing"}})
-     (update-in (first (get @publisher/mock-publisher "domain.updated"))
+     (update-in (first (get @mq/mock-channels "domain.updated"))
                 [:event] dissoc :ctx))
 
     (match?
      (matchers/embeds {:event {:domain domain
                                :retrying? true
                                :skip-data? false}})
-     (update-in (first (get @publisher/mock-publisher "domain.verification.dispatched"))
+     (update-in (first (get @mq/mock-channels "domain.verification.dispatched"))
                 [:event] dissoc :ctx))))
 
 (defflow

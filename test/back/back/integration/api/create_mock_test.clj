@@ -20,10 +20,9 @@
     :database (component/using (components/new-database)
                                [:config])
     :sentry (component/using (components/new-sentry-mock) [:config])
-    :publisher (component/using (components/new-publisher)
-                                [:config :sentry])
+    :mq (components/new-mq-mock)
     :webserver (component/using (components/new-webserver)
-                                [:config :http :router :database :publisher]))))
+                                [:config :http :router :database :mq]))))
 
 (def token "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJkY2ZmNGMwNi0xYzllLTRhYmItYTQ5Yi00MzhlMTg2OWVjNWIifQ.Gd42MG5EQCVvQwsvlhRQWHuEr-BBo4GB7Pd9di8w_No")
 

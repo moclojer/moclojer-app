@@ -4,7 +4,7 @@
             [back.integration.api.helpers :as helpers]
             [back.integration.components.utils :as utils]
             [com.moclojer.components.core :as components]
-            [com.moclojer.components.publisher :as publisher]
+            [com.moclojer.components.mq :as mq]
             [com.stuartsierra.component :as component]
             [matcher-combinators.matchers :as matchers]
             [state-flow.api :refer [defflow]]
@@ -20,9 +20,9 @@
     :router (components/new-router routes/routes)
     :database (component/using (components/new-database)
                                [:config])
-    :publisher (component/using (components/new-publisher-mock) [:config])
+    :mq (components/new-mq-mock)
     :webserver (component/using (components/new-webserver)
-                                [:config :http :router :database :publisher]))))
+                                [:config :http :router :database :mq]))))
 
 (def token "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJkY2ZmNGMwNi0xYzllLTRhYmItYTQ5Yi00MzhlMTg2OWVjNWIifQ.Gd42MG5EQCVvQwsvlhRQWHuEr-BBo4GB7Pd9di8w_No")
 
@@ -111,11 +111,11 @@
                                               :unification-status "offline"}]}]})
            (-> resp-get :body)))
 
-        (flow "should have publish a mock calling publisher"
+        (flow "should have publish a mock calling mq"
           (match?
            (matchers/embeds
             {:event
              {:yml.single.generate
-              {:mock-id  (-> resp-get :body :mock :id (java.util.UUID/fromString))}}})
-           (update-in (first (get @publisher/mock-publisher "mock.updated"))
+              {:mock-id  (-> resp-get :body :mock :id parse-uuid)}}})
+           (update-in (second (get @mq/mock-channels "mock.updated"))
                       [:event :yml.single.generate] dissoc :ctx)))))))
