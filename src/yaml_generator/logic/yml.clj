@@ -103,7 +103,7 @@
 (defn reduce-paths [mocks]
   (->> (reduce-kv
         (fn [acc owner-id mock-id]
-          (conj acc (map #(gen-path (name owner-id) (name %)) mock-id)))
+          (conj acc (map #(gen-path (name (str owner-id)) (name (str %))) mock-id)))
         [] mocks)
        flatten
        (into [])))
