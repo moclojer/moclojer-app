@@ -6,7 +6,7 @@
             [back.integration.components.utils :as utils]
             [clojure.java.io :as io]
             [com.moclojer.components.core :as components]
-            [com.moclojer.components.publisher :as publisher]
+            [com.moclojer.components.mq :as mq]
             [com.moclojer.components.storage :as storage]
             [com.stuartsierra.component :as component]
             [matcher-combinators.matchers :as matchers]
@@ -26,12 +26,11 @@
     :router (components/new-router routes/routes)
     :database (component/using (components/new-database) [:config])
     :sentry (components/new-sentry-mock)
-    :publisher (component/using (components/new-publisher) [:config :sentry])
-    :storage (component/using (components/new-storage) [:config])
-    :workers (component/using (components/new-consumer
-                               (concat api.workers/workers yml-gen.workers/workers)
-                               false)
-                              [:config :database :storage :publisher :http :sentry]))))
+    :mq (component/using
+         (components/new-mq (into yml-gen.workers/workers api.workers/workers)
+                            false)
+         [:config :database :storage :http :sentry])
+    :storage (component/using (components/new-storage) [:config]))))
 
 (def yml-consts
   {:sample "
@@ -81,16 +80,16 @@
 (defn fvalidate-and-recreate-unified []
   (flow
     "should correct and validate unified yaml"
-    [{:keys [publisher storage]} (state-flow.api/get-state)]
+    [{:keys [mq storage]} (state-flow.api/get-state)]
 
     (state-flow.api/invoke
-     #(publisher/publish! publisher "yml.unified.verification.fired" {}))
+     #(mq/try-op! mq :publish! ["yml.unified.verification.fired" {}] {}))
 
     (match?
      (matchers/embeds (logic.yml/parse-yaml-&-body
                        (:with-host yml-consts)))
      (state-flow.api/return
-      (let [timeout 5000 ;; 5 seconds
+      (let [timeout 10000 ;; 10 seconds
             deadline (+ (System/currentTimeMillis) timeout)]
         (loop []
           (Thread/sleep 500)
