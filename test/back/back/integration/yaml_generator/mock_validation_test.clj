@@ -3,7 +3,7 @@
             [back.api.db.mocks :as db.mocks]
             [back.integration.components.utils :as utils]
             [com.moclojer.components.core :as components]
-            [com.moclojer.components.publisher :as publisher]
+            [com.moclojer.components.mq :as mq]
             [com.stuartsierra.component :as component]
             [matcher-combinators.matchers :as matchers]
             [state-flow.api :refer [defflow]]
@@ -20,7 +20,7 @@
     ;; this test should have redis up to run!
     ;; docker-compose -f docker/docker-compose.yml redis up 
     :database (component/using (components/new-database) [:config])
-    :publisher (component/using (components/new-publisher-mock) [:config :sentry])
+    :mq (component/using (components/new-mq-mock) [:config :sentry])
     :storage (component/using (components/new-storage) [:config]))))
 
 (def invalid-mock-yaml
@@ -71,7 +71,7 @@
                          {:mock.unification-status
                           {:mock-id mock-id
                            :new-status "offline-invalid"}}})
-       (update-in (first (get @publisher/mock-publisher "yml.unified.generated"))
+       (update-in (first (get @mq/mock-channels "yml.unified.generated"))
                   [:event :mock.unification-status] dissoc :ctx)))))
 
 (def valid-mock-yaml
@@ -121,12 +121,11 @@
           {:yml.single.generate
            {:mock-id mock-id}}}
          components))
-      (state-flow.api/invoke #(prn @publisher/mock-publisher))
       (match?
        (matchers/embeds {:event
                          {:gen-yml-path (str "cd989358-af38-4a2f-a1a1-88096aa425a7/" mock-id "/mock.yml")
                           :append? true}})
-       (update-in (first (get @publisher/mock-publisher "yml.single.generated"))
+       (update-in (first (get @mq/mock-channels "yml.single.generated"))
                   [:event] dissoc :ctx)))))
 
 (defflow
