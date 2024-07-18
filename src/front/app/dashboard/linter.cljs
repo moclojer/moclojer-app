@@ -63,13 +63,47 @@
 
     #js []))
 
+(defn lint-endpoints
+  [endpoints]
+  (reduce
+   (fn [{:keys [endpoints errors]} {:keys [method path]
+                                    :or {method "GET"}}]
+     (let [endpoint {:method method :path path}]
+       {:endpoints (conj endpoints endpoint)
+        :errors (or (when-let [repeating (some #{endpoint} endpoints)]
+                      (conj errors {:value (str "Repeating endpoint\n\n"
+                                                (.dump js-yaml (clj->js repeating)))}))
+                    errors)}))
+   {:errors []}
+   (map :endpoint endpoints)))
+
+(comment
+  (lint-endpoints [{:endpoint {:path "/hello"}}])
+  ;; => {:endpoints ({:method "GET", :path "/hello"}), :errors []}
+
+  (lint-endpoints [{:endpoint {:path "/hello"}}
+                   {:endpoint {:path "/hello"}}])
+  ;; => {:endpoints ({:method "GET", :path "/hello"}
+  ;;                 {:method "GET", :path "/hello"})
+  ;;     :errors [{:value "Repeating endpoint\n\nmethod: GET\npath: /hello\n"}]}
+
+  (lint-endpoints [{:endpoint {:method "POST"
+                               :path "/hello"}}
+                   {:endpoint {:method "POST"
+                               :path "/hello"}}])
+  ;; => {:endpoints ({:method "POST", :path "/hello"}
+  ;;                 {:method "POST", :path "/hello"})
+  ;;     :errors [{:value "Repeating endpoint\n\nmethod: POST\npath: /hello\n"}]}
+  )
+
 (defn lint-yaml
   [doc-ctt]
   (try
     (let [ctt (js->clj (.load js-yaml doc-ctt)
                        :keywordize-keys true)]
       {:ctt ctt
-       :errs (:errors (m/explain MockSchema ctt))})
+       :errs (into (:errors (m/explain MockSchema ctt))
+                   (:errors (lint-endpoints ctt)))})
     (catch :default e
       {:errs [{:type (.-reason e)
                :value (.-message e)}]})))
