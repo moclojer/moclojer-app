@@ -42,13 +42,29 @@
       with-out-str
       edn/read-string))
 
+(defn validate-endpoints
+  [mock]
+  (:errors
+   (reduce
+    (fn [{:keys [endpoints errors]} {:keys [method path]
+                                     :or {method "GET"}}]
+      (let [endpoint {:method method :path path}]
+        {:endpoints (conj endpoints endpoint)
+         :errors (or (when-let [repeating (some #{endpoint} endpoints)]
+                       (conj errors {:value (str "Repeating endpoint:" repeating)}))
+                     errors)}))
+    {:errors []}
+    (map :endpoint mock))))
+
 (defn validate-mock [raw-mock]
-  (->> (parse-yaml-read-literal raw-mock)
-       (m/validate s.mock/Mock)))
+  (let [parsed-mock (parse-yaml-read-literal raw-mock)]
+    (and (m/validate s.mock/Mock parsed-mock)
+         (empty? (validate-endpoints parsed-mock)))))
 
 (defn explain-mock-validation [raw-mock]
-  (->> (parse-yaml-read-literal raw-mock)
-       (m/explain s.mock/Mock)))
+  (let [parsed-mock (parse-yaml-read-literal raw-mock)]
+    (or (m/explain s.mock/Mock parsed-mock)
+        (validate-endpoints parsed-mock))))
 
 (defn gen-path [owner-id id]
   (str owner-id "/" id "/mock.yml"))
