@@ -4,9 +4,11 @@
             [com.moclojer.components.core :as components]
             [com.moclojer.components.logs :as logs]
             [com.moclojer.components.migrations :as migrations]
-            [com.stuartsierra.component :as component])
+            [com.stuartsierra.component :as component]
+            [nrepl.server :as nrepl-server])
   (:gen-class))
 
+(defonce nrepl-server (atom nil))
 (def system-atom (atom nil))
 
 (defn build-system-map []
@@ -33,6 +35,7 @@
                                [:config :http :router :database :mq :sentry])))
 
 (defn start-system! [system-map]
+  (reset! nrepl-server (nrepl-server/start-server :port 7888))
   (components/setup-logger [["*" :info]] :auto :prod)
   (migrations/migrate (migrations/build-complete-db-config "back/config.edn"))
   (->> system-map
@@ -43,7 +46,10 @@
   (logs/log :info "stopping system")
   (swap!
    system-atom
-   (fn [s] (when s (component/stop s)))))
+   (fn [s] (when s (component/stop s))))
+  (when @nrepl-server
+    (nrepl-server/stop-server @nrepl-server)
+    (reset! nrepl-server nil)))
 
 (defn -main
   "The entry-point for 'gen-class'"

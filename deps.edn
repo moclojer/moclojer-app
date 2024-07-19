@@ -9,6 +9,7 @@
         lambdaisland/fetch {:mvn/version "1.1.60"}
 
         ;; back
+        cider/cider-nrepl {:mvn/version "0.30.0"}
         com.moclojer/components {:mvn/version "0.1.0"}
         com.cognitect.aws/api          {:mvn/version "0.8.561"}
         com.cognitect.aws/endpoints    {:mvn/version "1.1.12.230"}
