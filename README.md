@@ -21,3 +21,11 @@ Siga os passos de cada um dos elementos a seguir:
 
 - [Back & Yaml Generator](./test/README.md#back-&-yaml-generator)
 - [Front](./test/README.MD#front)
+
+## Prod REPLs
+
+As of now, the API service runs a repl server on startup, so we can debug on production. Connect to it like this:
+
+```bash
+clj -R:nrepl -m nrepl.cmdline --connect --host localhost --port 7888
+```
