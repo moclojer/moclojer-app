@@ -1,12 +1,12 @@
 # Moclojer App
 
-**Moclojer App** é um produto *Micro SaaS* construído em cima do produto Open Source [Moclojer](https://github.com/moclojer/moclojer). Apesar de ser um *monorepo*, este produto é composto por 3 serviços menores:
+**Moclojer App** é um produto *Micro SaaS* construído em cima do produto Open Source [Moclojer](https://github.com/moclojer/moclojer). Apesar de ser um *monorepo*, este produto é composto por 3 distintos microsserviços:
 
 - [Back](./src/back/README.md)
 - [Yaml Generator](./src/yaml_generator/README.md)
 - [Front](./src/front/README.md)
 
-Tanto [Back](./src/back/README.md) e [Yaml Generator](./src/yaml_generator/README.md) dependem de [./src/components](./src/components/README.md). Leia sobre, caso queira entender como lidamos com lifecycle and gerenciamento de estado.
+Tanto [Back](./src/back/README.md) e [Yaml Generator](./src/yaml_generator/README.md) dependem dos componentes em [./src](./src). 
 
 ## Como rodar localmente
 

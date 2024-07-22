@@ -6,7 +6,7 @@
 
 O frontend é construido em cima de algumas libs principais, entre elas:
 
-- **[Refx](https://github.com/ferdinand-beyer/refx)**: Framework semelhante à [re-frame](https://github.com/day8/re-frame), mas sem dependência da lib [Reagent](https://github.com/reagent-project/reagent).
+- **[Refx](https://github.com/ferdinand-beyer/refx)**: Framework semelhante ao [re-frame](https://github.com/day8/re-frame), mas sem dependência da lib [Reagent](https://github.com/reagent-project/reagent).
 - **[Helix](https://github.com/lilactown/helix)**: Wrapper do React para Cljs.
 - **[Promesa](https://github.com/funcool/promesa)**: Toolkit de concurrency.
 - **[reitit-schema](https://github.com/metosin/reitit/tree/master/modules/reitit-schema)**: Coercing.
@@ -17,7 +17,7 @@ O frontend é construido em cima de algumas libs principais, entre elas:
 
 - **[app](./app)**
   - **[auth](./app/auth)**: Feature de autenticação e autorização.
-  - **[components](./app/components)**: Components mínimos.
+  - **[components](./app/components)**: Componentes mínimos.
   - **[routes](./app/routes)**: Páginas/routes.
 - **[css](./css)**: Entry point do TailwindCSS.
 
@@ -25,7 +25,7 @@ O frontend é construido em cima de algumas libs principais, entre elas:
 
 ### NPM
 
-Instale as dependências do node caso não tenha ainda:
+Instale as dependências do node, caso não tenha-o feito ainda:
 
 ```sh
 npm i # install
@@ -33,20 +33,20 @@ npm i # install
 
 ### Watcher
 
-Dê start no watcher shadow-cljs:
+Dê start no watcher [shadow-cljs](https://github.com/thheller/shadow-cljs):
 
 ```sh
 npm run watch
 ```
 
-Assim que pronto, as portas criadas serão:
+Assim que estiver pronto, as portas criadas serão:
 
 - *http://localhost:8000*: aplicação normal
 - *http://localhost:8100*: testes
 
 ### REPL
 
-O shadow-cljs cria automaticamente um nrepl em http://localhost:8777. Basta conectar com seu [editor](TODO).
+O shadow-cljs cria automaticamente um nrepl em http://localhost:8777. Basta conectar ao seu [editor](TODO).
 
 ### Testes
 

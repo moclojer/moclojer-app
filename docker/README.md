@@ -4,18 +4,18 @@
 
 As ferramentas que fazem parte do moclojer são:
 
-- **db**: Postgres | ::5432
-- **db-admin**: pgAdmin4 | ::5433
-- **localstack**: LocalStack | ::4566 ... ::4583
-- **redis**: Redis | 6379
+- **db**: [Postgres](https://www.postgresql.org/) | ::5432
+- **db-admin**: [pgAdmin4](https://www.pgadmin.org/) | ::5433
+- **localstack**: [LocalStack](https://www.localstack.cloud/) | ::4566 ... ::4583
+- **redis**: [Redis](https://redis.io/) | 6379
 
 ## Como rodar localmente
 
-> Nos exemplos a seguir estou usando `docker compose`, mas dependendo do seu sistema, a forma correta seria `docker-compose`.
+> Nos exemplos a seguir, o comando `docker compose` será utilizado, mas, dependendo do seu sistema, a forma correta seria `docker-compose`.
 
 ### PostgreSQL
 
-**Atenção**: Pule esta parte caso esteja em ambiente de desenvolvimento. A instância do PostgreSQL não é necessária, já que utilizamos o [pg-embedded-clj](https://github.com/Bigsy/pg-embedded-clj), um emulador *in-memory* do PostgreSQL tanto para executar queries quanto mockar testes.
+**Atenção**: Pule esta parte caso esteja em ambiente de desenvolvimento. A instância do PostgreSQL não é necessária, já que utilizamos o [pg-embedded-clj](https://github.com/Bigsy/pg-embedded-clj), um emulador *in-memory* do PostgreSQL, tanto para executar queries quanto mockar testes.
 
 ```bash
 # cuidado com colisão com pg-embedded-clj

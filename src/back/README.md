@@ -1,6 +1,6 @@
 # Back
 
-O serviço de backend serve a API de entrada, criando ponte entre o [Frontend](../front/README.md), o serviço [gerador de yaml](../yaml_generator/README.md) e os serviços terceiros de [persistẽncia](../../docker/README.md) (pg, redis, aws/localstack, etc).
+O serviço de backend serve a API de entrada, criando ponte entre o [Frontend](../front/README.md), o serviço [gerador de yaml](../yaml_generator/README.md) e os serviços terciários de [persistência](../../docker/README.md) (pg, redis, aws/localstack, etc).
 
 ## Hierarquia
 
@@ -22,13 +22,13 @@ Caso não tenha *uppado* antes, volte às instruções dos containers do [Docker
 
 ### PostgreSQL
 
-O ambiente de desenvolvimento utiliza do `pg-embedded-clj`, criando uma instância in-memory do Postgres. Caso você não esteja em ambiente `dev`, e já tenha [*uppado* o container do PG](../../docker/README.md#como-rodar-localmente), você precisa fazer a migração:
+O ambiente de desenvolvimento utiliza-se do `pg-embedded-clj`, criando uma instância in-memory do Postgres. Caso você não esteja no ambiente `dev` e já tenha [*uppado* o container do PG](../../docker/README.md#como-rodar-localmente), você precisará fazer a seguinte migração:
 
 ```bash
 clj -M:migratus migrate
 ```
 
-Veja mais sobre como usar migratus: https://github.com/yogthos/migratus#usage
+Veja mais sobre como usar [**migratus** aqui](https://github.com/yogthos/migratus#usage).
 
 ### REPL
 
@@ -39,7 +39,7 @@ clj -M:back-dev:nrepl # dev
 # clj -M:nrepl
 ```
 
-Após aberto, conecte seu [editor](TODO) ao nrepl, e rode o seguinte:
+Após aberto, conecte seu [editor de código](https://neovim.io/) ao nrepl e rode o seguinte:
 
 ```clj
 (in-ns 'back.api.server)
