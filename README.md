@@ -6,7 +6,7 @@
 - [Yaml Generator](./src/yaml_generator/README.md)
 - [Front](./src/front/README.md)
 
-Tanto [Back](./src/back/README.md) e [Yaml Generator](./src/yaml_generator/README.md) dependem dos componentes em [./src](./src). 
+Tanto [Back](./src/back/README.md) e [Yaml Generator](./src/yaml_generator/README.md) dependem dos componentes no repo [moclojer/components](https://github.com/moclojer/components/blob/main/README.md). 
 
 ## Como rodar localmente
 
