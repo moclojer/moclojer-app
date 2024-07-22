@@ -39,7 +39,7 @@ clj -M:back-dev:nrepl # dev
 # clj -M:nrepl
 ```
 
-Após aberto, conecte seu [editor de código](../docs/editores.md#Neovim) ao nrepl e rode o seguinte:
+Após aberto, conecte seu [editor de código](../../../docs/editores.md#Neovim) ao nrepl e rode o seguinte:
 
 ```clj
 (in-ns 'back.api.server)

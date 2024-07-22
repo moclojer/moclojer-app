@@ -46,7 +46,7 @@ Assim que estiver pronto, as portas criadas serão:
 
 ### REPL
 
-O shadow-cljs cria automaticamente um nrepl em http://localhost:8777. Basta conectar ao seu [editor](../../docs/editores.md#Neovim).
+O shadow-cljs cria automaticamente um nrepl em http://localhost:8777. Basta conectar ao seu [editor](../../../docs/editores.md#Neovim).
 
 ### Testes
 
