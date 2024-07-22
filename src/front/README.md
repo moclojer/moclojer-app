@@ -36,7 +36,7 @@ npm i # install
 Dê start no watcher [shadow-cljs](https://github.com/thheller/shadow-cljs):
 
 ```sh
-npm run watch
+npm run app:watch
 ```
 
 Assim que estiver pronto, as portas criadas serão:
@@ -46,7 +46,7 @@ Assim que estiver pronto, as portas criadas serão:
 
 ### REPL
 
-O shadow-cljs cria automaticamente um nrepl em http://localhost:8777. Basta conectar ao seu [editor](TODO).
+O shadow-cljs cria automaticamente um nrepl em http://localhost:8777. Basta conectar ao seu [editor](../../docs/editores.md#Neovim).
 
 ### Testes
 
