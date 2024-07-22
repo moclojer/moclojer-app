@@ -20,4 +20,4 @@ Siga os passos de cada um dos elementos a seguir:
 ## Testes
 
 - [Back & Yaml Generator](./test/README.md#back-&-yaml-generator)
-- [Front](./test/README.MD#front)
+- [Front](./test/README.md#front)
