@@ -31,3 +31,10 @@ dist-cloud-ops: build-uberjar-cloud-ops
 build-uberjar-cloud-ops:
 	$(info --------- Build service Uberjar  ---------)
 	clojure -T:build uberjar :uber-file cloud-ops
+
+dist-job-ops: build-uberjar-job-ops
+	$(info --------- Build and Package Clojure service ---------)
+
+build-uberjar-job-ops:
+	$(info --------- Build service Uberjar  ---------)
+	clojure -T:build uberjar :uber-file job-ops
