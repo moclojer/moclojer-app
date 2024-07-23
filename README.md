@@ -6,7 +6,8 @@
 - [Yaml Generator](./src/yaml_generator/README.md)
 - [Front](./src/front/README.md)
 
-Tanto [Back](./src/back/README.md) e [Yaml Generator](./src/yaml_generator/README.md) dependem dos componentes no repo [moclojer/components](https://github.com/moclojer/components/blob/main/README.md). 
+Tanto [Back](./src/back/README.md) e [Yaml Generator](./src/yaml_generator/README.md) dependem dos componentes no repo [moclojer/components](https://github.com/moclojer/components/blob/main/README.md).
+Caso queira entender melhor como o sistema de componentes funciona, [clique aqui](docs/lifecyle.md)
 
 ## Como rodar localmente
 
