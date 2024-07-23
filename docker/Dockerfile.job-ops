@@ -1,0 +1,33 @@
+FROM clojure:temurin-17-alpine AS builder
+
+RUN mkdir -p /build
+WORKDIR /build
+
+COPY deps.edn Makefile /build/
+RUN make deps
+
+COPY ./ /build
+
+RUN make dist-job-ops
+
+FROM eclipse-temurin:17-alpine
+
+LABEL org.opencontainers.image.authors="moclojer@moclojer.com"
+
+RUN addgroup -S moclojer && adduser -S moclojer -G moclojer
+
+RUN mkdir -p /service && chown -R moclojer. /service
+
+USER moclojer
+
+WORKDIR /service
+COPY --from=builder /build/target/job-ops.jar /service/job-ops.jar
+
+ENV PROFILE=prod
+
+# ------------------------
+# Run service
+
+ENV JDK_JAVA_OPTIONS "-XshowSettings:system -XX:+UseContainerSupport -XX:MaxRAMPercentage=90"
+
+ENTRYPOINT ["java", "-jar", "/service/job-ops.jar"]
