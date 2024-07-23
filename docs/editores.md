@@ -36,4 +36,19 @@ vim.g["conjure#mapping#doc_word"] = {"K"}
 pronto, agora basta reiniciar o Nvim e utilizar as funcoes definidas.
 
 # Emacs
-// TODO
+
+O processo de desenvolvimento por meio do Emacs é tão simples quanto. Basta apenas ter o pacote [`cider`](https://github.com/clojure-emacs/cider) instalado. Os pacotes [`clojure-lsp`](https://clojure-lsp.io) e `clojure-mode` são tecnicamente opcionais, mas ajudam no desenvolvimento também.
+
+É recomendado, como procuramos seguir metodologia TDD, que habilite o modo de `auto-test` do cider. Dessa maneira, quando você evaluar um arquivo ou grupo de arquivos, o cider automaticamente irá re-evaluar e rodar quaisquer testes relacionados.
+
+```lisp
+(add-hook 'clojure-mode-hook #'cider-auto-test-mode)
+```
+
+As keybindings padrões são:
+
+- **Abrir Cider nREPL**: `C-c M-j`
+- **Abrir Cider nREPL editável**: `C-u C-c C-x j j`
+- **Evaluar Form**: `C-x C-e`
+- **Evaluar Arquivo**: `C-c C-l`
+- **Evaluar Pasta Recursivamente**: `C-c M-l`
