@@ -206,22 +206,16 @@
             "No, cancel"))))})))
 
 (defnc index [{:keys [children]}]
-  (let [[aside-open? toggle-aside!] (hooks/use-state false)
-        user (-> (refx/use-sub [:app.auth/current-user]) :user)]
+  (let [user (-> (refx/use-sub [:app.auth/current-user]) :user)]
     (d/body
      {:class-name "bg-gray-50 dark:bg-gray-800"}
-     ($ nav-bar {:aside-open? aside-open?
-                 :toggle-aside! toggle-aside!
-                 :user-data user})
+     ($ nav-bar {:user-data user})
 
-     ($ aside {:aside-open? aside-open?
-               :toggle-aside! toggle-aside!})
+     ($ aside {})
 
      (d/div {:class-name "hidden fixed inset-0 z-10 bg-gray-900/50 dark:bg-gray-900/90"
              :id "sidebarBackdrop"})
      (<>
-      ($ container
-         {:aside-open? aside-open?}
-         children)
+      ($ container children)
       ($ new-mock-modal)
       ($ mock-deletion-modal)))))
