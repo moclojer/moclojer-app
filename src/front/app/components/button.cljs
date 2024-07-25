@@ -2,10 +2,11 @@
   (:require [front.app.lib :refer [defnc]]
             [helix.dom :as d]))
 
-;#TODO remove solid, outline  keeping here because it is used in other pages
+; #TODO remove solid, outline  keeping here because it is used in other pages
 
 ; deprecated solid -old layout
 ; deprecated outline -old layout
+
 (def base-styles
   {:solid "group inline-flex items-center justify-center rounded-full py-2 px-4 text-sm font-semibold focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 "
    :solid-blue "py-3 px-5 w-full text-base font-medium text-center text-white rounded-lg bg-primary-700 focus:ring-4 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 "
@@ -35,5 +36,5 @@
   [{:keys [children] :as props}]
   (let [classes (props->classes props)]
     (d/button
-     {:class-name classes & (dissoc props :class-name)}
-     children)))
+      {:class-name classes & (dissoc props :class-name)}
+      children)))
