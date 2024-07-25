@@ -157,22 +157,29 @@
 
     (d/div {:class-name "flex overflow-hidden pt-16 bg-gray-50 dark:bg-gray-900"}
            (d/aside {:id "sidebar"
-                     :on-mouse-enter #(when (and (not mobile?)
-                                                 (not aside-open?)) (toggle-aside! true))
-                     :on-mouse-leave #(when (and (not mobile?)
-                                                 aside-open?) (toggle-aside! false))
                      :class (str "fixed top-0 left-0 z-20 flex-col flex-shrink-0 pt-16 w-full h-full duration-75 transition-width "
                                  (if aside-open? "flex lg:w-64" "hidden lg:flex lg:w-16"))
                      :aria-label "Sidebar"}
+
                     (d/div {:class-name "flex relative flex-col flex-1 pt-0 min-h-0 bg-white border-r border-gray-200 dark:bg-gray-800 dark:border-gray-700"}
                            (d/div {:class-name "flex overflow-y-auto flex-col flex-1 pt-5 pb-4"}
                                   (d/div {:class-name "flex-1 px-3 space-y-1 bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700"}
                                          (d/ul {:class-name "pb-2 space-y-2"}
                                                (d/li
+                                                (d/button
+                                                 {:id "aside-toggle"
+                                                  :class (str (if aside-open?
+                                                                "absolute -right-4 "
+                                                                "block w-full ")
+                                                              "p-1 flex flex-row justify-center z-50 bg-gray-300 rounded-lg "
+                                                              "opacity-30 hover:opacity-100 transition-all")
+                                                  :on-click #(toggle-aside! (not aside-open?))}
+                                                 ($ svg/arrow {:direction (if aside-open? :left :right)
+                                                               :class "w-3 h-3"})))
+
+                                               (d/li
                                                 (d/button {:class-name "w-full flex items-center p-2 text-base font-normal text-gray-900 rounded-lg hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-gray-700"
-                                                           :on-click #(do
-                                                                        (rfe/push-state :app.core/dashboard)
-                                                                        (toggle-aside! false))}
+                                                           :on-click #(rfe/push-state :app.core/dashboard)}
                                                           ($ svg/house)
                                                           (d/span {:class-name (str "ml-3 "
                                                                                     (when-not aside-open?
@@ -180,8 +187,7 @@
                                                (d/li
                                                 (d/div {:class "flex flex-row"}
                                                        (d/button
-                                                        {:on-click #(do (rfe/push-state :app.core/mocks)
-                                                                        (toggle-aside! false))
+                                                        {:on-click #(rfe/push-state :app.core/mocks)
                                                          :class-name "flex items-center p-2 w-full text-base font-normal text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
                                                          :aria-controls "dropdown-mocks"
                                                          :aria-expanded aside-open?
@@ -190,7 +196,8 @@
                                                         (d/span {:class-name (str "flex-1 ml-3 text-left whitespace-nowrap "
                                                                                   (when-not aside-open?
                                                                                     "lg:hidden lg:absolute"))} "Mocks"))
-                                                       (d/button {:class "px-2 rounded-lg fill-gray-200 bg-transparent hover:bg-gray-200 hover:fill-gray-400"
+                                                       (d/button {:class (str (when-not aside-open? "hidden ") "lg:block "
+                                                                              "px-2 rounded-lg fill-gray-200 bg-transparent hover:bg-gray-200 hover:fill-gray-400")
                                                                   :on-click #(refx/dispatch-sync [:app.dashboard/toggle-menu])}
                                                                  ($ svg/arrow {:direction (if menu-open? :up :down)})))
                                                 (d/ul {:id "dropdown-mocks"
@@ -204,8 +211,7 @@
                                                                :or {mock-type :personal}} mocks-raw]
                                                           (d/li
                                                            {:key wildcard}
-                                                           (d/button {:on-click #(do (rfe/push-state :app.core/mocks-view {:mock-id id})
-                                                                                     (toggle-aside! false))
+                                                           (d/button {:on-click #(rfe/push-state :app.core/mocks-view {:mock-id id})
                                                                       :class-name (str "pl-11 w-full flex items-center overflow-hidden ellipsis p-2 "
                                                                                        "text-base font-normal text-gray-900 rounded-lg transition "
                                                                                        "duration-75 group hover:bg-gray-100 dark:text-gray-200 "
