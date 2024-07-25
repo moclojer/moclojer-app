@@ -108,47 +108,40 @@
                  " new mock")
             ($ svg/box)))
 
-(defnc nav-bar [{:keys [aside-open? toggle-aside! user-data]}]
-  (d/nav
-   {:class-name "fixed z-30 w-full bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700"}
-   (d/div
-    {:class-name "py-3 px-3 lg:px-5 lg:pl-3"}
-    (d/div
-     {:class-name "flex justify-between items-center"}
-     (d/div {:class-name "flex justify-start items-center"}
-            (d/button {:id "toggleSidebar"
-                       :aria-expanded "true"
-                       :aria-controls "sidebar"
-                       :on-click #(toggle-aside! not)
-                       :class (str "p-2 mr-3 text-gray-600 rounded cursor-pointer "
-                                   "hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 "
-                                   "dark:hover:text-white dark:hover:bg-gray-700 lg:hidden")}
-                      (if aside-open?
-                        ($ svg/hamburger-menu-close)
-                        ($ svg/hamburger-menu)))
-            (d/button {:class-name "flex"
-                       :on-click #(rfe/push-state :app.core/dashboard)}
-                      (d/img {:src "/images/logo.svg"
-                              :class-name "mr-3 h-9"})))
-     (d/div {:class-name "flex items-center lg:gap-3"}
-            ($ new-mock-btn)
-            ($ user-profile {:user-data user-data}))))))
+(defnc nav-bar [{:keys [user-data]}]
+  (let [aside (refx/use-sub [:app.dashboard/aside])
+        aside-open? (:open? aside)]
+    (d/nav
+     {:class-name "fixed z-30 w-full bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700"}
+     (d/div
+      {:class-name "py-3 px-3 lg:px-5 lg:pl-3"}
+      (d/div
+       {:class-name "flex justify-between items-center"}
+       (d/div {:class-name "flex justify-start items-center"}
+              (d/button {:id "toggleSidebar"
+                         :aria-expanded "true"
+                         :aria-controls "sidebar"
+                         :on-click #(refx/dispatch [:app.dashboard/toggle-aside (not aside-open?)])
+                         :class (str "p-2 mr-3 text-gray-600 rounded cursor-pointer "
+                                     "hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 "
+                                     "dark:hover:text-white dark:hover:bg-gray-700 lg:hidden")}
+                        (if aside-open?
+                          ($ svg/hamburger-menu-close)
+                          ($ svg/hamburger-menu)))
+              (d/button {:class-name "flex"
+                         :on-click #(rfe/push-state :app.core/dashboard)}
+                        (d/img {:src "/images/logo.svg"
+                                :class-name "mr-3 h-9"})))
+       (d/div {:class-name "flex items-center lg:gap-3"}
+              ($ new-mock-btn)
+              ($ user-profile {:user-data user-data})))))))
 
-(defnc aside [{:keys [aside-open? toggle-aside!]}]
+(defnc aside [_]
   (let [mocks-raw (refx/use-sub [:app.dashboard/mocks-raw])
         menu-open? (refx/use-sub [:app.dashboard/is-menu-open?])
         current-user (refx/use-sub [:app.auth/current-user])
-        [window-size set-window-size!] (hooks/use-state {:width 0 :height 0})
-        mobile? (<= (:width window-size) 1000)]
-
-    (hooks/use-effect
-      :once
-      (let [handle-resize-fn #(set-window-size! {:width (.-innerWidth js/window)
-                                                 :height (.-innerHeight js/window)})]
-        (.addEventListener js/window "resize" handle-resize-fn)
-        (handle-resize-fn)
-
-        #(.removeEventListener js/window "resize " handle-resize-fn)))
+        aside (refx/use-sub [:app.dashboard/aside])
+        aside-open? (:open? aside)]
 
     (hooks/use-effect
       [mocks-raw]
@@ -173,7 +166,7 @@
                                                                 "block w-full ")
                                                               "p-1 flex flex-row justify-center z-50 bg-gray-300 rounded-lg "
                                                               "opacity-30 hover:opacity-100 transition-all")
-                                                  :on-click #(toggle-aside! (not aside-open?))}
+                                                  :on-click #(refx/dispatch [:app.dashboard/toggle-aside! (not aside-open?)])}
                                                  ($ svg/arrow {:direction (if aside-open? :left :right)
                                                                :class "w-3 h-3"})))
 
@@ -188,7 +181,8 @@
                                                 (d/div {:class "flex flex-row"}
                                                        (d/button
                                                         {:on-click #(rfe/push-state :app.core/mocks)
-                                                         :class-name "flex items-center p-2 w-full text-base font-normal text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+                                                         :class-name (str "flex items-center p-2 w-full text-base font-normal text-gray-900 rounded-lg "
+                                                                          "transition duration-75 group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 ")
                                                          :aria-controls "dropdown-mocks"
                                                          :aria-expanded aside-open?
                                                          :data-collapse-toggle "dropdown-mocks"}
@@ -196,8 +190,8 @@
                                                         (d/span {:class-name (str "flex-1 ml-3 text-left whitespace-nowrap "
                                                                                   (when-not aside-open?
                                                                                     "lg:hidden lg:absolute"))} "Mocks"))
-                                                       (d/button {:class (str (when-not aside-open? "hidden ") "lg:block "
-                                                                              "px-2 rounded-lg fill-gray-200 bg-transparent hover:bg-gray-200 hover:fill-gray-400")
+                                                       (d/button {:class (str "px-2 rounded-lg fill-gray-200 bg-transparent hover:bg-gray-200 hover:fill-gray-400 "
+                                                                              (if aside-open? "block " "hidden "))
                                                                   :on-click #(refx/dispatch-sync [:app.dashboard/toggle-menu])}
                                                                  ($ svg/arrow {:direction (if menu-open? :up :down)})))
                                                 (d/ul {:id "dropdown-mocks"
