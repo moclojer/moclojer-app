@@ -2,6 +2,7 @@
   (:require [clojure.string :as str]
             [front.app.auth.supabase :as supabase]
             [front.app.lib :refer [defnc]]
+            [helix.core :refer [$]]
             [helix.dom :as d]
             [helix.hooks :as hooks]
             [promesa.core :as p]
@@ -9,6 +10,11 @@
 
 (def gravatar-base-url "https://gravatar.com/avatar/")
 (def auth0-cdn-base-url "https://cdn.auth0.com/avatars/")
+
+(def pfp-styles 
+  {:default "w-8 h-8 rounded-none opacity-100"
+   :rounded "w-8 h-8 rounded-full opacity-100"
+   :loading "w-8 h-8 rounded-full opacity-30 animate-pulse"})
 
 (defn get-simple-avatar-url [username]
   (let [uq-names (-> username
@@ -20,6 +26,21 @@
                       (str/join "")
                       str/lower-case)]
     (str auth0-cdn-base-url initials ".png")))
+                                                            
+(defn get-image-style
+  [{:keys [children image-style]}]
+  (let [image-style-key (keyword image-style)]
+    (str (-> image-style-key pfp-styles)
+         children)))
+
+(defnc pfp-img 
+  [{:keys [image-style 
+           pfp-loading? pfp-url] :as props}]
+  (let [classes (get-image-style props)]
+    (d/img {:class-name classes & (dissoc props :image-style)
+            :src (if (= true pfp-loading?)
+                   "/images/default-pfp.png" 
+                  pfp-url)})))
 
 (defnc user-profile [{:keys [user-data]}]
   (let [[pfp-url set-pfp-url!] (hooks/use-state nil)
@@ -62,12 +83,10 @@
                                        (when dropdown-open? "focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"))
                       :on-click #(toggle-dropdown! not)}
                      (d/span {:class-name "sr-only"} "Open user menu")
-                     (d/img {:class-name (str "w-8 h-8 rounded-full opacity-100"
-                                              (when pfp-loading? " opacity-30 animate-pulse"))
-                             :src (if pfp-loading?
-                                    "/images/default-pfp.png"
-                                    pfp-url)}))
-           (d/div {:class-name (str "absolute z-50 my-4 right-0 text-base list-none bg-white rounded divide-y "
+                     ($ pfp-img {:image-style "rounded"
+                                 :pfp-loading? pfp-loading?
+                                 :pfp-url pfp-url}))
+           (d/div {:class-name (str "absolute z-50 my-4 right-0 text-base list-none bg-white rounded divide-y"
                                     "divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600 "
                                     (when-not dropdown-open? "hidden"))}
                   (d/div {:class-name "py-3 px-4" :role "none"}
@@ -75,18 +94,21 @@
                               (:email user-data)))
                   (d/ul {:class-name "py-1" :role "none"}
                         (d/li
-                          (d/a {:href ""
+                          (d/a {:href "" 
+                                ;; TODO settings
                                 :class-name "block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
                                 :role "menuitem"}
                                "Settings"))
 
                         (d/li
                           (d/button
-                            {:class-name "w-full block py-2 px-4 text-sm text-left text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
+                            {:class-name (str "w-full block py-2 px-4 text-sm text-left text-gray-700 hover:bg-gray-100"
+                                              "dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white")
                              :on-click (fn [e]
                                          (.preventDefault e)
                                          (supabase/sign-out
                                            #(refx/dispatch-sync [:app.auth/logout %])))
                              :role "menuitem"}
                             "Logout")))))))
+
 
