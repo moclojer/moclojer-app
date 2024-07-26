@@ -38,7 +38,7 @@
           ($ text {:message message :index (inc index)}))))))
 
 (defnc default-message 
-  [{:keys [title author email image image-style  message] :as props}]
+  [{:keys [children title author email image image-style  message] :as props}]
   (let [classes (props->classes props)]
     (d/section
       (d/div {:class-name (str "p-4 bg-white block sm:flex items-center justify-between border-b" 

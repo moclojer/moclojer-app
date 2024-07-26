@@ -4,7 +4,7 @@
             ["@codemirror/lint" :as clint]
             ["@uiw/codemirror-theme-github" :as theme]
             ["@uiw/react-codemirror" :as c]
-            [front.app.components.publication-status :as pub-stt]
+            [front.app.components.status :refer [publication-status]]
             [front.app.components.svg :as svg]
             [front.app.dashboard.base :as base]
             [front.app.dashboard.linter :as linter]
@@ -148,11 +148,11 @@
                          ($ svg/mock-enabled)
                          ($ svg/mock-disabled))
 
-                       ($ pub-stt/publication-status
+                       ($ publication-status
                           (merge (select-keys mock-data [:enabled :id])
                                  {:stt-type :dns-status
                                   :title "DNS"}))
-                       ($ pub-stt/publication-status
+                       ($ publication-status
                           (merge (select-keys mock-data [:enabled :id])
                                  {:stt-type :unification-status
                                   :title "SERVER"}))

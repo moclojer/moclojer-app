@@ -1,5 +1,5 @@
 (ns front.app.dashboard.mocks
-  (:require [front.app.components.publication-status :as pub-stt]
+  (:require [front.app.components.status :refer [publication-status]]
             [front.app.components.svg :as svg]
             [front.app.dashboard.base :as base]
             [front.app.lib :refer [defnc]]
@@ -30,13 +30,13 @@
                                                      ($ svg/mock-enabled)
                                                      ($ svg/mock-disabled)))
 
-                                            ($ pub-stt/publication-status
+                                            ($ publication-status
                                                {:enabled enabled
                                                 :id id
                                                 :stt-type :dns-status
                                                 :title "DNS"})
 
-                                            ($ pub-stt/publication-status
+                                            ($ publication-status
                                                {:enabled enabled
                                                 :id id
                                                 :stt-type :unification-status

@@ -1,9 +1,21 @@
-(ns front.app.components.publication-status
-  (:require [front.app.dashboard.components :as dash-comps]
+(ns front.app.components.status
+  (:require [front.app.components.svg :as svg]
             [front.app.lib :refer [defnc]]
             [helix.core :refer [$]]
             [helix.hooks :as hooks]
+            [helix.dom :as d]
             [refx.alpha :as refx]))
+
+(defnc status-card [{:keys [status loading? title]}]
+  (d/div {:class (str "px-3 mr-2 flex flex-row space-x-2 items-center rounded-md dns-"
+                      (name status) (when loading? " opacity-70 animate-pulse"))}
+         ($ (case status
+              :offline svg/dns-offline
+              :offline-invalid svg/dns-offline
+              :publishing svg/dns-publishing
+              :published svg/dns-published
+              :default svg/dns-offline))
+         (d/p {:class "text-sm font-semibold"} title)))
 
 (defnc publication-status
   "There are 4 possible status:
@@ -43,10 +55,11 @@
                           {:mock-id id}])
                        5000)))
 
-    ($ dash-comps/status-card
+    ($ status-card
        {:status (if enabled
                   (or (keyword status) :publishing)
                   :offline)
         :loading? loading?
         :title title})))
+
 

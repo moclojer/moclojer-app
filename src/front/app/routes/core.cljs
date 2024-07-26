@@ -29,5 +29,3 @@
                             ;; Add additional check on top of the default checks
                             (and (ignore-anchor-click? router e el uri)
                                  (not= "false" (gobj/get (.-dataset el) "reititHandleClick"))))}))
-
-

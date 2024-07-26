@@ -1,138 +1,14 @@
-(ns front.app.dashboard.components
-  (:require [clojure.string :as str]
-            [front.app.auth.supabase :as supabase]
+(ns front.app.components.aside
+  (:require [front.app.auth.supabase :as supabase]
+            [front.app.components.button :refer [new-mock-btn]]
             [front.app.components.svg :as svg]
             [front.app.lib :refer [defnc]]
             [helix.core :refer [$]]
             [helix.dom :as d]
             [helix.hooks :as hooks]
-            [promesa.core :as p]
             [refx.alpha :as refx]
             [reitit.frontend.easy :as rfe]))
-
-(def gravatar-base-url "https://gravatar.com/avatar/")
-(def auth0-cdn-base-url "https://cdn.auth0.com/avatars/")
-
-(defn get-simple-avatar-url [username]
-  (let [uq-names (-> username
-                     (str/split #" "))
-        initials (->> uq-names
-                      (take 2)
-                      (map #(take 1 %))
-                      flatten
-                      (str/join "")
-                      str/lower-case)]
-    (str auth0-cdn-base-url initials ".png")))
-
-(defnc user-profile [{:keys [user-data]}]
-  (let [[pfp-url set-pfp-url!] (hooks/use-state nil)
-        username (:username user-data)
-        default-pfp-url (if username
-                          (get-simple-avatar-url username)
-                          "/images/default-pfp.png")
-        pfp-loading? (and (nil? pfp-url) (not= pfp-url default-pfp-url))
-        [dropdown-open? toggle-dropdown!] (hooks/use-state false)]
-
-    ;; https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/digest
-    ;; https://cdn.auth0.com/avatars/jt.png
-    (hooks/use-effect
-      [pfp-url]
-      (when (and pfp-loading? (nil? pfp-url))
-        (if-let [email (some->> (:email user-data)
-                                str/trim
-                                str/lower-case
-                                (.encode (js/TextEncoder. "utf-8")))]
-          (-> (.digest (.-subtle js/crypto) "SHA-256" email)
-              (p/then
-                (fn [hash-buf]
-                  (-> (.from js/Array (js/Uint8Array. hash-buf))
-                      (.map #(-> (.toString % 16)
-                                 (.padStart 2 "0")))
-                      (.join ""))))
-              (p/then
-                (fn [hex]
-                  (set-pfp-url! (str gravatar-base-url hex
-                                     "?default=" default-pfp-url))))
-              (p/catch
-                (fn [err]
-                  (.log js/console "failed to digest email hash:" err)
-                  (set-pfp-url! default-pfp-url))))
-          (set-pfp-url! default-pfp-url))))
-
-    (d/div {:class-name "hidden lg:block"}
-           (d/button {:type "button"
-                      :class-name (str "flex text-sm bg-gray-800 aspect-square rounded-full "
-                                       (when dropdown-open? "focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"))
-                      :on-click #(toggle-dropdown! not)}
-                     (d/span {:class-name "sr-only"} "Open user menu")
-                     (d/img {:class-name (str "w-8 h-8 rounded-full opacity-100"
-                                              (when pfp-loading? " opacity-30 animate-pulse"))
-                             :src (if pfp-loading?
-                                    "/images/default-pfp.png"
-                                    pfp-url)}))
-           (d/div {:class-name (str "absolute z-50 my-4 right-0 text-base list-none bg-white rounded divide-y "
-                                    "divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600 "
-                                    (when-not dropdown-open? "hidden"))}
-                  (d/div {:class-name "py-3 px-4" :role "none"}
-                         (d/p {:class-name "text-sm font-medium text-gray-900 truncate dark:text-gray-300" :role "none"}
-                              (:email user-data)))
-                  (d/ul {:class-name "py-1" :role "none"}
-                        (d/li
-                          (d/a {:href ""
-                                :class-name "block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
-                                :role "menuitem"}
-                               "Settings"))
-
-                        (d/li
-                          (d/button
-                            {:class-name "w-full block py-2 px-4 text-sm text-left text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
-                             :on-click (fn [e]
-                                         (.preventDefault e)
-                                         (supabase/sign-out
-                                           #(refx/dispatch-sync [:app.auth/logout %])))
-                             :role "menuitem"}
-                            "Logout")))))))
-
-(defnc new-mock-btn []
-  (d/button {:class-name "px-3 py-2 bg-pink-600 rounded-lg flex flex-row space-x-2 items-center btn-add"
-             :on-click #(refx/dispatch [:app.dashboard/toggle-mock-modal])}
-            (d/svg {:width "16"
-                    :height "17"
-                    :viewBox "0 0 16 17"
-                    :fill "none"}
-                   (d/path {:fill-rule "evenodd"
-                            :clip-rule "evenodd"
-                            :d "M8 4.5C8.21217 4.5 8.41566 4.58429 8.56569 4.73431C8.71571 4.88434 8.8 5.08783 8.8 5.3V7.7H11.2C11.4122 7.7 11.6157 7.78429 11.7657 7.93431C11.9157 8.08434 12 8.28783 12 8.5C12 8.71217 11.9157 8.91566 11.7657 9.06569C11.6157 9.21571 11.4122 9.3 11.2 9.3H8.8V11.7C8.8 11.9122 8.71571 12.1157 8.56569 12.2657C8.41566 12.4157 8.21217 12.5 8 12.5C7.78783 12.5 7.58434 12.4157 7.43431 12.2657C7.28429 12.1157 7.2 11.9122 7.2 11.7V9.3H4.8C4.58783 9.3 4.38434 9.21571 4.23431 9.06569C4.08429 8.91566 4 8.71217 4 8.5C4 8.28783 4.08429 8.08434 4.23431 7.93431C4.38434 7.78429 4.58783 7.7 4.8 7.7H7.2V5.3C7.2 5.08783 7.28429 4.88434 7.43431 4.73431C7.58434 4.58429 7.78783 4.5 8 4.5V4.5Z"
-                            :fill "white"}))
-            (d/p {:class-name "text-white text-xs font-bold"}
-                 " new mock")
-            ($ svg/box)))
-
-(defnc nav-bar [{:keys [aside-open? toggle-aside! user-data]}]
-  (d/nav
-    {:class-name "fixed z-30 w-full bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700"}
-    (d/div
-      {:class-name "py-3 px-3 lg:px-5 lg:pl-3"}
-      (d/div
-        {:class-name "flex justify-between items-center"}
-        (d/div {:class-name "flex justify-start items-center"}
-               (d/button {:id "toggleSidebar"
-                          :aria-expanded "true"
-                          :aria-controls "sidebar"
-                          :on-click #(toggle-aside! not)
-                          :class (str "p-2 mr-3 text-gray-600 rounded cursor-pointer "
-                                      "hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 "
-                                      "dark:hover:text-white dark:hover:bg-gray-700 lg:hidden")}
-                         (if aside-open?
-                           ($ svg/hamburger-menu-close)
-                           ($ svg/hamburger-menu)))
-               (d/button {:class-name "flex"
-                          :on-click #(rfe/push-state :app.core/dashboard)}
-                         (d/img {:src "/images/logo.svg"
-                                 :class-name "mr-3 h-9"})))
-        (d/div {:class-name "flex items-center lg:gap-3"}
-               ($ new-mock-btn)
-               ($ user-profile {:user-data user-data}))))))
+  
 
 (defnc aside [{:keys [aside-open? toggle-aside!]}]
   (let [mocks-raw (refx/use-sub [:app.dashboard/mocks-raw])
@@ -262,14 +138,3 @@
                                     (when aside-open?
                                       (d/span {:class-name "ml-3"}
                                               "Logout")))))))))
-
-(defnc status-card [{:keys [status loading? title]}]
-  (d/div {:class (str "px-3 mr-2 flex flex-row space-x-2 items-center rounded-md dns-"
-                      (name status) (when loading? " opacity-70 animate-pulse"))}
-         ($ (case status
-              :offline svg/dns-offline
-              :offline-invalid svg/dns-offline
-              :publishing svg/dns-publishing
-              :published svg/dns-published
-              :default svg/dns-offline))
-         (d/p {:class "text-sm font-semibold"} title)))
