@@ -2,6 +2,12 @@
   (:require [refx.alpha :as refx]))
 
 (refx/reg-event-db
+ :app.dashboard/toggle-aside!
+ (fn
+   [db [_ open?]]
+   (assoc-in db [:aside :open?] open?)))
+
+(refx/reg-event-db
  :app.dashboard/toggle-menu
  (fn
    [db _]

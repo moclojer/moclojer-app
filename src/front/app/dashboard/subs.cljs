@@ -35,6 +35,11 @@
      (conj-if [] orgs private))))
 
 (refx/reg-sub
+ :app.dashboard/aside
+ (fn [db _]
+   (:aside db)))
+
+(refx/reg-sub
  :app.dashboard/is-menu-open?
  (fn [db _]
    (:is-menu-open? db)))
