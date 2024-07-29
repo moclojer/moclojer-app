@@ -1,7 +1,8 @@
 (ns job-ops.server
   (:require [com.moclojer.components.core :as components]
             [com.moclojer.components.logs :as logs]
-            [com.stuartsierra.component :as component])
+            [com.stuartsierra.component :as component]
+            [job-ops.ports.workers :refer [workers]])
   (:gen-class))
 
 (def system-atom (atom nil))
@@ -11,7 +12,7 @@
    :config (components/new-config "back/config.edn")
    :sentry (component/using (components/new-sentry) [:config])
    :mq (component/using
-        (components/new-mq []
+        (components/new-mq workers
                            [{:channel "domains.verification.fired"
                              :event {}
                                 ;; every 2 minutes
@@ -45,4 +46,6 @@
 
 (comment
   (stop-system!)
-  (start-system! (build-system-map)))
+  (start-system! (build-system-map))
+  ;;
+  )

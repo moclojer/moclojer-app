@@ -16,20 +16,8 @@
               :ctx (:mock.unification-status event))
     (controllers.mocks/update-mock-unification-status! mock-id new-status database ctx)))
 
-(defn dispatch-domains-verification!
-  [_ components]
-  (controllers.mocks/dispatch-domains-verification! components {}))
-
-(defn dispatch-unified-yml-verification!
-  [_ components]
-  (controllers.mocks/dispatch-unified-yml-verification! components {}))
-
 (def workers
   [{:handler update-mock-dns-status!
     :channel "domain.updated"}
    {:handler update-mock-unification-status!
-    :channel "yml.unified.generated"}
-   {:handler dispatch-domains-verification!
-    :channel "domains.verification.fired"}
-   {:handler dispatch-unified-yml-verification!
-    :channel "yml.unified.verification.fired"}])
+    :channel "yml.unified.generated"}])
