@@ -1,12 +1,13 @@
 (ns front.app.components.container
   (:require
+   [refx.alpha :as refx]
    [front.app.lib :refer [defnc]]
    [helix.dom :as d]
    [refx.alpha :as refx]))
 
 (defnc container [{:keys [children]
                    :or {is-sidebar-toogle? false}}]
- (let [aside (refx/use-sub [:app.dashboard/aside])
+  (let [aside (refx/use-sub [:app.dashboard/aside])
         aside-open? (:open? aside)]
     (d/div
      {:class-name (str "overflow-y-auto relative h-full bg-gray-50 "

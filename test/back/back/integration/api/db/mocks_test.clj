@@ -1,5 +1,6 @@
 (ns back.integration.api.db.mocks-test
-  (:require [back.api.db.mocks :as db.mocks]
+  (:require [back.api.db.customers :as db.customers]
+            [back.api.db.mocks :as db.mocks]
             [back.integration.components.utils :as utils]
             [com.moclojer.components.core :as components]
             [com.stuartsierra.component :as component]
@@ -21,6 +22,13 @@
 
   (flow "save a mock in the database"
     [database (state-flow.api/get-state :database)]
+
+    (state/invoke
+     #(db.customers/insert! {:customer/uuid #uuid "916d0b8b-af1b-4178-8aa1-0531c582dcd1"
+                             :customer/external_uuid #uuid "916d0b8b-af1b-4178-8aa1-0531c582dcd1"
+                             :customer/username "chico"
+                             :customer/email "chico@gmail.com"}
+                            database))
 
     (state/invoke
      #(db.mocks/insert! {:mock/id #uuid "41571d31-d9c2-4216-b6f6-d3c7bcc27570"
@@ -51,6 +59,13 @@
     [database (state-flow.api/get-state :database)]
 
     (state/invoke
+     #(db.customers/insert! {:customer/uuid #uuid "916d0b8b-af1b-4178-8aa1-0531c582dcd1"
+                             :customer/external_uuid #uuid "916d0b8b-af1b-4178-8aa1-0531c582dcd1"
+                             :customer/username "chico"
+                             :customer/email "chico@gmail.com"}
+                            database))
+
+    (state/invoke
      #(db.mocks/insert! {:mock/id #uuid "41571d31-d9c2-4216-b6f6-d3c7bcc27570"
                          :mock/user_id #uuid "916d0b8b-af1b-4178-8aa1-0531c582dcd1"
                          :mock/wildcard "test"
@@ -79,6 +94,13 @@
 
   (flow "save a mock in the database"
     [database (state-flow.api/get-state :database)]
+
+    (state/invoke
+     #(db.customers/insert! {:customer/uuid #uuid "916d0b8b-af1b-4178-8aa1-0531c582dcd1"
+                             :customer/external_uuid #uuid "916d0b8b-af1b-4178-8aa1-0531c582dcd1"
+                             :customer/username "chico"
+                             :customer/email "chico@gmail.com"}
+                            database))
 
     (state/invoke
      #(db.mocks/insert! {:mock/id #uuid "41571d31-d9c2-4216-b6f6-d3c7bcc27570"

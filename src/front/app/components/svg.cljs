@@ -1,6 +1,6 @@
 (ns front.app.components.svg
-  (:require  [front.app.lib :refer [defnc]]
-             [helix.dom :as d]))
+  (:require [front.app.lib :refer [defnc]]
+            [helix.dom :as d]))
 
 (defnc mock-disabled []
   (d/svg {:class "w-5 h-5 lg:w-7 lg:h-7"

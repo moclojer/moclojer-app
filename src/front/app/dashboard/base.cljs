@@ -209,14 +209,15 @@
 (defnc index [{:keys [children]}]
   (let [user (-> (refx/use-sub [:app.auth/current-user]) :user)]
     (d/body
-      {:class-name "bg-gray-50 dark:bg-gray-800"}
-      ($ nav-bar {:user-data user})
 
-      ($ aside {})
+     {:class-name "bg-gray-50 dark:bg-gray-800"}
+     ($ nav-bar {:user-data user})
 
-      (d/div {:class-name "hidden fixed inset-0 z-10 bg-gray-900/50 dark:bg-gray-900/90"
-              :id "sidebarBackdrop"})
-      (<>
-        ($ container children)
-        ($ new-mock-modal)
-        ($ mock-deletion-modal)))))
+     ($ aside {})
+
+     (d/div {:class-name "hidden fixed inset-0 z-10 bg-gray-900/50 dark:bg-gray-900/90"
+             :id "sidebarBackdrop"})
+     (<>
+      ($ container children)
+      ($ new-mock-modal)
+      ($ mock-deletion-modal)))))
