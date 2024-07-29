@@ -8,10 +8,8 @@
 (def ^:private still-verifying-all? (atom false))
 
 (defn dispatch-domains-verification!
-  "Dispatches a batch of 10 mock domains for verification at a time.
-  This is so we don't overload our providers. After sending every
-  batch, sleeps for 30 seconds, which is the overall median time
-  that a mock domain takes to be verified."
+  "Dispatches batches of 10 mock domains for verification to avoid overloading providers. 
+  Sleeps for 30 seconds between batches, based on the median verification time for a mock domain."
   [{:keys [database mq]} ctx]
   (if-not @still-verifying-all?
     (do
@@ -37,7 +35,7 @@
     (logs/log :info "still verifying all. skipping for now...")))
 
 (defn dispatch-unified-yml-verification!
-  "Gathers published mocks and sends them dispatches them to be verified."
+  "Gathers published mocks and dispatches them for unified YAML verification."
   [{:keys [database mq]} ctx]
   (let [published-mocks (db.mocks/get-mocks-by-publication :unification_status
                                                            ["published"]
