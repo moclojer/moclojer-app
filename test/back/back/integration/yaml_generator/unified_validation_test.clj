@@ -9,6 +9,7 @@
             [com.moclojer.components.mq :as mq]
             [com.moclojer.components.storage :as storage]
             [com.stuartsierra.component :as component]
+            [job-ops.ports.workers :as job-ops.workers]
             [matcher-combinators.matchers :as matchers]
             [state-flow.api :refer [defflow]]
             [state-flow.assertions.matcher-combinators :refer [match?]]
@@ -27,7 +28,9 @@
     :database (component/using (components/new-database) [:config])
     :sentry (components/new-sentry-mock)
     :mq (component/using
-         (components/new-mq (into yml-gen.workers/workers api.workers/workers)
+         (components/new-mq (-> yml-gen.workers/workers
+                                (into api.workers/workers)
+                                (into job-ops.workers/workers))
                             false)
          [:config :database :storage :http :sentry])
     :storage (component/using (components/new-storage) [:config]))))
