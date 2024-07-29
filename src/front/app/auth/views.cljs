@@ -19,7 +19,7 @@
                       state set-state
                       error error-res]}]
   (d/div {:class-name "flex flex-col justify-center items-center px-6 pt-8 mx-auto md:h-screen pt:mt-0 dark:bg-gray-900"}
-         (d/div {:class-name (str "justify-center items-center w-full bg-white rounded-lg shadow lg:flex"
+         (d/div {:class-name (str "flex justify-center items-center w-full bg-white rounded-lg shadow lg:flex"
                                   "md:mt-0 lg:max-w-screen-lg 2xl:max:max-w-screen-lg xl:p-0 dark:bg-gray-800")}
                 (d/div {:class-name "hidden w-2/3 lg:flex"}
                        (d/img {:src "/images/authentication/login.svg" :class-name "rounded-l-lg"}))

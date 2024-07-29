@@ -26,7 +26,6 @@
           (d/br)
           ($ text {:message message :index (inc index)}))))))
 
-;; classes is actually not working yet, since there is no global style created
 (defnc default-message 
   [{:keys [children] :as props}]
   (d/section

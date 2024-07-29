@@ -29,7 +29,7 @@
                      :aria-label "Sidebar"}
 
                     (d/div {:class-name (str "flex relative flex-col flex-1 pt-0 min-h-0 bg-white border-r"
-                                            " border-gray-200 dark:bg-gray-800 dark:border-gray-700")}
+                                             "border-gray-200 dark:bg-gray-800 dark:border-gray-700")}
                            (d/div {:class-name "flex overflow-y-auto flex-col flex-1 pt-5 pb-4"}
                                   (d/div {:class-name "flex-1 px-3 space-y-1 bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700"}
                                          (d/ul {:class-name "pb-2 space-y-2"}
@@ -46,7 +46,8 @@
                                                                  :class "w-3 h-3"})))
 
                                                (d/li
-                                                 (d/button {:class-name "w-full flex items-center p-2 text-base font-normal text-gray-900 rounded-lg hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-gray-700"
+                                                 (d/button {:class-name (str "w-full flex items-center p-2 text-base font-normal text-gray-900 rounded-lg"
+                                                                             "hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-gray-700")
                                                             :on-click #(rfe/push-state :app.core/dashboard)}
                                                            ($ svg/house)
                                                            (d/span {:class-name (str "ml-3 "
