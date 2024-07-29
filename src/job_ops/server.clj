@@ -12,16 +12,7 @@
    :config (components/new-config "back/config.edn")
    :sentry (component/using (components/new-sentry) [:config])
    :mq (component/using
-        (components/new-mq workers
-                           [{:channel "domains.verification.fired"
-                             :event {}
-                                ;; every 2 minutes
-                             :sleep 120000}
-                            {:channel "yml.unified.verification.fired"
-                             :event {}
-                                ;; every 5 minutes
-                             :sleep 300000}]
-                           false)
+        (components/new-mq workers false)
         [:config :sentry])))
 
 (defn start-system! [system-map]
