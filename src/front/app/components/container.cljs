@@ -5,6 +5,12 @@
    [helix.dom :as d]
    [refx.alpha :as refx]))
 
+(def login-styles 
+    {:default "flex flex-col justify-center items-center px-6 pt-8 mx-auto md:h-screen pt:mt-0 dark:bg-gray-900"
+     :none ""})
+
+
+
 (defnc container [{:keys [children]
                    :or {is-sidebar-toogle? false}}]
   (let [aside (refx/use-sub [:app.dashboard/aside])
@@ -18,7 +24,14 @@
       :id "main-content"}
      children)))
 
-(defnc view-container [{:keys [children]}]
-  (d/body {:class-name "bg-gray-50 dark:bg-gray-800"}
-          (d/main {:class-name "bg-gray-50 dark:bg-gray-900"})
-          children))
+
+(defn get-login-style [{:keys [template children]
+                        :or {template :default}}] 
+  (let [template (keyword template)]
+    (str (-> template login-styles)
+         children)))
+
+(defnc login-container [{:keys [children] :as props}]
+  (let [classes (get-login-style props)]
+  (d/div {:class-name classes & (dissoc props :class-name)}
+    children)))
