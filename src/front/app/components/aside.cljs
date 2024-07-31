@@ -1,7 +1,8 @@
 (ns front.app.components.aside
   (:require 
    [front.app.auth.supabase :as supabase]
-   [front.app.components.button :refer [new-mock-btn]]
+   [front.app.components.button :refer [button new-mock-btn]]
+   [front.app.components.section :refer [section]]
    [front.app.components.svg :as svg]
    [front.app.lib :refer [defnc]]
    [helix.core :refer [$]]
@@ -11,7 +12,9 @@
    [reitit.frontend.easy :as rfe]))
 
 
-(defnc aside [_]
+
+
+(defnc aside []
   (let [mocks-raw (refx/use-sub [:app.dashboard/mocks-raw])
         menu-open? (refx/use-sub [:app.dashboard/is-menu-open?])
         current-user (refx/use-sub [:app.auth/current-user])
@@ -23,32 +26,38 @@
       (when (nil? mocks-raw)
         (refx/dispatch-sync [:app.dashboard/get-mocks current-user])))
 
-    (d/div {:class-name "flex overflow-hidden pt-16 bg-gray-50 dark:bg-gray-900"}
+    ($ section {:class-name "flex overflow-hidden pt-16 bg-gray-50 dark:bg-gray-900"}
            (d/aside {:id "sidebar"
-                     :class (str "fixed top-0 left-0 z-20 flex-col flex-shrink-0 pt-16 w-full h-full duration-75 transition-width"
+                     :class (str "fixed top-0 left-0 z-20 flex-col flex-shrink-0 pt-16 w-full h-full duration-75 transition-width "
                                  (if aside-open? "flex lg:w-64" "hidden lg:flex lg:w-16"))
                      :aria-label "Sidebar"}
 
-                    (d/div {:class-name (str "flex relative flex-col flex-1 pt-0 min-h-0 bg-white border-r"
+                    (d/div {:class-name (str "flex relative flex-col flex-1 pt-0 min-h-0 bg-white border-r "
                                              "border-gray-200 dark:bg-gray-800 dark:border-gray-700")}
                            (d/div {:class-name "flex overflow-y-auto flex-col flex-1 pt-5 pb-4"}
                                   (d/div {:class-name "flex-1 px-3 space-y-1 bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700"}
                                          (d/ul {:class-name "pb-2 space-y-2"}
-                                               (d/li
+                                               (d/li 
                                                  (d/button
                                                    {:id "aside-toggle"
                                                     :class (str (if aside-open?
-                                                                  "absolute -right-4 "
+                                                                  "lg:absolute -right-4 "
                                                                   "block w-full ")
                                                                 "p-1 flex flex-row justify-center z-50 bg-gray-300 rounded-lg "
-                                                                "opacity-30 hover:opacity-100 transition-all")
+                                                                "opacity-30 hover:opacity-100 transition-all lg:flex ")
                                                     :on-click #(refx/dispatch [:app.dashboard/toggle-aside! (not aside-open?)])}
-                                                   ($ svg/arrow {:direction (if aside-open? :left :right)
+                                                   ($ svg/arrow 
+                                                      {:direction (if aside-open? 
+                                                                              :left 
+                                                                              :right)
                                                                  :class "w-3 h-3"})))
 
                                                (d/li
-                                                 (d/button {:class-name (str "w-full flex items-center p-2 text-base font-normal text-gray-900 rounded-lg"
-                                                                             "hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-gray-700")
+                                                 ($ button {:class-name (str "flex items-center p-2 text-base font-normal text-gray-900 rounded-lg"
+                                                                             " transtion duration-75 hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-gray-700"
+                                                                             (if aside-open? 
+                                                                               " w-[calc(100%-8px)]"
+                                                                               " w-full" ))
                                                             :on-click #(rfe/push-state :app.core/dashboard)}
                                                            ($ svg/house)
                                                            (d/span {:class-name (str "ml-3 "
@@ -122,8 +131,8 @@
                                                        "Help")))))
                            (d/div {:class-name (str  "absolute bottom-0 left-0 justify-center p-4 space-x-4 w-full lg:flex"
                                                     (when aside-open?
-                                                      " flex-col space-y-4 p-2"))}
-                                  (d/button
+                                                      " flex-col space-y-4 p-4"))}
+                                  ($ button
                                     {:on-click (fn [e]
                                                  (.preventDefault e)
                                                  (supabase/sign-out

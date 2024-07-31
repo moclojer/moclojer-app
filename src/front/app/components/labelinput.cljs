@@ -12,15 +12,7 @@
   {:login 
    {:default "block mb-2 text-sm font-medium text-gray-900 dark:text-white"}})
 
-(defn get-style [{:keys [input-template label-template children]
-                  :or {input-template :login label-template :default children ""}}]
-  (let [input-template (keyword input-template)
-        label-template (keyword label-template)] 
-    (str (get input-styles input-template "")
-         (get-in label-styles [input-template label-template])
-         children)))
-
-(defnc labeled-input [{:keys [input-template label-template label for placeholder name state on-change chidlren] :as props}]
+(defnc labeled-input [{:keys [input-template label-template label for placeholder name state on-change children]}]
   (let [input-classes (get input-styles (keyword (or input-template :login)) "")
         label-classes (get-in label-styles [(keyword (or input-template :login)) (keyword (or label-template :default))])]
     (d/div
@@ -35,4 +27,5 @@
          :name name
          :value (:email state) 
          :required true
-         :on-change on-change}))))
+         :on-change on-change})
+      children)))

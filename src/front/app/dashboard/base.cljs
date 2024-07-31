@@ -1,9 +1,10 @@
 (ns front.app.dashboard.base
   (:require ["slugify" :as slugify]
-            [front.app.components.container :refer [container]]
+            [front.app.components.container :refer [aside-container]]
             [front.app.components.modal :refer [modal]]
             [front.app.components.svg :as svg]
             [front.app.components.aside :refer [aside]]
+            [front.app.components.button :refer [button]]
             [front.app.components.navbar :refer [nav-bar]]
             [front.app.lib :refer [defnc]]
             [helix.core :refer [$ <>]]
@@ -154,8 +155,8 @@
 
             (d/div
               {:class "flex justify-between items-end py-4"}
-              (d/button
-                {:class
+              ($ button
+                {:class-name
                  (str "px-3 py-2 rounded-lg justify-end items-center gap-2 flex btn-add "
                       (if allow-save? "bg-pink-600" "btn-add__disabled bg-gray-600 cursor-not-allowed"))
                  :on-click #(when allow-save?
@@ -163,7 +164,6 @@
                 (d/div
                   {:class "text-white text-xs font-bold leading-[18px]"}
                   " save")
-
                 ($ svg/save)))))})))
 
 (defn mock-deletion-modal []
@@ -191,18 +191,18 @@
           (d/p "Do you want to delete this mock?")
           (d/div
             {:class "flex flex-row space-x-2"}
-            (d/button
-              {:class "px-4 py-2 bg-red-500 rounded-lg hover:opacity-80"
+            ($ button
+              {:class-name "px-4 py-2 bg-red-500 rounded-lg hover:opacity-80"
                :on-click #(do
                             (close-modal!)
                             (refx/dispatch-sync [:app.dashboard/delete-mock mock]))}
               (d/p
                 {:class "text-white"}
                 "Yes, I want to delete it"))
-            (d/button
-              {:class "px-4 py-2 border-2 border-gray-400 rounded-lg hover:bg-gray-200"}
+            ($ button
+              {:class-name "px-4 py-2 border-2 border-gray-400 rounded-lg hover:bg-gray-200"}
               (d/p
-                {:class "text-gray-800 text-sm font-medium"
+                {:class-name "text-gray-800 text-sm font-medium"
                  :on-click #(close-modal!)}
                 "No, cancel"))))})))
 
@@ -218,6 +218,6 @@
      (d/div {:class-name "hidden fixed inset-0 z-10 bg-gray-900/50 dark:bg-gray-900/90"
              :id "sidebarBackdrop"})
      (<>
-      ($ container children)
+      ($ aside-container children)
       ($ new-mock-modal)
       ($ mock-deletion-modal)))))

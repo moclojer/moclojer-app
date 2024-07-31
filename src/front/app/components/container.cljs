@@ -11,7 +11,7 @@
 
 
 
-(defnc container [{:keys [children]
+(defnc aside-container [{:keys [children]
                    :or {is-sidebar-toogle? false}}]
   (let [aside (refx/use-sub [:app.dashboard/aside])
         aside-open? (:open? aside)]
@@ -31,7 +31,6 @@
     (str (-> template login-styles)
          children)))
 
-(defnc login-container [{:keys [children] :as props}]
-  (let [classes (get-login-style props)]
-  (d/div {:class-name classes & (dissoc props :class-name)}
-    children)))
+(defnc container [{:keys [children class-name]}]
+  (d/div {:class-name (or class-name (get login-styles :default))}
+    children))

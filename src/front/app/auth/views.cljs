@@ -2,7 +2,7 @@
   (:require
    [front.app.components.alerts :as alerts]
    [front.app.components.button :refer [button]]
-   [front.app.components.container :refer [login-container]]
+   [front.app.components.container :refer [container]]
    [front.app.components.section :refer [section]]
    [front.app.components.loading :refer [loading-spinner]]
    [front.app.components.labelinput :refer [labeled-input]]
@@ -20,8 +20,8 @@
 (defnc login [{:keys [sent? loading?
                       state set-state
                       error error-res]}]
-  ($ login-container {:template "default"} 
-         (d/div {:class-name (str "flex justify-center items-center w-full bg-white rounded-lg shadow lg:flex"
+  ($ container {} 
+         (d/div {:class-name (str "flex justify-center items-center w-full bg-white rounded-lg shadow lg:flex "
                                   "md:mt-0 lg:max-w-screen-lg 2xl:max:max-w-screen-lg xl:p-0 dark:bg-gray-800")}
                 (d/div {:class-name "hidden w-2/3 lg:flex"}
                        (d/img {:src "/images/authentication/login.svg" :class-name "rounded-l-lg"}))
@@ -49,7 +49,7 @@
                                              (.preventDefault e)
                                              (refx/dispatch [:app.auth/send-email-again]))
                                  :href "#"}))))
-                  (d/div {:class-name "p-6 space-y-8 w-full sm:p-8 lg:p-16 lg:py-0"}
+                  ($ section {:class-name "p-6 space-y-8 w-full sm:p-8 lg:p-16 lg:py-0"}
                          (d/h2 {:class-name "text-2xl font-bold text-gray-900 lg:text-3xl dark:text-white"}
                                "sign in to moclojer")
                          (d/form {:disabled loading?
@@ -61,6 +61,7 @@
                                  ($ labeled-input 
                                     {:for "email"
                                      :name "email"
+                                     :label "your email"
                                      :placeholder "name@company.com"
                                      :input-template "login"
                                      :label-template "default"
@@ -70,8 +71,8 @@
                                  ($ button
                                     {:type "submit"
                                      :disabled loading?
-                                     :variant "solid-blue"
-                                     :color "pink"}
+                                     :base "solid-blue"
+                                     :variant "pink"}
                                     (if loading?
                                       (d/span {:class-name "inline-flex"}
                                               ($ loading-spinner {})
@@ -89,7 +90,7 @@
   (let [username (refx/use-sub [:app.auth/username-to-save])
         available? (refx/use-sub [:app.auth/is-username-available?])]
     (d/div {:class-name "flex flex-col justify-center items-center px-6 pt-8 mx-auto md:h-screen pt:mt-0 dark:bg-gray-900"}
-           (d/div {:class-name (str "flex justify-center items-center w-full bg-white rounded-lg shadow lg:flex"
+           (d/div {:class-name (str "flex justify-center items-center w-full bg-white rounded-lg shadow lg:flex "
                                     "md:mt-0 lg:max-w-screen-lg 2xl:max:max-w-screen-lg xl:p-0 dark:bg-gray-800")}
                   (d/div {:class-name "hidden w-2/3 lg:flex"}
                          (d/img {:src "/images/authentication/login.svg" :class-name "rounded-l-lg"}))
@@ -114,6 +115,7 @@
                                          ($ labeled-input 
                                             {:for "username"
                                              :name "username"
+                                             :label "your username"
                                              :placeholder "username"
                                              :input-template "login"
                                              :label-template "default"
@@ -128,7 +130,8 @@
                                                 (d/span {:class-name "text-gray-500"} "moclojer.com"))
 
                                          ($ button
-                                            {:class-name (when available? " cursor-not-allowed")
+                                            {:template "login"
+                                             :class-name (when available? " cursor-not-allowed")
                                              :type "submit"
                                              :disabled (or loading? (not available?))
                                              :variant "solid-blue"

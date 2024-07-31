@@ -7,7 +7,7 @@
    [front.app.auth.events]
    [front.app.auth.subs]
    [front.app.auth.supabase :as supabase]
-   [front.app.components.footer :refer [footer-component]]
+   [front.app.components.footer :refer [footer]]
    [front.app.components.notifications :refer [notifications]]
    [front.app.dashboard.events]
    [front.app.dashboard.subs]
@@ -101,7 +101,7 @@
   (d/div
    ($ route-handler)
    (when debug
-     ($ footer-component))))
+     ($ footer))))
 
 ;;; Setup ;;;
 (defonce root
