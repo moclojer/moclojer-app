@@ -22,8 +22,8 @@
               (d/button {:id "toggleSidebar"
                          :aria-expanded "true"
                          :aria-controls "sidebar"
-                         :on-click #(refx/dispatch [:app.dashboard/toggle-aside (not aside-open?)])
-                         :class (str "p-2 mr-3 text-gray-600 rounded cursor-pointer "
+                         :on-click #(refx/dispatch [:app.dashboard/toggle-aside! (not aside-open?)])
+                         :class-name (str "p-2 mr-3 text-gray-600 rounded cursor-pointer "
                                      "hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 "
                                      "dark:hover:text-white dark:hover:bg-gray-700 lg:hidden")}
                         (if aside-open?

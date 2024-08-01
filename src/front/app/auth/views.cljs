@@ -1,7 +1,7 @@
 (ns front.app.auth.views
   (:require
    [front.app.components.alerts :as alerts]
-   [front.app.components.button :refer [button]]
+   [front.app.components.button :refer [login-button]]
    [front.app.components.container :refer [container]]
    [front.app.components.section :refer [section]]
    [front.app.components.loading :refer [loading-spinner]]
@@ -68,7 +68,7 @@
                                      :on-change #(set-state assoc :email (.. % -target -value))})
                                  (d/div {:class-name "flex items-start"}
                                         (d/div {:class-name "flex items-center h-5"}))
-                                 ($ button
+                                 ($ login-button
                                     {:type "submit"
                                      :disabled loading?
                                      :base "solid-blue"
@@ -129,13 +129,12 @@
                                                 (d/b {:class-name "text-gray-900"} "*.<username>.")
                                                 (d/span {:class-name "text-gray-500"} "moclojer.com"))
 
-                                         ($ button
-                                            {:template "login"
-                                             :class-name (when available? " cursor-not-allowed")
+                                         ($ login-button
+                                            {:class-name (when available? " cursor-not-allowed")
                                              :type "submit"
                                              :disabled (or loading? (not available?))
-                                             :variant "solid-blue"
-                                             :color (if available?
+                                             :base "solid-blue"
+                                             :variant (if available?
                                                       "pink"
                                                       "grey")}
                                             (if loading?

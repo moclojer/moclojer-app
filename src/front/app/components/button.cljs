@@ -4,9 +4,10 @@
    [helix.dom :as d]
    [helix.core :refer [$]]
    [refx.alpha :as refx]
-   [front.app.components.svg :as svg]))
+   [front.app.components.svg :as svg]
+   [reitit.frontend.easy :as rfe]))
 
-; #TODO remove solid, outline  keeping here because it is used in other pages
+; #TODO remove solid, outline keeping here because it is used in other pages
 
 ; deprecated solid -old layout
 ; deprecated outline -old layout
@@ -27,20 +28,38 @@
              :grey " login-button-block"
              :white "ring-slate-700 text-white hover:ring-slate-500 active:ring-slate-700 active:text-slate-400 focus-visible:outline-white "}})
 
+;; TODO
+(def aside-styles {})
 
-(defnc button [{:keys [children class-name base variant on-click type loading? template] 
-                :or {class-name "" on-click "" base "solid" variant "blue" template "default"}}]
-  (let [base-style (get base-styles (keyword base)) 
-        variant-style (get-in variant-styles [(keyword base)(keyword variant)])
-        class-name (if (= template "login") 
-                     (str class-name " " base-style " " variant-style)
-                     (str " " class-name " "))]
+
+(defnc button [{:keys [children class-name  on-click type disabled template] 
+                :or {class-name "" on-click "" base "solid" variant "blue" template "default" type "button"}}]
     (d/button
       {:class-name class-name
        :on-click on-click
        :type type
-       :disabled loading?}
-      children)))
+       :disabled disabled}
+      children))
+
+(defn get-login-style [class-name base variant]
+    (let [base-style (keyword base)
+          variant-style (keyword variant)]
+      (str
+        (get base-styles base-style)
+        (get-in variant-styles [base-style variant-style])
+        class-name)
+      )
+  )
+
+(defnc login-button [{:keys [children base variant class-name type disabled]
+                      :or {children "" base "solid" variant "blue" type "submit" disabled false}}]
+  (let [class-name (get-login-style class-name base variant)] 
+          ($ button 
+             {:class-name class-name 
+              :type type
+              :disabled disabled}
+             children)))
+
 
 (defnc new-mock-btn []
   ($ button {:class-name "px-3 py-2 bg-pink-600 rounded-lg flex flex-row space-x-2 items-center btn-add"
@@ -51,4 +70,35 @@
             ($ svg/box)))
 
 
-;; TODO create some default buttons
+(defnc toggle-aside-btn [{:keys [aside-open?]
+                          :or {aside-open? false}}] 
+  (d/button
+    {:id "aside-toggle"
+     :class (str (if aside-open?
+                   "lg:absolute -right-4 "
+                   "block w-full ")
+                 "p-1 mt-2 flex flex-row justify-center z-50 bg-gray-300 rounded-lg "
+                 "opacity-30 hover:opacity-100 transition-all lg:flex hidden")
+     :on-click #(refx/dispatch [:app.dashboard/toggle-aside! (not aside-open?)])}
+    ($ svg/arrow 
+       {:direction (if aside-open? 
+                     :left 
+                     :right)
+        :class "w-3 h-3"})))
+
+(defnc home-btn [{:keys [aside-open?]
+                  :or {aside-open? false}}] 
+  (d/button 
+    {:class-name (str "flex items-center p-2 text-base font-normal text-gray-900 rounded-lg "
+                      "transtion duration-75 hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-gray-700 "
+                      (if aside-open? 
+                        "w-[calc(100%-8px)]"
+                        "w-full" ))
+     :on-click #(rfe/push-state :app.core/dashboard)}
+    ($ svg/house)
+    (d/span {:class-name (str "ml-3 "
+                              (when-not aside-open?
+                                "lg:hidden lg:absolute"))} "Home")))
+
+
+

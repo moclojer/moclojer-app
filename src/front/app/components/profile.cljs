@@ -29,8 +29,8 @@
                                                             
 (defn get-image-style
   [{:keys [children image-style]}]
-  (let [image-style-key (keyword image-style)]
-    (str (-> image-style-key pfp-styles)
+  (let [image-style (keyword image-style)]
+    (str (get pfp-styles image-style )
          children)))
 
 (defnc pfp-img 

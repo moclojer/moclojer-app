@@ -213,7 +213,7 @@
      {:class-name "bg-gray-50 dark:bg-gray-800"}
      ($ nav-bar {:user-data user})
 
-     ($ aside {})
+     ($ aside )
 
      (d/div {:class-name "hidden fixed inset-0 z-10 bg-gray-900/50 dark:bg-gray-900/90"
              :id "sidebarBackdrop"})
