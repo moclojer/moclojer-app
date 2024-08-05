@@ -68,15 +68,15 @@
         aside-open? (:open? aside)]
 
     (d/div 
-      {:class-name "flex overflow-hidden pt-16 bg-gray-50 dark:bg-gray-900"}
+      {:class-name "overflow-hidden bg-gray-50 dark:bg-gray-900 pt-16"}
       (d/aside 
         {:id "sidebar"
-         :class (str "fixed top-0 left-0 z-20 flex-col flex-shrink-0 pt-16 w-full h-full duration-75 transition-width "
+         :class (str "fixed flex-col top-0 left-0 z-20 flex-shrink-0 w-full h-full duration-75 transition-width "
                      (if aside-open? "flex lg:w-64" "hidden lg:flex lg:w-16"))
          :aria-label "Sidebar"}
 
         (d/div 
-          {:class-name (str "flex relative flex-col flex-1 pt-0 min-h-0 bg-white border-r "
+          {:class-name (str "flex relative flex-col flex-1 pt-16 min-h-0 bg-white border-r "
                             "border-gray-200 dark:bg-gray-800 dark:border-gray-700")}
           (d/div {:class-name "flex overflow-y-auto flex-col flex-1 pt-5 pb-4"}
                  (d/div {:class-name "flex-1 px-3 space-y-1 bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700"}

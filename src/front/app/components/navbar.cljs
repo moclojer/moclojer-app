@@ -13,7 +13,7 @@
   (let [aside (refx/use-sub [:app.dashboard/aside])
         aside-open? (:open? aside)]
     (d/nav
-     {:class-name "fixed z-30 w-full bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700"}
+     {:class-name "fixed mb-16 z-30 w-full bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700"}
      (d/div
       {:class-name "py-3 px-3 lg:px-5 lg:pl-3"}
       (d/div
