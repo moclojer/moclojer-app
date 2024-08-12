@@ -1,0 +1,4 @@
+DROP TABLE IF EXISTS yaml_history CASCADE;
+
+
+
