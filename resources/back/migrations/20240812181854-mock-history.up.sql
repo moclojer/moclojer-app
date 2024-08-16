@@ -9,4 +9,3 @@ CREATE TABLE IF NOT EXISTS mock_history (
     REFERENCES mock(id)
     ON DELETE CASCADE
 );
-
