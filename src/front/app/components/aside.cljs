@@ -76,7 +76,7 @@
          :aria-label "Sidebar"}
 
         (d/div 
-          {:class-name (str "flex relative flex-col flex-1 pt-16 min-h-0 bg-white border-r "
+          {:class-name (str "flex relative flex-col flex-1 pt-8 min-h-0 bg-white border-r "
                             "border-gray-200 dark:bg-gray-800 dark:border-gray-700")}
           (d/div {:class-name "flex overflow-y-auto flex-col flex-1 pt-5 pb-4"}
                  (d/div {:class-name "flex-1 px-3 space-y-1 bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700"}
