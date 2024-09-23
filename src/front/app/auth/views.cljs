@@ -1,5 +1,6 @@
 (ns front.app.auth.views
   (:require
+   ["mockingbird-lib" :as mock]
    [front.app.components.alerts :as alerts]
    [front.app.components.button :refer [login-button]]
    [front.app.components.container :refer [container]]
@@ -17,10 +18,12 @@
 (defnc not-found-view []
   (d/div "404"))
 
+
 (defnc login [{:keys [sent? loading?
                       state set-state
                       error error-res]}]
   ($ container {} 
+       ($ Button)  
          (d/div {:class-name (str "flex justify-center items-center w-full bg-white rounded-lg shadow lg:flex "
                                   "md:mt-0 lg:max-w-screen-lg 2xl:max:max-w-screen-lg xl:p-0 dark:bg-gray-800")}
                 (d/div {:class-name "hidden w-2/3 lg:flex"}

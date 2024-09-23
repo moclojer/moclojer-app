@@ -8,7 +8,7 @@
         metosin/reitit-frontend {:mvn/version "0.5.18"}
         lambdaisland/fetch {:mvn/version "1.1.60"}
 
-        moclojer/mockingbird {:local/root "../mockingbird/target/mockingbird-0.0.1.jar"}
+        #_#_moclojer/mockingbird {:local/root "../mockingbird/target/mockingbird-0.0.1.jar"}
 
         ;; back
         com.moclojer/components {:mvn/version "0.1.0"}
