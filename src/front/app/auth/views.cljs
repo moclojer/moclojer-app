@@ -140,7 +140,9 @@
                                             :type :submit
                                             :theme :mockingbird
                                             :size :full
-                                            :disabled (or loading? (not available?)) }
+                                            :disabled (if (or loading? (not available?))
+                                                        true
+                                                        false)}
                                     (if loading? (d/span {:class-name "inline-flex"}
                                                       ($ loading-spinner {}) "loading...")
                                               (d/span "Save"))))))))))))
