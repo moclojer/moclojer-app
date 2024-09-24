@@ -1,8 +1,8 @@
 (ns front.app.auth.views
   (:require
-   ["mockingbird-lib" :as mock]
-   [front.app.components.alerts :as alerts]
+   [mockingbird.components.button :refer [button]]
    [front.app.components.button :refer [login-button]]
+   [front.app.components.alerts :as alerts]
    [front.app.components.container :refer [container]]
    [front.app.components.section :refer [section]]
    [front.app.components.loading :refer [loading-spinner]]
@@ -23,7 +23,6 @@
                       state set-state
                       error error-res]}]
   ($ container {} 
-       ($ Button)  
          (d/div {:class-name (str "flex justify-center items-center w-full bg-white rounded-lg shadow lg:flex "
                                   "md:mt-0 lg:max-w-screen-lg 2xl:max:max-w-screen-lg xl:p-0 dark:bg-gray-800")}
                 (d/div {:class-name "hidden w-2/3 lg:flex"}
@@ -71,16 +70,18 @@
                                      :on-change #(set-state assoc :email (.. % -target -value))})
                                  (d/div {:class-name "flex items-start"}
                                         (d/div {:class-name "flex items-center h-5"}))
-                                 ($ login-button
-                                    {:type "submit"
-                                     :disabled loading?
-                                     :base "solid-blue"
-                                     :variant "pink"}
+
+                                 ($ button {:class (str "login-button " (when loading? "login-button-block"))
+                                            :type :submit
+                                            :theme :mockingbird
+                                            :size :full
+                                            :label "login to your account"}
                                     (if loading?
                                       (d/span {:class-name "inline-flex"}
                                               ($ loading-spinner {})
                                               "loading...")
                                       (d/span "login to your account")))
+
                                  (d/div {:class-name "text-sm font-medium text-gray-500 dark:text-gray-400"}
                                         (if error
                                           ($ alerts/error
@@ -132,20 +133,17 @@
                                                 (d/b {:class-name "text-gray-900"} "*.<username>.")
                                                 (d/span {:class-name "text-gray-500"} "moclojer.com"))
 
-                                         ($ login-button
-                                            {:class-name (when available? " cursor-not-allowed")
-                                             :type "submit"
-                                             :disabled (or loading? (not available?))
-                                             :base "solid-blue"
-                                             :variant (if available?
-                                                      "pink"
-                                                      "grey")}
-                                            (if loading?
-                                              (d/span {:class-name "inline-flex"}
-                                                      ($ loading-spinner {})
-                                                      "loading...")
-                                              (d/span "Save"))))))))))))
 
+                                 ($ button {:class (str "bg-gray-700"
+                                                        (when loading? "login-button-block")
+                                                        (when available? " login-button cursor-not-allowed"))
+                                            :type :submit
+                                            :theme :mockingbird
+                                            :size :full
+                                            :disabled (or loading? (not available?)) }
+                                    (if loading? (d/span {:class-name "inline-flex"}
+                                                      ($ loading-spinner {}) "loading...")
+                                              (d/span "Save"))))))))))))
 
 
   (defnc first-login-view []
