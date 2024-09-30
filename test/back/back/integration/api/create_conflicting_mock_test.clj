@@ -40,28 +40,28 @@
 
 (defn fcreate-conflicting-mocks []
   (flow
-    "should block creation of conflicting mocks"
-    [:let [req (merge (:base-req flow-consts)
-                      {:method :post
-                       :body (:mock flow-consts)})
-           fst-exp-body {:mock (merge (:mock flow-consts)
-                                      {:id string?
-                                       :user-id string?})}
-           snd-exp-body {:error {:message string?
-                                 :cause "invalid-wildcard"
-                                 :value (:mock fst-exp-body)}}]
-     fst-resp (helpers/request! req)
-     snd-resp (helpers/request! req)]
-    (match?
-     (matchers/embeds {:status 201 :body (update-in fst-exp-body
-                                                    [:mock]
-                                                    merge
-                                                    {:dns-status "offline"
-                                                     :unification-status "offline"})})
-     fst-resp)
-    (match?
-     (matchers/embeds {:status 412 :body snd-exp-body})
-     snd-resp)))
+   "should block creation of conflicting mocks"
+   [:let [req (merge (:base-req flow-consts)
+                     {:method :post
+                      :body (:mock flow-consts)})
+          fst-exp-body {:mock (merge (:mock flow-consts)
+                                     {:id string?
+                                      :user-id string?})}
+          snd-exp-body {:error {:message string?
+                                :cause "invalid-wildcard"
+                                :value (:mock fst-exp-body)}}]
+    fst-resp (helpers/request! req)
+    snd-resp (helpers/request! req)]
+   (match?
+    (matchers/embeds {:status 201 :body (update-in fst-exp-body
+                                                   [:mock]
+                                                   merge
+                                                   {:dns-status "offline"
+                                                    :unification-status "offline"})})
+    fst-resp)
+   (match?
+    (matchers/embeds {:status 412 :body snd-exp-body})
+    snd-resp)))
 
 (defflow
   flow-create-conflicting-mock
@@ -69,7 +69,7 @@
    :cleanup utils/stop-system!
    :fail-fast? true}
   (flow
-    "will try to create two conflicting mocks"
-    [db (state-flow.api/get-state :database)]
-    (state/invoke #(db.customers/insert! (:user flow-consts) db))
-    (fcreate-conflicting-mocks)))
+   "will try to create two conflicting mocks"
+   [db (state-flow.api/get-state :database)]
+   (state/invoke #(db.customers/insert! (:user flow-consts) db))
+   (fcreate-conflicting-mocks)))

@@ -5,14 +5,12 @@
    [helix.dom :as d]
    [refx.alpha :as refx]))
 
-(def login-styles 
-    {:default "flex flex-col justify-center items-center px-6 pt-8 mx-auto md:h-screen pt:mt-0 dark:bg-gray-900"
-     :none ""})
-
-
+(def login-styles
+  {:default "flex flex-col justify-center items-center px-6 pt-8 mx-auto md:h-screen pt:mt-0 dark:bg-gray-900"
+   :none ""})
 
 (defnc aside-container [{:keys [children]
-                   :or {is-sidebar-toogle? false}}]
+                         :or {is-sidebar-toogle? false}}]
   (let [aside (refx/use-sub [:app.dashboard/aside])
         aside-open? (:open? aside)]
     (d/div
@@ -24,13 +22,12 @@
       :id "main-content"}
      children)))
 
-
 (defn get-login-style [{:keys [template children]
-                        :or {template :default}}] 
+                        :or {template :default}}]
   (let [template (keyword template)]
     (str (-> template login-styles)
          children)))
 
 (defnc container [{:keys [children class-name]}]
   (d/div {:class-name (or class-name (get login-styles :default))}
-    children))
+         children))

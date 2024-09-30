@@ -10,8 +10,8 @@
            (components.button/get-login-style {:base "slate"})))
     (is (= "group inline-flex ring-1 items-center justify-center rounded-full py-2 px-4 text-sm focus:outline-none ring-slate-200 text-slate-700 hover:text-slate-900 hover:ring-slate-300 active:bg-slate-100 active:text-slate-600 focus-visible:outline-blue-600 focus-visible:ring-slate-300 "
            (components.button/get-login-style {:variant "slate"
-                                              :base "outline"})))
+                                               :base "outline"})))
     (is (= "group inline-flex ring-1 items-center justify-center rounded-full py-2 px-4 text-sm focus:outline-none ring-slate-200 text-slate-700 hover:text-slate-900 hover:ring-slate-300 active:bg-slate-100 active:text-slate-600 focus-visible:outline-blue-600 focus-visible:ring-slate-300 extra"
            (components.button/get-login-style {:variant "slate"
-                                              :base "outline"
-                                              :class-name "extra"})))))
+                                               :base "outline"
+                                               :class-name "extra"})))))

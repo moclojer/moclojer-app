@@ -1,4 +1,4 @@
-(ns front.app.components.loading 
+(ns front.app.components.loading
   (:require
    [front.app.lib :refer [defnc]]
    [helix.dom :as d]))

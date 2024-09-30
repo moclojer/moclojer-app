@@ -1,6 +1,6 @@
 (ns front.app.dashboard.mocks
-  (:require 
-   [mockingbird.components.button :refer[button]] 
+  (:require
+   [mockingbird.components.button :refer [button]]
    [front.app.components.status :refer [publication-status]]
    [front.app.components.svg :as svg]
    [front.app.dashboard.base :as base]
@@ -98,16 +98,16 @@
         loading-mocks? (refx/use-sub [:app.dashboard/loading-mocks?])]
 
     (hooks/use-effect
-      [mocks]
-      (when (nil? mocks)
-        (refx/dispatch-sync [:app.dashboard/get-mocks current-user])))
+     [mocks]
+     (when (nil? mocks)
+       (refx/dispatch-sync [:app.dashboard/get-mocks current-user])))
 
     (hooks/use-effect
-      [mocks loading-mocks?]
-      (when (and (or (nil? mocks)
-                     (empty? mocks))
-                 (not loading-mocks?))
-        (refx/dispatch-sync [:app.dashboard/toggle-mock-modal])))
+     [mocks loading-mocks?]
+     (when (and (or (nil? mocks)
+                    (empty? mocks))
+                (not loading-mocks?))
+       (refx/dispatch-sync [:app.dashboard/toggle-mock-modal])))
 
     ($ base/index
        (d/div {:class "flex flex-col lg:p-8"}

@@ -1,8 +1,9 @@
 (ns front.app.routes.bookmarks
-  (:require [front.app.auth.views :as auth]
-            [front.app.dashboard.editor :as editor]
-            [front.app.dashboard.mocks :as mocks]
-            [front.app.dashboard.views :as d.views]))
+  (:require
+   [front.app.auth.views :as auth]
+   [front.app.dashboard.editor :as editor]
+   [front.app.dashboard.mocks :as mocks]
+   [front.app.dashboard.views :as d.views]))
 
 (def routes
   [""

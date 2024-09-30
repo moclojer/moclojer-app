@@ -1,30 +1,31 @@
 (ns front.app.dashboard.editor
-  (:require ["@codemirror/language" :as language]
-            ["@codemirror/legacy-modes/mode/yaml" :as yaml]
-            ["@codemirror/lint" :as clint]
-            ["@uiw/codemirror-theme-github" :as theme]
-            ["@uiw/react-codemirror" :as c]
-            [front.app.components.status :refer [publication-status]]
-            [front.app.components.svg :as svg]
-            [front.app.dashboard.base :as base]
-            [front.app.dashboard.linter :as linter]
-            [front.app.lib :refer [defnc]]
-            [helix.core :refer [$]]
-            [helix.dom :as d]
-            [helix.hooks :as hooks]
-            [refx.alpha :as refx]
-            [reitit.frontend.easy :as rfe]))
+  (:require
+   ["@codemirror/language" :as language]
+   ["@codemirror/legacy-modes/mode/yaml" :as yaml]
+   ["@codemirror/lint" :as clint]
+   ["@uiw/codemirror-theme-github" :as theme]
+   ["@uiw/react-codemirror" :as c]
+   [front.app.components.status :refer [publication-status]]
+   [front.app.components.svg :as svg]
+   [front.app.dashboard.base :as base]
+   [front.app.dashboard.linter :as linter]
+   [front.app.lib :refer [defnc]]
+   [helix.core :refer [$]]
+   [helix.dom :as d]
+   [helix.hooks :as hooks]
+   [refx.alpha :as refx]
+   [reitit.frontend.easy :as rfe]))
 
 (defnc editor [props]
   (let [{:keys [data set-dragging-over!]} props
         {:keys [content id]
          :or {content ""}} data
         ref-fn (hooks/use-callback
-                 [content]
-                 (fn [content]
-                   (refx/dispatch-sync
-                    [:app.dashboard/edit-mock {:mock-id id
-                                               :content content}])))]
+                [content]
+                (fn [content]
+                  (refx/dispatch-sync
+                   [:app.dashboard/edit-mock {:mock-id id
+                                              :content content}])))]
 
     ($ c/default
        {:height "calc(100vh - 171px)"
@@ -113,13 +114,13 @@
     ;; outside of this component's state, this logic lets us know
     ;; when the popup `really delete this mock?` is confirmed (if so).
     (hooks/use-effect
-      [mock-to-delete]
-      (if (and deleting? (nil? mock-to-delete))
-        (do
-          (set-deleting! false)
-          (rfe/push-state :app.core/mocks))
-        (when (= (:id mock-to-delete) mock-id)
-          (set-deleting! true))))
+     [mock-to-delete]
+     (if (and deleting? (nil? mock-to-delete))
+       (do
+         (set-deleting! false)
+         (rfe/push-state :app.core/mocks))
+       (when (= (:id mock-to-delete) mock-id)
+         (set-deleting! true))))
 
     ($ base/index
        (d/div

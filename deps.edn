@@ -8,6 +8,8 @@
         metosin/reitit-frontend {:mvn/version "0.5.18"}
         lambdaisland/fetch {:mvn/version "1.1.60"}
 
+
+        org.clojure/tools.deps {:mvn/version "0.21.1449"}
         moclojer/mockingbird {:local/root "../mockingbird/target/mockingbird-0.0.1.jar"}
 
         ;; back
@@ -32,7 +34,7 @@
         metosin/muuntaja {:mvn/version "0.6.8"}
         org.bouncycastle/bcprov-jdk15on {:mvn/version "1.70"}
         selmer/selmer {:mvn/version "1.12.55"}
-        io.forward/yaml               {:mvn/version "1.0.11"}
+        io.forward/yaml {:mvn/version "1.0.11"}
         io.github.cljazz/supabase {:git/sha "a850ed47eb0daa8303f206ea60bd4b3bf59e1e0a"
                                    :git/url "https://github.com/cljazz/supabase-clj"}
         babashka/process {:mvn/version "0.5.22"}}

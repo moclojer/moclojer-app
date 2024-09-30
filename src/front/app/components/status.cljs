@@ -1,10 +1,11 @@
 (ns front.app.components.status
-  (:require [front.app.components.svg :as svg]
-            [front.app.lib :refer [defnc]]
-            [helix.core :refer [$]]
-            [helix.hooks :as hooks]
-            [helix.dom :as d]
-            [refx.alpha :as refx]))
+  (:require
+   [front.app.components.svg :as svg]
+   [front.app.lib :refer [defnc]]
+   [helix.core :refer [$]]
+   [helix.hooks :as hooks]
+   [helix.dom :as d]
+   [refx.alpha :as refx]))
 
 (defnc status-card [{:keys [status loading? title]}]
   (d/div {:class (str "px-3 mr-2 flex flex-row space-x-2 items-center rounded-md dns-"
@@ -48,12 +49,12 @@
                             ["publishing" "offline"]))]
 
     (hooks/use-effect
-      [status attempt]
-      (when loading?
-        (js/setTimeout #(refx/dispatch
-                         [:app.dashboard/get-mock-pub-stts
-                          {:mock-id id}])
-                       5000)))
+     [status attempt]
+     (when loading?
+       (js/setTimeout #(refx/dispatch
+                        [:app.dashboard/get-mock-pub-stts
+                         {:mock-id id}])
+                      5000)))
 
     ($ status-card
        {:status (if enabled

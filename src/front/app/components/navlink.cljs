@@ -1,4 +1,4 @@
-(ns front.app.components.navlink 
+(ns front.app.components.navlink
   (:require
    [front.app.lib :refer [defnc]]
    [helix.dom :as d]))

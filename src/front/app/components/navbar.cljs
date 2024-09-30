@@ -1,13 +1,13 @@
 (ns front.app.components.navbar
-  (:require [front.app.components.button :refer [new-mock-btn]]
-            [front.app.components.profile :refer [user-profile]]
-            [front.app.components.svg :as svg]
-            [front.app.lib :refer [defnc]]
-            [reitit.frontend.easy :as rfe]
-            [helix.core :refer [$]]
-            [helix.dom :as d]
-            [refx.alpha :as refx]))
-
+  (:require
+   [front.app.components.button :refer [new-mock-btn]]
+   [front.app.components.profile :refer [user-profile]]
+   [front.app.components.svg :as svg]
+   [front.app.lib :refer [defnc]]
+   [reitit.frontend.easy :as rfe]
+   [helix.core :refer [$]]
+   [helix.dom :as d]
+   [refx.alpha :as refx]))
 
 (defnc nav-bar [{:keys [user-data]}]
   (let [aside (refx/use-sub [:app.dashboard/aside])
@@ -24,8 +24,8 @@
                          :aria-controls "sidebar"
                          :on-click #(refx/dispatch [:app.dashboard/toggle-aside! (not aside-open?)])
                          :class-name (str "p-2 mr-3 text-gray-600 rounded cursor-pointer "
-                                     "hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 "
-                                     "dark:hover:text-white dark:hover:bg-gray-700 lg:hidden")}
+                                          "hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 "
+                                          "dark:hover:text-white dark:hover:bg-gray-700 lg:hidden")}
                         (if aside-open?
                           ($ svg/hamburger-menu-close)
                           ($ svg/hamburger-menu)))

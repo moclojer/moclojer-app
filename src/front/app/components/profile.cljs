@@ -1,17 +1,18 @@
 (ns front.app.components.profile
-  (:require [clojure.string :as str]
-            [front.app.auth.supabase :as supabase]
-            [front.app.lib :refer [defnc]]
-            [helix.core :refer [$]]
-            [helix.dom :as d]
-            [helix.hooks :as hooks]
-            [promesa.core :as p]
-            [refx.alpha :as refx]))
+  (:require
+   [clojure.string :as str]
+   [front.app.auth.supabase :as supabase]
+   [front.app.lib :refer [defnc]]
+   [helix.core :refer [$]]
+   [helix.dom :as d]
+   [helix.hooks :as hooks]
+   [promesa.core :as p]
+   [refx.alpha :as refx]))
 
 (def gravatar-base-url "https://gravatar.com/avatar/")
 (def auth0-cdn-base-url "https://cdn.auth0.com/avatars/")
 
-(def pfp-styles 
+(def pfp-styles
   {:default "w-8 h-8 rounded-none opacity-100"
    :rounded "w-8 h-8 rounded-full opacity-100"
    :loading "w-8 h-8 rounded-full opacity-30 animate-pulse"})
@@ -26,21 +27,21 @@
                       (str/join "")
                       str/lower-case)]
     (str auth0-cdn-base-url initials ".png")))
-                                                            
+
 (defn get-image-style
   [{:keys [children image-style]}]
   (let [image-style (keyword image-style)]
-    (str (get pfp-styles image-style )
+    (str (get pfp-styles image-style)
          children)))
 
-(defnc pfp-img 
-  [{:keys [image-style 
+(defnc pfp-img
+  [{:keys [image-style
            pfp-loading? pfp-url] :as props}]
   (let [classes (get-image-style props)]
     (d/img {:class-name classes & (dissoc props :image-style)
             :src (if (= true pfp-loading?)
-                   "/images/default-pfp.png" 
-                  pfp-url)})))
+                   "/images/default-pfp.png"
+                   pfp-url)})))
 
 (defnc user-profile [{:keys [user-data]}]
   (let [[pfp-url set-pfp-url!] (hooks/use-state nil)
@@ -54,28 +55,28 @@
     ;; https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/digest
     ;; https://cdn.auth0.com/avatars/jt.png
     (hooks/use-effect
-      [pfp-url]
-      (when (and pfp-loading? (nil? pfp-url))
-        (if-let [email (some->> (:email user-data)
-                                str/trim
-                                str/lower-case
-                                (.encode (js/TextEncoder. "utf-8")))]
-          (-> (.digest (.-subtle js/crypto) "SHA-256" email)
-              (p/then
-                (fn [hash-buf]
-                  (-> (.from js/Array (js/Uint8Array. hash-buf))
-                      (.map #(-> (.toString % 16)
-                                 (.padStart 2 "0")))
-                      (.join ""))))
-              (p/then
-                (fn [hex]
-                  (set-pfp-url! (str gravatar-base-url hex
-                                     "?default=" default-pfp-url))))
-              (p/catch
-                (fn [err]
-                  (.log js/console "failed to digest email hash:" err)
-                  (set-pfp-url! default-pfp-url))))
-          (set-pfp-url! default-pfp-url))))
+     [pfp-url]
+     (when (and pfp-loading? (nil? pfp-url))
+       (if-let [email (some->> (:email user-data)
+                               str/trim
+                               str/lower-case
+                               (.encode (js/TextEncoder. "utf-8")))]
+         (-> (.digest (.-subtle js/crypto) "SHA-256" email)
+             (p/then
+              (fn [hash-buf]
+                (-> (.from js/Array (js/Uint8Array. hash-buf))
+                    (.map #(-> (.toString % 16)
+                               (.padStart 2 "0")))
+                    (.join ""))))
+             (p/then
+              (fn [hex]
+                (set-pfp-url! (str gravatar-base-url hex
+                                   "?default=" default-pfp-url))))
+             (p/catch
+              (fn [err]
+                (.log js/console "failed to digest email hash:" err)
+                (set-pfp-url! default-pfp-url))))
+         (set-pfp-url! default-pfp-url))))
 
     (d/div {:class-name "hidden lg:block"}
            (d/button {:type "button"
@@ -94,21 +95,21 @@
                               (:email user-data)))
                   (d/ul {:class-name "py-1" :role "none"}
                         (d/li
-                          (d/a {:href "" 
+                         (d/a {:href ""
                                 ;; TODO settings
-                                :class-name "block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
-                                :role "menuitem"}
-                               "Settings"))
+                               :class-name "block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
+                               :role "menuitem"}
+                              "Settings"))
 
                         (d/li
-                          (d/button
-                            {:class-name (str "w-full block py-2 px-4 text-sm text-left text-gray-700 hover:bg-gray-100"
-                                              "dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white")
-                             :on-click (fn [e]
-                                         (.preventDefault e)
-                                         (supabase/sign-out
-                                           #(refx/dispatch-sync [:app.auth/logout %])))
-                             :role "menuitem"}
-                            "Logout")))))))
+                         (d/button
+                          {:class-name (str "w-full block py-2 px-4 text-sm text-left text-gray-700 hover:bg-gray-100"
+                                            "dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white")
+                           :on-click (fn [e]
+                                       (.preventDefault e)
+                                       (supabase/sign-out
+                                        #(refx/dispatch-sync [:app.auth/logout %])))
+                           :role "menuitem"}
+                          "Logout")))))))
 
 
