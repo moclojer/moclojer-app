@@ -1,6 +1,7 @@
 (ns front.app.auth.views
   (:require
    [mockingbird.components.button :refer [button]]
+   [mockingbird.components.input :refer [input]]
    [front.app.components.alerts :as alerts]
    [front.app.components.container :refer [container]]
    [front.app.components.section :refer [section]]
@@ -58,21 +59,20 @@
                                        (when (:email state)
                                          (refx/dispatch [:app.auth/send-email state])))
                           :class-name "mt-8 space-y-6"}
-                         ($ labeled-input
+
+                         ($ input 
                             {:for "email"
-                             :name "email"
                              :label "your email"
                              :placeholder "name@company.com"
-                             :input-template "login"
-                             :label-template "default"
-                             :on-change #(set-state assoc :email (.. % -target -value))})
-                         (d/div {:class-name "flex items-start"}
+                             :on-change #(set-state assoc :email (.. % -target -value))}) 
+
+                         (d/div {:class-name "flex items-start "}
                                 (d/div {:class-name "flex items-center h-5"}))
 
-                         ($ button {:class (str (when loading? "bg-gray-700"))
+                         ($ button {:class (when loading? "bg-gray-700 ")
                                     :type :submit
                                     :theme :mockingbird
-                                    :size :full
+                                      :size :full
                                     :label "login to your account"}
                             (if loading?
                               (d/span {:class-name "inline-flex"}
@@ -132,7 +132,7 @@
 
                                       ($ button {:class (str "bg-gray-700"
                                                              (when loading? "login-button-block")
-                                                             (when available? " login-button cursor-not-allowed"))
+                                                             (when available? " cursor-not-allowed"))
                                                  :type :submit
                                                  :theme :mockingbird
                                                  :size :full
