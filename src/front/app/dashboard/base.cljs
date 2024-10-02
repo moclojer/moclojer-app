@@ -4,9 +4,9 @@
             [front.app.components.modal :refer [modal]]
             [front.app.components.svg :as svg]
             [front.app.components.aside :refer [aside]]
-            [front.app.components.button :refer [button]]
+            [mockingbird.components.button :refer [button]]
             [front.app.components.navbar :refer [nav-bar]]
-            [front.app.lib :refer [defnc]]
+            [mockingbird.lib :refer-macros [defnc]]
             [helix.core :refer [$ <>]]
             [helix.dom :as d]
             [helix.hooks :as hooks]
@@ -156,7 +156,7 @@
           (d/div
            {:class "flex justify-between items-end py-4"}
            ($ button
-              {:class-name
+              {:class
                (str "px-3 py-2 rounded-lg justify-end items-center gap-2 flex btn-add "
                     (if allow-save? "bg-pink-600" "btn-add__disabled bg-gray-600 cursor-not-allowed"))
                :on-click #(when allow-save?
@@ -192,7 +192,7 @@
          (d/div
           {:class "flex flex-row space-x-2"}
           ($ button
-             {:class-name "px-4 py-2 bg-red-500 rounded-lg hover:opacity-80"
+             {:class "px-4 py-2 bg-red-500 rounded-lg hover:opacity-80"
               :on-click #(do
                            (close-modal!)
                            (refx/dispatch-sync [:app.dashboard/delete-mock mock]))}
@@ -200,7 +200,7 @@
               {:class "text-white"}
               "Yes, I want to delete it"))
           ($ button
-             {:class-name "px-4 py-2 border-2 border-gray-400 rounded-lg hover:bg-gray-200"}
+             {:class "px-4 py-2 border-2 border-gray-400 rounded-lg hover:bg-gray-200"}
              (d/p
               {:class-name "text-gray-800 text-sm font-medium"
                :on-click #(close-modal!)}

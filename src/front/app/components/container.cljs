@@ -14,7 +14,7 @@
   (let [aside (refx/use-sub [:app.dashboard/aside])
         aside-open? (:open? aside)]
     (d/div
-     {:class-name (str "overflow-y-auto relative h-full bg-gray-50 "
+     {:class (str "overflow-y-auto relative h-full bg-gray-50 "
                        (if aside-open?
                          "lg:ml-64"
                          "lg:ml-16")
@@ -28,6 +28,6 @@
     (str (-> template login-styles)
          children)))
 
-(defnc container [{:keys [children class-name]}]
-  (d/div {:class-name (or class-name (get login-styles :default))}
+(defnc container [{:keys [children class]}]
+  (d/div {:class (or class (get login-styles :default))}
          children))

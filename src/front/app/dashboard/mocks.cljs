@@ -78,7 +78,8 @@
                ($ api-mock {:enabled enabled :url url :id id})))
          (d/div {:class "self-stretch pt-6 justify-start items-start inline-flex text-white text-xs font-bold leading-[18px]"}
 
-                (d/button {:class "px-3 py-2 bg-mockingbird-main rounded-lg justify-end items-center gap-2 flex btn-add"
+                ($ button {:class "px-3 py-2 text-white hover:text-white bg-pink-600 rounded-lg justify-end items-center gap-2 flex btn-add"
+                           :theme :mockingbird
                            :on-click (fn [_] (refx/dispatch [:app.dashboard/toggle-mock-modal]))}
                           (d/svg {:width "16"
                                   :height "17"

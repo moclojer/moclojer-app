@@ -31,7 +31,7 @@
 
 (defnc save []
   (d/svg {:width "17"
-          :class-name "shrink-0 relative overflow-visible"
+          :class "shrink-0 relative overflow-visible"
           :height "17"
           :viewBox "0 0 17 17"
           :fill "none"}
@@ -67,7 +67,7 @@
                      :transform "translate(0 0.5)"})))))
 
 (defnc personal-mock []
-  (d/svg {:class-name ""
+  (d/svg {:class ""
           :fill "none"
           :width "22"
           :height "23"
@@ -79,7 +79,7 @@
                   :d "M10.5882 9.92283C10.5882 14.0357 9.40118 17.8738 7.34941 21.1155M3.30235 18.7299L3.36588 18.6246C5.0159 16.019 5.8885 13.0016 5.88235 9.92283C5.88235 8.68221 6.37815 7.4924 7.26067 6.61516C8.1432 5.73791 9.34016 5.24507 10.5882 5.24507C11.8363 5.24507 13.0333 5.73791 13.9158 6.61516C14.7983 7.4924 15.2941 8.68221 15.2941 9.92283C15.2941 11.1121 15.2118 12.2839 15.0553 13.4311M12.5635 21.4348C13.2897 19.9946 13.8774 18.4895 14.3188 16.9395M18.8353 18.2633C19.5941 15.6133 20 12.8148 20 9.92283C20.0004 8.28041 19.5658 6.66685 18.7399 5.24434C17.914 3.82183 16.7259 2.64051 15.295 1.81914C13.8642 0.997776 12.2411 0.565308 10.5888 0.565216C8.93648 0.565124 7.31328 0.997411 5.88235 1.81862M0 15.0263C0.752941 13.4838 1.17647 11.7518 1.17647 9.92283C1.17647 8.21895 1.63529 6.6215 2.43529 5.24507"})))
 
 (defnc org-mock []
-  (d/svg {:class-name ""
+  (d/svg {:class ""
           :fill "none"
           :width "20"
           :height "21"
@@ -121,7 +121,7 @@
 
 (defnc hamburger-menu []
   (d/svg {:id "toggleSidebarMobileHamburger"
-          :class-name "w-6 h-6"
+          :class "w-6 h-6"
           :viewBox "0 0 20 20"
           :fill "currentColor"}
          (d/path {:fill-rule "evenodd"
@@ -130,7 +130,7 @@
 
 (defnc hamburger-menu-close []
   (d/svg {:id "toggleSidebarMobileClose"
-          :class-name "w-6 h-6"
+          :class "w-6 h-6"
           :fill "currentColor"
           :viewBox "0 0 20 20"}
          (d/path {:fill-rule "evenodd"
@@ -138,7 +138,7 @@
                   :clip-rule "evenodd"})))
 
 (defnc arrow [{:keys [direction class]}]
-  (d/svg {:class-name (str "w-6 h-6 "
+  (d/svg {:class (str "w-6 h-6 "
                            (case direction
                              :up "rotate-180 "
                              :down "rotate-0 "
@@ -151,7 +151,7 @@
                   :fill-rule "evenodd"})))
 
 (defnc mock-list-box []
-  (d/svg {:class-name "flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+  (d/svg {:class "flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
           :fill "currentColor"
           :viewBox "0 0 24 24"}
          (d/path {:d "M10.5021 1.40273C10.9577 1.14023 11.4742 1.00204 12 1.00204C12.5258 1.00204 13.0424 1.14024 13.4979 1.40276C13.4986 1.40317 13.4993 1.40357 13.5 1.40397L20.5 5.40396C20.9556 5.66701 21.334 6.04524 21.5973 6.50071C21.8606 6.95618 21.9995 7.47288 22 7.99897V16.001C21.9995 16.5271 21.8606 17.0438 21.5973 17.4993C21.334 17.9547 20.9556 18.333 20.5 18.596L20.4961 18.5982L13.5 22.596C13.4994 22.5964 13.4988 22.5967 13.4982 22.5971C13.0426 22.8597 12.5259 22.9979 12 22.9979C11.4741 22.9979 10.9575 22.8597 10.5019 22.5971C10.5012 22.5967 10.5006 22.5964 10.5 22.596L3.50386 18.5982L3.5 18.596C3.04439 18.333 2.66597 17.9547 2.40269 17.4993C2.13941 17.0438 2.00054 16.5271 2 16.001V7.99897C2.00054 7.47288 2.13941 6.95618 2.40269 6.50071C2.66597 6.04524 3.04439 5.66701 3.5 5.40397L3.50386 5.40174L10.5021 1.40273ZM12 3.00204C11.8245 3.00204 11.652 3.04825 11.5 3.13602L11.4961 3.13825L4.5 7.13602C4.49947 7.13632 4.49895 7.13663 4.49842 7.13693C4.34726 7.22457 4.22169 7.3503 4.13423 7.5016C4.04654 7.6533 4.00025 7.82537 4 8.00059V15.9994C4.00025 16.1746 4.04654 16.3467 4.13423 16.4984C4.22169 16.6497 4.34726 16.7754 4.49842 16.8631C4.49895 16.8634 4.49947 16.8637 4.5 16.864L11.5 20.864C11.652 20.9517 11.8245 20.9979 12 20.9979C12.1755 20.9979 12.348 20.9517 12.5 20.864L12.5039 20.8618L19.5 16.864C19.5005 16.8637 19.5011 16.8634 19.5016 16.8631C19.6527 16.7754 19.7783 16.6497 19.8658 16.4984C19.9535 16.3466 19.9998 16.1743 20 15.999V8.00102C19.9998 7.82566 19.9535 7.65342 19.8658 7.5016C19.7783 7.35031 19.6527 7.22458 19.5016 7.13694C19.5011 7.13663 19.5005 7.13633 19.5 7.13602L12.5 3.13603C12.348 3.04826 12.1755 3.00204 12 3.00204Z"
@@ -166,7 +166,7 @@
                   :fill-rule "evenodd"})))
 
 (defnc house []
-  (d/svg {:class-name "w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+  (d/svg {:class "w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
           :fill "none" :viewBox "0 0 24 24"}
          (d/path {:fill "currentColor"
                   :clip-rule "evenodd"
@@ -177,9 +177,9 @@
                   :clip-rule "evenodd"
                   :d "M8 12C8 11.4477 8.44772 11 9 11H15C15.5523 11 16 11.4477 16 12V22C16 22.5523 15.5523 23 15 23C14.4477 23 14 22.5523 14 22V13H10V22C10 22.5523 9.55228 23 9 23C8.44772 23 8 22.5523 8 22V12Z"})))
 
-(defnc upload [{:keys [class-name]}]
+(defnc upload [{:keys [class]}]
   (d/svg
-   {:class class-name
+   {:class class
     :aria-hidden "true"
     :fill "none"
     :viewBox  "0 0 20 16"}
@@ -251,7 +251,7 @@
 
 (defnc close []
   (d/svg
-   {:class-name "w-5 h-5"
+   {:class "w-5 h-5"
     :fill "currentColor"
     :viewBox " 0 0 20 20"}
    (d/path
@@ -308,14 +308,14 @@
                   :fill "white"})))
 
 (defnc help []
-  (d/svg {:class-name "flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+  (d/svg {:class "flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
           :fill "currentColor"
           :viewBox "0 0 20 20"}
          (d/path {:fill-rule "evenodd"
                   :d "M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-2 0c0 .993-.241 1.929-.668 2.754l-1.524-1.525a3.997 3.997 0 00.078-2.183l1.562-1.562C15.802 8.249 16 9.1 16 10zm-5.165 3.913l1.58 1.58A5.98 5.98 0 0110 16a5.976 5.976 0 01-2.516-.552l1.562-1.562a4.006 4.006 0 001.789.027zm-4.677-2.796a4.002 4.002 0 01-.041-2.08l-.08.08-1.53-1.533A5.98 5.98 0 004 10c0 .954.223 1.856.619 2.657l1.54-1.54zm1.088-6.45A5.974 5.974 0 0110 4c.954 0 1.856.223 2.657.619l-1.54 1.54a4.002 4.002 0 00-2.346.033L7.246 4.668zM12 10a2 2 0 11-4 0 2 2 0 014 0z"})))
 
 (defnc docs []
-  (d/svg {:class-name "flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+  (d/svg {:class "flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
           :fill "currentColor"
           :viewBox "0 0 20 20"}
          (d/path {:d "M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"})

@@ -38,7 +38,7 @@
   [{:keys [image-style
            pfp-loading? pfp-url] :as props}]
   (let [classes (get-image-style props)]
-    (d/img {:class-name classes & (dissoc props :image-style)
+    (d/img {:class classes & (dissoc props :image-style)
             :src (if (= true pfp-loading?)
                    "/images/default-pfp.png"
                    pfp-url)})))
@@ -78,32 +78,32 @@
                 (set-pfp-url! default-pfp-url))))
          (set-pfp-url! default-pfp-url))))
 
-    (d/div {:class-name "hidden lg:block"}
+    (d/div {:class "hidden lg:block"}
            (d/button {:type "button"
-                      :class-name (str "flex text-sm bg-gray-800 aspect-square rounded-full "
+                      :class (str "flex text-sm bg-gray-800 aspect-square rounded-full "
                                        (when dropdown-open? "focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"))
                       :on-click #(toggle-dropdown! not)}
-                     (d/span {:class-name "sr-only"} "Open user menu")
+                     (d/span {:class "sr-only"} "Open user menu")
                      ($ pfp-img {:image-style "rounded"
                                  :pfp-loading? pfp-loading?
                                  :pfp-url pfp-url}))
-           (d/div {:class-name (str "absolute z-50 my-4 right-0 text-base list-none bg-white rounded divide-y"
+           (d/div {:class (str "absolute z-50 my-4 right-0 text-base list-none bg-white rounded divide-y"
                                     "divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600 "
                                     (when-not dropdown-open? "hidden"))}
-                  (d/div {:class-name "py-3 px-4" :role "none"}
-                         (d/p {:class-name "text-sm font-medium text-gray-900 truncate dark:text-gray-300" :role "none"}
+                  (d/div {:class "py-3 px-4" :role "none"}
+                         (d/p {:class "text-sm font-medium text-gray-900 truncate dark:text-gray-300" :role "none"}
                               (:email user-data)))
-                  (d/ul {:class-name "py-1" :role "none"}
+                  (d/ul {:class "py-1" :role "none"}
                         (d/li
                          (d/a {:href ""
                                 ;; TODO settings
-                               :class-name "block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
+                               :class "block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
                                :role "menuitem"}
                               "Settings"))
 
                         (d/li
                          (d/button
-                          {:class-name (str "w-full block py-2 px-4 text-sm text-left text-gray-700 hover:bg-gray-100"
+                          {:class (str "w-full block py-2 px-4 text-sm text-left text-gray-700 hover:bg-gray-100"
                                             "dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white")
                            :on-click (fn [e]
                                        (.preventDefault e)

@@ -6,6 +6,6 @@
 (def section-styles
   {:default "bg-gray-50 dark:bg-gray-800"})
 
-(defnc section [{:keys [children class-name]}]
-  (d/section {:class-name (or class-name (get section-styles :default))}
+(defnc section [{:keys [children class]}]
+  (d/section {:class (or class (get section-styles :default))}
              children))

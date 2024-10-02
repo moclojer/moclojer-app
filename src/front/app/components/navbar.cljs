@@ -1,5 +1,6 @@
 (ns front.app.components.navbar
   (:require
+   [mockingbird.components.image :refer [image]]
    [front.app.components.button :refer [new-mock-btn]]
    [front.app.components.profile :refer [user-profile]]
    [front.app.components.svg :as svg]
@@ -31,8 +32,8 @@
                           ($ svg/hamburger-menu)))
               (d/button {:class-name "flex"
                          :on-click #(rfe/push-state :app.core/dashboard)}
-                        (d/img {:src "/images/logo.svg"
-                                :class-name "mr-3 h-9"})))
+                        ($ image {:src "/images/logo.svg"
+                                  :class "w-[calc(64%)] mr-3 h-9"})))
        (d/div {:class-name "flex items-center lg:gap-3"}
               ($ new-mock-btn)
               ($ user-profile {:user-data user-data})))))))

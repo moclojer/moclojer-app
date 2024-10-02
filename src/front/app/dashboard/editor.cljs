@@ -9,7 +9,7 @@
    [front.app.components.svg :as svg]
    [front.app.dashboard.base :as base]
    [front.app.dashboard.linter :as linter]
-   [front.app.lib :refer [defnc]]
+   [mockingbird.lib :refer-macros [defnc]]
    [helix.core :refer [$]]
    [helix.dom :as d]
    [helix.hooks :as hooks]
