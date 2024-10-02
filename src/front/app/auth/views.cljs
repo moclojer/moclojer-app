@@ -59,7 +59,7 @@
                                        (.preventDefault e)
                                        (when (:email state)
                                          (refx/dispatch [:app.auth/send-email state])))
-                          :class "mt-8 space-y-6"}
+                          :class "mt-8 space-y-6 "}
 
                          ($ input 
                             {:for "email"
@@ -100,7 +100,7 @@
                                     "md:mt-0 lg:max-w-screen-lg 2xl:max:max-w-screen-lg xl:p-0 dark:bg-gray-800")}
                   (d/div {:class "hidden w-2/3 lg:flex"}
                          ($ image {:src "/images/authentication/login.svg" 
-                                   :class "rounded-l-lg"}))
+                                   :class "rounded-l-lg "}))
                   (if sent?
                     (d/div ($ loading-spinner)
                            "loading ...")
@@ -117,7 +117,7 @@
                                                     (.preventDefault e)
                                                     (when (and (not-empty username) available?)
                                                       (refx/dispatch [:app.auth/save-username username])))
-                                       :class "mt-8 space-y-6"}
+                                       :class "mt-8 space-y-6 "}
                                       (d/div
                                        ($ input
                                           {:for "username"
