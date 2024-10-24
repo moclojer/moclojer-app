@@ -12,6 +12,7 @@
 (defn build-system-map []
   (component/system-map
    :config (components/new-config "back/config.edn")
+   :logger (component/using (components/new-logger) [:config])
    :http (components/new-http)
    :sentry (component/using (components/new-sentry) [:config])
    :router (components/new-router routes/routes)
@@ -33,7 +34,6 @@
                                [:config :http :router :database :mq :sentry])))
 
 (defn start-system! [system-map]
-  (components/setup-logger [["*" :info]] :auto :prod)
   (migrations/migrate (migrations/build-complete-db-config "back/config.edn"))
   (->> system-map
        component/start
