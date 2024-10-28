@@ -163,3 +163,20 @@
                     {:status-code 400
                      :cause :invalid-id
                      :value mock-id}))))
+
+;; Iterate over *ns* functions and replace them with themselves within
+;; a `logs/trace` call that uses each function's arglist as context.
+(doseq [[fsym func] (ns-publics *ns*)]
+  (let [args (first (:arglists (meta func)))
+        argmap (reduce
+                (fn [acc v]
+                  (assoc acc (keyword v) v))
+                ;; remove components and ctx
+                {} (drop-last 2 args))
+        symkey (keyword (symbol (str *ns*) (str fsym)))]
+    (intern
+     *ns* fsym
+     (eval
+      `(fn [~@args]
+         (com.moclojer.components.logs/trace ~symkey ~argmap
+           (~func ~@args)))))))
