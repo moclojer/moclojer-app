@@ -93,11 +93,11 @@
    ::unpublish-mock!
    {:mock-id id}
    (-> (db.mocks/get-mock-by-id id database ctx)
-      logic.mocks/unpublish
-      (db.mocks/update! database ctx)
-      (adapter.mocks/->wire)
-      :id
-      (ports.producers/generate-single-yml! mq ctx)))
+       logic.mocks/unpublish
+       (db.mocks/update! database ctx)
+       (adapter.mocks/->wire)
+       :id
+       (ports.producers/generate-single-yml! mq ctx)))
   true)
 
 (defn delete-mock!
@@ -126,12 +126,12 @@
    ::get-mock-pub-status
    {:mock-id id}
    (if-let [mock (db.mocks/get-mock-by-id (parse-uuid (str id)) db ctx)]
-    (-> (adapter.mocks/->wire mock)
-        (select-keys [:dns-status :unification-status]))
-    (throw (ex-info "No mock found with given id"
-                    {:status-code 400
-                     :cause :invalid-id
-                     :value id})))))
+     (-> (adapter.mocks/->wire mock)
+         (select-keys [:dns-status :unification-status]))
+     (throw (ex-info "No mock found with given id"
+                     {:status-code 400
+                      :cause :invalid-id
+                      :value id})))))
 
 (defn update-mock-dns-status!
   [domain new-status db ctx]
@@ -184,7 +184,7 @@
     (clojure.pprint/pprint
      `(fn [~@args]
         (com.moclojer.components.logs/trace ~symkey ~argmap
-          (~func ~@args))))))
+                                            (~func ~@args))))))
 
 (let [fsym 'delete-mock!
       func #'back.api.controllers.mocks/delete-mock!
@@ -205,6 +205,14 @@
                      (assoc acc (keyword arg) arg))
                    acc (:keys v))
 
+                  ;; Arg with :or declared (WIP)
+                  (and (map? v) (some? (:or v)))
+                  (reduce
+                   (fn [v acc arg]
+                     (assoc acc (keyword arg)
+                            (get (:or v) arg)))
+                   acc (:keys v))
+
                   ;; Normal arg types.
                   :else (assoc acc (keyword v) v)))
               ;; remove components and ctx
@@ -218,14 +226,12 @@
                     (and (map? arg) (some? (:keys arg)))
                     (reduce
                      (fn [argmap arg]
-                       ;; FIXME: not working for some reason
-                       (prn :argmap argmap :argkey arg)
-                       (assoc argmap (:keyword arg) arg))
-                     {} (:keys args))
+                       (assoc argmap (keyword arg) arg))
+                     {} (:keys arg))
 
                     :else arg))
                 args)]
-  (clojure.pprint/pprint
-   `(fn [~@args]
-      (com.moclojer.components.logs/trace ~symkey ~argmap
-        (~func ~@callargs)))))
+  (let [parsed-fn `(fn [~@args]
+                     (com.moclojer.components.logs/trace ~symkey ~argmap
+                                                         (~func ~@callargs)))]
+    (clojure.pprint/pprint [parsed-fn])))
