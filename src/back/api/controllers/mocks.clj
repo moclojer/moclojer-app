@@ -188,47 +188,33 @@
 
 (let [fsym 'delete-mock!
       func #'back.api.controllers.mocks/delete-mock!
-      symkey (keyword (symbol (str *ns*) (str fsym)))
+      symkey (keyword (symbol (str *ns*) (name fsym)))
       args (first (:arglists (meta func)))
-      argmap (reduce
-              (fn [acc v]
-                (cond
-                  ;; Arg with a :as alias, making it not necessary to
-                  ;; get the inner deconstructed keys.
-                  (and (map? v) (some? (:as v)))
-                  (assoc acc (keyword (:as v) (:as v)))
 
-                  ;; Arg with only the :keys vec declared.
-                  (and (map? v) (some? (:keys v)))
-                  (reduce
-                   (fn [acc arg]
-                     (assoc acc (keyword arg) arg))
-                   acc (:keys v))
+      pre-argmap (fn [acc v]
+                   (cond
+                     ;; Arg with a :as alias, making it not necessary to
+                     ;; get the inner deconstructed keys.
+                     (and (map? v) (:as v))
+                     (assoc acc (keyword (:as v)) (:as v))
+                     ;; Arg with only the :keys vec declared.
+                     (and (map? v) (:keys v))
+                     (into {} (map (fn [k]
+                                     [(keyword k) k])
+                                   (:keys v)))
+                     ;; Normal arg types.
+                     :else (assoc acc (keyword v) v)))
 
-                  ;; Arg with :or declared (WIP)
-                  (and (map? v) (some? (:or v)))
-                  (reduce
-                   (fn [v acc arg]
-                     (assoc acc (keyword arg)
-                            (get (:or v) arg)))
-                   acc (:keys v))
-
-                  ;; Normal arg types.
-                  :else (assoc acc (keyword v) v)))
-              ;; remove components and ctx
-              {} (drop-last 2 args))
+      argmap (reduce pre-argmap {} (drop-last 2 args))
       callargs (map
                 (fn [arg]
                   (cond
-                    (and (map? arg) (some? (:as arg)))
+                    (and (map? arg) (:as arg))
                     (:as arg)
-
-                    (and (map? arg) (some? (:keys arg)))
-                    (reduce
-                     (fn [argmap arg]
-                       (assoc argmap (keyword arg) arg))
-                     {} (:keys arg))
-
+                    (and (map? arg) (:keys arg))
+                    (into {} (map (fn [a]
+                                    [(keyword a) a])
+                                  (:keys arg)))
                     :else arg))
                 args)]
   (let [parsed-fn `(fn [~@args]
