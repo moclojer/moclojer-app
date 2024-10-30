@@ -170,13 +170,62 @@
   (let [args (first (:arglists (meta func)))
         argmap (reduce
                 (fn [acc v]
+                  (prn v)
                   (assoc acc (keyword v) v))
                 ;; remove components and ctx
                 {} (drop-last 2 args))
         symkey (keyword (symbol (str *ns*) (str fsym)))]
-    (intern
-     *ns* fsym
-     (eval
-      `(fn [~@args]
-         (com.moclojer.components.logs/trace ~symkey ~argmap
-           (~func ~@args)))))))
+    #_(intern
+       *ns* fsym
+       (eval
+        `(fn [~@args]
+           (com.moclojer.components.logs/trace ~symkey ~argmap
+                                               (~func ~@args)))))
+    (clojure.pprint/pprint
+     `(fn [~@args]
+        (com.moclojer.components.logs/trace ~symkey ~argmap
+          (~func ~@args))))))
+
+(let [fsym 'delete-mock!
+      func #'back.api.controllers.mocks/delete-mock!
+      symkey (keyword (symbol (str *ns*) (str fsym)))
+      args (first (:arglists (meta func)))
+      argmap (reduce
+              (fn [acc v]
+                (cond
+                  ;; Arg with a :as alias, making it not necessary to
+                  ;; get the inner deconstructed keys.
+                  (and (map? v) (some? (:as v)))
+                  (assoc acc (keyword (:as v) (:as v)))
+
+                  ;; Arg with only the :keys vec declared.
+                  (and (map? v) (some? (:keys v)))
+                  (reduce
+                   (fn [acc arg]
+                     (assoc acc (keyword arg) arg))
+                   acc (:keys v))
+
+                  ;; Normal arg types.
+                  :else (assoc acc (keyword v) v)))
+              ;; remove components and ctx
+              {} (drop-last 2 args))
+      callargs (map
+                (fn [arg]
+                  (cond
+                    (and (map? arg) (some? (:as arg)))
+                    (:as arg)
+
+                    (and (map? arg) (some? (:keys arg)))
+                    (reduce
+                     (fn [argmap arg]
+                       ;; FIXME: not working for some reason
+                       (prn :argmap argmap :argkey arg)
+                       (assoc argmap (:keyword arg) arg))
+                     {} (:keys args))
+
+                    :else arg))
+                args)]
+  (clojure.pprint/pprint
+   `(fn [~@args]
+      (com.moclojer.components.logs/trace ~symkey ~argmap
+        (~func ~@callargs)))))
