@@ -164,42 +164,57 @@
                      :cause :invalid-id
                      :value mock-id}))))
 
+;; WORK IN PROGRESS
 (defn inspect [a]
   (prn a)
   a)
 
-;; Iterate over *ns* functions and replace them with themselves within
-;; a `logs/trace` call that uses each function's arglist as context.
-(doseq [[fsym func] (ns-publics *ns*)]
-  (let [symkey (keyword (symbol (str *ns*) (name fsym)))
-        args (first (:arglists (meta func)))
-        pre-argmap (fn [acc v]
-                     (cond
+(defn trace-all-ns
+  "Iterate over *ns* functions and replace them with themselves within
+  a `logs/trace` call that uses each function's arglist as context."
+  []
+  (let [desired-ns (->> (all-ns)
+                        (map ns-name)
+                        (map name)
+                        (filter #(clojure.string/starts-with? % "com.moclojer"))
+                        (filter #(not (clojure.string/ends-with? % "logs")))
+                        (map symbol)
+                        (into []))]
+    (doseq [current-ns desired-ns]
+      (clojure.pprint/pprint current-ns)
+      (doseq [[fsym func] (ns-publics current-ns)]
+        (let [symkey (keyword (symbol (str current-ns) (name fsym)))
+              args (first (:arglists (meta func)))
+              pre-argmap (fn [acc v]
+                           (cond
                      ;; Arg with a :as alias, making it not necessary to
                      ;; get the inner deconstructed keys.
-                       (and (map? v) (:as v))
-                       (acc (keyword (:as v)) (:as v))
+                             (and (map? v) (:as v))
+                             (acc (keyword (:as v)) (:as v))
                      ;; Arg with only the :keys vec declared.
-                       (and (map? v) (:keys v))
-                       (into {} (map (fn [k]
-                                       [(keyword k) k])
-                                     (:keys v)))
+                             (and (map? v) (:keys v))
+                             (into {} (map (fn [k]
+                                             [(keyword k) k])
+                                           (:keys v)))
                      ;; Normal arg types.
-                       :else (assoc acc (keyword v) v)))
-        argmap (reduce pre-argmap {} (drop-last 2 args))
-        callargs (map
-                  (fn [arg]
-                    (cond
-                      (and (map? arg) (:as arg))
-                      (:as arg)
-                      (and (map? arg) (:keys arg))
-                      (into {} (map (fn [a]
-                                      [(keyword a) a])
-                                    (:keys arg)))
-                      :else arg))
-                  args)]
-    (intern
-     *ns* fsym
-     (eval `(fn [~@args]
-              (com.moclojer.components.logs/trace ~symkey ~argmap
-                                                  (~func ~@callargs)))))))
+                             :else (assoc acc (keyword v) v)))
+              argmap (reduce pre-argmap {} (drop-last 2 args))
+              callargs (map
+                        (fn [arg]
+                          (cond
+                            (and (map? arg) (:as arg))
+                            (:as arg)
+                            (and (map? arg) (:keys arg))
+                            (into {} (map (fn [a]
+                                            [(keyword a) a])
+                                          (:keys arg)))
+                            :else arg))
+                        args)]
+          (inspect  (intern
+                    *ns* fsym
+                    (eval `(fn [~@args]
+                             (com.moclojer.components.logs/trace ~symkey ~argmap
+                                                                 (~func ~@callargs)))))))))))
+
+
+(trace-all-ns )
