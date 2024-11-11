@@ -165,11 +165,6 @@
                      :cause :invalid-id
                      :value mock-id}))))
 
-;; WORK IN PROGRESS
-(defn inspect [a]
-  (prn a)
-  a)
-
 (defn get-allowed-ns []
   (->> (all-ns)
        (map ns-name)
@@ -219,7 +214,7 @@
              (with-meta (eval  `(fn [~@args]
                                   (com.moclojer.components.logs/trace ~sym ~argmap
                                                                       (~func ~@callargs)))) m))
-            (prn '--> 'could 'not 'convert func 'and args)))))))
+            (logs/log "--> could not convert" func "args:" args)))))))
 
 (defn wrap-with-trace [f sym]
   (let [m (meta f)
@@ -230,9 +225,14 @@
                               (apply f args)))]
     (with-meta wrapped m)))
 
+(defn inspect [a] (prn a) a)
+
 (defn trace-all-ns-test []
-  (let [a-ns (get-allowed-ns)]
+  (let [a-ns (get-allowed-ns)
+        m (atom [])]
     (doseq [curr-ns a-ns]
       (doseq [[sym v] (ns-publics curr-ns)]
         (when (fn? @v)
-          (alter-var-root v #(wrap-with-trace % (keyword (str curr-ns) (name sym)))))))))
+          (swap! m conj (str (inspect ((meta v) :name))))
+          (alter-var-root v #(wrap-with-trace % (keyword (str curr-ns) (name sym)))))))
+    @m))
