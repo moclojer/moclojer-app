@@ -15,10 +15,10 @@
         aside-open? (:open? aside)]
     (d/div
      {:class (str "overflow-y-auto relative h-full bg-gray-50 "
-                       (if aside-open?
-                         "lg:ml-64"
-                         "lg:ml-16")
-                       " dark:bg-gray-900")
+                  (if aside-open?
+                    "lg:ml-64"
+                    "lg:ml-16")
+                  " dark:bg-gray-900")
       :id "main-content"}
      children)))
 

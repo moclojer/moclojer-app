@@ -3,7 +3,7 @@
    [cljs.pprint :as pprint]
    [clojure.string :as str]
    [front.app.lib :refer [defnc]]
-   [front.app.components.profile :refer [pfp-img]]
+   [mockingbird.components.pfp :refer [pfp]]
    [helix.dom :as d]
    [helix.core :refer [$]]))
 
@@ -30,7 +30,7 @@
   [{:keys [children] :as props}]
   (d/section
    (d/div {:class (str "p-4 bg-white block sm:flex items-center justify-between border-b"
-                            "border-gray-200 lg:mt-1.5 dark:bg-gray-800 dark:border-gray-700")}
+                       "border-gray-200 lg:mt-1.5 dark:bg-gray-800 dark:border-gray-700")}
           (d/div {:class "flex items-center divide-x divide-gray-100 dark:divide-gray-700"}
                  (d/div {:class "pl-3 text-sm font-medium text-gray-500"}
                         (gen-today-date))))
@@ -38,9 +38,12 @@
    (d/div {:class "p-5"}
           (d/div {:class "flex items-center mb-4"}
                  (d/div {:class "flex-shrink-0"}
-                        ($ pfp-img
-                           {:image-style (props :image-style)
-                            :pfp-url (props :image)
+                        ($ pfp
+                           {:style (props :image-style)
+                            :pfp-url (if (= true (props :pfp-loading?))
+                                       "/images/default-pfp.png"
+                                       (props :image))
+
                             :pfp-loading? false}))
                  (d/div {:class "ml-4"}
                         (d/p (props :author))
@@ -58,11 +61,11 @@
 (defnc blogpost-message
   [{:keys [children] :as props}]
   (d/div {:class (str "p-4 bg-gray-200 block sm:flex items-center justify-left border-b mr-8 py-8"
-                           "border-gray-200 lg:mt-1.5 dark:bg-gray-800 dark:border-gray-700")}
+                      "border-gray-200 lg:mt-1.5 dark:bg-gray-800 dark:border-gray-700")}
          (d/div {:class "flex items-center mb-4"}
                 (d/div {:class "flex-shrink-0"}
                        ($ pfp-img
-                          {:image-style (props :image-style)
+                          {:style (props :image-style)
                            :pfp-loading? false
                            :pfp-url (props :image)}))
                 (d/div {:class "ml-4"}

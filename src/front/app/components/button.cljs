@@ -1,55 +1,12 @@
 (ns front.app.components.button
   (:require
-   [mockingbird.components.button :refer [button]] 
+   [mockingbird.components.button :refer [button]]
    [front.app.lib :refer [defnc]]
    [helix.dom :as d]
    [helix.core :refer [$]]
    [refx.alpha :as refx]
    [front.app.components.svg :as svg]
    [reitit.frontend.easy :as rfe]))
-
-; #TODO remove solid, outline keeping here because it is used in other pages
-
-; deprecated solid -old layout
-; deprecated outline -old layout
-
-(def base-styles
-  {:solid "group inline-flex items-center justify-center rounded-full py-2 px-4 text-sm font-semibold focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 "
-   :solid-blue "py-3 px-5 w-full text-base font-medium text-center text-white rounded-lg bg-primary-700 focus:ring-4 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 "
-   :outline "group inline-flex ring-1 items-center justify-center rounded-full py-2 px-4 text-sm focus:outline-none "})
-
-(def variant-styles
-  {:solid {:slate "bg-slate-900 text-white hover:bg-slate-700 hover:text-slate-100 active:bg-slate-800 active:text-slate-300 focus-visible:outline-slate-900 ",
-           :blue "bg-blue-600 text-white hover:text-slate-100 hover:bg-blue-500 active:bg-blue-800 active:text-blue-100 focus-visible:outline-blue-600 ",
-           :white "bg-white text-slate-900 hover:bg-blue-50 active:bg-blue-200 active:text-slate-600 focus-visible:outline-white "},
-   :solid-blue {:pink " login-button"
-                :grey " login-button-block"}
-   :outline {:slate "ring-slate-200 text-slate-700 hover:text-slate-900 hover:ring-slate-300 active:bg-slate-100 active:text-slate-600 focus-visible:outline-blue-600 focus-visible:ring-slate-300 ",
-             :pink " login-button"
-             :grey " login-button-block"
-             :white "ring-slate-700 text-white hover:ring-slate-500 active:ring-slate-700 active:text-slate-400 focus-visible:outline-white "}})
-
-;; TODO
-(def aside-styles {})
-
-(defn get-login-style
-  [class base variant]
-  (let [base-style (keyword base)
-        variant-style (keyword variant)]
-    (str
-     (get base-styles base-style)
-     (get-in variant-styles [base-style variant-style])
-     class)))
-
-(defnc login-button
-  [{:keys [children base variant class type disabled]
-    :or {children "" base "solid" variant "blue" type "submit" disabled false}}]
-  (let [class (get-login-style class base variant)]
-    ($ button
-       {:class class
-        :type type
-        :disabled disabled}
-       children)))
 
 (defnc new-mock-btn []
   ($ button {:class "px-3 py-2 bg-pink-600 rounded-lg flex flex-row space-x-2 items-center btn-add"
@@ -81,15 +38,12 @@
     :or {aside-open? false}}]
   (d/button
    {:class (str "flex items-center p-2 text-base font-normal text-gray-900 rounded-lg "
-                     "transtion duration-75 hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-gray-700 "
-                     (if aside-open?
-                       "w-[calc(100%-8px)]"
-                       "w-full"))
+                "transtion duration-75 hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-gray-700 "
+                (if aside-open?
+                  "w-[calc(100%-8px)]"
+                  "w-full"))
     :on-click #(rfe/push-state :app.core/dashboard)}
    ($ svg/house)
    (d/span {:class (str "ml-3 "
-                             (when-not aside-open?
-                               "lg:hidden lg:absolute"))} "Home")))
-
-
-
+                        (when-not aside-open?
+                          "lg:hidden lg:absolute"))} "Home")))

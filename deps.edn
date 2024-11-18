@@ -10,7 +10,7 @@
 
 
         org.clojure/tools.deps {:mvn/version "0.21.1449"}
-        moclojer/mockingbird {:local/root "../mockingbird/target/mockingbird-0.0.1.jar"}
+        com.moclojer/mockingbird {:mvn/version "0.0.1"}
 
         ;; back
         com.moclojer/components {:mvn/version "0.1.0"}

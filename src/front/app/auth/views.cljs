@@ -23,10 +23,11 @@
                       error error-res]}]
   ($ container {}
      (d/div {:class (str "flex justify-center items-center w-full bg-white rounded-lg shadow lg:flex "
-                              "md:mt-0 lg:max-w-screen-lg 2xl:max:max-w-screen-lg xl:p-0 dark:bg-gray-800")}
+                         "md:mt-0 lg:max-w-screen-lg 2xl:max:max-w-screen-lg xl:p-0 dark:bg-gray-800")}
             (d/div {:class "hidden w-2/3 lg:flex"}
-                   ($ image {:src "/images/authentication/login.svg"
-                             :class "rounded-l-lg"}))
+                   (d/div {:class " "}
+                          ($ image {:src "/images/authentication/login.svg"
+                                    :class "rounded-l-lg "})))
             (if sent?
               (d/div {:id "login-email-sent"
                       :class "p-6 space-y-8 w-full sm:p-8 lg:p-16 lg:py-0"}
@@ -61,22 +62,22 @@
                                          (refx/dispatch [:app.auth/send-email state])))
                           :class "mt-8 space-y-6 "}
 
-                         ($ input 
+                         ($ input
                             {:for "email"
                              :label "your email"
                              :placeholder "name@company.com"
-                             :on-change #(set-state assoc :email (.. % -target -value))}) 
+                             :on-change #(set-state assoc :email (.. % -target -value))})
 
                          (d/div {:class "flex items-start "}
                                 (d/div {:class "flex items-center h-5"}))
 
-                         ($ button {:class (str (if loading? 
+                         ($ button {:class (str (if loading?
                                                   "bg-gray-700 "
-                                                  "bg-mockingbird-main ") 
+                                                  "bg-mockingbird-main ")
                                                 "hover:bg-mockingbird-400 ")
                                     :type :submit
                                     :theme :mockingbird
-                                      :size :full
+                                    :size :full
                                     :label "login to your account"}
                             (if loading?
                               (d/span {:class "inline-flex"}
@@ -97,9 +98,9 @@
         available? (refx/use-sub [:app.auth/is-username-available?])]
     (d/div {:class "flex flex-col justify-center items-center px-6 pt-8 mx-auto md:h-screen pt:mt-0 dark:bg-gray-900"}
            (d/div {:class (str "flex justify-center items-center w-full bg-white rounded-lg shadow lg:flex "
-                                    "md:mt-0 lg:max-w-screen-lg 2xl:max:max-w-screen-lg xl:p-0 dark:bg-gray-800")}
+                               "md:mt-0 lg:max-w-screen-lg 2xl:max:max-w-screen-lg xl:p-0 dark:bg-gray-800")}
                   (d/div {:class "hidden w-2/3 lg:flex"}
-                         ($ image {:src "/images/authentication/login.svg" 
+                         ($ image {:src "/images/authentication/login.svg"
                                    :class "rounded-l-lg "}))
                   (if sent?
                     (d/div ($ loading-spinner)
@@ -135,11 +136,11 @@
                                              (d/b {:class "text-gray-900"} "*.<username>.")
                                              (d/span {:class "text-gray-500"} "moclojer.com"))
 
-                                      ($ button {:class(str (if loading? 
-                                                              "bg-gray-700 "
-                                                              "bg-mockingbird-main ") 
-                                                            "hover:bg-mockingbird-400 "
-                                                            (when (not available?) " cursor-not-allowed "))
+                                      ($ button {:class (str (if loading?
+                                                               "bg-gray-700 "
+                                                               "bg-mockingbird-main ")
+                                                             "hover:bg-mockingbird-400 "
+                                                             (when (not available?) " cursor-not-allowed "))
                                                  :type :submit
                                                  :theme :mockingbird
                                                  :size :full
@@ -155,9 +156,9 @@
         sent? (refx/use-sub [:app.auth/username-sent])
         [error error-res] (refx/use-sub [:app.auth/login-error])]
     (hooks/use-effect
-     [sent?]
-     (when sent?
-       (rfe/push-state :app.core/dashboard)))
+      [sent?]
+      (when sent?
+        (rfe/push-state :app.core/dashboard)))
 
     (d/div
      ($ section
