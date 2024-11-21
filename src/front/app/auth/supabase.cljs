@@ -8,7 +8,7 @@
 
 (goog-define SUPABASE_URL "")
 (goog-define SUPABASE_TOKEN "")
-(goog-define SUPABASE_GITHUB_REDIRECT "")
+(goog-define SUPABASE_OAUTH_REDIRECT "")
 (when-not (every? not-empty [SUPABASE_URL SUPABASE_TOKEN])
   (throw (js/Error. "SUPABASE_URL or SUPABASE_TOKEN weren't defined")))
 (goog-define SUPABASE_REDIRECT "http://localhost:8200/#/")
@@ -45,7 +45,7 @@
   (let [auth (.-auth client)
         options (clj->js
                  {:provider (clj->js provider)
-                  :options {:redirect-to SUPABASE_GITHUB_REDIRECT}})]
+                  :options {:redirect-to SUPABASE_OAUTH_REDIRECT}})]
     (inspect (.signInWithOAuth auth options))))
 
 (defn event-changes [invoke]
