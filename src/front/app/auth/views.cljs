@@ -60,7 +60,7 @@
                  (d/form {:disabled loading?
                           :on-submit (fn [e]
                                        (.preventDefault e)
-                                       (if (and (:email state) (= (:provider state) ""))
+                                       (if (and (not (= (:email state) "")) (= (:provider state) ""))
                                          (refx/dispatch [:app.auth/send-email state])
                                          (refx/dispatch [:app.auth/send-oauth state])))
                           :class "mt-8 space-y-6 "}
@@ -69,7 +69,7 @@
                             {:for "email"
                              :label "your email"
                              :placeholder "name@company.com"
-                             :on-change #(set-state assoc :email (.. % -target -value))})
+                             :on-change #(set-state assoc :email (.. % -target -value) :provider "")})
 
                          (d/div {:class "flex items-start "}
                                 (d/div {:class "flex items-center h-5"}))
@@ -93,7 +93,7 @@
                                  (d/span {:class "hidden text-gray-300 lg:flex justify-start items-start m-0 lg:mr-2 lg:ml-1"} "or")
                                  ($ button {:roundness :full
                                             :class "flex justify-center flex-col items-center w-6 h-6 "
-                                            :on-click #(set-state assoc :provider "github")}
+                                            :on-click #(set-state assoc :provider "github" :email "")}
 
                                     (d/div {:class "flex text-gray-400 p-4 "}
                                            ($ github)))))

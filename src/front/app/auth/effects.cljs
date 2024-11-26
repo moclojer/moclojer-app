@@ -25,9 +25,15 @@
                  (js/console.log :resp resp)
                  (dispatch (conj on-failure {:body (utils/js->cljs-key resp)}))))))
 
-(defn send-oauth [{:keys [provider]}]
+(defn send-oauth [{:keys [provider on-success on-failure]}]
   (.log js/console :sending-oauth)
-  (supabase/signin-with-oauth supabase/client provider))
+  (-> (supabase/signin-with-oauth supabase/client provider)
+      (p/then (fn [resp]
+                (let [obj (utils/js->cljs-key resp)]
+                  (if (:error obj)
+                    (do
+                      (js/console.error :resp-failure obj)
+                      (dispatch (conj on-failure {:body obj})))))))))
 
 (defn auth-effect [fn-req]
   (fn [req]
