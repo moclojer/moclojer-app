@@ -1,9 +1,10 @@
 (ns front.app.dashboard.linter
-  (:require ["@codemirror/lint" :as clint]
-            ["js-yaml" :as js-yaml]
-            [clojure.string :as str]
-            [malli.core :as m]
-            [refx.alpha :as refx]))
+  (:require
+   ["@codemirror/lint" :as clint]
+   ["js-yaml" :as js-yaml]
+   [clojure.string :as str]
+   [malli.core :as m]
+   [refx.alpha :as refx]))
 
 (def MethodSchema
   [:enum

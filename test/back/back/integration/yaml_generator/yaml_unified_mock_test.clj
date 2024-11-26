@@ -16,61 +16,61 @@
 
 (defn publish-message [msg queue-name]
   (flow "publish a message"
-    [mq (state-flow.api/get-state :mq)]
+        [mq (state-flow.api/get-state :mq)]
 
-    (-> (mq/try-op! mq :publish! [queue-name msg] {})
-        state-flow.api/return)))
+        (-> (mq/try-op! mq :publish! [queue-name msg] {})
+            state-flow.api/return)))
 
 (defn create-bucket-on-localstack [n]
   (flow "create a bucket on localstack"
-    [storage (state-flow.api/get-state :storage)]
+        [storage (state-flow.api/get-state :storage)]
 
-    (-> storage
-        (storage/create-bucket! n)
-        state-flow.api/return)))
+        (-> storage
+            (storage/create-bucket! n)
+            state-flow.api/return)))
 
 (defn delete-bucket-on-localstack [n]
   (flow "delte bucket on localstack"
-    [storage (state-flow.api/get-state :storage)]
+        [storage (state-flow.api/get-state :storage)]
 
-    (-> storage
-        (storage/delete-bucket! n)
-        state-flow.api/return)))
+        (-> storage
+            (storage/delete-bucket! n)
+            state-flow.api/return)))
 
 (defn cleaning-up-localstack-all-files [n]
   (flow "cleaning up localstack"
-    [storage (state-flow.api/get-state :storage)]
+        [storage (state-flow.api/get-state :storage)]
 
-    (->>  (storage/list-files storage n)
-          (map :Key)
-          (map #(storage/delete-file! storage n %))
-          state-flow.api/return)))
+        (->>  (storage/list-files storage n)
+              (map :Key)
+              (map #(storage/delete-file! storage n %))
+              state-flow.api/return)))
 
 (defn setup-file-on-localstack [bucket k v]
   (flow "setup a file on localstack"
-    [storage (state-flow.api/get-state :storage)]
+        [storage (state-flow.api/get-state :storage)]
 
-    (-> storage
-        (storage/upload! bucket k v {})
-        state-flow.api/return)))
+        (-> storage
+            (storage/upload! bucket k v {})
+            state-flow.api/return)))
 
 (defn get-file-on-localstack [n k]
   (flow "get a file on localstack"
-    [storage (state-flow.api/get-state :storage)]
-    (state-flow.api/return
-     (let [timeout 5000 ;; 5 seconds
-           deadline (+ (System/currentTimeMillis) timeout)]
-       (loop []
-         (Thread/sleep 500)
-         (if (< (System/currentTimeMillis) deadline)
-           (if-let [content (some-> (storage/get-file storage n k)
-                                    io/reader slurp
-                                    logic.yml/parse-yaml-&-body)]
-             (if-not (= content [])
-               content
-               (recur))
-             (recur))
-           (throw (Exception. "Failed to retrieve file content within the 5-second timeout"))))))))
+        [storage (state-flow.api/get-state :storage)]
+        (state-flow.api/return
+         (let [timeout 5000 ;; 5 seconds
+               deadline (+ (System/currentTimeMillis) timeout)]
+           (loop []
+             (Thread/sleep 500)
+             (if (< (System/currentTimeMillis) deadline)
+               (if-let [content (some-> (storage/get-file storage n k)
+                                        io/reader slurp
+                                        logic.yml/parse-yaml-&-body)]
+                 (if-not (= content [])
+                   content
+                   (recur))
+                 (recur))
+               (throw (Exception. "Failed to retrieve file content within the 5-second timeout"))))))))
 
 (defn- create-and-start-components []
   (component/start-system
@@ -125,19 +125,19 @@
    :fail-fast? true}
 
   (flow "create a bucket"
-    [create (create-bucket-on-localstack "moclojer")]
+        [create (create-bucket-on-localstack "moclojer")]
 
-    (match? create {:Location "/moclojer"})
+        (match? create {:Location "/moclojer"})
 
-    (flow "setup mock on bucket for path"
+        (flow "setup mock on bucket for path"
 
-      [_ (setup-file-on-localstack "moclojer"
-                                   (str "cd989358-af38-4a2f-a1a1-88096aa425a7/" mock-id "/mock.yml")
-                                   yml)
-       _ (publish-message {:event
-                           {:path (str "cd989358-af38-4a2f-a1a1-88096aa425a7/" mock-id "/mock.yml")}} "mock-unified")]
-      (flow "check retrieved unified yml"
+              [_ (setup-file-on-localstack "moclojer"
+                                           (str "cd989358-af38-4a2f-a1a1-88096aa425a7/" mock-id "/mock.yml")
+                                           yml)
+               _ (publish-message {:event
+                                   {:path (str "cd989358-af38-4a2f-a1a1-88096aa425a7/" mock-id "/mock.yml")}} "mock-unified")]
+              (flow "check retrieved unified yml"
 
-        (match?
-         (matchers/embeds (logic.yml/parse-yaml-&-body expected-yml-with-host))
-         (get-file-on-localstack "moclojer" (str "cd989358-af38-4a2f-a1a1-88096aa425a7/" mock-id "/mock.yml")))))))
+                    (match?
+                     (matchers/embeds (logic.yml/parse-yaml-&-body expected-yml-with-host))
+                     (get-file-on-localstack "moclojer" (str "cd989358-af38-4a2f-a1a1-88096aa425a7/" mock-id "/mock.yml")))))))

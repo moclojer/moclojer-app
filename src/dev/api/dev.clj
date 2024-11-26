@@ -1,10 +1,11 @@
 (ns dev.api.dev
-  (:require [back.api.ports.workers :as p.workers]
-            [back.api.routes :as routes]
-            [com.moclojer.components.core :as components]
-            [com.moclojer.components.mq :as mq]
-            [com.stuartsierra.component :as component]
-            [dev.utils :as utils])
+  (:require 
+   [back.api.ports.workers :as p.workers]
+   [back.api.routes :as routes]
+   [com.moclojer.components.core :as components]
+   [com.moclojer.components.mq :as mq]
+   [com.stuartsierra.component :as component]
+   [dev.utils :as utils])
   (:gen-class))
 
 ;; This namespace is used for development purposes only;

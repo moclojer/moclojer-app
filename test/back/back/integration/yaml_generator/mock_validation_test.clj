@@ -39,40 +39,40 @@
 
 (defn fblock-invalid-yaml []
   (flow ""
-    [:let [mock-id (random-uuid)]
-     database (state-flow.api/get-state :database)]
-    (state/invoke
-     #(db.customers/insert! {:customer/uuid #uuid "cd989358-af38-4a2f-a1a1-88096aa425a7"
-                             :customer/email "test@gmail.com"
-                             :customer/username "chico"
-                             :customer/external-uuid #uuid "dcff4c06-1c9e-4abb-a49b-438e1869ec5b"}
-                            database))
+        [:let [mock-id (random-uuid)]
+         database (state-flow.api/get-state :database)]
+        (state/invoke
+         #(db.customers/insert! {:customer/uuid #uuid "cd989358-af38-4a2f-a1a1-88096aa425a7"
+                                 :customer/email "test@gmail.com"
+                                 :customer/username "chico"
+                                 :customer/external-uuid #uuid "dcff4c06-1c9e-4abb-a49b-438e1869ec5b"}
+                                database))
 
-    (state/invoke #(db.mocks/insert!
-                    {:mock/subdomain "chico"
-                     :mock/id mock-id
-                     :mock/content invalid-mock-yaml
-                     :mock/wildcard "test"
-                     :mock/user_id #uuid "cd989358-af38-4a2f-a1a1-88096aa425a7"
-                     :mock/enabled true
-                     :mock/dns_status "offline"
-                     :mock/unification_status "offline"}
-                    database))
-    (flow
-      "should block invalid yaml"
-      [components (state-flow.api/get-state)]
-      (state/invoke
-       #(workers/generate-single-yml-handler
-         {:event
-          {:yml.single.generate {:mock-id mock-id}}}
-         components))
-      (match?
-       (matchers/embeds {:event
-                         {:mock.unification-status
-                          {:mock-id mock-id
-                           :new-status "offline-invalid"}}})
-       (update-in (first (get @mq/mock-channels "yml.unified.generated"))
-                  [:event :mock.unification-status] dissoc :ctx)))))
+        (state/invoke #(db.mocks/insert!
+                        {:mock/subdomain "chico"
+                         :mock/id mock-id
+                         :mock/content invalid-mock-yaml
+                         :mock/wildcard "test"
+                         :mock/user_id #uuid "cd989358-af38-4a2f-a1a1-88096aa425a7"
+                         :mock/enabled true
+                         :mock/dns_status "offline"
+                         :mock/unification_status "offline"}
+                        database))
+        (flow
+         "should block invalid yaml"
+         [components (state-flow.api/get-state)]
+         (state/invoke
+          #(workers/generate-single-yml-handler
+            {:event
+             {:yml.single.generate {:mock-id mock-id}}}
+            components))
+         (match?
+          (matchers/embeds {:event
+                            {:mock.unification-status
+                             {:mock-id mock-id
+                              :new-status "offline-invalid"}}})
+          (update-in (first (get @mq/mock-channels "yml.unified.generated"))
+                     [:event :mock.unification-status] dissoc :ctx)))))
 
 (def valid-mock-yaml
   "- endpoint:
@@ -93,40 +93,40 @@
 
 (defn fallow-valid-yaml []
   (flow ""
-    [:let [mock-id (random-uuid)]
-     database (state-flow.api/get-state :database)]
-    (state/invoke
-     #(db.customers/insert! {:customer/uuid #uuid "cd989358-af38-4a2f-a1a1-88096aa425a7"
-                             :customer/email "test@gmail.com"
-                             :customer/username "chico"
-                             :customer/external-uuid #uuid "dcff4c06-1c9e-4abb-a49b-438e1869ec5b"}
-                            database))
+        [:let [mock-id (random-uuid)]
+         database (state-flow.api/get-state :database)]
+        (state/invoke
+         #(db.customers/insert! {:customer/uuid #uuid "cd989358-af38-4a2f-a1a1-88096aa425a7"
+                                 :customer/email "test@gmail.com"
+                                 :customer/username "chico"
+                                 :customer/external-uuid #uuid "dcff4c06-1c9e-4abb-a49b-438e1869ec5b"}
+                                database))
 
-    (state/invoke #(db.mocks/insert!
-                    {:mock/subdomain "chico"
-                     :mock/id mock-id
-                     :mock/content valid-mock-yaml
-                     :mock/wildcard "test"
-                     :mock/user_id #uuid "cd989358-af38-4a2f-a1a1-88096aa425a7"
-                     :mock/enabled true
-                     :mock/dns_status "offline"
-                     :mock/unification_status "offline"}
-                    database))
-    (flow
-      "should allow valid yaml"
-      [components (state-flow.api/get-state)]
-      (state/invoke
-       #(workers/generate-single-yml-handler
-         {:event
-          {:yml.single.generate
-           {:mock-id mock-id}}}
-         components))
-      (match?
-       (matchers/embeds {:event
-                         {:gen-yml-path (str "cd989358-af38-4a2f-a1a1-88096aa425a7/" mock-id "/mock.yml")
-                          :append? true}})
-       (update-in (first (get @mq/mock-channels "yml.single.generated"))
-                  [:event] dissoc :ctx)))))
+        (state/invoke #(db.mocks/insert!
+                        {:mock/subdomain "chico"
+                         :mock/id mock-id
+                         :mock/content valid-mock-yaml
+                         :mock/wildcard "test"
+                         :mock/user_id #uuid "cd989358-af38-4a2f-a1a1-88096aa425a7"
+                         :mock/enabled true
+                         :mock/dns_status "offline"
+                         :mock/unification_status "offline"}
+                        database))
+        (flow
+         "should allow valid yaml"
+         [components (state-flow.api/get-state)]
+         (state/invoke
+          #(workers/generate-single-yml-handler
+            {:event
+             {:yml.single.generate
+              {:mock-id mock-id}}}
+            components))
+         (match?
+          (matchers/embeds {:event
+                            {:gen-yml-path (str "cd989358-af38-4a2f-a1a1-88096aa425a7/" mock-id "/mock.yml")
+                             :append? true}})
+          (update-in (first (get @mq/mock-channels "yml.single.generated"))
+                     [:event] dissoc :ctx)))))
 
 (defflow
   flow-block-valid-yaml

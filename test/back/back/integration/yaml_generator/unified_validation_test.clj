@@ -82,29 +82,29 @@
 
 (defn fvalidate-and-recreate-unified []
   (flow
-    "should correct and validate unified yaml"
-    [{:keys [mq storage]} (state-flow.api/get-state)]
+   "should correct and validate unified yaml"
+   [{:keys [mq storage]} (state-flow.api/get-state)]
 
-    (state-flow.api/invoke
-     #(mq/try-op! mq :publish! ["yml.unified.verification.fired" {}] {}))
+   (state-flow.api/invoke
+    #(mq/try-op! mq :publish! ["yml.unified.verification.fired" {}] {}))
 
-    (match?
-     (matchers/embeds (logic.yml/parse-yaml-&-body
-                       (:with-host yml-consts)))
-     (state-flow.api/return
-      (let [timeout 10000 ;; 10 seconds
-            deadline (+ (System/currentTimeMillis) timeout)]
-        (loop []
-          (Thread/sleep 500)
-          (if (< (System/currentTimeMillis) deadline)
-            (if-let [content (some-> (storage/get-file storage "moclojer" "moclojer.yml")
-                                     io/reader slurp
-                                     logic.yml/parse-yaml-&-body)]
-              (if-not (= content [])
-                content
-                (recur))
-              (recur))
-            (throw (Exception. "Timeout reached while waiting for file content")))))))))
+   (match?
+    (matchers/embeds (logic.yml/parse-yaml-&-body
+                      (:with-host yml-consts)))
+    (state-flow.api/return
+     (let [timeout 10000 ;; 10 seconds
+           deadline (+ (System/currentTimeMillis) timeout)]
+       (loop []
+         (Thread/sleep 500)
+         (if (< (System/currentTimeMillis) deadline)
+           (if-let [content (some-> (storage/get-file storage "moclojer" "moclojer.yml")
+                                    io/reader slurp
+                                    logic.yml/parse-yaml-&-body)]
+             (if-not (= content [])
+               content
+               (recur))
+             (recur))
+           (throw (Exception. "Timeout reached while waiting for file content")))))))))
 
 (defflow
   flow-unified-validation-test
@@ -112,14 +112,14 @@
    :cleanup utils/stop-system!
    :fail-fast? true}
   (flow
-    "will validate the unified yaml"
-    [{:keys [database storage]} (state-flow.api/get-state)]
-    (state/invoke #(db.customers/insert! (:user flow-consts) database))
-    (state/invoke #(db.mocks/insert! (:mock flow-consts) database))
-    (state/invoke #(storage/upload! storage "moclojer"
-                                    (logic.yml/gen-path
-                                     (get-in flow-consts [:user :customer/uuid])
-                                     (get-in flow-consts [:mock :mock/id]))
-                                    (:with-host yml-consts) {}))
-    (state/invoke #(storage/upload! storage "moclojer" "moclojer.yml" "[]\n" {}))
-    (fvalidate-and-recreate-unified)))
+   "will validate the unified yaml"
+   [{:keys [database storage]} (state-flow.api/get-state)]
+   (state/invoke #(db.customers/insert! (:user flow-consts) database))
+   (state/invoke #(db.mocks/insert! (:mock flow-consts) database))
+   (state/invoke #(storage/upload! storage "moclojer"
+                                   (logic.yml/gen-path
+                                    (get-in flow-consts [:user :customer/uuid])
+                                    (get-in flow-consts [:mock :mock/id]))
+                                   (:with-host yml-consts) {}))
+   (state/invoke #(storage/upload! storage "moclojer" "moclojer.yml" "[]\n" {}))
+   (fvalidate-and-recreate-unified)))

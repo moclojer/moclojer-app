@@ -12,11 +12,13 @@
                            :http-port 8200
                            :http-root "resources/front/public/"}
                 :build-hooks [(dev.shadow.hooks/hash-files
-                               ["./resources/front/public/assets/css/output.css"
-                                "./resources/front/public/assets/js/core.js"])
+                                ["./resources/front/public/assets/css/output.css"
+                                 "./resources/front/public/assets/js/core.js"])
                               (dev.shadow.hooks/replace-hashed-files
-                               "./resources/front/index.src.html"
-                               "./resources/front/public/index.html")]
+                                "./resources/front/index.src.html"
+                                "./resources/front/public/index.html")
+                              (mockingbird.dev.shadow.hooks/get-target-css
+                                {:path "resources/front/public/assets/css/target.css"})]
                 :dev      {:modules {:core {:init-fn dev.core/init}}
                            :compiler-options {:warning-as-errors true}
                            :build-hooks [(dev.shadow.hooks/build-css
@@ -41,7 +43,6 @@
                      :ns-regexp        "-test$"
                      :devtools         {:http-port 8100
                                         :http-root "resources/front/test"}}
-
           :ci-tests {:target           :karma
                      :output-to        "resources/front/test/ci.js"
                      :ns-regexp        "-test$"

@@ -29,31 +29,31 @@
            :body #js {:ok true}}}})
 
 #_(deftest auth-view-email-send-error-test
-  (testing "auth email send view should error"
-    (async done
-           (p/let [_ (mock/start! login-error-msw)
-                   render (aux/wait-for #(-> auth.views/login-view aux/render))
-                   container (aux/wait-for #(.-container render))
-                   button (-> container (aux/tag "button") first)
-                   input (-> container (aux/query "#login-email"))
-                   _change (aux/wait-for #(-> input (aux/change "err@ee.cc")))
-                   _click (aux/wait-for #(-> button aux/click))
-                   error-msg (aux/wait-for #(-> container (aux/query "#login-error") aux/text))]
-             (is (= "Error... try it again.Not found" error-msg))
-             (aux/cleanup)
-             (done)))))
+    (testing "auth email send view should error"
+      (async done
+             (p/let [_ (mock/start! login-error-msw)
+                     render (aux/wait-for #(-> auth.views/login-view aux/render))
+                     container (aux/wait-for #(.-container render))
+                     button (-> container (aux/tag "button") first)
+                     input (-> container (aux/query "#login-email"))
+                     _change (aux/wait-for #(-> input (aux/change "err@ee.cc")))
+                     _click (aux/wait-for #(-> button aux/click))
+                     error-msg (aux/wait-for #(-> container (aux/query "#login-error") aux/text))]
+               (is (= "Error... try it again.Not found" error-msg))
+               (aux/cleanup)
+               (done)))))
 
 #_(deftest auth-view-email-send-success-test
-  (testing "auth email send view should work and show next panel"
-    (async done
-           (p/let [_ (mock/start! login-sucess-msw)
-                   render (aux/wait-for #(-> auth.views/login-view aux/render))
-                   container (aux/wait-for #(.-container render))
-                   button (-> container (aux/tag "button") first)
-                   input (-> container (aux/query "#login-email"))
-                   _change (aux/wait-for #(-> input (aux/change "nice@email.cc")))
-                   _click (aux/wait-for #(-> button aux/click))
-                   success-msg (aux/wait-for #(-> container (aux/query "#login-email-sent") aux/text))]
-             (is (= "Check your email, and click on the link.Didn't received it? Try again." success-msg))
-             (aux/cleanup)
-             (done)))))
+    (testing "auth email send view should work and show next panel"
+      (async done
+             (p/let [_ (mock/start! login-sucess-msw)
+                     render (aux/wait-for #(-> auth.views/login-view aux/render))
+                     container (aux/wait-for #(.-container render))
+                     button (-> container (aux/tag "button") first)
+                     input (-> container (aux/query "#login-email"))
+                     _change (aux/wait-for #(-> input (aux/change "nice@email.cc")))
+                     _click (aux/wait-for #(-> button aux/click))
+                     success-msg (aux/wait-for #(-> container (aux/query "#login-email-sent") aux/text))]
+               (is (= "Check your email, and click on the link.Didn't received it? Try again." success-msg))
+               (aux/cleanup)
+               (done)))))

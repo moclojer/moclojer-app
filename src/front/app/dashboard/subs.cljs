@@ -1,5 +1,6 @@
 (ns front.app.dashboard.subs
-  (:require [refx.alpha :as refx]))
+  (:require
+   [refx.alpha :as refx]))
 
 (defn conj-if [xs & ys]
   (reduce (fn [xs y]

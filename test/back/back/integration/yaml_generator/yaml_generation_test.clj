@@ -75,39 +75,39 @@
 
 (defn fgenerate-and-save-mock []
   (flow
-    "should save generated yml to storage"
-    [mq (state-flow.api/get-state :mq)
-     storage (state-flow.api/get-state :storage)]
-    (state-flow.api/invoke
-     #(do
-        (mq/try-op! mq :publish!
-                    ["mock.updated"
-                     {:event
-                      {:yml.single.generate
-                       {:mock-id (get-in flow-consts [:mock :mock/id])}}}]
-                    {})
-        (Thread/sleep 5000)))
+   "should save generated yml to storage"
+   [mq (state-flow.api/get-state :mq)
+    storage (state-flow.api/get-state :storage)]
+   (state-flow.api/invoke
+    #(do
+       (mq/try-op! mq :publish!
+                   ["mock.updated"
+                    {:event
+                     {:yml.single.generate
+                      {:mock-id (get-in flow-consts [:mock :mock/id])}}}]
+                   {})
+       (Thread/sleep 5000)))
 
-    (match?
-     (matchers/embeds (logic.yml/parse-yaml-&-body (:sample yml-consts)))
-     (state-flow.api/return
-      (let [timeout 10000 ;; 10 seconds
-            deadline (+ (System/currentTimeMillis) timeout)]
-        (loop []
-          (Thread/sleep 500)
-          (if (< (System/currentTimeMillis) deadline)
-            (if-let [content (some-> (storage/get-file
-                                      storage "moclojer"
-                                      (logic.yml/gen-path
-                                       (get-in flow-consts [:user :customer/uuid])
-                                       (get-in flow-consts [:mock :mock/id])))
-                                     io/reader slurp
-                                     logic.yml/parse-yaml-&-body)]
-              (if-not (= content [])
-                content
-                (recur))
-              (recur))
-            (throw (Exception. "Timeout reached while waiting for file content")))))))))
+   (match?
+    (matchers/embeds (logic.yml/parse-yaml-&-body (:sample yml-consts)))
+    (state-flow.api/return
+     (let [timeout 10000 ;; 10 seconds
+           deadline (+ (System/currentTimeMillis) timeout)]
+       (loop []
+         (Thread/sleep 500)
+         (if (< (System/currentTimeMillis) deadline)
+           (if-let [content (some-> (storage/get-file
+                                     storage "moclojer"
+                                     (logic.yml/gen-path
+                                      (get-in flow-consts [:user :customer/uuid])
+                                      (get-in flow-consts [:mock :mock/id])))
+                                    io/reader slurp
+                                    logic.yml/parse-yaml-&-body)]
+             (if-not (= content [])
+               content
+               (recur))
+             (recur))
+           (throw (Exception. "Timeout reached while waiting for file content")))))))))
 
 (defflow
   flow-yaml-generation-test
@@ -115,8 +115,8 @@
    :cleanup utils/stop-system!
    :fail-fast? true}
   (flow
-    "will try to generate a yaml and save it to storage"
-    [db (state-flow.api/get-state :database)]
-    (state/invoke #(db.customers/insert! (:user flow-consts) db))
-    (state/invoke #(db.mocks/insert! (:mock flow-consts) db))
-    (fgenerate-and-save-mock)))
+   "will try to generate a yaml and save it to storage"
+   [db (state-flow.api/get-state :database)]
+   (state/invoke #(db.customers/insert! (:user flow-consts) db))
+   (state/invoke #(db.mocks/insert! (:mock flow-consts) db))
+   (fgenerate-and-save-mock)))
