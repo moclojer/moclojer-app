@@ -1,10 +1,8 @@
 (ns front.app.auth.views
   (:require
-
    [mockingbird.components.button :refer [button]]
    [mockingbird.components.image :refer [image]]
    [mockingbird.components.input :refer [input]]
-   [front.app.auth.effects :refer [send-gh]]
    [front.app.components.alerts :as alerts]
    [front.app.components.container :refer [container]]
    [front.app.components.section :refer [section]]
@@ -18,6 +16,7 @@
    [refx.alpha :as refx]
    [reitit.frontend.easy :as rfe]))
 
+(defn inspect [a] (js/console.log a) a)
 (defnc not-found-view []
   (d/div "404"))
 
@@ -45,60 +44,62 @@
                        {:class "ml-3 "}
                        "If you have an account with us, we’ve sent an email to "
                        (:email state)
-                         " with a link that you can use to sign in.")
-                        (d/div
-                         {:class "ml-3 "}
-                         "You can also "
-                         ($ nav-link
-                            {:children "try again."
-                             :on-click (fn [e]
-                                         (.preventDefault e)
-                                         (refx/dispatch [:app.auth/send-email-again]))
-                             :href "#"}))))
-                ($ section {:class "p-6 space-y-8 w-full sm:p-8 lg:p-16 lg:py-0"}
-                   (d/h2 {:class "text-2xl font-bold text-gray-900 lg:text-3xl dark:text-white"}
-                         "sign in to moclojer")
-                   (d/form {:disabled loading?
-                            :on-submit (fn [e]
-                                         (.preventDefault e)
-                                         (when (:email state)
-                                           (refx/dispatch [:app.auth/send-email state])))
-                            :class "mt-8 space-y-6 "}
+                       " with a link that you can use to sign in.")
+                      (d/div
+                       {:class "ml-3 "}
+                       "You can also "
+                       ($ nav-link
+                          {:children "try again."
+                           :on-click (fn [e]
+                                       (.preventDefault e)
+                                       (refx/dispatch [:app.auth/send-email-again]))
+                           :href "#"}))))
+              ($ section {:class "p-6 space-y-8 w-full sm:p-8 lg:p-16 lg:py-0"}
+                 (d/h2 {:class "text-2xl font-bold text-gray-900 lg:text-3xl dark:text-white"}
+                       "sign in to moclojer")
+                 (d/form {:disabled loading?
+                          :on-submit (fn [e]
+                                       (.preventDefault e)
+                                       (if (and (:email state) (= (:provider state) ""))
+                                         (refx/dispatch [:app.auth/send-email state])
+                                         (refx/dispatch [:app.auth/send-oauth state])))
+                          :class "mt-8 space-y-6 "}
 
-                           ($ input
-                              {:for "email"
-                               :label "your email"
-                               :placeholder "name@company.com"
-                               :on-change #(set-state assoc :email (.. % -target -value))})
+                         ($ input
+                            {:for "email"
+                             :label "your email"
+                             :placeholder "name@company.com"
+                             :on-change #(set-state assoc :email (.. % -target -value))})
 
-                           (d/div {:class "flex items-start "}
-                                  (d/div {:class "flex items-center h-5"}))
+                         (d/div {:class "flex items-start "}
+                                (d/div {:class "flex items-center h-5"}))
 
-                           (d/div
-                            ($ button {:class (str (if loading?
-                                                     "bg-gray-700 "
-                                                     "bg-mockingbird-main ")
-                                                   "hover:bg-mockingbird-400 ")
-                                       :type :submit
-                                       :theme :mockingbird
-                                       :size :full
-                                       :label "login to your account"}
-                               (if loading?
-                                 (d/span {:class "inline-flex"}
-                                         ($ loading-spinner {})
-                                         "loading...")
-                                 (d/span "login to your account")))
+                         (d/div
+                          ($ button {:class (str (if loading?
+                                                   "bg-gray-700 "
+                                                   "bg-mockingbird-main ")
+                                                 "hover:bg-mockingbird-400 ")
+                                     :type :submit
+                                     :theme :mockingbird
+                                     :size :full
+                                     :label "login to your account"}
+                             (if loading?
+                               (d/span {:class "inline-flex"}
+                                       ($ loading-spinner {})
+                                       "loading...")
+                               (d/span "login to your account")))
 
-                            (d/div {:class "w-full h-6 flex flex-row justify-center items-center lg:justify-start lg:items-start pt-6 lg:pt-2 "}
-                                   (d/span {:class "hidden text-gray-300 lg:flex justify-start items-start m-0 lg:mr-2 lg:ml-1"} "or")
-                                   ($ button {:roundness :full
-                                              :class "flex justify-center flex-col items-center w-6 h-6 "
-                                              :on-click #(send-gh {:provider "github"})}
+                          (d/div {:class "w-full h-6 flex flex-row justify-center items-center lg:justify-start lg:items-start pt-6 lg:pt-2 "}
+                                 (d/span {:class "hidden text-gray-300 lg:flex justify-start items-start m-0 lg:mr-2 lg:ml-1"} "or")
+                                 ($ button {:roundness :full
+                                            :class "flex justify-center flex-col items-center w-6 h-6 "
+                                            :on-click #(set-state assoc :provider "github")}
+
                                     (d/div {:class "flex text-gray-400 p-4 "}
                                            ($ github)))))
 
                          (d/div {:class "text-sm font-medium text-gray-500 dark:text-gray-400"}
-                                (if error
+                                (if (inspect error)
                                   ($ alerts/error
                                      {:id "login-error"
                                       :error "Error... try it again."
@@ -183,7 +184,7 @@
   (let [loading? (refx/use-sub [:app.auth/login-loading])
         [error error-res] (refx/use-sub [:app.auth/login-error])
         email-sent? (refx/use-sub [:app.auth/email-sent])
-        [state set-state] (hooks/use-state {:email ""})]
+        [state set-state] (hooks/use-state {:email "" :provider ""})]
     ($ section
        ($ login {:sent? email-sent?
                  :loading? loading?

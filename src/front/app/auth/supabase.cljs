@@ -33,20 +33,20 @@
                   :options {:emailRedirectTo SUPABASE_REDIRECT}})]
     (.signInWithOtp auth options)))
 
-(defn sign-out [dispatch-fn-logout]
-  (let [auth (.-auth client)]
-    (-> (.signOut auth)
-        (p/then (fn [e]
-                  (dispatch-fn-logout e)
-                  (rfe/push-state :app.core/login))))))
-
-;; Github 
 (defn signin-with-oauth [^js client provider]
   (let [auth (.-auth client)
         options (clj->js
                  {:provider (clj->js provider)
                   :options {:redirect-to SUPABASE_OAUTH_REDIRECT}})]
     (inspect (.signInWithOAuth auth options))))
+
+
+(defn sign-out [dispatch-fn-logout]
+  (let [auth (.-auth client)]
+    (-> (.signOut auth)
+        (p/then (fn [e]
+                  (dispatch-fn-logout e)
+                  (rfe/push-state :app.core/login))))))
 
 (defn event-changes [invoke]
   (.onAuthStateChange (.-auth client)
