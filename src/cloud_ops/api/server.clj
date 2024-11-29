@@ -1,9 +1,11 @@
 (ns cloud-ops.api.server
-  (:require [cloud-ops.api.ports.workers :as p.workers]
-            [com.moclojer.components.core :as components]
-            [com.moclojer.components.logs :as logs]
-            [com.moclojer.components.mq :as mq]
-            [com.stuartsierra.component :as component])
+  (:require
+   [cloud-ops.api.ports.workers :as p.workers]
+   [com.moclojer.components.core :as components]
+   [com.moclojer.components.logs :as logs]
+   [com.moclojer.components.mq :as mq]
+   [dev.utils :refer [trace-all-ns]]
+   [com.stuartsierra.component :as component])
   (:gen-class))
 
 (def system-atom (atom nil))

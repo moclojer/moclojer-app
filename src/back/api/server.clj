@@ -1,10 +1,12 @@
 (ns back.api.server
-  (:require [back.api.ports.workers :as p.workers]
-            [back.api.routes :as routes]
-            [com.moclojer.components.core :as components]
-            [com.moclojer.components.logs :as logs]
-            [com.moclojer.components.migrations :as migrations]
-            [com.stuartsierra.component :as component])
+  (:require
+   [back.api.ports.workers :as p.workers]
+   [back.api.routes :as routes]
+   [com.moclojer.components.core :as components]
+   [com.moclojer.components.logs :as logs]
+   [com.moclojer.components.migrations :as migrations]
+   [com.stuartsierra.component :as component]
+   [dev.utils :refer [trace-all-ns]])
   (:gen-class))
 
 (def system-atom (atom nil))
