@@ -58,9 +58,10 @@
         target-file (io/file target)]
     (cond
       (not (.exists source-file))
-      (do (s.util/log {:type ::source-does-not-exist
-                       :source source})
-          (constantly build-state))
+      (do
+        (s.util/log {:type ::source-does-not-exist
+                     :source source})
+        (constantly build-state))
 
       (and (= mode :dev)
            (= (.lastModified source-file) (::source-last-mod build-state))

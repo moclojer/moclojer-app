@@ -39,7 +39,8 @@
   (migrations/migrate (migrations/build-complete-db-config "back/config.edn"))
   (->> system-map
        component/start
-       (reset! system-atom)))
+       (reset! system-atom))
+  (trace-all-ns))
 
 (defn stop-system! []
   (logs/log :info "stopping system")

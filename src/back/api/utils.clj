@@ -7,3 +7,11 @@
   (if v
     (assoc m k v)
     m))
+
+(defn inspect
+  "Inspects a variable's contents and returns it without modifying its value."
+  [v]
+  (if (instance? clojure.lang.Atom v)
+    (prn @v)
+    (prn v))
+  v)

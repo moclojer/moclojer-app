@@ -1,5 +1,6 @@
 (ns dev.utils
   (:require
+   [back.api.utils :as u]
    [clojure.string :as str]
    [com.moclojer.components.logs :as logs]
    [com.moclojer.components.migrations :as migrations]
@@ -7,29 +8,7 @@
    [dev.utils :as utils]
    [pg-embedded-clj.core :as pg-emb]))
 
-(defn start-system-dev!
-  ([sys-atom sys-map]
-   (start-system-dev! sys-atom sys-map true)
-   (utils/trace-all-ns))
-  ([sys-atom sys-map init-pg?]
-   (when init-pg?
-     (pg-emb/init-pg)
-     (migrations/migrate (migrations/build-complete-db-config "back/config.edn")))
-   (->> sys-map
-        component/start
-        (reset! sys-atom))))
-
-(defn stop-system-dev!
-  ([sys-atom]
-   (stop-system-dev! sys-atom true))
-  ([sys-atom halt-pg?]
-   (logs/log :info "stopping system")
-   (swap!
-    sys-atom
-    (fn [s] (when s (component/stop s))))
-   (when halt-pg? (pg-emb/halt-pg!))))
-
-(defn- get-allowed-ns []
+(defn get-allowed-ns []
   (->> (all-ns)
        (map ns-name)
        (map name)
@@ -38,7 +17,7 @@
        (map symbol)
        (into [])))
 
-(defn trace-all-ns
+(defn trace-all-ns-1
   "Iterate over *ns* functions and replace them with themselves within
   a `logs/trace` call that uses each function's arglist as context."
   []
@@ -76,6 +55,48 @@
             (intern
              *ns* fsym
              (with-meta (eval `(fn [~@args]
-                                 (logs/trace ~sym ~argmap
-                                             (~func ~@callargs)))) m))
-            (logs/log "--> could not convert" func "args:" args)))))))
+                                 (com.moclojer.components.logs/trace ~sym ~argmap
+                                                                     (~func ~@callargs)))) m))
+            (prn "--> could not convert" func "args:" args)))))))
+
+(defn trace-all-ns []
+  (let [a-ns (get-allowed-ns)
+        fn-names (atom [])]
+    (doseq [curr-ns a-ns]
+      (doseq [[sym v] (ns-publics curr-ns)]
+        (let [f @v
+              arg-names (map keyword (or (first (:arglists (meta v))) []))]
+          (swap! fn-names conj (str (:name (meta v))))
+          (alter-var-root v
+                          (fn [_]
+                            (with-meta
+                              (fn [& args]
+                                (com.moclojer.components.logs/trace
+                                 sym
+                                 (zipmap arg-names args)
+                                 (apply f args)))
+                              (meta v)))))))))
+
+(trace-all-ns)
+
+(defn start-system-dev!
+  ([sys-atom sys-map]
+   (start-system-dev! sys-atom sys-map true)
+   (utils/trace-all-ns))
+  ([sys-atom sys-map init-pg?]
+   (when init-pg?
+     (pg-emb/init-pg)
+     (migrations/migrate (migrations/build-complete-db-config "back/config.edn")))
+   (->> sys-map
+        component/start
+        (reset! sys-atom))))
+
+(defn stop-system-dev!
+  ([sys-atom]
+   (stop-system-dev! sys-atom true))
+  ([sys-atom halt-pg?]
+   (logs/log :info "stopping system")
+   (swap!
+    sys-atom
+    (fn [s] (when s (component/stop s))))
+   (when halt-pg? (pg-emb/halt-pg!))))
