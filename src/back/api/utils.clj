@@ -10,8 +10,20 @@
 
 (defn inspect
   "Inspects a variable's contents and returns it without modifying its value."
-  [v]
+  [v & a]
   (if (instance? clojure.lang.Atom v)
-    (prn @v)
+    (prn "Deref atom: " @v)
     (prn v))
-  v)
+  (if a
+    (let [c (count a)]
+      (dotimes [i c]
+        (if (instance? clojure.lang.Atom a)
+          (prn (nth @a i))
+          (prn (nth a i)))))
+    v))
+
+(defn inspect-if
+  "Inspects if condition is met"
+  [c v & a]
+  (when c
+    (inspect v (when a a))))

@@ -1,11 +1,10 @@
 (ns dev.utils
   (:require
-   [back.api.utils :as u]
+   [back.api.utils :as utils]
    [clojure.string :as str]
    [com.moclojer.components.logs :as logs]
    [com.moclojer.components.migrations :as migrations]
    [com.stuartsierra.component :as component]
-   [dev.utils :as utils]
    [pg-embedded-clj.core :as pg-emb]))
 
 (defn get-allowed-ns []
@@ -59,30 +58,38 @@
                                                                      (~func ~@callargs)))) m))
             (prn "--> could not convert" func "args:" args)))))))
 
-(defn trace-all-ns []
-  (let [a-ns (get-allowed-ns)
-        fn-names (atom [])]
-    (doseq [curr-ns a-ns]
-      (doseq [[sym v] (ns-publics curr-ns)]
-        (let [f @v
-              arg-names (map keyword (or (first (:arglists (meta v))) []))]
-          (swap! fn-names conj (str (:name (meta v))))
-          (alter-var-root v
-                          (fn [_]
-                            (with-meta
-                              (fn [& args]
-                                (com.moclojer.components.logs/trace
-                                 sym
-                                 (zipmap arg-names args)
-                                 (apply f args)))
-                              (meta v)))))))))
+(defn trace-all-ns
+  ([]
+   (trace-all-ns {:config {:env :dev}}))
+  ([config]
+   (let [env (get-in config [:config :env])
+         a-ns (get-allowed-ns)
+         fn-names (atom [])]
+     (doseq [curr-ns a-ns]
+       (doseq [[sym v] (ns-publics curr-ns)]
+         (when (fn? (var-get v))
+           (let [f (var-get v)
+                 arglists (:arglists (meta v))
+                 arg-names (map keyword (or (first arglists) []))]
+             (swap! fn-names conj (str (:name (meta v))))
 
-(trace-all-ns)
+             (alter-var-root v
+                             (fn [_]
+                               (with-meta
+                                 (fn [& args]
+                                   (com.moclojer.components.logs/trace
+                                    sym
+                                    (zipmap arg-names args)
+                                    (apply f args)))
+                                 (meta v))))))))
+     (utils/inspect-if
+      (= env :dev)
+      "Traced functions:" fn-names))))
 
 (defn start-system-dev!
   ([sys-atom sys-map]
    (start-system-dev! sys-atom sys-map true)
-   (utils/trace-all-ns))
+   (trace-all-ns))
   ([sys-atom sys-map init-pg?]
    (when init-pg?
      (pg-emb/init-pg)
@@ -100,3 +107,8 @@
     sys-atom
     (fn [s] (when s (component/stop s))))
    (when halt-pg? (pg-emb/halt-pg!))))
+
+(comment
+  (trace-all-ns)
+
+  (trace-all-ns {:config {:env :prod}}))
