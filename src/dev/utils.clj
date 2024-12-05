@@ -9,12 +9,12 @@
 
 (defn get-allowed-ns []
   (->> (all-ns)
-       (map ns-name)
-       (map name)
-       (filter #(and (str/starts-with? % "com.moclojer")
-                     (not (str/ends-with? % "logs"))))
-       (map symbol)
-       (into [])))
+       (into []
+             (comp
+              (map (comp name ns-name))
+              (filter #(and (str/starts-with? % "com.moclojer")
+                            (not (str/ends-with? % "logs"))))
+              (map symbol)))))
 
 (defn trace-all-ns
   ([]
@@ -33,12 +33,11 @@
                              (if (fn? orig-fn)
                                (with-meta
                                  (fn [& args]
-                                   (let [arg-map (zipmap arg-names args)
-                                         result (apply orig-fn args)]
-                                     (com.moclojer.components.logs/trace sym arg-map result)
-                                     (utils/inspect-if (= env :dev) result)))
+                                   (com.moclojer.components.logs/trace
+                                    sym (zipmap arg-names args) (apply orig-fn args)))
                                  (meta v))
-                               orig-fn)))))))))
+                               orig-fn))))))
+     (utils/inspect-if (= env :dev) fn-names))))
 
 (defn start-system-dev!
   ([sys-atom sys-map]
