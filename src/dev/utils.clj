@@ -23,21 +23,26 @@
    (let [env (get-in config [:config :env])
          a-ns (get-allowed-ns)
          fn-names (atom [])]
-     (doseq [curr-ns a-ns]
-       (doseq [[sym v] (ns-interns curr-ns)]
-         (let [arglists (or (:arglists (meta v)) [])
-               arg-names (map keyword (or (first arglists) []))]
-           (swap! fn-names conj (str sym))
-           (alter-var-root v
-                           (fn [orig-fn]
-                             (if (fn? orig-fn)
-                               (with-meta
-                                 (fn [& args]
-                                   (com.moclojer.components.logs/trace
-                                    sym (zipmap arg-names args) (apply orig-fn args)))
-                                 (meta v))
-                               orig-fn))))))
-     (utils/inspect-if (= env :dev) fn-names))))
+     (when (seq? a-ns)
+       (doseq [curr-ns a-ns]
+         (doseq [[sym v] (ns-interns curr-ns)]
+           (when (and (var? v) (fn? @v))
+             (let [arglists (-> v meta :arglists first)
+                   arg-names (map keyword (or arglists []))]
+               (swap! fn-names conj (str curr-ns "/" sym))
+               (try
+                 (alter-var-root v
+                                 (fn [f]
+                                   (with-meta
+                                     (fn [& args]
+                                       (com.moclojer.components.logs/trace
+                                        (symbol sym)
+                                        (zipmap arg-names args)
+                                        (apply f args)))
+                                     (meta f))))
+                 (catch Exception e
+                   (println "Failed to trace" sym (.getMessage e)))))))))
+     (utils/inspect-if (= env :dev) @fn-names))))
 
 (defn start-system-dev!
   ([sys-atom sys-map]
@@ -64,4 +69,13 @@
 (comment
   (trace-all-ns)
 
-  (trace-all-ns {:config {:env :prod}}))
+  (trace-all-ns {:config {:env :prod}})
+
+  (alter-var-root #'com.moclojer.components.logs/build-opensearch-base-req
+                  #(with-meta
+                     (fn [& args]
+                       (com.moclojer.components.logs/trace 'com.moclojer.components.logs/build-opensearch-base-req
+                                                           {:args args} (apply % args)))
+                     (meta %))))
+
+
