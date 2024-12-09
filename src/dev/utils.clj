@@ -23,25 +23,29 @@
    (let [env (get-in config [:config :env])
          a-ns (get-allowed-ns)
          fn-names (atom [])]
-     (when (seq? a-ns)
-       (doseq [curr-ns a-ns]
-         (doseq [[sym v] (ns-interns curr-ns)]
-           (when (and (var? v) (fn? @v))
-             (let [arglists (-> v meta :arglists first)
-                   arg-names (map keyword (or arglists []))]
-               (swap! fn-names conj (str curr-ns "/" sym))
-               (try
-                 (alter-var-root v
-                                 (fn [f]
-                                   (with-meta
-                                     (fn [& args]
-                                       (com.moclojer.components.logs/trace
-                                        (symbol sym)
-                                        (zipmap arg-names args)
-                                        (apply f args)))
-                                     (meta f))))
-                 (catch Exception e
-                   (println "Failed to trace" sym (.getMessage e)))))))))
+     (doseq [curr-ns a-ns]
+       (doseq [[sym v] (ns-interns curr-ns)]
+         (when (and (var? v) (fn? @v))
+           (let [arglists (-> v meta :arglists first)
+                 arg-names (map keyword (or arglists []))
+                 solved-fn (str curr-ns "/" sym)]
+             (swap! fn-names conj solved-fn)
+             (try
+               (alter-var-root v
+                               (fn [f]
+                                 (with-meta
+                                   (fn [& args]
+                                     (com.moclojer.components.logs/trace
+                                      ::traced-fn
+                                      {:ns (str curr-ns)
+                                       :fn (str sym)
+                                       :args (zipmap arg-names args)}
+                                      (if (> (count args) 0)
+                                        (apply f args)
+                                        (f))))
+                                   (meta f))))
+               (catch Exception e
+                 (println "Failed to trace" sym (.getMessage e))))))))
      (utils/inspect-if (= env :dev) @fn-names))))
 
 (defn start-system-dev!
@@ -71,11 +75,17 @@
 
   (trace-all-ns {:config {:env :prod}})
 
-  (alter-var-root #'com.moclojer.components.logs/build-opensearch-base-req
-                  #(with-meta
-                     (fn [& args]
-                       (com.moclojer.components.logs/trace 'com.moclojer.components.logs/build-opensearch-base-req
-                                                           {:args args} (apply % args)))
-                     (meta %))))
+  (let [args []]
+    (com.moclojer.components.logs/trace
+     ::traced-fn
+     {:namespace (str 'dev.utils)
+      :function (str get-allowed-ns)
+      :arguments {:test? :test}}
+     (if (> (count args) 0)
+       (apply get-allowed-ns args)
+       (get-allowed-ns))))
 
-
+  (com.moclojer.components.logs/trace
+   ::testing-stuff
+   {:testing? :definitely}
+   (get-allowed-ns)))
