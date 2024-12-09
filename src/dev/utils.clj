@@ -28,22 +28,23 @@
          (when (and (var? v) (fn? @v))
            (let [arglists (-> v meta :arglists first)
                  arg-names (map keyword (or arglists []))
-                 solved-fn (str curr-ns "/" sym)]
+                 solved-fn (str curr-ns "/" sym)
+                 traced-fn (fn [f]
+                             (with-meta
+                               (fn [& args]
+                                 (com.moclojer.components.logs/trace
+                                  ::traced-fn
+                                  {:ns (str curr-ns)
+                                   :fn (str sym)
+                                   :args (zipmap arg-names args)}
+                                  ::traced-fn
+                                  (if (> (count args) 0)
+                                    (f args)
+                                    (f))))
+                               (meta f)))]
              (swap! fn-names conj solved-fn)
              (try
-               (alter-var-root v
-                               (fn [f]
-                                 (with-meta
-                                   (fn [& args]
-                                     (com.moclojer.components.logs/trace
-                                      ::traced-fn
-                                      {:ns (str curr-ns)
-                                       :fn (str sym)
-                                       :args (zipmap arg-names args)}
-                                      (if (> (count args) 0)
-                                        (apply f args)
-                                        (f))))
-                                   (meta f))))
+               (alter-var-root v traced-fn)
                (catch Exception e
                  (println "Failed to trace" sym (.getMessage e))))))))
      (utils/inspect-if (= env :dev) @fn-names))))
