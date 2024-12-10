@@ -30,18 +30,11 @@
                  arg-names (map keyword (or arglists []))
                  solved-fn (str curr-ns "/" sym)
                  traced-fn (fn [f]
-                             (with-meta
-                               (fn [& args]
-                                 (com.moclojer.components.logs/trace
-                                  ::traced-fn
-                                  {:ns (str curr-ns)
-                                   :fn (str sym)
-                                   :args (zipmap arg-names args)}
-                                  ::traced-fn
-                                  (if (> (count args) 0)
-                                    (f args)
-                                    (f))))
-                               (meta f)))]
+                             (fn [n]
+                               (com.moclojer.components.logs/trace
+                                ::traced-fn
+                                (zipmap arg-names n)
+                                (f n))))]
              (swap! fn-names conj solved-fn)
              (try
                (alter-var-root v traced-fn)
@@ -51,15 +44,15 @@
 
 (defn start-system-dev!
   ([sys-atom sys-map]
-   (start-system-dev! sys-atom sys-map true)
-   (trace-all-ns @sys-atom))
+   (start-system-dev! sys-atom sys-map true))
   ([sys-atom sys-map init-pg?]
    (when init-pg?
      (pg-emb/init-pg)
      (migrations/migrate (migrations/build-complete-db-config "back/config.edn")))
    (->> sys-map
         component/start
-        (reset! sys-atom))))
+        (reset! sys-atom))
+   (trace-all-ns (utils/inspect (:logger @sys-atom)))))
 
 (defn stop-system-dev!
   ([sys-atom]
@@ -79,12 +72,8 @@
   (let [args []]
     (com.moclojer.components.logs/trace
      ::traced-fn
-     {:namespace (str 'dev.utils)
-      :function (str get-allowed-ns)
-      :arguments {:test? :test}}
-     (if (> (count args) 0)
-       (apply get-allowed-ns args)
-       (get-allowed-ns))))
+     {:test? :test}
+     (trace-all-ns args)))
 
   (com.moclojer.components.logs/trace
    ::testing-stuff
