@@ -14,6 +14,7 @@
 
 (defn build-system-map []
   (component/system-map
+   :env :prod
    :config (components/new-config "back/config.edn")
    :logger (component/using (components/new-logger) [:config])
    :sentry (components/new-sentry-mock)
@@ -35,14 +36,14 @@
         [:config :database :sentry])
    :webserver (component/using
                (components/new-webserver)
-               [:config :http :router :database :mq])))
+               [:config :http :router :database :mq :sentry])))
 
 (comment
   ;; init
   (utils/start-system-dev! sys-atom (build-system-map))
 
-  (component/start
-   (:logger @sys-atom))
+  (:logger @sys-atom)
+  (:env (:config (:config (:logger @sys-atom))))
 
   (mq/try-op! (:mq @sys-atom) :publish! ["yml.unified.verification.fired" {}] {})
   (mq/try-op! (:mq @sys-atom) :publish! ["domains.verification.fired" {}] {})

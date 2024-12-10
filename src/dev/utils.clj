@@ -27,17 +27,15 @@
        (doseq [[sym v] (ns-interns curr-ns)]
          (when (and (var? v) (fn? @v))
            (let [arglists (-> v meta :arglists first)
-                 arg-names (map keyword (or arglists []))
-                 solved-fn (str curr-ns "/" sym)
-                 traced-fn (fn [f]
-                             (fn [n]
-                               (com.moclojer.components.logs/trace
-                                ::traced-fn
-                                (zipmap arg-names n)
-                                (f n))))]
-             (swap! fn-names conj solved-fn)
+                 arg-names (map keyword (or arglists []))]
+             (swap! fn-names conj (str curr-ns "/" sym))
              (try
-               (alter-var-root v traced-fn)
+               (alter-var-root v (fn [f]
+                                   (fn [& args]
+                                     (logs/trace
+                                      ::traced-fn
+                                      (zipmap arg-names args) 
+                                      (apply f args))))) 
                (catch Exception e
                  (println "Failed to trace" sym (.getMessage e))))))))
      (utils/inspect-if (= env :dev) @fn-names))))
@@ -52,7 +50,7 @@
    (->> sys-map
         component/start
         (reset! sys-atom))
-   (trace-all-ns (utils/inspect (:logger @sys-atom)))))
+   (trace-all-ns @sys-atom)))
 
 (defn stop-system-dev!
   ([sys-atom]
@@ -70,12 +68,12 @@
   (trace-all-ns {:config {:env :prod}})
 
   (let [args []]
-    (com.moclojer.components.logs/trace
+    (logs/trace
      ::traced-fn
      {:test? :test}
      (trace-all-ns args)))
 
-  (com.moclojer.components.logs/trace
+  (logs/trace
    ::testing-stuff
    {:testing? :definitely}
    (get-allowed-ns)))
