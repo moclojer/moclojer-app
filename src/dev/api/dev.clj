@@ -36,14 +36,13 @@
         [:config :database :sentry])
    :webserver (component/using
                (components/new-webserver)
-               [:config :http :router :database :mq :sentry])))
+               [:config :http :router :database :mq])))
 
 (comment
   ;; init
   (utils/start-system-dev! sys-atom (build-system-map))
 
   (:logger @sys-atom)
-  (:env (:config (:config (:logger @sys-atom))))
 
   (mq/try-op! (:mq @sys-atom) :publish! ["yml.unified.verification.fired" {}] {})
   (mq/try-op! (:mq @sys-atom) :publish! ["domains.verification.fired" {}] {})

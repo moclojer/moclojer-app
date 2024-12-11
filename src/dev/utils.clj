@@ -7,7 +7,9 @@
    [com.stuartsierra.component :as component]
    [pg-embedded-clj.core :as pg-emb]))
 
-(defn get-allowed-ns []
+(defn get-allowed-ns
+  "Returns all ns of this project filtered"
+  []
   (->> (all-ns)
        (into []
              (comp
@@ -17,6 +19,8 @@
               (map symbol)))))
 
 (defn trace-all-ns
+  "Alter all defined fns inside all ns gathered from get-allowed-ns 
+  and wrap them into a logs/trace context."
   ([]
    (trace-all-ns {:config {:env :dev}}))
   ([config]
@@ -77,6 +81,7 @@
      (keyword "traced-fn" (str 'dev.utils "/" 'prn))
      {:test? :test}
      (prn args)))
+
   (f)
 
   (logs/trace
