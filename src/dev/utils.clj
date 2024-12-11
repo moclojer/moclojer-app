@@ -24,18 +24,23 @@
          a-ns (get-allowed-ns)
          fn-names (atom [])]
      (doseq [curr-ns a-ns]
-       (doseq [[sym v] (ns-interns curr-ns)]
-         (when (and (var? v) (fn? @v))
+       (doseq [[sym v] (ns-publics curr-ns)]
+         (when (var? v)
            (let [arglists (-> v meta :arglists first)
                  arg-names (map keyword (or arglists []))]
              (swap! fn-names conj (str curr-ns "/" sym))
              (try
-               (alter-var-root v (fn [f]
+               (alter-var-root v
+                               (fn [f]
+                                 (if (fn? f)
                                    (fn [& args]
                                      (logs/trace
-                                      ::traced-fn
-                                      (zipmap arg-names args) 
-                                      (apply f args))))) 
+                                      (keyword "traced-fn" (str curr-ns "/" sym))
+                                      {:location curr-ns
+                                       :fn (str sym)
+                                       :args (zipmap arg-names args)}
+                                      (apply f args)))
+                                   f)))
                (catch Exception e
                  (println "Failed to trace" sym (.getMessage e))))))))
      (utils/inspect-if (= env :dev) @fn-names))))
@@ -67,11 +72,12 @@
 
   (trace-all-ns {:config {:env :prod}})
 
-  (let [args []]
+  (defn f [& args]
     (logs/trace
-     ::traced-fn
+     (keyword "traced-fn" (str 'dev.utils "/" 'prn))
      {:test? :test}
-     (trace-all-ns args)))
+     (prn args)))
+  (f)
 
   (logs/trace
    ::testing-stuff
