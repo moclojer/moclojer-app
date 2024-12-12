@@ -28,27 +28,27 @@
         default-subdomain (first user-orgs)]
 
     (hooks/use-effect
-     [mocks-raw]
-     (->> mocks-raw
-          count
-          inc
-          (str "my-mock-")
-          set-default-wildcard!))
+      [mocks-raw]
+      (->> mocks-raw
+           count
+           inc
+           (str "my-mock-")
+           set-default-wildcard!))
 
     (hooks/use-effect
-     [new-mock]
+      [new-mock]
 
-     (let [wildcard (:wildcard new-mock)
-           subdomain (:subdomain new-mock)]
+      (let [wildcard (:wildcard new-mock)
+            subdomain (:subdomain new-mock)]
 
-       (when-not wildcard
-         (set-mock assoc :wildcard default-wildcard))
-       (when-not wildcard
-         (set-mock assoc :subdomain default-subdomain))
+        (when-not wildcard
+          (set-mock assoc :wildcard default-wildcard))
+        (when-not wildcard
+          (set-mock assoc :subdomain default-subdomain))
 
-       (when (and wildcard subdomain)
-         (refx/dispatch-sync [:app.dashboard/wildcard-available?
-                              (select-keys new-mock [:subdomain :wildcard])]))))
+        (when (and wildcard subdomain)
+          (refx/dispatch-sync [:app.dashboard/wildcard-available?
+                               (select-keys new-mock [:subdomain :wildcard])]))))
 
     ($ modal
        {:title "New mock"
@@ -174,10 +174,10 @@
         mock (refx/use-sub [:app.dashboard/mock-to-delete])]
 
     (hooks/use-effect
-     [mock]
-     (if (nil? mock)
-       (close-modal!)
-       (set-open! true)))
+      [mock]
+      (if (nil? mock)
+        (close-modal!)
+        (set-open! true)))
 
     ($ modal
        {:title nil
@@ -208,7 +208,7 @@
 
 (defnc index [{:keys [children]}]
   (let [user (-> (refx/use-sub [:app.auth/current-user]) :user)]
-    (d/body
+    (d/div
 
      {:class-name "bg-gray-50 dark:bg-gray-800"}
      ($ nav-bar {:user-data user})
