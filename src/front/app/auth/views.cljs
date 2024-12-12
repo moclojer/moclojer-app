@@ -63,16 +63,26 @@
                                        (if (and (not (= (:email state) "")) (= (:provider state) ""))
                                          (refx/dispatch [:app.auth/send-email state])
                                          (refx/dispatch [:app.auth/send-oauth state])))
-                          :class "mt-8 space-y-6 "}
+                          :class "mt-8 space-y-8 "}
 
-                         ($ input
-                            {:for "email"
-                             :label "your email"
-                             :placeholder "name@company.com"
-                             :on-change #(set-state assoc :email (.. % -target -value) :provider "")})
+                         (d/div 
+                          ($ input
+                             {:for "email"
+                              :label "your email"
+                              :placeholder "name@company.com"
+                              :on-change #(set-state assoc :email (.. % -target -value) :provider "")})
+
+                          (d/div {:class "w-8 lg:w-full h-8 lg:h-6 flex flex-row justify-center items-center mt-4 lg:mt-2  lg:justify-start lg:items-start "}
+                                 (d/span {:class "hidden text-gray-300 lg:flex justify-start items-start m-0 lg:mr-2 lg:ml-1"} "or")
+                                 ($ button {:roundness :full
+                                            :class "flex justify-center flex-col items-center w-8 h-8 lg:w-6 lg:h-6"
+                                            :on-click #(set-state assoc :provider "github" :email "")}
+
+                                    (d/div {:class "flex text-gray-400 "}
+                                           ($ github)))))
 
                          (d/div {:class "flex items-start "}
-                                (d/div {:class "flex items-center h-5"}))
+                                (d/div {:class "flex items-center h-6 lg:h-12"}))
 
                          (d/div
                           ($ button {:class (str (if loading?
@@ -87,16 +97,7 @@
                                (d/span {:class "inline-flex"}
                                        ($ loading-spinner {})
                                        "loading...")
-                               (d/span "login to your account")))
-
-                          (d/div {:class "w-full h-6 flex flex-row justify-center items-center lg:justify-start lg:items-start pt-6 lg:pt-2 "}
-                                 (d/span {:class "hidden text-gray-300 lg:flex justify-start items-start m-0 lg:mr-2 lg:ml-1"} "or")
-                                 ($ button {:roundness :full
-                                            :class "flex justify-center flex-col items-center w-6 h-6 "
-                                            :on-click #(set-state assoc :provider "github" :email "")}
-
-                                    (d/div {:class "flex text-gray-400 p-4 "}
-                                           ($ github)))))
+                               (d/span "login to your account"))))
 
                          (d/div {:class "text-sm font-medium text-gray-500 dark:text-gray-400"}
                                 (if (inspect error)
