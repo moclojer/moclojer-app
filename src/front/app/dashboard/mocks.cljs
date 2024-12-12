@@ -1,13 +1,15 @@
 (ns front.app.dashboard.mocks
-  (:require [front.app.components.status :refer [publication-status]]
-            [front.app.components.svg :as svg]
-            [front.app.dashboard.base :as base]
-            [front.app.lib :refer [defnc]]
-            [helix.core :refer [$ <>]]
-            [helix.dom :as d]
-            [helix.hooks :as hooks]
-            [refx.alpha :as refx]
-            [reitit.frontend.easy :as rfe]))
+  (:require
+   [mockingbird.components.button :refer [button]]
+   [front.app.components.status :refer [publication-status]]
+   [front.app.components.svg :as svg]
+   [front.app.dashboard.base :as base]
+   [front.app.lib :refer [defnc]]
+   [helix.core :refer [$ <>]]
+   [helix.dom :as d]
+   [helix.hooks :as hooks]
+   [refx.alpha :as refx]
+   [reitit.frontend.easy :as rfe]))
 
 (defnc api-mock [{:keys [enabled url id]}]
   (d/div {:class (str "w-full py-4 bg-white border-b border-gray-200 flex flex-col items-left cursor-pointer "
@@ -63,6 +65,7 @@
     :else svg/org-mock))
 
 (defnc apis-mocks [{:keys [subdomain mock-type apis]}]
+
   (d/div {:id "custom-mock"
           :class (str "w-full px-6 py-4 bg-white rounded-lg shadow flex-col justify-center items-start inline-flex "
                       "lg:p-8")
@@ -74,7 +77,9 @@
            (<> {:key id}
                ($ api-mock {:enabled enabled :url url :id id})))
          (d/div {:class "self-stretch pt-6 justify-start items-start inline-flex text-white text-xs font-bold leading-[18px]"}
-                (d/button {:class "px-3 py-2 bg-pink-600 rounded-lg justify-end items-center gap-2 flex btn-add"
+
+                ($ button {:class "px-3 py-2 text-white hover:text-white bg-pink-600 rounded-lg justify-end items-center gap-2 flex btn-add"
+                           :theme :mockingbird
                            :on-click (fn [_] (refx/dispatch [:app.dashboard/toggle-mock-modal]))}
                           (d/svg {:width "16"
                                   :height "17"
@@ -94,16 +99,16 @@
         loading-mocks? (refx/use-sub [:app.dashboard/loading-mocks?])]
 
     (hooks/use-effect
-      [mocks]
-      (when (nil? mocks)
-        (refx/dispatch-sync [:app.dashboard/get-mocks current-user])))
+     [mocks]
+     (when (nil? mocks)
+       (refx/dispatch-sync [:app.dashboard/get-mocks current-user])))
 
     (hooks/use-effect
-      [mocks loading-mocks?]
-      (when (and (or (nil? mocks)
-                     (empty? mocks))
-                 (not loading-mocks?))
-        (refx/dispatch-sync [:app.dashboard/toggle-mock-modal])))
+     [mocks loading-mocks?]
+     (when (and (or (nil? mocks)
+                    (empty? mocks))
+                (not loading-mocks?))
+       (refx/dispatch-sync [:app.dashboard/toggle-mock-modal])))
 
     ($ base/index
        (d/div {:class "flex flex-col lg:p-8"}

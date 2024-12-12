@@ -49,38 +49,38 @@
            :body (clj->js login-return)}}})
 
 #_(deftest login-auth-view-test-fail-workos-test
-  (testing "auth login code redirect view should show error from WORKOS"
-    (async done
-           (p/let [_route (refx/dispatch [:app.routes/navigated-fake
-                                          {:query-params
-                                           {:error_description "some err message."}}])
-                   _msw (mock/start! login-auth-fail-msw)
-                   _render (aux/wait-for #(-> auth.views/login-auth-view aux/render .-container))
-                   error-msg (p/delay 250 (subs/sub [:app.auth/login-error]))]
-             (is (= "some err message." (last (subs/-value error-msg))))
-             (aux/cleanup)
-             (done)))))
+    (testing "auth login code redirect view should show error from WORKOS"
+      (async done
+             (p/let [_route (refx/dispatch [:app.routes/navigated-fake
+                                            {:query-params
+                                             {:error_description "some err message."}}])
+                     _msw (mock/start! login-auth-fail-msw)
+                     _render (aux/wait-for #(-> auth.views/login-auth-view aux/render .-container))
+                     error-msg (p/delay 250 (subs/sub [:app.auth/login-error]))]
+               (is (= "some err message." (last (subs/-value error-msg))))
+               (aux/cleanup)
+               (done)))))
 
 #_(deftest login-auth-view-test-fail-api-test
-  (testing "auth login code redirect view should show error from internal API"
-    (async done
-           (p/let [_route (refx/dispatch [:app.routes/navigated-fake
-                                          {:query-params {:code "1234"}}])
-                   _msw (mock/start! login-auth-fail-msw)
-                   _render (aux/wait-for #(-> auth.views/login-auth-view aux/render .-container))
-                   error-msg (p/delay 250 (subs/sub [:app.auth/login-error]))]
-             (is (= "Invalid credentials" (:message (last (subs/-value error-msg)))))
-             (aux/cleanup)
-             (done)))))
+    (testing "auth login code redirect view should show error from internal API"
+      (async done
+             (p/let [_route (refx/dispatch [:app.routes/navigated-fake
+                                            {:query-params {:code "1234"}}])
+                     _msw (mock/start! login-auth-fail-msw)
+                     _render (aux/wait-for #(-> auth.views/login-auth-view aux/render .-container))
+                     error-msg (p/delay 250 (subs/sub [:app.auth/login-error]))]
+               (is (= "Invalid credentials" (:message (last (subs/-value error-msg)))))
+               (aux/cleanup)
+               (done)))))
 
 #_(deftest login-auth-view-test-success-api-test
-  (testing "auth login code redirect view should show error from internal API"
-    (async done
-           (p/let [_route (refx/dispatch [:app.routes/navigated-fake
-                                          {:query-params {:code "1234"}}])
-                   _msw (mock/start! login-auth-sucess-msw)
-                   _render (aux/wait-for #(-> auth.views/login-auth-view aux/render .-container))
-                   current-user (p/delay 250 (subs/sub [:app.auth/current-user]))]
-             (is (= login-return (subs/-value current-user)))
-             (aux/cleanup)
-             (done)))))
+    (testing "auth login code redirect view should show error from internal API"
+      (async done
+             (p/let [_route (refx/dispatch [:app.routes/navigated-fake
+                                            {:query-params {:code "1234"}}])
+                     _msw (mock/start! login-auth-sucess-msw)
+                     _render (aux/wait-for #(-> auth.views/login-auth-view aux/render .-container))
+                     current-user (p/delay 250 (subs/sub [:app.auth/current-user]))]
+               (is (= login-return (subs/-value current-user)))
+               (aux/cleanup)
+               (done)))))

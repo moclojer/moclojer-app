@@ -1,5 +1,6 @@
 (ns front.app.dashboard.events
-  (:require [refx.alpha :as refx]))
+  (:require
+   [refx.alpha :as refx]))
 
 (refx/reg-event-db
  :app.dashboard/toggle-aside!

@@ -27,8 +27,8 @@
    :fail-fast? true}
 
   (flow "makes a healthcheck request"
-    (match? (matchers/embeds {:status 200
-                              :body  {:data {:content "Live api"}}})
-            (helpers/request! {:method :get
-                               :uri    "/healthcheck"
-                               :body   {}}))))
+        (match? (matchers/embeds {:status 200
+                                  :body  {:data {:content "Live api"}}})
+                (helpers/request! {:method :get
+                                   :uri    "/healthcheck"
+                                   :body   {}}))))

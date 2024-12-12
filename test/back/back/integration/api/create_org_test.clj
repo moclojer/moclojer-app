@@ -25,22 +25,22 @@
 (defn fcreate-org
   [user]
   (flow
-    "should create an organization"
-    [:let [org {:orgname "test-123"}
-           req {:headers {"authorization"
-                          (str "Bearer "
-                               "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJkY2ZmNGMwNi0"
-                               "xYzllLTRhYmItYTQ5Yi00MzhlMTg2OWVjNWIifQ.Gd42M"
-                               "G5EQCVvQwsvlhRQWHuEr-BBo4GB7Pd9di8w_No")}
-                :uri "/orgs"
-                :method :post
-                :body {:org org}}
-           resp (helpers/request! req)]]
-    (match?
-     (matchers/embeds
-      {:status 201
-       :body {:org (assoc org :users [{:uuid (str (:customer/uuid user))}])}})
-     resp)))
+   "should create an organization"
+   [:let [org {:orgname "test-123"}
+          req {:headers {"authorization"
+                         (str "Bearer "
+                              "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJkY2ZmNGMwNi0"
+                              "xYzllLTRhYmItYTQ5Yi00MzhlMTg2OWVjNWIifQ.Gd42M"
+                              "G5EQCVvQwsvlhRQWHuEr-BBo4GB7Pd9di8w_No")}
+               :uri "/orgs"
+               :method :post
+               :body {:org org}}
+          resp (helpers/request! req)]]
+   (match?
+    (matchers/embeds
+     {:status 201
+      :body {:org (assoc org :users [{:uuid (str (:customer/uuid user))}])}})
+    resp)))
 
 (defflow
   flow-create-org
@@ -48,11 +48,11 @@
    :cleanup utils/stop-system!
    :fail-fast? true}
   (flow
-    ""
-    [:let [user #:customer{:uuid #uuid "cd989358-af38-4a2f-a1a1-88096aa425a7"
-                           :email "test@gmail.com"
-                           :username "foobar123"
-                           :external-uuid #uuid "dcff4c06-1c9e-4abb-a49b-438e1869ec5b"}]
-     {:keys [database]} (state-flow.api/get-state)]
-    (state/invoke #(db.customers/insert! user database))
-    (fcreate-org user)))
+   ""
+   [:let [user #:customer{:uuid #uuid "cd989358-af38-4a2f-a1a1-88096aa425a7"
+                          :email "test@gmail.com"
+                          :username "foobar123"
+                          :external-uuid #uuid "dcff4c06-1c9e-4abb-a49b-438e1869ec5b"}]
+    {:keys [database]} (state-flow.api/get-state)]
+   (state/invoke #(db.customers/insert! user database))
+   (fcreate-org user)))

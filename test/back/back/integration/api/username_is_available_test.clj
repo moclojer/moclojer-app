@@ -31,29 +31,29 @@
    :fail-fast? true}
   (flow "setup a customer"
 
-    [database (state-flow.api/get-state :database)]
+        [database (state-flow.api/get-state :database)]
 
-    (state/invoke
-     #(db.customers/insert! {:customer/uuid #uuid "cd989358-af38-4a2f-a1a1-88096aa425a7"
-                             :customer/email "test@gmail.com"
-                             :customer/username "chico"
-                             :customer/external-uuid #uuid "dcff4c06-1c9e-4abb-a49b-438e1869ec5b"}
-                            database))
+        (state/invoke
+         #(db.customers/insert! {:customer/uuid #uuid "cd989358-af38-4a2f-a1a1-88096aa425a7"
+                                 :customer/email "test@gmail.com"
+                                 :customer/username "chico"
+                                 :customer/external-uuid #uuid "dcff4c06-1c9e-4abb-a49b-438e1869ec5b"}
+                                database))
 
-    (flow "check if username is available"
-      [resp (helpers/request! {:method :get
-                               :headers {"authorization" token}
-                               :uri "/user/username/chico"})]
-      (match?
-       (matchers/embeds {:status 200
-                         :body {:available false}})
-       resp))
+        (flow "check if username is available"
+              [resp (helpers/request! {:method :get
+                                       :headers {"authorization" token}
+                                       :uri "/user/username/chico"})]
+              (match?
+               (matchers/embeds {:status 200
+                                 :body {:available false}})
+               resp))
 
-    (flow "username is available"
-      [resp (helpers/request! {:method :get
-                               :headers {"authorization" token}
-                               :uri "/user/username/test"})]
-      (match?
-       (matchers/embeds {:status 200
-                         :body {:available true}})
-       resp))))
+        (flow "username is available"
+              [resp (helpers/request! {:method :get
+                                       :headers {"authorization" token}
+                                       :uri "/user/username/test"})]
+              (match?
+               (matchers/embeds {:status 200
+                                 :body {:available true}})
+               resp))))
