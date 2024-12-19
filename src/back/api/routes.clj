@@ -195,6 +195,6 @@
    ["/webhook"
     {:post {:summary "Handles a webhook"
             :parameters {:path {}}
-            :interceptors [(verify-webhook-signature)]
+            :interceptors [(verify-webhook-signature "")]
             :responses {200 {:body {}}}
-            :handler ports.http-in/handler-handler-post-webhook-payload}}]])
+            :handler ports.http-in/handler-post-webhook-payload}}]])

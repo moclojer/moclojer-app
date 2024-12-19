@@ -217,7 +217,7 @@
           :changes changes}
          file-path)))
 
-(defn handler-handler-post-webhook-payload
+(defn handler-post-webhook-payload
   [{:keys [payload]}]
   (prn payload)
   {:status 200
