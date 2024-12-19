@@ -200,3 +200,25 @@
     {:status 200
      :body {:success (controllers.orgs/remove-org-user! org-id user-id components ctx)
             :users (controllers.user/get-users-by-org-id org-id components ctx)}}))
+
+;; TODO remove from here
+#_(def tk
+    (token-manager/make-token-manager
+     github-api-url
+     github-app-id
+     github-app-private-key))
+#_(defn pull-file
+    [org repo base-revision changes file-path]
+    (-> (changeset/get-content
+         {:client gh-client
+          :org  org
+          :repo repo
+          :base-revision base-revision
+          :changes changes}
+         file-path)))
+
+(defn handler-handler-post-webhook-payload
+  [{:keys [payload]}]
+  (prn payload)
+  {:status 200
+   :success "sim"})

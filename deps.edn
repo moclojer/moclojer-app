@@ -8,7 +8,6 @@
         metosin/reitit-frontend {:mvn/version "0.5.18"}
         lambdaisland/fetch {:mvn/version "1.1.60"}
 
-
         org.clojure/tools.deps {:mvn/version "0.21.1449"}
         com.moclojer/mockingbird {:mvn/version "0.0.1"}
 
@@ -37,7 +36,12 @@
         io.forward/yaml {:mvn/version "1.0.11"}
         io.github.cljazz/supabase {:git/sha "a850ed47eb0daa8303f206ea60bd4b3bf59e1e0a"
                                    :git/url "https://github.com/cljazz/supabase-clj"}
-        babashka/process {:mvn/version "0.5.22"}}
+        babashka/process {:mvn/version "0.5.22"}
+
+        ;; sync
+        dev.nubank/clj-github {:mvn/version "0.7.1"}
+        org.clojure/data.json {:mvn/version "2.5.1"}
+        nubank/clj-github-app {:mvn/version "0.3.0"}}
 
  :aliases
  {;; frontend

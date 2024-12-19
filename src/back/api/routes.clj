@@ -2,6 +2,7 @@
   (:require [back.api.healthcheck :as healthcheck]
             [back.api.interceptors.error-handler :refer [error-handler-interceptor]]
             [back.api.interceptors.extract-user :refer [extract-user-interceptor]]
+            [back.api.interceptors.verify-webhook :refer [verify-webhook-signature]]
             [back.api.ports.http-in :as ports.http-in]
             [back.api.schemas.wire-in :as schemas.wire-in]
             [back.api.schemas.wire-out :as schemas.wire-out]
@@ -190,4 +191,10 @@
             :interceptors [(error-handler-interceptor)
                            (extract-user-interceptor)]
             :responses {200 {:body {}}}
-            :handler ports.http-in/handler-unpublish-mock!}}]])
+            :handler ports.http-in/handler-unpublish-mock!}}]
+   ["/webhook"
+    {:post {:summary "Handles a webhook"
+            :parameters {:path {}}
+            :interceptors [(verify-webhook-signature)]
+            :responses {200 {:body {}}}
+            :handler ports.http-in/handler-handler-post-webhook-payload}}]])
