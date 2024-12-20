@@ -2,12 +2,55 @@
   (:require
    [back.api.ports.workers :as p.workers]
    [back.api.routes :as routes]
+   [back.api.utils :as utils]
+   [clojure.string :as str]
    [com.moclojer.components.core :as components]
    [com.moclojer.components.logs :as logs]
    [com.moclojer.components.migrations :as migrations]
-   [com.stuartsierra.component :as component]
-   [dev.utils :refer [trace-all-ns]])
+   [com.stuartsierra.component :as component])
   (:gen-class))
+
+(defn get-allowed-ns
+  "Returns all ns of this project filtered"
+  []
+  (->> (all-ns)
+       (into []
+             (comp
+              (map (comp name ns-name))
+              (filter #(and (str/starts-with? % "com.moclojer")
+                            (not (str/ends-with? % "logs"))))
+              (map symbol)))))
+
+(defn trace-all-ns
+  "Alter all defined fns inside all ns gathered from get-allowed-ns 
+  and wrap them into a logs/trace context."
+  ([]
+   (trace-all-ns {:config {:env :dev}}))
+  ([config]
+   (let [env (get-in config [:config :env])
+         a-ns (get-allowed-ns)
+         fn-names (atom [])]
+     (doseq [curr-ns a-ns]
+       (doseq [[sym v] (ns-publics curr-ns)]
+         (when (var? v)
+           (let [arglists (-> v meta :arglists first)
+                 arg-names (map keyword (or arglists []))]
+             (swap! fn-names conj (str curr-ns "/" sym))
+             (try
+               (alter-var-root v
+                               (fn [f]
+                                 (if (fn? f)
+                                   (fn [& args]
+                                     (logs/trace
+                                      (keyword "traced-fn" (str curr-ns "/" sym))
+                                      {:location curr-ns
+                                       :fn (str sym)
+                                       :args (zipmap arg-names args)}
+                                      (apply f args)))
+                                   f)))
+               (catch Exception e
+                 (println "Failed to trace" sym (.getMessage e))))))))
+     (utils/inspect-if (= env :dev) @fn-names))))
 
 (def system-atom (atom nil))
 
