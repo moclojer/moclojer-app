@@ -217,8 +217,10 @@
           :changes changes}
          file-path)))
 
-(defn handler-post-webhook-payload
-  [{:keys [payload]}]
-  (prn payload)
-  {:status 200
-   :success "sim"})
+(defn handler-post-webhook
+  [request]
+  (let [body (:body-params request)]
+    (prn (keys body))
+    (prn (:repository body))
+    {:status 200
+     :body {:message "Webhook received successfully"}}))

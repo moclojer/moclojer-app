@@ -6,7 +6,15 @@
             [back.api.ports.http-in :as ports.http-in]
             [back.api.schemas.wire-in :as schemas.wire-in]
             [back.api.schemas.wire-out :as schemas.wire-out]
+            [reitit.http.interceptors.muuntaja :as muuntaja]
+            [reitit.http.interceptors.parameters :as parameters]
+            [muuntaja.core :as m]
             [reitit.swagger :as swagger]))
+
+(def muuntaja-instance
+  (m/create
+   (assoc m/default-options
+          :default-format "application/json")))
 
 (def routes
   [["/swagger.json"
@@ -194,7 +202,8 @@
             :handler ports.http-in/handler-unpublish-mock!}}]
    ["/webhook"
     {:post {:summary "Handles a webhook"
-            :parameters {:path {}}
-            :interceptors [(verify-webhook-signature "")]
-            :responses {200 {:body {}}}
-            :handler ports.http-in/handler-post-webhook-payload}}]])
+            :parameters {:body map?}
+            :interceptors [(muuntaja/format-interceptor muuntaja-instance)
+                           (parameters/parameters-interceptor)
+                           (verify-webhook-signature "")] ;; need to set this to env var
+            :handler ports.http-in/handler-post-webhook}}]])
