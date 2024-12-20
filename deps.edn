@@ -1,80 +1,80 @@
 {:paths ["src" "resources"]
- :deps {org.clojure/clojure {:mvn/version "1.11.1"}
+ :deps  {org.clojure/clojure     {:mvn/version "1.11.1"}
         ;; front
-        com.fbeyer/refx {:mvn/version "0.0.49"}
-        lilactown/helix {:mvn/version "0.1.9"}
-        funcool/promesa {:mvn/version "9.0.494"}
-        metosin/reitit-schema {:mvn/version "0.5.18"}
-        metosin/reitit-frontend {:mvn/version "0.5.18"}
-        lambdaisland/fetch {:mvn/version "1.1.60"}
+         com.fbeyer/refx         {:mvn/version "0.0.49"}
+         lilactown/helix         {:mvn/version "0.1.9"}
+         funcool/promesa         {:mvn/version "9.0.494"}
+         metosin/reitit-schema   {:mvn/version "0.5.18"}
+         metosin/reitit-frontend {:mvn/version "0.5.18"}
+         lambdaisland/fetch      {:mvn/version "1.1.60"}
 
         ;; back
-        com.moclojer/components {:mvn/version "0.1.0"}
-        com.cognitect.aws/api          {:mvn/version "0.8.561"}
-        com.cognitect.aws/endpoints    {:mvn/version "1.1.12.230"}
-        com.cognitect.aws/s3           {:mvn/version "822.2.1145.0"}
-        org.clojure/core.async {:mvn/version "1.6.681"}
-        buddy/buddy-sign {:mvn/version "3.5.351"}
-        slugify/slugify {:mvn/version "0.0.1"}
-        cheshire/cheshire {:mvn/version "5.11.0"}
-        clj-http/clj-http {:mvn/version "3.12.3"}
-        com.github.seancorfield/honeysql {:mvn/version "2.6.1147"}
-        com.github.seancorfield/next.jdbc {:mvn/version "1.3.939"}
-        com.stuartsierra/component {:mvn/version "1.1.0"}
-        ch.qos.logback/logback-classic {:mvn/version "1.5.6"}
+         com.moclojer/components           {:mvn/version "0.1.4"}
+         com.cognitect.aws/api             {:mvn/version "0.8.561"}
+         com.cognitect.aws/endpoints       {:mvn/version "1.1.12.230"}
+         com.cognitect.aws/s3              {:mvn/version "822.2.1145.0"}
+         org.clojure/core.async            {:mvn/version "1.6.681"}
+         buddy/buddy-sign                  {:mvn/version "3.5.351"}
+         slugify/slugify                   {:mvn/version "0.0.1"}
+         cheshire/cheshire                 {:mvn/version "5.11.0"}
+         clj-http/clj-http                 {:mvn/version "3.12.3"}
+         com.github.seancorfield/honeysql  {:mvn/version "2.6.1147"}
+         com.github.seancorfield/next.jdbc {:mvn/version "1.3.939"}
+         com.stuartsierra/component        {:mvn/version "1.1.0"}
+         ch.qos.logback/logback-classic    {:mvn/version "1.5.6"}
 
-        viesti/timbre-json-appender {:mvn/version "0.2.13"}
-        com.fzakaria/slf4j-timbre {:mvn/version "0.3.21"}
-        com.taoensso/timbre {:mvn/version "6.3.1"}
-        metosin/malli {:mvn/version "0.11.0"}
-        metosin/muuntaja {:mvn/version "0.6.8"}
-        org.bouncycastle/bcprov-jdk15on {:mvn/version "1.70"}
-        selmer/selmer {:mvn/version "1.12.55"}
-        io.forward/yaml               {:mvn/version "1.0.11"}
-        io.github.cljazz/supabase {:git/sha "a850ed47eb0daa8303f206ea60bd4b3bf59e1e0a"
-                                   :git/url "https://github.com/cljazz/supabase-clj"}
-        babashka/process {:mvn/version "0.5.22"}}
+         viesti/timbre-json-appender     {:mvn/version "0.2.13"}
+         com.fzakaria/slf4j-timbre       {:mvn/version "0.3.21"}
+         com.taoensso/timbre             {:mvn/version "6.3.1"}
+         metosin/malli                   {:mvn/version "0.11.0"}
+         metosin/muuntaja                {:mvn/version "0.6.8"}
+         org.bouncycastle/bcprov-jdk15on {:mvn/version "1.70"}
+         selmer/selmer                   {:mvn/version "1.12.55"}
+         io.forward/yaml                 {:mvn/version "1.0.11"}
+         io.github.cljazz/supabase       {:git/sha "a850ed47eb0daa8303f206ea60bd4b3bf59e1e0a"
+                                          :git/url "https://github.com/cljazz/supabase-clj"}
+         babashka/process                {:mvn/version "0.5.22"}}
 
  :aliases
  {;; frontend
   :front-dev {:extra-paths ["test/front"]
-              :extra-deps {cider/cider-nrepl {:mvn/version "0.28.6"}
-                           thheller/shadow-cljs {:mvn/version "2.20.10"}}}
+              :extra-deps  {cider/cider-nrepl    {:mvn/version "0.28.6"}
+                            thheller/shadow-cljs {:mvn/version "2.20.10"}}}
 
   :local-components {:extra-deps {com.moclojer/components
                                   {:local/root "../components"}}}
-  :local-clj-rq {:extra-deps {com.moclojer/rq
-                              {:local/root "../clj-rq"}}}
+  :local-clj-rq     {:extra-deps {com.moclojer/rq
+                                  {:local/root "../clj-rq"}}}
 
   ;; backend
-  :back-dev {:extra-paths ["test/back"]
-             :extra-deps  {org.clojars.bigsy/pg-embedded-clj {:mvn/version "1.0.0"}
-                           lambdaisland/kaocha {:mvn/version "1.70.1086"}
-                           lambdaisland/kaocha-cloverage {:mvn/version "1.0.75"}
-                           nubank/matcher-combinators {:mvn/version "3.5.1"}
-                           nubank/state-flow {:mvn/version "5.14.2"}}}
+  :back-dev    {:extra-paths ["test/back"]
+                :extra-deps  {org.clojars.bigsy/pg-embedded-clj {:mvn/version "1.0.0"}
+                              lambdaisland/kaocha               {:mvn/version "1.70.1086"}
+                              lambdaisland/kaocha-cloverage     {:mvn/version "1.0.75"}
+                              nubank/matcher-combinators        {:mvn/version "3.5.1"}
+                              nubank/state-flow                 {:mvn/version "5.14.2"}}}
   ;; clj -M:test
-  :test {:extra-paths ["test/back"]
-         :extra-deps  {org.clojars.bigsy/pg-embedded-clj {:mvn/version "1.0.0"}
-                       lambdaisland/kaocha {:mvn/version "1.70.1086"}
-                       lambdaisland/kaocha-cloverage {:mvn/version "1.0.75"}
-                       nubank/matcher-combinators {:mvn/version "3.5.1"}
-                       nubank/state-flow {:mvn/version "5.14.2"}}
-         :main-opts   ["-m" "kaocha.runner" "--no-capture-output"]}
+  :test        {:extra-paths ["test/back"]
+                :extra-deps  {org.clojars.bigsy/pg-embedded-clj {:mvn/version "1.0.0"}
+                              lambdaisland/kaocha               {:mvn/version "1.70.1086"}
+                              lambdaisland/kaocha-cloverage     {:mvn/version "1.0.75"}
+                              nubank/matcher-combinators        {:mvn/version "3.5.1"}
+                              nubank/state-flow                 {:mvn/version "5.14.2"}}
+                :main-opts   ["-m" "kaocha.runner" "--no-capture-output"]}
   ;; clj -:clojure-lsp
   :clojure-lsp {:replace-deps {com.github.clojure-lsp/clojure-lsp-standalone {:mvn/version "2022.09.01-15.27.31"}}
-                :main-opts ["-m" "clojure-lsp.main"]}
+                :main-opts    ["-m" "clojure-lsp.main"]}
   ;; clj -M:migratus
-  :migratus {:main-opts ["-m" "com.moclojer.components.migrations"]}
+  :migratus    {:main-opts ["-m" "com.moclojer.components.migrations"]}
   ;; clj -X:run
-  :run {:main-opts ["-m" "back.api.server"]
-        :exec-fn back.api.server/-main}
+  :run         {:main-opts ["-m" "back.api.server"]
+                :exec-fn   back.api.server/-main}
 
   :env/test {}
 
   ;; clj -M:nrepl
   :nrepl {:extra-deps {cider/cider-nrepl {:mvn/version "0.30.0"}}
-          :main-opts ["-m" "nrepl.cmdline" "--middleware" "[cider.nrepl/cider-middleware]"]}
+          :main-opts  ["-m" "nrepl.cmdline" "--middleware" "[cider.nrepl/cider-middleware]"]}
 
-  :build {:deps {io.github.clojure/tools.build {:mvn/version "0.9.4"}}
+  :build {:deps       {io.github.clojure/tools.build {:mvn/version "0.9.4"}}
           :ns-default build}}}

@@ -16,7 +16,7 @@
         [:config :sentry])))
 
 (defn start-system! [system-map]
-  (components/setup-logger [["*" :info]] :auto :prod)
+  #_(components/setup-logger [["*" :info]] :auto :prod)
   (->> system-map
        component/start
        (reset! system-atom)))

@@ -1,10 +1,11 @@
 (ns dev.api.dev
-  (:require [back.api.ports.workers :as p.workers]
-            [back.api.routes :as routes]
-            [com.moclojer.components.core :as components]
-            [com.moclojer.components.mq :as mq]
-            [com.stuartsierra.component :as component]
-            [dev.utils :as utils])
+  (:require
+   [back.api.ports.workers :as p.workers]
+   [back.api.routes :as routes]
+   [com.moclojer.components.core :as components]
+   [com.moclojer.components.mq :as mq]
+   [com.stuartsierra.component :as component]
+   [dev.utils :as utils])
   (:gen-class))
 
 ;; This namespace is used for development purposes only;
@@ -13,7 +14,9 @@
 
 (defn build-system-map []
   (component/system-map
+   :env :prod
    :config (components/new-config "back/config.edn")
+   :logger (component/using (components/new-logger) [:config])
    :sentry (components/new-sentry-mock)
    :http (components/new-http)
    :router (components/new-router routes/routes)
@@ -31,12 +34,15 @@
              :sleep 300000}]
          false)
         [:config :database :sentry])
-   :webserver (component/using (components/new-webserver)
-                               [:config :http :router :database :mq])))
+   :webserver (component/using
+               (components/new-webserver)
+               [:config :http :router :database :mq])))
 
 (comment
   ;; init
   (utils/start-system-dev! sys-atom (build-system-map))
+
+  (:logger @sys-atom)
 
   (mq/try-op! (:mq @sys-atom) :publish! ["yml.unified.verification.fired" {}] {})
   (mq/try-op! (:mq @sys-atom) :publish! ["domains.verification.fired" {}] {})
@@ -47,4 +53,6 @@
   (utils/start-system-dev! sys-atom (build-system-map) false)
 
   ;; finish
-  (utils/stop-system-dev! sys-atom))
+  (utils/stop-system-dev! sys-atom)
+  ;;
+  )
