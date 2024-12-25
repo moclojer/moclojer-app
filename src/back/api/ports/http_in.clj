@@ -5,7 +5,9 @@
             [back.api.controllers.orgs :as controllers.orgs]
             [back.api.controllers.user :as controllers.user]
             [back.api.logic.customers :as logic.users]
-            [back.api.logic.orgs :as logic.orgs]))
+            [back.api.logic.orgs :as logic.orgs]
+            [clojure.string :as str]
+            [com.moclojer.components.logs :as logs]))
 
 (defn handler-create-user!
   [{{{:keys [access-token]} :body} :parameters
@@ -201,26 +203,38 @@
      :body {:success (controllers.orgs/remove-org-user! org-id user-id components ctx)
             :users (controllers.user/get-users-by-org-id org-id components ctx)}}))
 
-;; TODO remove from here
-#_(def tk
-    (token-manager/make-token-manager
-     github-api-url
-     github-app-id
-     github-app-private-key))
-#_(defn pull-file
-    [org repo base-revision changes file-path]
-    (-> (changeset/get-content
-         {:client gh-client
-          :org  org
-          :repo repo
-          :base-revision base-revision
-          :changes changes}
-         file-path)))
-
 (defn handler-post-webhook
   [request]
-  (let [body (:body-params request)]
-    (prn (keys body))
-    (prn (:repository body))
+  (let [body (:body-params request)
+        event-type (get-in request [:headers "x-github-event"])
+        reference (:ref body)]
+    (logs/log :info "Event Type:" event-type)
+    (cond
+      (= event-type "push")
+      (do
+        (logs/log :info "Processing push event")
+        reference)
+      (= event-type "installation")
+      (do
+        (logs/log :info "Processing installation event")
+        (let [installation-id (get-in body [:installation :id])]
+          (doseq [repo (:repositories body)]
+            (prn repo)
+            (let [response {:status 200
+                            :body {:message "Webhook received successfully"
+                                   :response (controllers.mocks/pull-file
+                                              installation-id
+                                              (first (str/split (:full-name repo) #"/"))
+                                              (:name repo)
+                                              "main"
+                                              ".gitignore")}}]
+              (logs/log :info (:body response))
+              response))))
+
+      :else
+      {:status 403
+       :body {:message "Unhandled event type"}})
+
     {:status 200
      :body {:message "Webhook received successfully"}}))
+

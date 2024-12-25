@@ -7,6 +7,7 @@
  :supabase-url #or [#env SUPABASE_URL "https://tgvdfxurgsddxouxmugs.supabase.co"]
  :supabase-oauth-redirect #or [#env SUPABASE_OAUTH_REDIRECT "https://auth.moclojer.com/auth/v1/callback"]
  :supabase-jwt-secret #or [#env SUPABASE_JWT_SECRET "bar"]
+ :git-secret #or [#env GITHUB_APP_SECRET "ok"]
  :moclojer {:config-path #profile {:default "resources/moclojer.yml"
                                    :prod "moclojer.yml"}
             :join? #profile {:default false

@@ -1,7 +1,8 @@
 (ns back.api.logic.mocks
-  (:require [camel-snake-kebab.core :as csk]
-            [clojure.java.io :as io]
-            [clojure.string :as str]))
+  (:require
+   [camel-snake-kebab.core :as csk]
+   [clojure.java.io :as io]
+   [clojure.string :as str]))
 
 (def default-mock-content
   (slurp (io/resource "back/default-mock.yaml")))

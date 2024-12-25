@@ -77,7 +77,6 @@
   ;; clj -X:run
   :run {:main-opts ["-m" "back.api.server"]
         :exec-fn back.api.server/-main}
-
   :env/test {}
 
   ;; clj -M:nrepl

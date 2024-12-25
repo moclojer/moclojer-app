@@ -1,0 +1,2 @@
+ALTER TABLE mock ADD COLUMN git_repo VARCHAR(255);
+--;;

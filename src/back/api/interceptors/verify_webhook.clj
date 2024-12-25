@@ -1,11 +1,7 @@
 (ns back.api.interceptors.verify-webhook
   (:require
-   [clojure.string :as str]
    [clj-github-app.webhook-signature :as webhook-signature]
-   [reitit.http.interceptors.muuntaja :as muuntaja]
    [clojure.data.json :as json]))
-
-(defn inspect [a] (prn a) a)
 
 (defn verify-webhook-signature
   "Checks if the webhook is valid."
@@ -40,4 +36,4 @@
          (assoc ctx
                 :response
                 {:status 404
-                 :body "Not Found"}))))})
+                 :body "Not checked"}))))})
