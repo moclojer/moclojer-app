@@ -4,6 +4,7 @@
                 :prod :prod}
  :release "1.0.0"
  :supabase-api-key #or [#env SUPABASE_API_KEY "foo"]
+ :supabase-token #or [#env SUPABASE_TOKEN "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRndmRmeHVyZ3NkZHhvdXhtdWdzIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODE1MDM0NDMsImV4cCI6MTk5NzA3OTQ0M30.7pq4MM_ZldiWvOk_cnQuxlvUF8eFcxlPDB7jMTNMYb0"]
  :supabase-url #or [#env SUPABASE_URL "https://tgvdfxurgsddxouxmugs.supabase.co"]
  :supabase-oauth-redirect #or [#env SUPABASE_OAUTH_REDIRECT "https://auth.moclojer.com/auth/v1/callback"]
  :supabase-jwt-secret #or [#env SUPABASE_JWT_SECRET "bar"]

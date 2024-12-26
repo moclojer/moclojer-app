@@ -116,7 +116,7 @@
                              #(refx/dispatch-sync [:app.auth/logout %])))
                 :class (str "flex items-center p-2 text-base font-normal text-gray-900 rounded-lg transition"
                                  " duration-75 hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-gray-700")}
-               ($ svg/help)
+               ($ svg/logout)
                (when aside-open?
                  (d/span {:class "ml-3"}
                          "Logout")))))))))

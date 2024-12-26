@@ -4,14 +4,13 @@
    [promesa.core :as p]
    [reitit.frontend.easy :as rfe]))
 
-(defn inspect [a] (js/console.log a) a)
-
 (goog-define SUPABASE_URL "")
 (goog-define SUPABASE_TOKEN "")
-(goog-define SUPABASE_OAUTH_REDIRECT "")
+
 (when-not (every? not-empty [SUPABASE_URL SUPABASE_TOKEN])
   (throw (js/Error. "SUPABASE_URL or SUPABASE_TOKEN weren't defined")))
 (goog-define SUPABASE_REDIRECT "http://localhost:8200/#/")
+(goog-define SUPABASE_OAUTH_REDIRECT "")
 
 (defn create-client
   "creates a supabase client"
@@ -38,8 +37,7 @@
         options (clj->js
                  {:provider (clj->js provider)
                   :options {:redirect-to SUPABASE_OAUTH_REDIRECT}})]
-    (inspect (.signInWithOAuth auth options))))
-
+    (.signInWithOAuth auth options)))
 
 (defn sign-out [dispatch-fn-logout]
   (let [auth (.-auth client)]

@@ -58,26 +58,23 @@
                  (d/h2 {:class "text-2xl font-bold text-gray-900 lg:text-3xl dark:text-white"}
                        "sign in to moclojer")
                  (d/form {:disabled loading?
+                          :class "mt-8 space-y-8 "
                           :on-submit (fn [e]
                                        (.preventDefault e)
-                                       (if (and (not (= (:email state) "")) (= (:provider state) ""))
-                                         (refx/dispatch [:app.auth/send-email state])
-                                         (refx/dispatch [:app.auth/send-oauth state])))
-                          :class "mt-8 space-y-8 "}
-
-                         (d/div 
+                                       (refx/dispatch [:app.auth/send-email state]))}
+                         (d/div
                           ($ input
                              {:for "email"
                               :label "your email"
                               :placeholder "name@company.com"
-                              :on-change #(set-state assoc :email (.. % -target -value) :provider "")})
-
+                              :on-change #(set-state assoc :email (.. % -target -value))})
                           (d/div {:class "w-8 lg:w-full h-8 lg:h-6 flex flex-row justify-center items-center mt-4 lg:mt-2  lg:justify-start lg:items-start "}
                                  (d/span {:class "hidden text-gray-300 lg:flex justify-start items-start m-0 lg:mr-2 lg:ml-1"} "or")
                                  ($ button {:roundness :full
                                             :class "flex justify-center flex-col items-center w-8 h-8 lg:w-6 lg:h-6"
-                                            :on-click #(set-state assoc :provider "github" :email "")}
-
+                                            :on-click #(do
+                                                         (set-state assoc :provider "github")
+                                                         (refx/dispatch [:app.auth/send-oauth state]))}
                                     (d/div {:class "flex text-gray-400 "}
                                            ($ github)))))
 
