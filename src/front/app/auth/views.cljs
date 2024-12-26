@@ -8,7 +8,7 @@
    [front.app.components.section :refer [section]]
    [front.app.components.loading :refer [loading-spinner]]
    [front.app.components.navlink :refer [nav-link]]
-   [front.app.components.svg :refer [github]]
+   [front.app.components.svg :as svg]
    [front.app.lib :refer [defnc]]
    [helix.core :refer [$]]
    [helix.dom :as d]
@@ -16,7 +16,8 @@
    [refx.alpha :as refx]
    [reitit.frontend.easy :as rfe]))
 
-(defn inspect [a] (js/console.log a) a)
+(defn inspect [a] (.log js/console a) a)
+
 (defnc not-found-view []
   (d/div "404"))
 
@@ -59,9 +60,11 @@
                        "sign in to moclojer")
                  (d/form {:disabled loading?
                           :class "mt-8 space-y-8 "
+
                           :on-submit (fn [e]
                                        (.preventDefault e)
-                                       (refx/dispatch [:app.auth/send-email state]))}
+                                       (when (:email state)
+                                         (refx/dispatch [:app.auth/send-email state])))}
                          (d/div
                           ($ input
                              {:for "email"
@@ -72,11 +75,9 @@
                                  (d/span {:class "hidden text-gray-300 lg:flex justify-start items-start m-0 lg:mr-2 lg:ml-1"} "or")
                                  ($ button {:roundness :full
                                             :class "flex justify-center flex-col items-center w-8 h-8 lg:w-6 lg:h-6"
-                                            :on-click #(do
-                                                         (set-state assoc :provider "github")
-                                                         (refx/dispatch [:app.auth/send-oauth state]))}
+                                            :on-click #(refx/dispatch [:app.auth/send-oauth "github" (:on-failure state)])}
                                     (d/div {:class "flex text-gray-400 "}
-                                           ($ github)))))
+                                           ($ svg/github)))))
 
                          (d/div {:class "flex items-start "}
                                 (d/div {:class "flex items-center h-6 lg:h-12"}))
@@ -97,12 +98,12 @@
                                (d/span "login to your account"))))
 
                          (d/div {:class "text-sm font-medium text-gray-500 dark:text-gray-400"}
-                                (if (inspect error)
+                                (when error-res
                                   ($ alerts/error
                                      {:id "login-error"
                                       :error "Error... try it again."
-                                      :description (:message error-res)})
-                                  "if you don't have an account, it is created automatically"))))))))
+                                      :description (:message error-res)}
+                                     "if you don't have an account, it is created automatically")))))))))
 
 (defnc first-login [{:keys [sent? loading?]}]
   (let [username (refx/use-sub [:app.auth/username-to-save])
