@@ -63,19 +63,22 @@
 
                           :on-submit (fn [e]
                                        (.preventDefault e)
-                                       (when (:email state)
-                                         (refx/dispatch [:app.auth/send-email state])))}
+                                       (if (and
+                                            (not (= (:email state) ""))
+                                            (= (:provider state) ""))
+                                         (refx/dispatch [:app.auth/send-email state])
+                                         (refx/dispatch [:app.auth/send-oauth state])))}
                          (d/div
                           ($ input
                              {:for "email"
                               :label "your email"
                               :placeholder "name@company.com"
-                              :on-change #(set-state assoc :email (.. % -target -value))})
+                              :on-change #(set-state assoc :email (.. % -target -value) :provider "")})
                           (d/div {:class "w-8 lg:w-full h-8 lg:h-6 flex flex-row justify-center items-center mt-4 lg:mt-2  lg:justify-start lg:items-start "}
                                  (d/span {:class "hidden text-gray-300 lg:flex justify-start items-start m-0 lg:mr-2 lg:ml-1"} "or")
                                  ($ button {:roundness :full
                                             :class "flex justify-center flex-col items-center w-8 h-8 lg:w-6 lg:h-6"
-                                            :on-click #(refx/dispatch [:app.auth/send-oauth "github" (:on-failure state)])}
+                                            :on-click #(set-state assoc :provider "github" :email "")}
                                     (d/div {:class "flex text-gray-400 "}
                                            ($ svg/github)))))
 

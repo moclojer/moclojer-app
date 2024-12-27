@@ -4,7 +4,8 @@
  :build-defaults {:closure-defines
                   {front.app.auth.supabase/SUPABASE_URL "https://tgvdfxurgsddxouxmugs.supabase.co"
                    front.app.auth.supabase/SUPABASE_TOKEN "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRndmRmeHVyZ3NkZHhvdXhtdWdzIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODE1MDM0NDMsImV4cCI6MTk5NzA3OTQ0M30.7pq4MM_ZldiWvOk_cnQuxlvUF8eFcxlPDB7jMTNMYb0"
-                   front.app.core/SENTRY_DNS "https://27ee051c754588f05b85c61327b675e9@o4506376447131648.ingest.us.sentry.io/4507012897374208"}}
+                   front.app.core/SENTRY_DNS "https://27ee051c754588f05b85c61327b675e9@o4506376447131648.ingest.us.sentry.io/4507012897374208"
+                   front.app.core/SUPABASE_OAUTH_REDIRECT "https://auth.moclojer.com/auth/v1/callback"}}
  :builds {:app {:target :browser
                 :output-dir "resources/front/public/assets/js"
                 :asset-path "/assets/js"
