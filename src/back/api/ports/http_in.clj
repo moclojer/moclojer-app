@@ -206,29 +206,40 @@
 (defn handler-post-webhook
   [request]
   (let [body (:body-params request)
-        event-type (get-in request [:headers "x-github-event"])
-        reference (:ref body)]
+        event-type (get-in request [:headers "x-github-event"])]
     (logs/log :info "Event Type:" event-type)
     (cond
       (= event-type "push")
       (do
         (logs/log :info "Processing push event")
-        reference)
+        (let [installation-id (get-in body [:installation :id])
+              repo (:repository body)
+              head-commit (:head_commit body)
+              response {:status 200
+                        :body {:message "Webhook received successfully"
+                               :response (controllers.mocks/pull-file
+                                          installation-id
+                                          (get-in repo [:owner :name])
+                                          (:name repo)
+                                          "README.md")}}]
+          ;; TODO
+          (prn head-commit)
+          (prn response)
+          response))
+
       (= event-type "installation")
       (do
         (logs/log :info "Processing installation event")
         (let [installation-id (get-in body [:installation :id])]
           (doseq [repo (:repositories body)]
-            (prn repo)
             (let [response {:status 200
                             :body {:message "Webhook received successfully"
                                    :response (controllers.mocks/pull-file
                                               installation-id
-                                              (first (str/split (:full-name repo) #"/"))
+                                              (first (str/split (:full_name repo) #"/"))
                                               (:name repo)
-                                              "main"
-                                              ".gitignore")}}]
-              (logs/log :info (:body response))
+                                              "README.md")}}]
+              (prn response)
               response))))
 
       :else

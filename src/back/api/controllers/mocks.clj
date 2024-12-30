@@ -7,18 +7,19 @@
 
             [clojure.string :as str]
             [clj-github-app.client :as gh-app]
-            [clj-github.httpkit-client :as gh-client]
-            [clojure.data.json :as json]))
-
-;; GIT
-(defn commit-message [co-author email] (str "Auto genereted commit by moclojer sync app!!" newline
-                                            "Co-authored-by:" co-author "<" email ">"))
+            [clj-github.httpkit-client :as gh-client]))
 
 (defn inspect [a] (prn a) a)
 
+(defn commit-message
+  [co-author email]
+  (str "Auto genereted commit by moclojer sync app!!" newline
+       "Co-authored-by:" co-author "<" email ">"))
+
 (def app-id "")
-(def private-key (slurp ""))
+(def private-key "")
 (def github-api-url "https://api.github.com")
+(def install_id 0)
 
 (def app-client
   (gh-app/make-app-client
@@ -26,49 +27,31 @@
    app-id
    private-key {}))
 
-(defn get-installation-token [app-client installation-id]
-  (let [response (gh-app/request app-client installation-id :post
-                                 (format "/app/installations/%s/access_tokens" installation-id)
-                                 {:accept "application/vnd.github+json"
-                                  :X-GitHub-Api-Version "2022-11-28"})]
-    (if (= 201 (:status response))
-      (-> response :body json/read-str (get "token"))
-      (do
-        (prn "Response Status:" (:status response))
-        (prn "Response Body:" (:body response))
-        (throw (ex-info "Failed to retrieve installation token"
-                        {:status (:status response)
-                         :body (:body response)}))))))
+(defn create-github-client
+  []
+  (gh-app/make-app-client github-api-url app-id private-key {}))
 
-(defn create-github-client [token]
-  (gh-client/new-client {:oauth-token token}))
-
-(defn fetch-file-content [gh-client owner repo branch file-path]
-  (let [response (gh-client/request gh-client
-                                    {:method :get
-                                     :url  (format "https://api.github.com/repos/%s/%s/contents/%s" owner repo file-path)
-                                     :query-params {:ref branch}
-                                     :headers {"Accept" "application/vnd.github.v3+json"}})]
+(defn fetch-file-content
+  [gh-client installation-id owner repo file-path]
+  (let [response (gh-app/request gh-client installation-id :get
+                                 (format "%s/repos/%s/%s/contents/%s" github-api-url owner repo file-path)
+                                 {})]
     (if (= 200 (:status response))
-      (let [content (-> response :body json/read-str (get "content"))]
+      (let [content (-> response
+                        :body
+                        :content)]
         content)
       (throw (ex-info "Failed to retrieve file"
                       {:status (:status response)
                        :body (:body response)})))))
 
-(defn pull-file [installation-id owner repo branch file-path]
-  (let [token (get-installation-token app-client installation-id)
-        gh-client (create-github-client token)]
-    (fetch-file-content gh-client owner repo branch file-path)))
+(defn pull-file [installation-id owner repo file-path]
+  (fetch-file-content (create-github-client) installation-id owner repo file-path))
 
-(defn push-file [installation-id]
-  (let [token (get-installation-token app-client installation-id)
-        gh-client (create-github-client token)]
-    (gh-client/request gh-client
-                       {:method :post
-                        :url  #_(format "https://api.github.com/repos/%s/%s/contents/%s" owner repo file-path)
-                        ; :query-params {:ref branch}
-                        :headers #_{"Accept" "application/vnd.github.v3+json"}})))
+(defn push-file [installation-id owner repo branch file-path]
+  ;; TODO
+  ;; add pro validation
+  )
 
 (defn enable-sync! [mock org & args]
   ;; TODO
@@ -76,18 +59,28 @@
   )
 
 (comment
-  (def install_id "")
-  (gh-app/request app-client install_id :post
-                  (format "/app/installations/%s/access_tokens" install_id)
-                  {})
+  (def gh-client
+    (gh-app/make-app-client github-api-url app-id private-key {}))
 
-  (get-installation-token app-client install_id)
+  (let [response (gh-app/request
+                  gh-client install_id :get
+                  (format "%s/repos/%s/%s/contents/%s" github-api-url "Felipe-gsilva" "gh-app-test" "README.md")
+                  {})]
+
+    (if (= 200 (:status response))
+      (let [content (-> response
+                        :body
+                        :content)]
+        content)
+      (throw (ex-info "Failed to retrieve file"
+                      {:status (:status response)
+                       :body (:body response)}))))
+
   (try
     (let [content (pull-file
                    install_id
                    "Felipe-gsilva"
                    "gh-app-test"
-                   "main"
                    "README.md")]
       (println content))
     (catch Exception e
