@@ -17,19 +17,16 @@
        "Co-authored-by:" co-author "<" email ">"))
 
 (def app-id "")
-(def private-key "")
+(def private-key (slurp ""))
 (def github-api-url "https://api.github.com")
-(def install_id 0)
+(def install_id "")
 
-(def app-client
+(defn create-github-client
+  []
   (gh-app/make-app-client
    github-api-url
    app-id
    private-key {}))
-
-(defn create-github-client
-  []
-  (gh-app/make-app-client github-api-url app-id private-key {}))
 
 (defn fetch-file-content
   [gh-client installation-id owner repo file-path]
@@ -45,33 +42,39 @@
                       {:status (:status response)
                        :body (:body response)})))))
 
-(defn pull-file [installation-id owner repo file-path]
-  (fetch-file-content (create-github-client) installation-id owner repo file-path))
+(defn pull-file
+  "Uses installation-id to auth as a github app 
+  and pull n files"
+  [installation-id owner repo files]
+  (let [res (atom {})]
+    (doseq [file files]
+      (swap! res assoc
+             :file file
+             :content (fetch-file-content
+                       (create-github-client)
+                       installation-id
+                       owner
+                       repo
+                       file)))
+    (inspect @res)))
 
-(defn push-file [installation-id owner repo branch file-path]
+(defn push-file
+  [installation-id owner repo branch file-path]
   ;; TODO
   ;; add pro validation
   )
 
-(defn enable-sync! [mock org & args]
-  ;; TODO
-  ;; add pro validation
-  )
+(defn enable-sync! [mock org args])
 
 (comment
   (def gh-client
     (gh-app/make-app-client github-api-url app-id private-key {}))
-
-  (let [response (gh-app/request
-                  gh-client install_id :get
-                  (format "%s/repos/%s/%s/contents/%s" github-api-url "Felipe-gsilva" "gh-app-test" "README.md")
-                  {})]
-
+  (let [response (gh-app/request gh-client install_id :get
+                                 (format "%s/repos/%s/%s/contents/%s" github-api-url "Felipe-gsilva" "gh-app-test" "README.md")
+                                 {})]
     (if (= 200 (:status response))
-      (let [content (-> response
-                        :body
-                        :content)]
-        content)
+      (let [content (-> response :body :content)]
+        (decode (inspect content)))
       (throw (ex-info "Failed to retrieve file"
                       {:status (:status response)
                        :body (:body response)}))))

@@ -1,13 +1,14 @@
 (ns back.api.ports.http-in
-  (:require [back.api.adapters.customers :as adapters.customers]
-            [back.api.controllers.login :as controllers.login]
-            [back.api.controllers.mocks :as controllers.mocks]
-            [back.api.controllers.orgs :as controllers.orgs]
-            [back.api.controllers.user :as controllers.user]
-            [back.api.logic.customers :as logic.users]
-            [back.api.logic.orgs :as logic.orgs]
-            [clojure.string :as str]
-            [com.moclojer.components.logs :as logs]))
+  (:require
+   [back.api.adapters.customers :as adapters.customers]
+   [back.api.controllers.login :as controllers.login]
+   [back.api.controllers.mocks :as controllers.mocks]
+   [back.api.controllers.orgs :as controllers.orgs]
+   [back.api.controllers.user :as controllers.user]
+   [back.api.logic.customers :as logic.users]
+   [back.api.logic.orgs :as logic.orgs]
+   [clojure.string :as str]
+   [com.moclojer.components.logs :as logs]))
 
 (defn handler-create-user!
   [{{{:keys [access-token]} :body} :parameters
@@ -203,33 +204,52 @@
      :body {:success (controllers.orgs/remove-org-user! org-id user-id components ctx)
             :users (controllers.user/get-users-by-org-id org-id components ctx)}}))
 
+(defn inspect [a]
+  (logs/log :inspecting a)
+  a)
+
+(defn decode [encoded-str]
+  (let [cleaned-str (clojure.string/replace encoded-str #"\s+" "")
+        decoder (java.util.Base64/getDecoder)]
+    (String. (.decode decoder cleaned-str) "UTF-8")))
+
 (defn handler-post-webhook
   [request]
   (let [body (:body-params request)
         event-type (get-in request [:headers "x-github-event"])]
-    (logs/log :info "Event Type:" event-type)
     (cond
       (= event-type "push")
       (do
-        (logs/log :info "Processing push event")
         (let [installation-id (get-in body [:installation :id])
               repo (:repository body)
               head-commit (:head_commit body)
-              response {:status 200
-                        :body {:message "Webhook received successfully"
-                               :response (controllers.mocks/pull-file
-                                          installation-id
-                                          (get-in repo [:owner :name])
-                                          (:name repo)
-                                          "README.md")}}]
-          ;; TODO
-          (prn head-commit)
+              response {:status 500
+                        :body {:message "Webhook received successfully"}}
+              modified-files (into []
+                                   (concat
+                                    (:modified head-commit)
+                                    (:added head-commit)))
+              mocks (into [] (filter #(and
+                                       (= (last (str/split % #"/")) "moclojer.yml")
+                                       (str/includes? % "mocks/"))
+                                     modified-files))
+              partial-response (inspect (when mocks
+                                          (controllers.mocks/pull-file
+                                           installation-id
+                                           (get-in repo [:owner :name])
+                                           (:name repo)
+                                           mocks)))]
+          (when partial-response
+            (assoc (:body response)
+                   :paths mocks
+                   :content partial-response))
+          (newline)
           (prn response)
-          response))
-
+          (inspect (assoc (dissoc response :status)
+                          :status 200
+                          :message "Webhook received successfully and files handled"))))
       (= event-type "installation")
       (do
-        (logs/log :info "Processing installation event")
         (let [installation-id (get-in body [:installation :id])]
           (doseq [repo (:repositories body)]
             (let [response {:status 200
@@ -241,11 +261,8 @@
                                               "README.md")}}]
               (prn response)
               response))))
-
-      :else
-      {:status 403
-       :body {:message "Unhandled event type"}})
-
+      :else {:status 403
+             :body {:message "Unhandled event type"}})
     {:status 200
      :body {:message "Webhook received successfully"}}))
 
