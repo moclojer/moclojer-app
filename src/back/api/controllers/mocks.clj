@@ -3,96 +3,18 @@
             [back.api.db.mocks :as db.mocks]
             [back.api.logic.mocks :as logic.mocks]
             [back.api.ports.producers :as ports.producers]
-            [com.moclojer.components.logs :as logs]
-
             [clojure.string :as str]
             [clj-github-app.client :as gh-app]
-            [clj-github.httpkit-client :as gh-client]))
+            [com.moclojer.components.logs :as logs]))
 
 (defn inspect [a] (prn a) a)
 
-(defn commit-message
-  [co-author email]
-  (str "Auto genereted commit by moclojer sync app!!" newline
-       "Co-authored-by:" co-author "<" email ">"))
-
-(def app-id "")
-(def private-key (slurp ""))
-(def github-api-url "https://api.github.com")
-(def install_id "")
-
-(defn create-github-client
-  []
-  (gh-app/make-app-client
-   github-api-url
-   app-id
-   private-key {}))
-
-(defn fetch-file-content
-  [gh-client installation-id owner repo file-path]
-  (let [response (gh-app/request gh-client installation-id :get
-                                 (format "%s/repos/%s/%s/contents/%s" github-api-url owner repo file-path)
-                                 {})]
-    (if (= 200 (:status response))
-      (let [content (-> response
-                        :body
-                        :content)]
-        content)
-      (throw (ex-info "Failed to retrieve file"
-                      {:status (:status response)
-                       :body (:body response)})))))
-
-(defn pull-file
-  "Uses installation-id to auth as a github app 
-  and pull n files"
-  [installation-id owner repo files]
-  (let [res (atom {})]
-    (doseq [file files]
-      (swap! res assoc
-             :file file
-             :content (fetch-file-content
-                       (create-github-client)
-                       installation-id
-                       owner
-                       repo
-                       file)))
-    (inspect @res)))
-
-(defn push-file
-  [installation-id owner repo branch file-path]
-  ;; TODO
-  ;; add pro validation
-  )
-
-(defn enable-sync! [mock org args])
-
-(comment
-  (def gh-client
-    (gh-app/make-app-client github-api-url app-id private-key {}))
-  (let [response (gh-app/request gh-client install_id :get
-                                 (format "%s/repos/%s/%s/contents/%s" github-api-url "Felipe-gsilva" "gh-app-test" "README.md")
-                                 {})]
-    (if (= 200 (:status response))
-      (let [content (-> response :body :content)]
-        (decode (inspect content)))
-      (throw (ex-info "Failed to retrieve file"
-                      {:status (:status response)
-                       :body (:body response)}))))
-
-  (try
-    (let [content (pull-file
-                   install_id
-                   "Felipe-gsilva"
-                   "gh-app-test"
-                   "README.md")]
-      (println content))
-    (catch Exception e
-      (println "Error:" (.getMessage e)))))
-
 (defn create-mock!
+
   [user-id mock {:keys [database mq]} ctx]
   (logs/log :info "creating mock"
             :ctx (merge ctx
+                        ()
                         {:mock mock
                          :user-id user-id}))
   (let [owner (assoc {:user-id (parse-uuid (str user-id))}
@@ -223,3 +145,57 @@
                     {:status-code 400
                      :cause :invalid-id
                      :value mock-id}))))
+
+(defn commit-message
+  [co-author email]
+  (str "Auto genereted commit by moclojer sync app!!" newline
+       "Co-authored-by:" co-author "<" email ">"))
+
+(def app-id "")
+(def private-key (slurp ""))
+(def github-api-url "https://api.github.com")
+
+(defn create-github-client
+  []
+  (gh-app/make-app-client
+   github-api-url
+   app-id
+   private-key {}))
+
+(defn fetch-file-content
+  [gh-client installation-id owner repo file-path]
+  (let [response (gh-app/request gh-client installation-id :get
+                                 (format "%s/repos/%s/%s/contents/%s" github-api-url owner repo file-path)
+                                 {})]
+    (if (= 200 (:status response))
+      (let [content (-> response
+                        :body
+                        :content)]
+        content)
+      (throw (ex-info "Failed to retrieve file"
+                      {:status (:status response)
+                       :body (:body response)})))))
+
+(defn pull-file
+  "Uses installation-id to auth as a github app 
+  and pull n files from a repo"
+  [installation-id owner repo files]
+  (let [res (atom [])]
+    (doseq [file files]
+      (swap! res conj
+             {:file file
+              :content (fetch-file-content
+                        (create-github-client)
+                        installation-id
+                        owner
+                        repo
+                        file)}))
+    @res))
+
+(defn push-file
+  [installation-id owner repo file])
+
+(defn enable-sync
+  [install_id org mock]
+  #_(update-mock! )
+  "git enabled")

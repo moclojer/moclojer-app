@@ -74,3 +74,10 @@
       (logic.orgs/create-org-user user-id)
       (db.orgs/delete-user! database ctx))
   true)
+
+(defn get-org-by-slug
+  [slug {:keys [database] :as components} ctx]
+  (logs/log :info "retrieving org by its slug"
+            (merge ctx {:slug slug
+                        :db database}))
+  (-> (db.orgs/get-by-slug slug database)))

@@ -7,3 +7,8 @@
   (if v
     (assoc m k v)
     m))
+
+(defn decode [encoded-str]
+  (let [cleaned-str (clojure.string/replace encoded-str #"\s+" "")
+        decoder (java.util.Base64/getDecoder)]
+    (String. (.decode decoder cleaned-str) "UTF-8")))

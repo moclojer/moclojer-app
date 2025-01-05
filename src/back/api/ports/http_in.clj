@@ -205,64 +205,77 @@
             :users (controllers.user/get-users-by-org-id org-id components ctx)}}))
 
 (defn inspect [a]
-  (logs/log :inspecting a)
+  (logs/log :info a)
   a)
 
-(defn decode [encoded-str]
-  (let [cleaned-str (clojure.string/replace encoded-str #"\s+" "")
-        decoder (java.util.Base64/getDecoder)]
-    (String. (.decode decoder cleaned-str) "UTF-8")))
-
 (defn handler-post-webhook
-  [request]
-  (let [body (:body-params request)
-        event-type (get-in request [:headers "x-github-event"])]
+  [{:keys [headers parameters components ctx]}]
+  (let [body (:body parameters)
+        event-type (get headers "x-github-event")
+        installation-id (get-in body [:installation :id])
+        response {}]
+
+    (logs/log :info "Webhook received"
+              (merge ctx {:event-type event-type}))
     (cond
+      (nil? installation-id)
+      (assoc response {:status 401
+                       :message "Forbidden"})
       (= event-type "push")
       (do
-        (let [installation-id (get-in body [:installation :id])
-              repo (:repository body)
+        (let [repo (:repository body)
               head-commit (:head_commit body)
-              response {:status 500
-                        :body {:message "Webhook received successfully"}}
-              modified-files (into []
-                                   (concat
-                                    (:modified head-commit)
-                                    (:added head-commit)))
-              mocks (into [] (filter #(and
-                                       (= (last (str/split % #"/")) "moclojer.yml")
-                                       (str/includes? % "mocks/"))
-                                     modified-files))
-              partial-response (inspect (when mocks
-                                          (controllers.mocks/pull-file
-                                           installation-id
-                                           (get-in repo [:owner :name])
-                                           (:name repo)
-                                           mocks)))]
-          (when partial-response
+              owner (get-in repo [:owner :name])
+              repo-name (:name repo)
+              updated-files (into []
+                                  (concat
+                                   (:modified head-commit)
+                                   (:added head-commit)))
+              mocks (into []
+                          (filter #(and
+                                    (= (last (str/split % #"/")) "moclojer.yml")
+                                    (str/includes? % "mocks/"))
+                                  updated-files))
+              content (when mocks
+                        (controllers.mocks/pull-file
+                         installation-id
+                         owner
+                         repo-name
+                         mocks))]
+
+          (when content
             (assoc (:body response)
-                   :paths mocks
-                   :content partial-response))
-          (newline)
-          (prn response)
-          (inspect (assoc (dissoc response :status)
-                          :status 200
-                          :message "Webhook received successfully and files handled"))))
+                   :content content)
+            (let [org-id (controllers.orgs/get-org-by-slug owner components ctx)]
+              (newline)
+              (logs/log :info "org" org-id)
+              (if org-id
+                (doseq [mock-content mocks]
+                  (controllers.mocks/update-mock! org-id mock-content components ctx))
+                (assoc response
+                       :status 500
+                       :message "No org found"
+                       :ctx ctx))))
+          (when-not (:status response)
+            (assoc response
+                   :status 200
+                   :message "Files updated from source"))))
       (= event-type "installation")
       (do
-        (let [installation-id (get-in body [:installation :id])]
+        (let [response {}]
           (doseq [repo (:repositories body)]
-            (let [response {:status 200
-                            :body {:message "Webhook received successfully"
-                                   :response (controllers.mocks/pull-file
-                                              installation-id
-                                              (first (str/split (:full_name repo) #"/"))
-                                              (:name repo)
-                                              "README.md")}}]
-              (prn response)
-              response))))
+            (let [full-name (:full_name repo)
+                  org (first (str/split full-name #"/"))]
+              (logs/log :info [repo full-name org])
+              (let [partial-response (controllers.mocks/enable-sync
+                                      installation-id
+                                      org
+                                      full-name)]
+                (assoc (:body response)
+                       :content partial-response))))
+          (inspect (assoc response
+                          :status 200
+                          :message "Enabled Git Sync"))))
       :else {:status 403
-             :body {:message "Unhandled event type"}})
-    {:status 200
-     :body {:message "Webhook received successfully"}}))
+             :body {:message "Unhandled event type"}})))
 
