@@ -9,7 +9,8 @@
    [:subdomain string?]
    [:wildcard string?]
    [:enabled boolean?]
-   [:content {:optional true} string?]])
+   [:content {:optional true} string?]
+   [:git-repo {:optional true} string?]])
 
 (def MockCreate
   (conj Mock [:org-id {:optional true} string?]))
@@ -17,7 +18,8 @@
 (def MockUpdate
   [:map
    [:id string?]
-   [:content {:optional true} string?]])
+   [:content {:optional true} string?]
+   [:git-repo {:optional true} string?]])
 
 (def MockDelete
   [:map [:id string?]])
@@ -28,4 +30,5 @@
 
 (def OrgUpdate
   [:map
-   [:orgname string?]])
+   [:orgname string?]
+   [:git-install-id {:optional true} integer?]])

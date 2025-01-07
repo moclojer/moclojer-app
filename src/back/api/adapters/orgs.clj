@@ -3,13 +3,13 @@
 
 (defn ->wire
   [{:org/keys [id slug orgname created_at updated_at
-               install-id]}]
+               git-install-id]}]
   (-> {:id (str id)
        :slug slug
        :orgname orgname
        :created-at created_at
        :updated-at updated_at}
-      (assoc-if :install-id install-id)))
+      (assoc-if :git-install-id git-install-id)))
 
 (defn ->wire-org-user
   [{:org_user/keys [id org_id user_id created_at updated_at]}]

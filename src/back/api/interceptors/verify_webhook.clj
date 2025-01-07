@@ -1,17 +1,15 @@
 (ns back.api.interceptors.verify-webhook
   (:require
    [clj-github-app.webhook-signature :as webhook-signature]
-   [clojure.data.json :as json]))
+   [clojure.data.json :as json]
+   [com.moclojer.components.logs :as logs]))
 
-(defn verify-webhook-signature
-  "Checks if the webhook is valid."
-  [secret-key]
+(defn verify-webhook-signature []
   {:enter
    (fn [{:keys [request] :as ctx}]
      (let [body (:body request)
-           {:strs [x-github-delivery
-                   x-github-event
-                   x-hub-signature-256]}
+           secret-key (get-in request [:components :config :config :git-sync :secret])
+           {:strs [x-hub-signature-256]}
            (:headers request)]
        (case (webhook-signature/check-payload-signature-256
               secret-key
@@ -35,5 +33,5 @@
          :else
          (assoc ctx
                 :response
-                {:status 404
-                 :body "Not checked"}))))})
+                {:status 400
+                 :body "Bad Request"}))))})

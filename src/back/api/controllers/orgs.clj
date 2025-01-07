@@ -76,8 +76,18 @@
   true)
 
 (defn get-org-by-slug
-  [slug {:keys [database] :as components} ctx]
+  [slug {:keys [database]} ctx]
   (logs/log :info "retrieving org by its slug"
             (merge ctx {:slug slug
                         :db database}))
-  (-> (db.orgs/get-by-slug slug database)))
+  (-> (db.orgs/get-by-slug slug database)
+      :id))
+
+(defn enable-sync
+  "Updates org install id field"
+  [install_id id {:keys [database]} ctx]
+  (logs/log :info "enabling git sync"
+            :ctx (merge ctx {:id id}))
+  (let [org (assoc (get-org-by-id id database ctx) :git-install-id install_id)]
+    (update-org! org database ctx))
+  "git enabled")

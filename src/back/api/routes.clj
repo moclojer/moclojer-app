@@ -206,5 +206,5 @@
             :parameters {:body map?}
             :interceptors [(muuntaja/format-interceptor muuntaja-instance)
                            (parameters/parameters-interceptor)
-                           (verify-webhook-signature "")] ;; need to set this to env var
+                           (verify-webhook-signature)]
             :handler ports.http-in/handler-post-webhook}}]])

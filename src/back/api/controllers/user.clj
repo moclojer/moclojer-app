@@ -32,3 +32,9 @@
   (logs/log :info "retrieving users by org id"
             :ctx (assoc ctx :org-id org-id))
   (map adapter.customers/->wire (db.customers/get-by-org-id org-id database ctx)))
+
+(defn get-user-by-username
+  [username {:keys [database]} ctx]
+  (logs/log :info "retrieving user by its username"
+            :ctx (merge ctx {:username username}))
+  (db.customers/get-by-username username database ctx))

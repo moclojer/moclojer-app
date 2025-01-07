@@ -14,7 +14,8 @@
   [:map
    [:uuid string?]
    [:email string?]
-   [:username {:optional true} string?]])
+   [:username {:optional true} string?]
+   [:git-install-id {:optional true} integer?]])
 
 (def Users
   [:vector User])
@@ -37,7 +38,8 @@
    [:subdomain string?]
    [:enabled boolean?]
    [:dns-status PublicationStatus]
-   [:unification-status PublicationStatus]])
+   [:unification-status PublicationStatus]
+   [:git-repo {:optional true} string?]])
 
 (def MockDeleteUnauthorized
   [:map [:error string?]])
@@ -51,7 +53,8 @@
    [:subdomain string?]
    [:enabled boolean?]
    [:dns-status PublicationStatus]
-   [:unification-status PublicationStatus]])
+   [:unification-status PublicationStatus]
+   [:git-repo {:optional true} string?]])
 
 (def GroupedMock
   [:map
@@ -66,13 +69,13 @@
 
   (def user-example {:uuid "uuid"
                      :email "email"
-                     :username "username"})
+                     :username "username"
+                     :git-install-id 5})
 
   (def user-example-2 {:uuid "uuid"
                        :email "email"})
 
   (require '[malli.core :as m])
-  (require '[malli.generator :as mg])
   (m/validate User user-example)
 
   (m/validate User user-example-2)
@@ -83,7 +86,8 @@
              :subdomain "chico",
              :enabled true
              :dns-status "published"
-             :unification-status "published"})
+             :unification-status "published"
+             :git-repo "github.com/test"})
 
   (m/validate Mock mock)
 
@@ -116,7 +120,8 @@
                        :subdomain "j0suetm"
                        :enabled true
                        :dns-status "offline"
-                       :unification-status "offline"}]}
+                       :unification-status "offline"
+                       :git-repo "test"}]}
               {:subdomain "hahaha"
                :mock-type "personal"
                :apis [{:id (random-uuid)
@@ -140,14 +145,16 @@
   [:map
    [:id string?]
    [:slug string?]
-   [:orgname string?]])
+   [:orgname string?]
+   [:git-install-id {:optional true} integer?]])
 
 (def OrgWithUsers
   [:map
    [:id string?]
    [:slug string?]
    [:orgname string?]
-   [:users [:vector User]]])
+   [:users [:vector User]]
+   [:git-install-id {:optional true} integer?]])
 
 (def OrgsWithUsers
   [:vector OrgWithUsers])

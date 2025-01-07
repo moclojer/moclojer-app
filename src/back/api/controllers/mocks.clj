@@ -151,20 +151,16 @@
   (str "Auto genereted commit by moclojer sync app!!" newline
        "Co-authored-by:" co-author "<" email ">"))
 
-(def app-id "")
-(def private-key (slurp ""))
-(def github-api-url "https://api.github.com")
-
 (defn create-github-client
-  []
+  [github-api-url app-id private-key]
   (gh-app/make-app-client
    github-api-url
    app-id
    private-key {}))
 
 (defn fetch-file-content
-  [gh-client installation-id owner repo file-path]
-  (let [response (gh-app/request gh-client installation-id :get
+  [gh-client install-id owner repo file-path {:keys [github-api-url]}]
+  (let [response (gh-app/request gh-client install-id :get
                                  (format "%s/repos/%s/%s/contents/%s" github-api-url owner repo file-path)
                                  {})]
     (if (= 200 (:status response))
@@ -179,23 +175,22 @@
 (defn pull-file
   "Uses installation-id to auth as a github app 
   and pull n files from a repo"
-  [installation-id owner repo files]
-  (let [res (atom [])]
+  [install-id owner repo files components ctx]
+  (let [res (atom [])
+        config (get-in components [:config :config :git-sync])
+        github-api-url (:api-url config)
+        app-id (:app-id config)
+        private-key (:private-key config)]
     (doseq [file files]
       (swap! res conj
              {:file file
               :content (fetch-file-content
-                        (create-github-client)
-                        installation-id
+                        (create-github-client github-api-url app-id private-key)
+                        install-id
                         owner
                         repo
                         file)}))
     @res))
 
 (defn push-file
-  [installation-id owner repo file])
-
-(defn enable-sync
-  [install_id org mock]
-  #_(update-mock! )
-  "git enabled")
+  [install-id owner repo commit])
