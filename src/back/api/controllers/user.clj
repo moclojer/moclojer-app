@@ -37,4 +37,9 @@
   [username {:keys [database]} ctx]
   (logs/log :info "retrieving user by its username"
             :ctx (merge ctx {:username username}))
-  (db.customers/get-by-username username database ctx))
+  (or (-> (db.customers/get-by-username username database ctx)
+          (adapter.customers/->wire))
+      (throw (ex-info "No user with given username was found"
+                      {:status-code 412
+                       :cause :invalid-username
+                       :value (assoc ctx :username username)}))))

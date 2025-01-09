@@ -212,69 +212,59 @@
         installation-id (get-in body [:installation :id])
         response {}]
     (logs/log :info "Webhook received"
-              (merge ctx
-                     {:event-type event-type}))
+              :ctx (merge ctx {:event-type event-type}))
     (cond
       (nil? installation-id)
-      (assoc response {:status 401
-                       :message "Forbidden"})
+      (assoc response
+             :status 401
+             :body {:message "Forbidden"})
       (= event-type "push")
-      (do
-        (let [repo (:repository body)
-              head-commit (:head_commit body)
-              owner (get-in repo [:owner :name])
-              repo-name (:name repo)
-              updated-files (into [] (concat
-                                      (:modified head-commit)
-                                      (:added head-commit)))
-              mocks (into []
-                          (filter #(and (= (last (str/split % #"/")) "moclojer.yml")
-                                        (str/includes? % "mocks/"))
-                                  updated-files))
-              content (when mocks
-                        (controllers.mocks/pull-file installation-id owner repo-name mocks components ctx))]
-          (logs/log :info "updating mocks"
-                    :ctx (merge ctx {:mocks mocks
-                                     :owner owner}))
-          (when content
-            (assoc (:body response)
-                   :content content)
-            (let [org-id (controllers.orgs/get-org-by-slug owner components ctx)]
-              (logs/log :info "org-id"
-                        :ctx (merge ctx {:org-id org-id}))
-              (if-not (nil? org-id)
-                (do
-                  (doseq [mock-content mocks]
-                    (newline)
-                    (prn (utils/decode mock-content))
-                    (controllers.mocks/update-mock! org-id (utils/decode mock-content) components ctx))
-                  (when-not (:status response)
-                    (assoc response
-                           :status 200
-                           :message "Files updated from source")))
-                (do
-                  (assoc response
-                         :status 500
-                         :message "no org found")))))))
-      (= event-type "installation")
-      (do
-        (let [response {}
-              slug (get-in body [:installation :account :login])]
-          (logs/log :info "installing app"
-                    :ctx (merge ctx {:slug slug}))
-          (let [org-id (controllers.orgs/get-org-by-slug slug components ctx)
-                user-id (when (nil? org-id)
-                          (controllers.user/get-user-by-username slug components ctx))]
-            (if (or org-id user-id)
-              (do
-                (let [partial-response (controllers.orgs/enable-sync installation-id (if user-id user-id org-id) components ctx)]
-                  (assoc (:body response)
-                         :content partial-response))
+      (let [repo (:repository body)
+            head-commit (:head_commit body)
+            owner (get-in repo [:owner :name])
+            repo-name (:name repo)
+            updated-files (into [] (concat
+                                    (:modified head-commit)
+                                    (:added head-commit)))
+            mocks (into []
+                        (filter #(and (= (last (str/split % #"/")) "moclojer.yml")
+                                      (str/includes? % "mocks/"))
+                                updated-files))
+            content (when mocks
+                      (controllers.mocks/pull! installation-id owner repo-name mocks components ctx))]
+        (let [id (controllers.orgs/get-org-by-slug owner components ctx)
+              id (when (nil? (:orgname id)) (controllers.user/get-user-by-username owner components ctx))]
+          (logs/log :info "id"
+                    :ctx (merge ctx {:org-id id}))
+          (if-not (nil? id)
+            (do
+              (doseq [mock-content mocks]
+                (logs/log :info "mock"
+                          :ctx (merge ctx {:mock-content (utils/decode mock-content)}))
+                (let [mock-id (controllers.mocks/get-mocks {:uuid (:uuid id) :username owner} components ctx)]
+                  (controllers.mocks/update-mock! mock-id (utils/decode mock-content) components ctx)))
+              (when-not (:status response)
                 (assoc response
                        :status 200
-                       :message "Enabled Git Sync"))
-              (assoc response
-                     :status 500
-                     :message "Could not enable Git Sync")))))
+                       :body {:content content
+                              :message "Files updated from source"})))
+            (assoc response
+                   :status 500
+                   :body {:message "no org found"}))))
+      (= event-type "installation")
+      (let [response {}
+            slug (get-in body [:installation :account :login])]
+        (let [id (controllers.orgs/get-org-by-slug slug components ctx)
+              id (when (nil? (:orgname id)) (controllers.user/get-user-by-username slug components ctx))]
+          (logs/log :info "ids"
+                    :ctx (merge ctx {:id id}))
+          (if-not (nil? (:uuid id))
+            (assoc response
+                   :status 200
+                   :body {:content (controllers.orgs/enable-sync installation-id id components ctx)
+                          :message "Enabled Git Sync"})
+            (assoc response
+                   :status 500
+                   :body {:message "Could not enable Git Sync"}))))
       :else {:status 400
              :body {:message "Unhandled event type"}})))

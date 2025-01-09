@@ -3,6 +3,7 @@
             [back.api.db.mocks :as db.mocks]
             [back.api.logic.mocks :as logic.mocks]
             [back.api.ports.producers :as ports.producers]
+            [back.api.utils :as utils]
             [clojure.string :as str]
             [clj-github-app.client :as gh-app]
             [com.moclojer.components.logs :as logs]))
@@ -159,8 +160,9 @@
    private-key {}))
 
 (defn fetch-file-content
-  [gh-client install-id owner repo file-path {:keys [github-api-url]}]
-  (let [response (gh-app/request gh-client install-id :get
+  [install-id owner repo file-path {:keys [github-api-url app-id private-key]}]
+  (let [gh-client (create-github-client github-api-url app-id private-key)
+        response (gh-app/request gh-client install-id :get
                                  (format "%s/repos/%s/%s/contents/%s" github-api-url owner repo file-path)
                                  {})]
     (if (= 200 (:status response))
@@ -172,7 +174,22 @@
                       {:status (:status response)
                        :body (:body response)})))))
 
-(defn pull-file
+(defn commit-and-push
+  [install-id owner repo file {:keys [github-api-url app-id private-key]}]
+  (let [gh-client (create-github-client github-api-url app-id private-key)
+        response (gh-app/request gh-client install-id :put
+                                 (format "%s/repos/%s/%s/contents/%s" github-api-url owner repo file)
+                                 {})]
+    (if (= 200 (:status response))
+      (let [content (-> response
+                        :body
+                        :content)]
+        content)
+      (throw (ex-info "Failed to retrieve file"
+                      {:status (:status response)
+                       :body (:body response)})))))
+
+(defn pull!
   "Uses installation-id to auth as a github app 
   and pull n files from a repo"
   [install-id owner repo files components ctx]
@@ -184,13 +201,26 @@
     (doseq [file files]
       (swap! res conj
              {:file file
-              :content (fetch-file-content
-                        (create-github-client github-api-url app-id private-key)
-                        install-id
-                        owner
-                        repo
-                        file)}))
+              :content (fetch-file-content install-id owner repo file
+                                           {:github-api-url github-api-url
+                                            :app-id app-id
+                                            :private-key private-key})}))
     @res))
 
-(defn push-file
-  [install-id owner repo commit])
+(defn push!
+  "Uses installation-id to auth as a github app 
+  and push n files from a repo"
+  [install-id owner repo files components ctx]
+  (let [res (atom [])
+        config (get-in components [:config :config :git-sync])
+        github-api-url (:api-url config)
+        app-id (:app-id config)
+        private-key (:private-key config)
+        encoded-files (mapv utils/encode files)]
+    (doseq [file encoded-files]
+      (swap! res conj {:file file
+                       :content (commit-and-push install-id owner repo file
+                                                 {:github-api-url github-api-url
+                                                  :app-id app-id
+                                                  :private-key private-key})}))
+    @res))

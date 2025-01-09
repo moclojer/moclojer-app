@@ -80,14 +80,22 @@
   (logs/log :info "retrieving org by its slug"
             (merge ctx {:slug slug
                         :db database}))
-  (-> (db.orgs/get-by-slug slug database)
-      :id))
+  (or (-> (db.orgs/get-by-slug slug database)
+          (adapter.orgs/->wire))
+      (throw (ex-info "No organization with given slug was found"
+                      {:status-code 412
+                       :cause :invalid-slug
+                       :value slug}))))
 
 (defn enable-sync
   "Updates org install id field"
   [install_id id {:keys [database]} ctx]
   (logs/log :info "enabling git sync"
             :ctx (merge ctx {:id id}))
-  (let [org (assoc (get-org-by-id id database ctx) :git-install-id install_id)]
+  ;; TODO validate as user or org
+  (let [org (assoc (if (uuid? id)
+                     (get-org-by-id id database ctx)
+                     id) :git-install-id install_id)]
+
     (update-org! org database ctx))
   "git enabled")
