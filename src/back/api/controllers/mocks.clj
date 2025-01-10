@@ -4,6 +4,8 @@
             [back.api.logic.mocks :as logic.mocks]
             [back.api.ports.producers :as ports.producers]
             [back.api.utils :as utils]
+
+            [cheshire.core :as json]
             [clojure.string :as str]
             [clj-github-app.client :as gh-app]
             [com.moclojer.components.logs :as logs]))
@@ -149,8 +151,13 @@
 
 (defn commit-message
   [co-author email]
-  (str "Auto genereted commit by moclojer sync app!!" newline
+  (str "Auto genereted commit by moclojer sync app!!\n"
        "Co-authored-by:" co-author "<" email ">"))
+
+(def committer
+  (json/encode {:name "Moclojer Git Sync App"
+                :email "moclojer@gmail.com"
+                :date ()}))
 
 (defn create-github-client
   [github-api-url app-id private-key]
@@ -165,7 +172,7 @@
         response (gh-app/request gh-client install-id :get
                                  (format "%s/repos/%s/%s/contents/%s" github-api-url owner repo file-path)
                                  {})]
-    (if (= 200 (:status response))
+    (if (#{200 201} (:status response))
       (let [content (-> response
                         :body
                         :content)]
@@ -174,16 +181,66 @@
                       {:status (:status response)
                        :body (:body response)})))))
 
-(defn commit-and-push
-  [install-id owner repo file {:keys [github-api-url app-id private-key]}]
-  (let [gh-client (create-github-client github-api-url app-id private-key)
-        response (gh-app/request gh-client install-id :put
-                                 (format "%s/repos/%s/%s/contents/%s" github-api-url owner repo file)
-                                 {})]
-    (if (= 200 (:status response))
+(defn create-blob [gh-client install-id owner repo file]
+  (let [response (gh-app/request* gh-client install-id
+                                  {:method :post
+                                   :url (inspect (format "%s/repos/%s/%s/git/blobs" "https://api.github.com" owner repo))
+                                   :headers {"Accept" "application/vnd.github+json"
+                                             "Content-Type" "application/json"}
+                                   :body (json/encode {:content file
+                                                       :encoding "base64"})})]
+    (if (#{200 201} (:status response))
       (let [content (-> response
                         :body
-                        :content)]
+                        :sha)]
+        content)
+      (do
+        (throw (ex-info "Failed to create a blob"
+                        {:status (:status response)
+                         :body (:body response)}))))))
+
+(defn create-file-map [gh-client install-id paths contents  owner repo]
+  (let [file-map (atom [])]
+    (doseq [[path file] (map vector paths contents)]
+      (swap! file-map conj {:path path
+                            :mode "100644"
+                            :type "blob"
+                            :sha (create-blob gh-client install-id owner repo file)}))
+
+    @file-map))
+
+(defn create-tree [install-id owner repo paths contents base-tree-sha {:keys [github-api-url app-id private-key]}]
+  (let [gh-client (create-github-client github-api-url app-id private-key)
+        response (gh-app/request* gh-client install-id
+                                  {:method :post
+                                   :url (format "%s/repos/%s/%s/git/trees" github-api-url owner repo)
+                                   :headers {"Accept" "application/vnd.github+json"
+                                             "Content-Type" "application/json"}
+                                   :body (inspect (json/encode {:base_tree (str base-tree-sha)
+                                                                :tree (create-file-map gh-client install-id paths contents owner repo)}))})]
+    (if (#{200 201} (:status response))
+      (let [content (inspect (-> response
+                                 :body
+                                 :sha))]
+        content)
+      (throw (ex-info "Failed to create a tree"
+                      {:status (:status response)
+                       :body (:body response)})))))
+
+(defn create-commit
+  [install-id owner repo email paths files base-tree-sha {:keys [github-api-url app-id private-key] :as config}]
+  (let [gh-client (create-github-client github-api-url app-id private-key)
+        tree (create-tree install-id owner repo paths files base-tree-sha config)
+        response (gh-app/request* gh-client install-id
+                                  {:method :post
+                                   :url (format "%s/repos/%s/%s/git/commits" github-api-url owner repo)
+                                   :body (json/encode  {:message (commit-message owner email)
+                                                        :author committer
+                                                        :parents (into [] base-tree-sha)
+                                                        :tree tree})})]
+    (if (#{200 201} (:status response))
+      (let [content (-> response
+                        :body)]
         content)
       (throw (ex-info "Failed to retrieve file"
                       {:status (:status response)
@@ -210,17 +267,41 @@
 (defn push!
   "Uses installation-id to auth as a github app 
   and push n files from a repo"
-  [install-id owner repo files components ctx]
-  (let [res (atom [])
-        config (get-in components [:config :config :git-sync])
+  [install-id owner repo email paths base-tree-sha files components ctx]
+  (let [config (get-in components [:config :config :git-sync])
         github-api-url (:api-url config)
         app-id (:app-id config)
         private-key (:private-key config)
         encoded-files (mapv utils/encode files)]
-    (doseq [file encoded-files]
-      (swap! res conj {:file file
-                       :content (commit-and-push install-id owner repo file
-                                                 {:github-api-url github-api-url
-                                                  :app-id app-id
-                                                  :private-key private-key})}))
-    @res))
+    (create-commit install-id owner repo email paths base-tree-sha encoded-files
+                   {:github-api-url github-api-url
+                    :app-id app-id
+                    :private-key private-key})))
+
+(comment
+  (def install-id 1)
+  (def app-id  "")
+  (def private-key "")
+
+  (def paths ["file.md" "file2.md"])
+  (def files (mapv utils/encode ["ok" "better"]))
+
+  (def gh-client (create-github-client
+                  "https://api.github.com"
+                  app-id
+                  private-key))
+
+  (gh-app/request* gh-client install-id
+                   {:method :post
+                    :url (format "https://api.github.com/repos/%s/%s/git/commits" "Felipe-gsilva" "gh-app-test")
+                    :body (json/encode  {:message (commit-message "Felipe-gsilva" "Felipe-gsilva@protonmail.com")
+                                         :author committer
+                                         :committer committer
+                                         :parents ""
+                                         :tree (create-tree install-id "Felipe-gsilva" "gh-app-test" paths files ""
+                                                            {:github-api-url "https://api.github.com" :app-id app-id :private-key private-key})})})
+
+  (create-commit install-id "Felipe-gsilva" "gh-app-test" "Felipe-gsilva@protonmail.com" paths files ""
+                 {:github-api-url "https://api.github.com" :app-id app-id :private-key private-key})
+  (create-tree install-id "Felipe-gsilva" "gh-app-test" paths files ""
+               {:github-api-url "https://api.github.com" :app-id app-id :private-key private-key}))
