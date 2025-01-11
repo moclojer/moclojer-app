@@ -60,24 +60,24 @@
 
 (defn fcreate-domain [domain]
   (flow
-    "should create domain"
-    [components (state-flow.api/get-state)]
-    (state/invoke
-     #(workers/create-domain-handler {:event {:domain.create {:domain domain}}}
-                                     components))
+   "should create domain"
+   [components (state-flow.api/get-state)]
+   (state/invoke
+    #(workers/create-domain-handler {:event {:domain.create {:domain domain}}}
+                                    components))
 
-    (match?
-     (matchers/embeds {:event {:domain domain
-                               :new-status "publishing"}})
-     (update-in (first (get @mq/mock-channels "domain.updated"))
-                [:event] dissoc :ctx))
+   (match?
+    (matchers/embeds {:event {:domain domain
+                              :new-status "publishing"}})
+    (update-in (first (get @mq/mock-channels "domain.updated"))
+               [:event] dissoc :ctx))
 
-    (match?
-     (matchers/embeds {:event {:domain domain
-                               :retrying? true
-                               :skip-data? false}})
-     (update-in (first (get @mq/mock-channels "domain.verification.dispatched"))
-                [:event] dissoc :ctx))))
+   (match?
+    (matchers/embeds {:event {:domain domain
+                              :retrying? true
+                              :skip-data? false}})
+    (update-in (first (get @mq/mock-channels "domain.verification.dispatched"))
+               [:event] dissoc :ctx))))
 
 (defflow
   flow-create-domain

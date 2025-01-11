@@ -185,6 +185,16 @@
                 :login-error nil
                 :login-loading? true)}))
 
+(refx/reg-event-fx
+ :app.auth/send-oauth
+ (fn
+   [{db :db} [_ provider]]
+   {:oauth {:provider (:provider provider)
+            :on-failure [:app.auth/send-email-error]}
+    :db  (assoc db
+                :login-error nil
+                :login-loading? true)}))
+
 (refx/reg-event-db
  :app.auth/send-email-again
  (fn

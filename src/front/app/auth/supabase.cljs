@@ -6,9 +6,11 @@
 
 (goog-define SUPABASE_URL "")
 (goog-define SUPABASE_TOKEN "")
+
 (when-not (every? not-empty [SUPABASE_URL SUPABASE_TOKEN])
   (throw (js/Error. "SUPABASE_URL or SUPABASE_TOKEN weren't defined")))
 (goog-define SUPABASE_REDIRECT "http://localhost:8200/#/")
+(goog-define SUPABASE_OAUTH_REDIRECT "")
 
 (defn create-client
   "creates a supabase client"
@@ -30,6 +32,13 @@
                   :options {:emailRedirectTo SUPABASE_REDIRECT}})]
     (.signInWithOtp auth options)))
 
+(defn signin-with-oauth [^js client provider]
+  (let [auth (.-auth client)
+        options (clj->js
+                 {:provider (clj->js provider)
+                  :options {:redirect-to SUPABASE_OAUTH_REDIRECT}})]
+    (.signInWithOAuth auth options)))
+
 (defn sign-out [dispatch-fn-logout]
   (let [auth (.-auth client)]
     (-> (.signOut auth)
@@ -50,4 +59,5 @@
      "token"))
 
   (prn :client client-test)
-  (signin-with-email client "chicao@cljazz.co"))
+  (signin-with-email client "chicao@cljazz.co")
+  (signin-with-oauth client "github"))

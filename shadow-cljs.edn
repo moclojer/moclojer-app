@@ -1,9 +1,11 @@
 ;;shadow clj config
 {:deps {:aliases [:front-dev]}
  :nrepl {:port 8777}
- :build-defaults {:closure-defines {front.app.auth.supabase/SUPABASE_URL "https://tgvdfxurgsddxouxmugs.supabase.co"
-                                    front.app.auth.supabase/SUPABASE_TOKEN "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRndmRmeHVyZ3NkZHhvdXhtdWdzIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODE1MDM0NDMsImV4cCI6MTk5NzA3OTQ0M30.7pq4MM_ZldiWvOk_cnQuxlvUF8eFcxlPDB7jMTNMYb0"
-                                    front.app.core/SENTRY_DNS "https://27ee051c754588f05b85c61327b675e9@o4506376447131648.ingest.us.sentry.io/4507012897374208"}}
+ :build-defaults {:closure-defines
+                  {front.app.auth.supabase/SUPABASE_URL "https://tgvdfxurgsddxouxmugs.supabase.co"
+                   front.app.auth.supabase/SUPABASE_TOKEN "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRndmRmeHVyZ3NkZHhvdXhtdWdzIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODE1MDM0NDMsImV4cCI6MTk5NzA3OTQ0M30.7pq4MM_ZldiWvOk_cnQuxlvUF8eFcxlPDB7jMTNMYb0"
+                   front.app.core/SENTRY_DNS "https://27ee051c754588f05b85c61327b675e9@o4506376447131648.ingest.us.sentry.io/4507012897374208"
+                   front.app.auth.supabase/SUPABASE_OAUTH_REDIRECT "https://auth.moclojer.com/auth/v1/callback"}}
  :builds {:app {:target :browser
                 :output-dir "resources/front/public/assets/js"
                 :asset-path "/assets/js"
@@ -16,7 +18,9 @@
                                 "./resources/front/public/assets/js/core.js"])
                               (dev.shadow.hooks/replace-hashed-files
                                "./resources/front/index.src.html"
-                               "./resources/front/public/index.html")]
+                               "./resources/front/public/index.html")
+                              (mockingbird.dev.shadow.hooks/get-target-css
+                               {:path "resources/front/public/assets/css/target.css"})]
                 :dev      {:modules {:core {:init-fn dev.core/init}}
                            :compiler-options {:warning-as-errors true}
                            :build-hooks [(dev.shadow.hooks/build-css
@@ -41,7 +45,6 @@
                      :ns-regexp        "-test$"
                      :devtools         {:http-port 8100
                                         :http-root "resources/front/test"}}
-
           :ci-tests {:target           :karma
                      :output-to        "resources/front/test/ci.js"
                      :ns-regexp        "-test$"

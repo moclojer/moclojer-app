@@ -21,23 +21,23 @@
 
   (flow "get username"
 
-    [database (state-flow.api/get-state :database)]
+        [database (state-flow.api/get-state :database)]
 
-    (state/invoke
-     #(db.customers/insert!
-       {:customer/uuid #uuid "cd989358-af38-4a2f-a1a1-88096aa425a7"
-        :customer/email "test@gmail.com"
-        :customer/external-uuid #uuid "dcff4c06-1c9e-4abb-a49b-438e1869ec5b"
-        :customer/username "chico"}
-       database))
+        (state/invoke
+         #(db.customers/insert!
+           {:customer/uuid #uuid "cd989358-af38-4a2f-a1a1-88096aa425a7"
+            :customer/email "test@gmail.com"
+            :customer/external-uuid #uuid "dcff4c06-1c9e-4abb-a49b-438e1869ec5b"
+            :customer/username "chico"}
+           database))
 
-    (flow "get by username"
-      (match? {:customer/uuid #uuid "cd989358-af38-4a2f-a1a1-88096aa425a7"
-               :customer/email "test@gmail.com"
-               :customer/username "chico"
-               :customer/external_uuid #uuid "dcff4c06-1c9e-4abb-a49b-438e1869ec5b"}
-              (db.customers/get-by-username "chico" database)))
+        (flow "get by username"
+              (match? {:customer/uuid #uuid "cd989358-af38-4a2f-a1a1-88096aa425a7"
+                       :customer/email "test@gmail.com"
+                       :customer/username "chico"
+                       :customer/external_uuid #uuid "dcff4c06-1c9e-4abb-a49b-438e1869ec5b"}
+                      (db.customers/get-by-username "chico" database)))
 
-    (flow "get by username"
-      (match? nil
-              (db.customers/get-by-username "chicoo" database)))))
+        (flow "get by username"
+              (match? nil
+                      (db.customers/get-by-username "chicoo" database)))))
