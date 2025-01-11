@@ -16,8 +16,6 @@
    [refx.alpha :as refx]
    [reitit.frontend.easy :as rfe]))
 
-(defn inspect [a] (.log js/console a) a)
-
 (defnc not-found-view []
   (d/div "404"))
 
@@ -60,7 +58,6 @@
                        "sign in to moclojer")
                  (d/form {:disabled loading?
                           :class "mt-8 space-y-8 "
-
                           :on-submit (fn [e]
                                        (.preventDefault e)
                                        (if (and
@@ -78,7 +75,8 @@
                                  (d/span {:class "hidden text-gray-300 lg:flex justify-start items-start m-0 lg:mr-2 lg:ml-1"} "or")
                                  ($ button {:roundness :full
                                             :class "flex justify-center flex-col items-center w-8 h-8 lg:w-6 lg:h-6"
-                                            :on-click #(set-state assoc :provider "github" :email "")}
+                                            :on-click #((.preventDefault %)
+                                                        (set-state assoc :provider "github" :email ""))}
                                     (d/div {:class "flex text-gray-400 "}
                                            ($ svg/github)))))
 
