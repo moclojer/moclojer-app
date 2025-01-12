@@ -1,4 +1,5 @@
 (ns back.api.controllers.mocks
+  (:refer-clojure :exclude [ref])
   (:require [back.api.adapters.mocks :as adapter.mocks]
             [back.api.db.mocks :as db.mocks]
             [back.api.logic.mocks :as logic.mocks]
@@ -47,26 +48,29 @@
       (empty?)))
 
 (defn update-mock!
-  [id content {:keys [database mq]} ctx]
-  (if-let [mock (db.mocks/get-mock-by-id id database ctx)]
-    (let [updated-mock (-> mock
-                           (logic.mocks/update {:content content})
-                           (db.mocks/update! database ctx)
-                           (adapter.mocks/->wire))
-          ->wired-old-mock (adapter.mocks/->wire mock)]
+  ([id content components ctx]
+   (update-mock! id content nil components ctx))
+  ([id content sha {:keys [database mq]} ctx]
+   (if-let [mock (db.mocks/get-mock-by-id id database ctx)]
+     (let [updated-mock (-> mock
+                            (logic.mocks/update {:content content
+                                                 :sha sha})
+                            (db.mocks/update! database ctx)
+                            (adapter.mocks/->wire))
+           ->wired-old-mock (adapter.mocks/->wire mock)]
 
-      (ports.producers/generate-single-yml! (:id updated-mock) mq ctx)
+       (ports.producers/generate-single-yml! (:id updated-mock) mq ctx)
 
-      (when (and (= (:dns-status ->wired-old-mock) "offline")
-                 (:enabled ->wired-old-mock))
-        (ports.producers/create-domain! (logic.mocks/pack-domain ->wired-old-mock)
-                                        mq
-                                        ctx))
+       (when (and (= (:dns-status ->wired-old-mock) "offline")
+                  (:enabled ->wired-old-mock))
+         (ports.producers/create-domain! (logic.mocks/pack-domain ->wired-old-mock)
+                                         mq
+                                         ctx))
 
-      updated-mock)
-    (throw (ex-info "Mock with given id invalid"
-                    {:status-code 412
-                     :cause :invalid-id}))))
+       updated-mock)
+     (throw (ex-info "Mock with given id invalid"
+                     {:status-code 412
+                      :cause :invalid-id})))))
 
 (defn get-mocks
   [{:keys [uuid username]} {:keys [database]} ctx]
@@ -150,14 +154,14 @@
                      :value mock-id}))))
 
 (defn commit-message
-  [co-author email]
-  (str "Auto genereted commit by moclojer sync app!!\n"
-       "Co-authored-by:" co-author "<" email ">"))
+  [author co-author email]
+  (str "Auto genereted commit by " author "!!\n"
+       "Co-authored-by: " co-author " <" email ">"))
 
 (def committer
-  (json/encode {:name "Moclojer Git Sync App"
-                :email "moclojer@gmail.com"
-                :date ()}))
+  {:name "Moclojer Git Sync App"
+   :email "moclojer@gmail.com"
+   :date (str (java.time.Instant/now))})
 
 (defn create-github-client
   [github-api-url app-id private-key]
@@ -174,8 +178,7 @@
                                  {})]
     (if (#{200 201} (:status response))
       (let [content (-> response
-                        :body
-                        :content)]
+                        :body)]
         content)
       (throw (ex-info "Failed to retrieve file"
                       {:status (:status response)
@@ -199,7 +202,7 @@
                         {:status (:status response)
                          :body (:body response)}))))))
 
-(defn create-file-map [gh-client install-id paths contents  owner repo]
+(defn create-file-map [gh-client install-id paths contents owner repo]
   (let [file-map (atom [])]
     (doseq [[path file] (map vector paths contents)]
       (swap! file-map conj {:path path
@@ -234,13 +237,45 @@
         response (gh-app/request* gh-client install-id
                                   {:method :post
                                    :url (format "%s/repos/%s/%s/git/commits" github-api-url owner repo)
-                                   :body (json/encode  {:message (commit-message owner email)
-                                                        :author committer
-                                                        :parents (into [] base-tree-sha)
-                                                        :tree tree})})]
+                                   :body (json/encode
+                                          {:message (commit-message (:name committer) owner email)
+                                           :author committer
+                                           :committer committer
+                                           :parents [base-tree-sha]
+                                           :tree tree})})]
     (if (#{200 201} (:status response))
       (let [content (-> response
                         :body)]
+        content)
+      (throw (ex-info "Failed to create commit"
+                      {:status (:status response)
+                       :body (:body response)})))))
+
+(defn update-reference
+  [install-id owner repo ref commit-sha {:keys [github-api-url app-id private-key]}]
+  (let [gh-client (create-github-client github-api-url app-id private-key)
+        response (gh-app/request* gh-client install-id
+                                  {:method :patch
+                                   :url (format "%s/repos/%s/%s/git/%s" github-api-url owner repo ref)
+                                   :headers {"Accept" "application/vnd.github+json"
+                                             "Content-Type" "application/json"}
+                                   :body (json/encode {:sha commit-sha
+                                                       :force true})})]
+    (if (#{200 201} (:status response))
+      (-> response :body)
+      (throw (ex-info "Failed to update reference"
+                      {:status (:status response)
+                       :body (:body response)})))))
+
+(defn get-git-user-email
+  [install-id user {:keys [github-api-url app-id private-key]}]
+  (let [gh-client (create-github-client github-api-url app-id private-key)
+        response (gh-app/request gh-client install-id  :get
+                                 (format "%s/installations/%s/access_tokens" github-api-url install-id)
+                                 {})]
+    (if (#{200 201} (:status response))
+      (if-let [content (-> response
+                           :body)]
         content)
       (throw (ex-info "Failed to retrieve file"
                       {:status (:status response)
@@ -272,36 +307,31 @@
         github-api-url (:api-url config)
         app-id (:app-id config)
         private-key (:private-key config)
-        encoded-files (mapv utils/encode files)]
-    (create-commit install-id owner repo email paths base-tree-sha encoded-files
-                   {:github-api-url github-api-url
-                    :app-id app-id
-                    :private-key private-key})))
+        encoded-files (mapv utils/encode files)
+        commit (create-commit install-id owner repo email paths encoded-files base-tree-sha
+                              {:github-api-url github-api-url
+                               :app-id app-id
+                               :private-key private-key})
+        commit-sha (:sha commit)]
+    (when commit-sha
+      (update-reference install-id owner repo "refs/heads/main" commit-sha
+                        {:github-api-url github-api-url
+                         :app-id app-id
+                         :private-key private-key}))))
 
 (comment
-  (def install-id 1)
-  (def app-id  "")
-  (def private-key "")
-
-  (def paths ["file.md" "file2.md"])
-  (def files (mapv utils/encode ["ok" "better"]))
-
-  (def gh-client (create-github-client
-                  "https://api.github.com"
-                  app-id
-                  private-key))
-
-  (gh-app/request* gh-client install-id
-                   {:method :post
-                    :url (format "https://api.github.com/repos/%s/%s/git/commits" "Felipe-gsilva" "gh-app-test")
-                    :body (json/encode  {:message (commit-message "Felipe-gsilva" "Felipe-gsilva@protonmail.com")
-                                         :author committer
-                                         :committer committer
-                                         :parents ""
-                                         :tree (create-tree install-id "Felipe-gsilva" "gh-app-test" paths files ""
-                                                            {:github-api-url "https://api.github.com" :app-id app-id :private-key private-key})})})
-
-  (create-commit install-id "Felipe-gsilva" "gh-app-test" "Felipe-gsilva@protonmail.com" paths files ""
+  (create-commit install-id user "gh-app-test" "Felipe-gsilva@protonmail.com" paths files base-sha
                  {:github-api-url "https://api.github.com" :app-id app-id :private-key private-key})
-  (create-tree install-id "Felipe-gsilva" "gh-app-test" paths files ""
-               {:github-api-url "https://api.github.com" :app-id app-id :private-key private-key}))
+  (create-tree install-id user "gh-app-test" paths files base-sha
+               {:github-api-url "https://api.github.com" :app-id app-id :private-key private-key})
+
+  (update-reference install-id
+                    user
+                    "gh-app-test"
+                    "refs/heads/main"
+                    "0d773304d6f0c83178d9947a08a53078c1beeb11"
+                    {:github-api-url "https://api.github.com"
+                     :app-id app-id
+                     :private-key private-key})
+
+  (get-git-user-email install-id user {:github-api-url "https://api.github.com" :app-id app-id :private-key private-key}))

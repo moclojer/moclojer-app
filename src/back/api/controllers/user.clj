@@ -43,3 +43,14 @@
                       {:status-code 412
                        :cause :invalid-username
                        :value (assoc ctx :username username)}))))
+
+(defn get-user-by-email
+  [email {:keys [database]} ctx]
+  (logs/log :info "retrieving user by its email"
+            :ctx (merge ctx {:email email}))
+  (or (-> (db.customers/get-by-email email database ctx)
+          (adapter.customers/->wire))
+      (throw (ex-info "No user with given email was found"
+                      {:status-code 412
+                       :cause :invalid-email
+                       :value (assoc ctx :email email)}))))

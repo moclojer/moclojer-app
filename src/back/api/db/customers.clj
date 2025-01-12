@@ -78,3 +78,14 @@
        (sql.helpers/where [:= :ou.org_id [:cast id :uuid]])
        sql/format
        ((db.utils/build-execute-with-ctx db ctx)))))
+
+(defn get-by-email
+  ([email db]
+   (get-by-email email db {}))
+  ([email db ctx]
+   (-> (sql.helpers/select :*)
+       (sql.helpers/from :customer)
+       (sql.helpers/where [:= :email email])
+       sql/format
+       ((db.utils/build-execute-with-ctx db ctx))
+       first)))

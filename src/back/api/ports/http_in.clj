@@ -230,32 +230,30 @@
                         (filter #(and (= (last (str/split % #"/")) "moclojer.yml")
                                       (str/includes? % "mocks/"))
                                 updated-files))
-            content (when mocks
-                      (controllers.mocks/pull! installation-id owner repo-name mocks components ctx))]
-        (let [id (controllers.orgs/get-org-by-slug owner components ctx)
-              id (when (nil? (:orgname id)) (controllers.user/get-user-by-username owner components ctx))]
-          (logs/log :info "id"
-                    :ctx (merge ctx {:org-id id}))
-          (if-not (nil? id)
-            (do
-              (doseq [mock-content mocks]
-                (logs/log :info "mock"
-                          :ctx (merge ctx {:mock-content (utils/decode mock-content)}))
-                (let [mock-id (controllers.mocks/get-mocks {:uuid (:uuid id) :username owner} components ctx)]
-                  (controllers.mocks/update-mock! mock-id (utils/decode mock-content) components ctx)))
-              (when-not (:status response)
-                (assoc response
-                       :status 200
-                       :body {:content content
-                              :message "Files updated from source"})))
-            (assoc response
-                   :status 500
-                   :body {:message "no org found"}))))
+            pull-response (when mocks
+                            (controllers.mocks/pull! installation-id owner repo-name mocks components ctx))
+            content (:content pull-response)
+            base-sha (:sha pull-response)
+            id (controllers.orgs/get-org-by-slug owner components ctx)
+            id (when (nil? (:orgname id)) (controllers.user/get-user-by-username owner components ctx))]
+        (if-not (nil? id)
+          (do
+            (doseq [[mock-content sha] mocks]
+              (let [mock-id (controllers.mocks/get-mocks {:uuid (:uuid id) :username owner} components ctx)]
+                (controllers.mocks/update-mock! mock-id (utils/decode mock-content) base-sha components ctx)))
+            (when-not (:status response)
+              (assoc response
+                     :status 200
+                     :body {:content content
+                            :message "Files updated from source"})))
+          (assoc response
+                 :status 500
+                 :body {:message "no org found"})))
       (= event-type "installation")
       (let [response {}
             slug (get-in body [:installation :account :login])]
         (let [id (controllers.orgs/get-org-by-slug slug components ctx)
-              id (when (nil? (:orgname id)) (controllers.user/get-user-by-username slug components ctx))]
+              id (when (nil? (:username id)) (controllers.user/get-user-by-username slug components ctx))]
           (logs/log :info "ids"
                     :ctx (merge ctx {:id id}))
           (if-not (nil? (:uuid id))

@@ -10,7 +10,8 @@
    [:wildcard string?]
    [:enabled boolean?]
    [:content {:optional true} string?]
-   [:git-repo {:optional true} string?]])
+   [:git-repo {:optional true} string?]
+   [:sha {:optional true} string?]])
 
 (def MockCreate
   (conj Mock [:org-id {:optional true} string?]))
@@ -19,7 +20,8 @@
   [:map
    [:id string?]
    [:content {:optional true} string?]
-   [:git-repo {:optional true} string?]])
+   [:git-repo {:optional true} string?]
+   [:sha {:optional true} string?]])
 
 (def MockDelete
   [:map [:id string?]])

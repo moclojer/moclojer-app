@@ -39,7 +39,8 @@
    [:enabled boolean?]
    [:dns-status PublicationStatus]
    [:unification-status PublicationStatus]
-   [:git-repo {:optional true} string?]])
+   [:git-repo {:optional true} string?]
+   [:sha {:optional true} string?]])
 
 (def MockDeleteUnauthorized
   [:map [:error string?]])
@@ -54,7 +55,8 @@
    [:enabled boolean?]
    [:dns-status PublicationStatus]
    [:unification-status PublicationStatus]
-   [:git-repo {:optional true} string?]])
+   [:git-repo {:optional true} string?]
+   [:sha {:optional true} string?]])
 
 (def GroupedMock
   [:map
@@ -66,7 +68,6 @@
   [:vector GroupedMock])
 
 (comment
-
   (def user-example {:uuid "uuid"
                      :email "email"
                      :username "username"

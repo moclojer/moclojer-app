@@ -7,7 +7,6 @@
 
 (defn send-email [{:keys [body on-success on-failure]}]
   (.log js/console :sending-email)
-
   (-> (supabase/signin-with-email supabase/client (:email body))
       (p/then (fn [resp]
                 (let [obj (utils/js->cljs-key resp)]
@@ -33,7 +32,12 @@
                   (if (:error obj)
                     (do
                       (js/console.error :resp-failure obj)
-                      (dispatch (conj on-failure {:body obj})))))))))
+                      (dispatch (conj on-failure {:body obj})))
+                    (do
+                      (js/console.log :resp-success obj)
+                      (dispatch (conj on-success {:body (assoc
+                                                         (utils/js->cljs-key resp)
+                                                         :ok true)})))))))))
 
 (defn auth-effect [fn-req]
   (fn [req]
