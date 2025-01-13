@@ -89,13 +89,8 @@
 
 (defn enable-sync
   "Updates org install id field"
-  [install_id id {:keys [database]} ctx]
+  [install_id org {:keys [database]} ctx]
   (logs/log :info "enabling git sync"
-            :ctx (merge ctx {:id id}))
-  ;; TODO validate as user or org
-  (let [org (assoc (if (uuid? id)
-                     (get-org-by-id id database ctx)
-                     id) :git-install-id install_id)]
-
-    (update-org! org database ctx))
-  "git enabled")
+            :ctx (merge ctx {:id org}))
+  (let [org (assoc org :git-install-id install_id)]
+    (update-org! org database ctx)))

@@ -54,3 +54,13 @@
                       {:status-code 412
                        :cause :invalid-email
                        :value (assoc ctx :email email)}))))
+
+(defn enable-sync
+  "Updates org install id field"
+  [install_id user {:keys [database]} ctx]
+  (logs/log :info "enabling git sync"
+            :ctx (merge ctx {:id user}))
+  (let [org (assoc user :git-install-id install_id)]
+    (-> (logic.customers/update-install-id user install_id)
+        (db.customers/update! database ctx)
+        (adapter.customers/->wire))))

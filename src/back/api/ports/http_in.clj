@@ -61,13 +61,20 @@
      :body {:mock (controllers.mocks/create-mock! user-id mock components ctx)}}))
 
 (defn handler-update-mock!
-  [{{{:keys [id content]} :body} :parameters
+  [{{{:keys [id content install-id owner repo email sha]} :as body :body} :parameters
     components :components
     ctx :ctx}]
+  ;; TODO update push correctly
+  (prn body
+       (keys body))
   (let [mock (controllers.mocks/update-mock! (java.util.UUID/fromString id)
                                              content
                                              components
                                              ctx)]
+    (when install-id
+      (let [path (str "mocks/" "/moclojer.yml")]
+        (controllers.mocks/push! install-id owner repo email path sha
+                                 (utils/encode content) components ctx)))
     {:status 200
      :body {:mock mock}}))
 
@@ -233,14 +240,16 @@
             pull-response (when mocks
                             (controllers.mocks/pull! installation-id owner repo-name mocks components ctx))
             content (:content pull-response)
-            base-sha (:sha pull-response)
-            id (controllers.orgs/get-org-by-slug owner components ctx)
-            id (when (nil? (:orgname id)) (controllers.user/get-user-by-username owner components ctx))]
-        (if-not (nil? id)
+            org (controllers.orgs/get-org-by-slug owner components ctx)
+            user (when (nil? (:orgname org)) (controllers.user/get-user-by-username owner components ctx))]
+        (if-not (nil? (:uuid (if org org user)))
           (do
+            (logs/log :info "sim"
+                      :ctx (merge ctx {:mocks mocks}))
             (doseq [[mock-content sha] mocks]
-              (let [mock-id (controllers.mocks/get-mocks {:uuid (:uuid id) :username owner} components ctx)]
-                (controllers.mocks/update-mock! mock-id (utils/decode mock-content) base-sha components ctx)))
+              (let [mock-id (controllers.mocks/get-mocks {:uuid (if org org user) :username owner} components ctx)
+                    decoded-mock (utils/decode mock-content)]
+                (controllers.mocks/update-mock! mock-id decoded-mock sha components ctx)))
             (when-not (:status response)
               (assoc response
                      :status 200
@@ -248,21 +257,23 @@
                             :message "Files updated from source"})))
           (assoc response
                  :status 500
-                 :body {:message "no org found"})))
+                 :body {:message "no org or user found"})))
       (= event-type "installation")
       (let [response {}
-            slug (get-in body [:installation :account :login])]
-        (let [id (controllers.orgs/get-org-by-slug slug components ctx)
-              id (when (nil? (:username id)) (controllers.user/get-user-by-username slug components ctx))]
-          (logs/log :info "ids"
-                    :ctx (merge ctx {:id id}))
-          (if-not (nil? (:uuid id))
-            (assoc response
-                   :status 200
-                   :body {:content (controllers.orgs/enable-sync installation-id id components ctx)
-                          :message "Enabled Git Sync"})
-            (assoc response
-                   :status 500
-                   :body {:message "Could not enable Git Sync"}))))
+            slug (get-in body [:installation :account :login])
+            org (controllers.orgs/get-org-by-slug slug components ctx)
+            user (when (nil? (:orgname org)) (controllers.user/get-user-by-username slug components ctx))]
+        (logs/log :info "ids"
+                  :ctx (merge ctx {:id (if org org user)}))
+        (if-not (nil? (:uuid (if org org user)))
+          (assoc response
+                 :status 200
+                 :body {:content (if org
+                                   (controllers.orgs/enable-sync installation-id org components ctx)
+                                   (controllers.user/enable-sync installation-id user components ctx))
+                        :message "Enabled Git Sync"})
+          (assoc response
+                 :status 500
+                 :body {:message "Could not enable Git Sync"})))
       :else {:status 400
              :body {:message "Unhandled event type"}})))

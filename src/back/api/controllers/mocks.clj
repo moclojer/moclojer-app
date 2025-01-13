@@ -160,7 +160,7 @@
 
 (def committer
   {:name "Moclojer Git Sync App"
-   :email "moclojer@gmail.com"
+   :email "team@moclojer.com"
    :date (str (java.time.Instant/now))})
 
 (defn create-github-client
@@ -170,7 +170,7 @@
    app-id
    private-key {}))
 
-(defn fetch-file-content
+(defn fetch-file
   [install-id owner repo file-path {:keys [github-api-url app-id private-key]}]
   (let [gh-client (create-github-client github-api-url app-id private-key)
         response (gh-app/request gh-client install-id :get
@@ -293,10 +293,12 @@
     (doseq [file files]
       (swap! res conj
              {:file file
-              :content (fetch-file-content install-id owner repo file
-                                           {:github-api-url github-api-url
-                                            :app-id app-id
-                                            :private-key private-key})}))
+              :content (fetch-file install-id owner repo file
+                                   {:github-api-url github-api-url
+                                    :app-id app-id
+                                    :private-key private-key})}))
+    (logs/log :info "sim"
+              :ctx (merge ctx {:pull-body @res}))
     @res))
 
 (defn push!
@@ -320,6 +322,18 @@
                          :private-key private-key}))))
 
 (comment
+  (def app-id "1089795")
+  (def private-key (slurp "/home/felipe-gsilva/Documents/documentos-pessoais/felipe-gsilva-auth-test.2024-12-17.private-key.pem"))
+  (def github-api-url "https://api.github.com")
+  (def install-id "58505217")
+  (def base-sha "2679f7712ea94d9b7261f059f5dd95241ce1cfcf")
+  (def paths ["file.md" "file2.md"])
+  (def files (mapv utils/encode ["Hello world!!" "better \nHello world!!"]))
+  (def user "Felipe-gsilva")
+  (def gh-client (create-github-client
+                  "https://api.github.com"
+                  app-id
+                  private-key))
   (create-commit install-id user "gh-app-test" "Felipe-gsilva@protonmail.com" paths files base-sha
                  {:github-api-url "https://api.github.com" :app-id app-id :private-key private-key})
   (create-tree install-id user "gh-app-test" paths files base-sha
@@ -329,7 +343,7 @@
                     user
                     "gh-app-test"
                     "refs/heads/main"
-                    "0d773304d6f0c83178d9947a08a53078c1beeb11"
+                    "f75173c5f3acc456c61d8edcc2d47f6c0d7aef9d"
                     {:github-api-url "https://api.github.com"
                      :app-id app-id
                      :private-key private-key})

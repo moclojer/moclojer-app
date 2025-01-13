@@ -20,6 +20,10 @@
   [users id]
   (some? (seq (filter #(= (str (:uuid %)) (str id)) users))))
 
+(defn update-install-id
+  [user install-id]
+  (assoc user :customer/git-install-id install-id))
+
 (comment
   (exists? [{:uuid 123}] 123)
   ;; => true

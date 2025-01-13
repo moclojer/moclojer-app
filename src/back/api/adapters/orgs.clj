@@ -12,9 +12,11 @@
       (assoc-if :git-install-id git-install-id)))
 
 (defn ->wire-org-user
-  [{:org_user/keys [id org_id user_id created_at updated_at]}]
-  {:id (str id)
-   :org-id org_id
-   :user-id user_id
-   :created-at created_at
-   :updated-at updated_at})
+  [{:org_user/keys [id org_id user_id created_at updated_at
+                    git-install-id]}]
+  (-> {:id (str id)
+       :org-id org_id
+       :user-id user_id
+       :created-at created_at
+       :updated-at updated_at}
+      (assoc-if :git-install-id git-install-id)))
