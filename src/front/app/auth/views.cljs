@@ -54,32 +54,23 @@
                                        (.preventDefault e)
                                        (refx/dispatch [:app.auth/send-email-again]))
                            :href "#"}))))
-              ($ section {:class "p-6 space-y-8 w-full sm:p-8 lg:p-16 lg:py-0"}
+              ($ section {:class "p-6  w-full sm:p-8 lg:p-16 lg:py-0  "}
                  (d/h2 {:class "text-2xl font-bold text-gray-900 lg:text-3xl dark:text-white"}
                        "sign in to moclojer")
                  (d/form {:disabled loading?
                           :on-submit (fn [e]
                                        (.preventDefault e)
-                                       (if (and (not (= (:email state) "")) (= (:provider state) ""))
+                                       (if (:email state)
                                          (refx/dispatch [:app.auth/send-email state])
                                          (refx/dispatch [:app.auth/send-oauth state])))
                           :class "mt-8 space-y-8 "}
 
-                         (d/div 
+                         (d/div
                           ($ input
                              {:for "email"
                               :label "your email"
                               :placeholder "name@company.com"
-                              :on-change #(set-state assoc :email (.. % -target -value) :provider "")})
-
-                          (d/div {:class "w-8 lg:w-full h-8 lg:h-6 flex flex-row justify-center items-center mt-4 lg:mt-2  lg:justify-start lg:items-start "}
-                                 (d/span {:class "hidden text-gray-300 lg:flex justify-start items-start m-0 lg:mr-2 lg:ml-1"} "or")
-                                 ($ button {:roundness :full
-                                            :class "flex justify-center flex-col items-center w-8 h-8 lg:w-6 lg:h-6"
-                                            :on-click #(set-state assoc :provider "github" :email "")}
-
-                                    (d/div {:class "flex text-gray-400 "}
-                                           ($ github)))))
+                              :on-change #(set-state assoc :email (.. % -target -value))}))
 
                          (d/div {:class "flex items-start "}
                                 (d/div {:class "flex items-center h-6 lg:h-12"}))
@@ -94,18 +85,29 @@
                                      :size :full
                                      :label "login to your account"}
                              (if loading?
-                               (d/span {:class "inline-flex"}
+                               (d/span {:class "inline-flex "}
                                        ($ loading-spinner {})
                                        "loading...")
-                               (d/span "login to your account"))))
+                               (d/span "login to your account ")))))
 
-                         (d/div {:class "text-sm font-medium text-gray-500 dark:text-gray-400"}
-                                (if (inspect error)
-                                  ($ alerts/error
-                                     {:id "login-error"
-                                      :error "Error... try it again."
-                                      :description (:message error-res)})
-                                  "if you don't have an account, it is created automatically"))))))))
+                 (d/div {:class "w-full h-8 lg:h-6 flex flex-row justify-center items-center mt-4 lg:mt-2 lg:justify-start lg:items-start "}
+                        (d/span {:class "hidden text-gray-300 lg:flex justify-start items-start m-0 lg:mr-2 lg:ml-1"} "or")
+                        ($ button {:roundness :full
+                                   :class "flex justify-center flex-col items-center w-8 h-8 lg:w-6 lg:h-6"
+                                   :on-click (fn [e]
+                                               (.preventDefault e)
+                                               (set-state assoc :provider "github")
+                                               (set-state dissoc :email))}
+                           (d/div {:class "flex text-gray-400 "}
+                                  ($ github))))
+
+                 (d/div {:class "text-sm font-medium text-gray-500 dark:text-gray-400 mt-4 "}
+                        (if error
+                          ($ alerts/error
+                             {:id "login-error"
+                              :error "Error... try it again."
+                              :description (:message error-res)})
+                          "if you don't have an account, it is created automatically")))))))
 
 (defnc first-login [{:keys [sent? loading?]}]
   (let [username (refx/use-sub [:app.auth/username-to-save])
@@ -185,7 +187,7 @@
   (let [loading? (refx/use-sub [:app.auth/login-loading])
         [error error-res] (refx/use-sub [:app.auth/login-error])
         email-sent? (refx/use-sub [:app.auth/email-sent])
-        [state set-state] (hooks/use-state {:email "" :provider ""})]
+        [state set-state] (hooks/use-state {:email ""})]
     ($ section
        ($ login {:sent? email-sent?
                  :loading? loading?

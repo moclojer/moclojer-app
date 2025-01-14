@@ -51,6 +51,11 @@
    (:is-modal-open? db)))
 
 (refx/reg-sub
+ :app.dashboard/is-settings-open?
+ (fn [db _]
+   (:is-settings-open? db)))
+
+(refx/reg-sub
  :app.dashboard/loading-creating-mock?
  (fn [db _]
    (:loading-creating-mock? db)))

@@ -21,8 +21,16 @@
  (fn
    [{db :db} [_ _]]
    (let [toggle (:is-modal-open? db)]
-     {:db  (assoc db
-                  :is-modal-open? (not toggle))})))
+     {:db (assoc db
+                 :is-modal-open? (not toggle))})))
+
+(refx/reg-event-fx
+ :app.dashboard/toggle-settings
+ (fn
+   [{db :db} [_ _]]
+   (let [toggle (:is-settings-open? db)]
+     {:db (assoc db
+                 :is-settings-open? (not toggle))})))
 
 (defn mocks->raw [mocks]
   (->> mocks

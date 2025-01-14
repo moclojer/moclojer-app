@@ -1,18 +1,19 @@
 (ns front.app.dashboard.base
-  (:require ["slugify" :as slugify]
-            [front.app.components.container :refer [aside-container]]
-            [front.app.components.modal :refer [modal]]
-            [front.app.components.svg :as svg]
-            [front.app.components.aside :refer [aside]]
-            [mockingbird.components.button :refer [button]]
-            [front.app.components.navbar :refer [nav-bar]]
-            [mockingbird.lib :refer-macros [defnc]]
-            [helix.core :refer [$ <>]]
-            [helix.dom :as d]
-            [helix.hooks :as hooks]
-            [refx.alpha :as refx]))
+  (:require
+   ["slugify" :as slugify]
+   [front.app.components.container :refer [aside-container]]
+   [front.app.components.modal :refer [modal]]
+   [front.app.components.svg :as svg]
+   [front.app.components.aside :refer [aside]]
+   [mockingbird.components.button :refer [button]]
+   [front.app.components.navbar :refer [nav-bar]]
+   [mockingbird.lib :refer-macros [defnc]]
+   [helix.core :refer [$ <>]]
+   [helix.dom :as d]
+   [helix.hooks :as hooks]
+   [refx.alpha :as refx]))
 
-(defnc new-mock-modal []
+(defn new-mock-modal []
   (let [is-modal-open? (refx/use-sub [:app.dashboard/is-modal-open?])
         loading? (refx/use-sub [:app.dashboard/loading-creating-mock?])
         user-orgs (refx/use-sub [:app.user/orgs])
@@ -206,18 +207,62 @@
                :on-click #(close-modal!)}
               "No, cancel"))))})))
 
+(defn settings-modal []
+  (let [is-settings-open? (refx/use-sub [:app.dashboard/is-settings-open?])
+        [setting set-setting] (hooks/use-state {:view "user"})
+        user-orgs (refx/use-sub [:app.user/orgs])]
+    ($ modal
+       {:title "Settings"
+        :open? is-settings-open?
+        :on-close #(do
+                     (refx/dispatch-sync [:app.dashboard/toggle-settings]))
+        :children
+        (d/div
+         {:class "w-screen md:w-[600px] p-6 gap-4"}
+         (d/div {:class "grid grid-cols-4 grid-rows-8 gap-2"}
+                (d/div {:class "row-span-1"}
+                       (d/div {:class (str "col-span-1 rounded-md hover:bg-gray-100 transition-all duration-75 "
+                                           (when (= (:view setting) "user") "bg-gray-50"))}
+                              ($ button {:size :full
+                                         :on-click (fn []
+                                                     (set-setting assoc :view "user"))}
+                                 "User")))
+                (d/div {:class "row-span-1"}
+                       (d/div {:class "col-span-1"}
+                              (d/div {:class (str "col-span-1 rounded-md hover:bg-gray-100 transition-all duration-75 "
+                                                  (when (= (:view setting) "orgs") "bg-gray-50"))}
+                                     ($ button {:size :full
+                                                :on-click (fn []
+                                                            (set-setting assoc :view "orgs"))}
+                                        "Orgs"))))
+                (d/div {:class "row-span-1"}
+                       (d/div {:class (str "col-span-1 rounded-md hover:bg-gray-100 transition-all duration-75 "
+                                           (when (= (:view setting) "mocks") "bg-gray-50"))}
+                              ($ button {:size :full
+                                         :on-click (fn []
+                                                     (set-setting assoc :view "mocks"))}
+                                 "Mocks")))
+                (d/div {:class "col-span-6 row-span-7 h-64 rounded-md bg-gray-50 space-y-4 p-4"}
+                       (cond
+                         (= (:view setting) "user")
+                         (d/div
+                          (d/p "Sim"))
+                         (= (:view setting) "orgs")
+                         (d/p "Work in Progress")
+                         (= (:view setting) "mocks")
+                         (d/p "Work in Progress")
+                         ))))})))
+
 (defnc index [{:keys [children]}]
-  (let [user (-> (refx/use-sub [:app.auth/current-user]) :user)]
-    (d/div
-
-     {:class-name "bg-gray-50 dark:bg-gray-800"}
-     ($ nav-bar {:user-data user})
-
-     ($ aside)
-
-     (d/div {:class-name "hidden fixed inset-0 z-10 bg-gray-900/50 dark:bg-gray-900/90"
-             :id "sidebarBackdrop"})
-     (<>
-      ($ aside-container children)
-      ($ new-mock-modal)
-      ($ mock-deletion-modal)))))
+  (let [user (-> (refx/use-sub [:app.auth/current-user])
+                 :user)]
+    (d/div {:class "bg-gray-50 dark:bg-gray-800"}
+           ($ nav-bar {:user-data user})
+           ($ aside)
+           (d/div {:class "hidden fixed inset-0 z-10 bg-gray-900/50 dark:bg-gray-900/90"
+                   :id "sidebarBackdrop"})
+           (<>
+            ($ aside-container children)
+            ($ new-mock-modal)
+            ($ mock-deletion-modal)
+            ($ settings-modal)))))

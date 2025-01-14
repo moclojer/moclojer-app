@@ -79,14 +79,17 @@
                   (d/ul {:class "py-1" :role "none"}
                         (d/li
                          (d/a {:href ""
-                                ;; TODO settings
-                               :class "block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
-                               :role "menuitem"}
+                               :class (str  "block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 "
+                                            "dark:hover:bg-gray-600 dark:hover:text-white transition duration-75")
+                               :role "menuitem"
+                               :on-click (fn [e]
+                                           (.preventDefault e)
+                                           (refx/dispatch [:app.dashboard/toggle-settings]))}
                               "Settings"))
 
                         (d/li
                          (d/button
-                          {:class (str "w-full block py-2 px-4 text-sm text-left text-gray-700 hover:bg-gray-100"
+                          {:class (str "w-full block py-2 px-4 text-sm text-left text-gray-700 hover:bg-gray-100 transition duration-75 "
                                        "dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white")
                            :on-click (fn [e]
                                        (.preventDefault e)
