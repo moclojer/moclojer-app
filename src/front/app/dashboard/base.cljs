@@ -5,6 +5,7 @@
    [front.app.components.modal :refer [modal]]
    [front.app.components.svg :as svg]
    [front.app.components.aside :refer [aside]]
+   [mockingbird.components.input :refer [input]]
    [mockingbird.components.button :refer [button]]
    [front.app.components.navbar :refer [nav-bar]]
    [mockingbird.lib :refer-macros [defnc]]
@@ -12,6 +13,79 @@
    [helix.dom :as d]
    [helix.hooks :as hooks]
    [refx.alpha :as refx]))
+
+(defn settings-modal []
+  (let [is-settings-open? (refx/use-sub [:app.dashboard/is-settings-open?])
+        [setting set-setting] (hooks/use-state {:view "user"})
+        user-orgs (refx/use-sub [:app.user/orgs])
+        username (:user_name (:user_metadata  (:user (refx/use-sub [:app.auth/current-user]))))
+        username-to-save  (refx/use-sub [:app.auth/username-to-save])
+        available? (refx/use-sub [:app.auth/is-username-available?])]
+    ($ modal
+       {:title "Settings"
+        :open? is-settings-open?
+        :on-close #(do
+                     (refx/dispatch-sync [:app.dashboard/toggle-settings]))
+        :children
+        (d/div
+         {:class "w-screen md:w-[600px] p-6 gap-4"}
+         (js/console.log username)
+         (d/div {:class "grid grid-cols-4 grid-rows-8 gap-2"}
+                (d/div {:class "row-span-1"}
+                       (d/div {:class (str "col-span-1 rounded-md hover:bg-gray-100 transition-all duration-75 "
+                                           (when (= (:view setting) "user") "bg-gray-50"))}
+                              ($ button {:size :full
+                                         :on-click (fn []
+                                                     (set-setting assoc :view "user"))}
+                                 "User")))
+                (d/div {:class "row-span-1"}
+                       (d/div {:class "col-span-1"}
+                              (d/div {:class (str "col-span-1 rounded-md hover:bg-gray-100 transition-all duration-75 "
+                                                  (when (= (:view setting) "orgs") "bg-gray-50"))}
+                                     ($ button {:size :full
+                                                :on-click (fn []
+                                                            (set-setting assoc :view "orgs"))}
+                                        "Orgs"))))
+                (d/div {:class "row-span-1"}
+                       (d/div {:class (str "col-span-1 rounded-md hover:bg-gray-100 transition-all duration-75 "
+                                           (when (= (:view setting) "mocks") "bg-gray-50"))}
+                              ($ button {:size :full
+                                         :on-click (fn []
+                                                     (set-setting assoc :view "mocks"))}
+                                 "Mocks")))
+                (d/div {:class "col-span-6 row-span-7 h-64 rounded-md bg-gray-50 space-y-4 p-4"}
+                       (cond
+                         (= (:view setting) "user")
+                         (d/div
+                          (d/form {:class "flex flex-col justify-between w-full items-start"
+                                   :on-submit (fn [e]
+                                                (.preventDefault e)
+                                                (when (and (not-empty username-to-save) available?)
+                                                  (refx/dispatch [:app.dashboard/set-new-username])))}
+                                  (d/div {:class  "w-[calc(100%)]"}
+                                         ($ input {:label "Edit Username"
+                                                   :on-change (fn [e]
+                                                                (.preventDefault e)
+                                                                (refx/dispatch-sync [:app.auth/username-available?
+                                                                                     (.. e -target -value)]))
+                                                   :placeholder username})
+                                         (d/p {:class "text-sm select-none "}
+                                              (str "<" username ">.moclojer.com")))
+                                  (d/div {:class  (str "w-[calc(20%)] flex justify-center items-center text-white rounded-md "
+                                                       "my-2 p-2 ")}
+                                         ($ button {:class (when (not available?) "cursor-not-allowed ")
+                                                    :theme :mockingbird
+                                                    :padding :sm
+                                                    :type :submit}
+                                            "Update"))))
+
+                         (= (:view setting) "orgs")
+                         (d/p "Work in Progress"
+                              user-orgs)
+                         (= (:view setting) "mocks")
+                         (d/p "Work in Progress")
+                         :else
+                         (set-setting assoc :view "user")))))})))
 
 (defn new-mock-modal []
   (let [is-modal-open? (refx/use-sub [:app.dashboard/is-modal-open?])
@@ -206,52 +280,6 @@
               {:class-name "text-gray-800 text-sm font-medium"
                :on-click #(close-modal!)}
               "No, cancel"))))})))
-
-(defn settings-modal []
-  (let [is-settings-open? (refx/use-sub [:app.dashboard/is-settings-open?])
-        [setting set-setting] (hooks/use-state {:view "user"})
-        user-orgs (refx/use-sub [:app.user/orgs])]
-    ($ modal
-       {:title "Settings"
-        :open? is-settings-open?
-        :on-close #(do
-                     (refx/dispatch-sync [:app.dashboard/toggle-settings]))
-        :children
-        (d/div
-         {:class "w-screen md:w-[600px] p-6 gap-4"}
-         (d/div {:class "grid grid-cols-4 grid-rows-8 gap-2"}
-                (d/div {:class "row-span-1"}
-                       (d/div {:class (str "col-span-1 rounded-md hover:bg-gray-100 transition-all duration-75 "
-                                           (when (= (:view setting) "user") "bg-gray-50"))}
-                              ($ button {:size :full
-                                         :on-click (fn []
-                                                     (set-setting assoc :view "user"))}
-                                 "User")))
-                (d/div {:class "row-span-1"}
-                       (d/div {:class "col-span-1"}
-                              (d/div {:class (str "col-span-1 rounded-md hover:bg-gray-100 transition-all duration-75 "
-                                                  (when (= (:view setting) "orgs") "bg-gray-50"))}
-                                     ($ button {:size :full
-                                                :on-click (fn []
-                                                            (set-setting assoc :view "orgs"))}
-                                        "Orgs"))))
-                (d/div {:class "row-span-1"}
-                       (d/div {:class (str "col-span-1 rounded-md hover:bg-gray-100 transition-all duration-75 "
-                                           (when (= (:view setting) "mocks") "bg-gray-50"))}
-                              ($ button {:size :full
-                                         :on-click (fn []
-                                                     (set-setting assoc :view "mocks"))}
-                                 "Mocks")))
-                (d/div {:class "col-span-6 row-span-7 h-64 rounded-md bg-gray-50 space-y-4 p-4"}
-                       (cond
-                         (= (:view setting) "user")
-                         (d/div
-                          (d/p "Sim"))
-                         (= (:view setting) "orgs")
-                         (d/p "Work in Progress")
-                         (= (:view setting) "mocks")
-                         (d/p "Work in Progress")
-                         ))))})))
 
 (defnc index [{:keys [children]}]
   (let [user (-> (refx/use-sub [:app.auth/current-user])

@@ -264,3 +264,14 @@
  :app.dashboard/set-mock-to-delete
  (fn [db [_ mock]]
    (assoc db :mock-to-delete mock)))
+
+(refx/reg-event-db
+ :app.dashboard/set-new-username
+ (fn [[_ username-to-save {:keys [current-user]}]]
+   (let [access-token (:access-token current-user)]
+     {:http {:url (str "user/username/")
+             :method :put
+             :headers {"authorization" (str "Bearer " access-token)}
+             :body {:username username-to-save}
+             :on-success [:app.dashboard/toggle-settings]
+             :on-failure []}})))

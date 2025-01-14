@@ -81,6 +81,14 @@
                           (extract-user-interceptor)]
            :responses {200 {:body schemas.wire-out/Available}}
            :handler ports.http-in/handler-username-available?}}]
+   ["/user/username/"
+    {:swagger {:tags ["update username"]}
+     :put {:summary "updates a username"
+           :parameters {:body schemas.wire-in/userUpdate}
+           :interceptors [(error-handler-interceptor)
+                          (extract-user-interceptor)]
+           :responses {200 {:body schemas.wire-in/userUpdate}}
+           :handler ports.http-in/edit-user!}}]
 
    ["/orgs"
     {:get {:summary "Get orgs user is in"

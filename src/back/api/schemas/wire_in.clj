@@ -34,3 +34,6 @@
   [:map
    [:orgname string?]
    [:git-install-id {:optional true} integer?]])
+
+(def userUpdate 
+  [:map [:username string?]])

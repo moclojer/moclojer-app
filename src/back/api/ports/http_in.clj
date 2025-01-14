@@ -5,6 +5,7 @@
    [back.api.controllers.mocks :as controllers.mocks]
    [back.api.controllers.orgs :as controllers.orgs]
    [back.api.controllers.user :as controllers.user]
+   [back.api.controllers.sync :as controllers.sync]
    [back.api.logic.customers :as logic.users]
    [back.api.logic.orgs :as logic.orgs]
    [back.api.utils :as utils]
@@ -238,7 +239,7 @@
                                       (str/includes? % "mocks/"))
                                 updated-files))
             pull-response (when mocks
-                            (controllers.mocks/pull! installation-id owner repo-name mocks components ctx))
+                            (controllers.sync/pull! installation-id owner repo-name mocks components ctx))
             content (:content pull-response)
             org (controllers.orgs/get-org-by-slug owner components ctx)
             user (when (nil? (:orgname org)) (controllers.user/get-user-by-username owner components ctx))]
