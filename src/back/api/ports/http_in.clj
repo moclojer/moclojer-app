@@ -61,17 +61,17 @@
      :body {:mock (controllers.mocks/create-mock! user-id mock components ctx)}}))
 
 (defn handler-update-mock!
-  [{{{:keys [id content install-id owner repo email sha]} :as body :body} :parameters
+  [{{{:keys [id content]} :body :as body} :parameters
     components :components
     ctx :ctx}]
   ;; TODO update push correctly
-  (prn body
+  #_(prn body
        (keys body))
   (let [mock (controllers.mocks/update-mock! (java.util.UUID/fromString id)
                                              content
                                              components
                                              ctx)]
-    (when install-id
+    #_(when install-id
       (let [path (str "mocks/" "/moclojer.yml")]
         (controllers.mocks/push! install-id owner repo email path sha
                                  (utils/encode content) components ctx)))

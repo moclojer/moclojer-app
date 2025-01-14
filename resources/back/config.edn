@@ -3,9 +3,9 @@
                 :default :dev
                 :prod :prod}
  :release "1.0.0"
- :supabase-api-key #or [#env SUPABASE_API_KEY "foo"]
+ :supabase-api-key #or [#env SUPABASE_API_KEY "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRndmRmeHVyZ3NkZHhvdXhtdWdzIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODE1MDM0NDMsImV4cCI6MTk5NzA3OTQ0M30.7pq4MM_ZldiWvOk_cnQuxlvUF8eFcxlPDB7jMTNMYb0"]
  :supabase-url #or [#env SUPABASE_URL "https://tgvdfxurgsddxouxmugs.supabase.co"]
- :supabase-jwt-secret #or [#env SUPABASE_JWT_SECRET "bar"]
+ :supabase-jwt-secret #or [#env SUPABASE_JWT_SECRET "OP6cAnR4J7im0KH2sWeeTlwf4xQOZTuYtoO1mJ3vpON/szjCMpixe4r+9X3HvhZphxV79wl+2amIxo/AkfR28g=="]
  :git-sync {:secret #or [#env GITHUB_APP_SECRET "ok"]
             :app-id #or [#env GITHUB_APP_ID ""]
             :api-url #or [#env GITHUB_API_URL "https://api.github.com"]

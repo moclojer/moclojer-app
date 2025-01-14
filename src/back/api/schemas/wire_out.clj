@@ -88,7 +88,8 @@
              :enabled true
              :dns-status "published"
              :unification-status "published"
-             :git-repo "github.com/test"})
+             :git-repo "github.com/test"
+             :sha "aaaaaaaaaaaaa"})
 
   (m/validate Mock mock)
 
@@ -101,19 +102,22 @@
                       :url "teste.j0suetm.moclojer.com"
                       :enabled true
                       :dns-status "published"
-                      :unification-status "offline"}]})
+                      :unification-status "offline"
+                      :git-repo "github.com/test"
+                      :sha "aaaaaaaaaaaaa"}]})
 
   (m/explain GroupedMocks
              [{:subdomain "j0suetm"
                :mock-type "personal"
                :apis [{:id (random-uuid)
                        :wildcard "teste"
-                       :url "teste.j0suetm.moclojer.com"
-                       :content "aoetuhaoeu"
                        :subdomain "j0suetm"
+                       :url "teste.j0suetm.moclojer.com"
                        :enabled true
-                       :dns-status "offline"
-                       :unification-status "offline"}
+                       :dns-status "published"
+                       :unification-status "offline"
+                       :git-repo "github.com/test"
+                       :sha "aaaaaaaaaaaaa"}
                       {:id (random-uuid)
                        :wildcard "teste2"
                        :url "teste2.j0suetm.moclojer.com"
