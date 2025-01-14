@@ -162,7 +162,8 @@
            :responses {200 {:body {:mock schemas.wire-out/Mock}}}
            :handler ports.http-in/handler-update-mock!}
      :delete {:summary "Delete a mock"
-              :interceptors [(extract-user-interceptor)]
+              :interceptors [(error-handler-interceptor)
+                             (extract-user-interceptor)]
               :parameters {:body schemas.wire-in/MockDelete}
               :responses {200 {:body {}}}
               :handler ports.http-in/handler-delete-mock!}}]
