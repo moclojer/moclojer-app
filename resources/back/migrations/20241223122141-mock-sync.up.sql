@@ -2,7 +2,6 @@ ALTER TABLE mock ADD COLUMN git_repo VARCHAR(255);
 
 --;;
 
-
 ALTER TABLE mock ADD COLUMN sha VARCHAR(255);
 
 --;;
