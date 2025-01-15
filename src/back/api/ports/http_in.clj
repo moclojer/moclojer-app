@@ -6,11 +6,13 @@
    [back.api.controllers.orgs :as controllers.orgs]
    [back.api.controllers.user :as controllers.user]
    [back.api.controllers.sync :as controllers.sync]
+   [back.api.db.customers :as db.customers]
    [back.api.logic.customers :as logic.users]
    [back.api.logic.orgs :as logic.orgs]
    [back.api.utils :as utils]
    [clojure.string :as str]
-   [com.moclojer.components.logs :as logs]))
+   [com.moclojer.components.logs :as logs]
+   [slugify.core :refer [slugify]]))
 
 (defn handler-create-user!
   [{{{:keys [access-token]} :body} :parameters
@@ -21,12 +23,12 @@
      :body {:user user}}))
 
 (defn edit-user!
-  [{{{:keys [username]} :body} :parameters
+  [{{{:keys [username install-id]} :body} :parameters
     {:keys [user-id]} :session-data
     {:keys [database]} :components
     ctx :ctx}]
   {:status 200
-   :body {:user (controllers.user/edit-user! user-id username database ctx)}})
+   :body {:user (controllers.user/edit-user! user-id username (when install-id install-id) database ctx)}})
 
 (defn handler-get-user
   [{{{:keys [id]} :path} :parameters
@@ -67,15 +69,15 @@
     ctx :ctx}]
   ;; TODO update push correctly
   #_(prn body
-       (keys body))
+         (keys body))
   (let [mock (controllers.mocks/update-mock! (java.util.UUID/fromString id)
                                              content
                                              components
                                              ctx)]
     #_(when install-id
-      (let [path (str "mocks/" "/moclojer.yml")]
-        (controllers.mocks/push! install-id owner repo email path sha
-                                 (utils/encode content) components ctx)))
+        (let [path (str "mocks/" "/moclojer.yml")]
+          (controllers.mocks/push! install-id owner repo email path sha
+                                   (utils/encode content) components ctx)))
     {:status 200
      :body {:mock mock}}))
 
@@ -213,7 +215,7 @@
      :body {:success (controllers.orgs/remove-org-user! org-id user-id components ctx)
             :users (controllers.user/get-users-by-org-id org-id components ctx)}}))
 
-(defn handler-post-webhook
+(defn handler-webhook
   [{:keys [headers parameters components ctx]}]
   (let [body (:body parameters)
         event-type (get headers "x-github-event")
@@ -229,26 +231,28 @@
       (= event-type "push")
       (let [repo (:repository body)
             head-commit (:head_commit body)
-            owner (get-in repo [:owner :name])
+            slug (str/replace (slugify (get-in repo [:owner :name])) #"-" "")
             repo-name (:name repo)
             updated-files (into [] (concat
                                     (:modified head-commit)
                                     (:added head-commit)))
-            mocks (into []
-                        (filter #(and (= (last (str/split % #"/")) "moclojer.yml")
-                                      (str/includes? % "mocks/"))
-                                updated-files))
+            mocks (into [] (filter #(and (= (last (str/split % #"/")) "moclojer.yml")
+                                         (str/includes? % "mocks/"))
+                                   updated-files))
             pull-response (when mocks
-                            (controllers.sync/pull! installation-id owner repo-name mocks components ctx))
+                            (controllers.sync/pull! installation-id slug repo-name mocks components ctx))
             content (:content pull-response)
-            org (controllers.orgs/get-org-by-slug owner components ctx)
-            user (when (nil? (:orgname org)) (controllers.user/get-user-by-username owner components ctx))]
-        (if-not (nil? (:uuid (if org org user)))
+            org (controllers.orgs/get-by-slug slug components ctx)
+            user (when (nil? (:orgname org)) (controllers.user/get-by-username slug components ctx))
+            org? (not (nil? (:orgname org)))]
+        (if-not (nil? (:uuid (if org? org user)))
           (do
             (logs/log :info "sim"
                       :ctx (merge ctx {:mocks mocks}))
             (doseq [[mock-content sha] mocks]
-              (let [mock-id (controllers.mocks/get-mocks {:uuid (if org org user) :username owner} components ctx)
+              (let [mock-id (controllers.mocks/get-mocks {:uuid (if org? org user)
+                                                          :username slug}
+                                                         components ctx)
                     decoded-mock (utils/decode mock-content)]
                 (controllers.mocks/update-mock! mock-id decoded-mock sha components ctx)))
             (when-not (:status response)
@@ -261,20 +265,21 @@
                  :body {:message "no org or user found"})))
       (= event-type "installation")
       (let [response {}
-            slug (get-in body [:installation :account :login])
-            org (controllers.orgs/get-org-by-slug slug components ctx)
-            user (when (nil? (:orgname org)) (controllers.user/get-user-by-username slug components ctx))]
-        (logs/log :info "ids"
-                  :ctx (merge ctx {:id (if org org user)}))
-        (if-not (nil? (:uuid (if org org user)))
+            slug (str/replace (slugify (get-in body [:installation :account :login])) #"-" "")
+            org (controllers.orgs/get-by-slug slug components ctx)
+            org? (not (nil? (:orgname org)))
+            user (when-not org? (controllers.user/get-by-username slug components ctx))]
+        (logs/log :info (str slug)
+                  :ctx (merge ctx {:id (if org? org user)}))
+        (if-not (nil? (:uuid (if org? org user)))
           (assoc response
                  :status 200
-                 :body {:content (if org
+                 :body {:message "Enabled Git Sync"
+                        :content (if org?
                                    (controllers.orgs/enable-sync installation-id org components ctx)
-                                   (controllers.user/enable-sync installation-id user components ctx))
-                        :message "Enabled Git Sync"})
+                                   (controllers.user/enable-sync installation-id user components ctx))})
           (assoc response
                  :status 500
-                 :body {:message "Could not enable Git Sync"})))
+                 :body {:message "no org or user found"})))
       :else {:status 400
              :body {:message "Unhandled event type"}})))

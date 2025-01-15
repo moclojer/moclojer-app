@@ -81,6 +81,7 @@
                           (extract-user-interceptor)]
            :responses {200 {:body schemas.wire-out/Available}}
            :handler ports.http-in/handler-username-available?}}]
+
    ["/user/username/"
     {:swagger {:tags ["update username"]}
      :put {:summary "updates a username"
@@ -216,4 +217,4 @@
             :interceptors [(muuntaja/format-interceptor muuntaja-instance)
                            (parameters/parameters-interceptor)
                            (verify-webhook-signature)]
-            :handler ports.http-in/handler-post-webhook}}]])
+            :handler ports.http-in/handler-webhook}}]])

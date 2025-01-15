@@ -267,11 +267,12 @@
 
 (refx/reg-event-db
  :app.dashboard/set-new-username
- (fn [[_ username-to-save {:keys [current-user]}]]
+ (fn [{{:keys [current-user]} :db} [_ username-to-save]]
+   (js/console.log username-to-save current-user)
    (let [access-token (:access-token current-user)]
      {:http {:url (str "user/username/")
              :method :put
              :headers {"authorization" (str "Bearer " access-token)}
              :body {:username username-to-save}
              :on-success [:app.dashboard/toggle-settings]
-             :on-failure []}})))
+             :on-failure [:app.dashboard/toggle-settings]}})))

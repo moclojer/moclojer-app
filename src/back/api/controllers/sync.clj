@@ -152,7 +152,7 @@
                                    {:github-api-url github-api-url
                                     :app-id app-id
                                     :private-key private-key})}))
-    (logs/log :info "sim"
+    (logs/log :info "body of pull request"
               :ctx (merge ctx {:pull-body @res}))
     @res))
 

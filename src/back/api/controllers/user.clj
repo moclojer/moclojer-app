@@ -21,11 +21,14 @@
   [id database ctx]
   (db.customers/get-by-external-id id database ctx))
 
-(defn edit-user! [user-id username database ctx]
-  (-> {:customer/uuid user-id}
-      (logic.customers/add-username username)
-      (db.customers/update! database ctx)
-      (adapter.customers/->wire)))
+(defn edit-user!
+  ([user-id username database ctx]
+   (edit-user! user-id username nil database ctx))
+  ([user-id username install-id database ctx]
+   (-> {:customer/uuid user-id}
+       (logic.customers/edit-user username install-id)
+       (db.customers/update! database ctx)
+       (adapter.customers/->wire))))
 
 (defn get-users-by-org-id
   [org-id {:keys [database]} ctx]
@@ -33,7 +36,7 @@
             :ctx (assoc ctx :org-id org-id))
   (map adapter.customers/->wire (db.customers/get-by-org-id org-id database ctx)))
 
-(defn get-user-by-username
+(defn get-by-username
   [username {:keys [database]} ctx]
   (logs/log :info "retrieving user by its username"
             :ctx (merge ctx {:username username}))
@@ -56,11 +59,11 @@
                        :value (assoc ctx :email email)}))))
 
 (defn enable-sync
-  "Updates org install id field"
+  "Updates user install id field"
   [install_id user {:keys [database]} ctx]
   (logs/log :info "enabling git sync"
-            :ctx (merge ctx {:id user}))
-  (let [org (assoc user :git-install-id install_id)]
-    (-> (logic.customers/update-install-id user install_id)
-        (db.customers/update! database ctx)
-        (adapter.customers/->wire))))
+            :ctx (merge ctx {:user user}))
+  (-> user
+      (logic.customers/edit-user (:customer/username user) install_id)
+      (db.customers/update! database ctx)
+      (adapter.customers/->wire)))

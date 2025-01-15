@@ -24,12 +24,10 @@
     ($ modal
        {:title "Settings"
         :open? is-settings-open?
-        :on-close #(do
-                     (refx/dispatch-sync [:app.dashboard/toggle-settings]))
+        :on-close #(refx/dispatch-sync [:app.dashboard/toggle-settings])
         :children
         (d/div
          {:class "w-screen md:w-[600px] p-6 gap-4"}
-         (js/console.log username)
          (d/div {:class "grid grid-cols-4 grid-rows-8 gap-2"}
                 (d/div {:class "row-span-1"}
                        (d/div {:class (str "col-span-1 rounded-md hover:bg-gray-100 transition-all duration-75 "
@@ -61,13 +59,12 @@
                                    :on-submit (fn [e]
                                                 (.preventDefault e)
                                                 (when (and (not-empty username-to-save) available?)
-                                                  (refx/dispatch [:app.dashboard/set-new-username])))}
+                                                  (refx/dispatch [:app.dashboard/set-new-username username-to-save])))}
                                   (d/div {:class  "w-[calc(100%)]"}
                                          ($ input {:label "Edit Username"
                                                    :on-change (fn [e]
                                                                 (.preventDefault e)
-                                                                (refx/dispatch-sync [:app.auth/username-available?
-                                                                                     (.. e -target -value)]))
+                                                                (refx/dispatch-sync [:app.auth/username-available? (.. e -target -value)]))
                                                    :placeholder username})
                                          (d/p {:class "text-sm select-none "}
                                               (str "<" username ">.moclojer.com")))

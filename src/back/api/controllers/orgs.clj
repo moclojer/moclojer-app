@@ -75,11 +75,10 @@
       (db.orgs/delete-user! database ctx))
   true)
 
-(defn get-org-by-slug
+(defn get-by-slug
   [slug {:keys [database]} ctx]
   (logs/log :info "retrieving org by its slug"
-            (merge ctx {:slug slug
-                        :db database}))
+            (merge ctx {:slug slug}))
   (or (-> (db.orgs/get-by-slug slug database)
           (adapter.orgs/->wire))
       (throw (ex-info "No organization with given slug was found"
@@ -91,6 +90,8 @@
   "Updates org install id field"
   [install_id org {:keys [database]} ctx]
   (logs/log :info "enabling git sync"
-            :ctx (merge ctx {:id org}))
-  (let [org (assoc org :git-install-id install_id)]
-    (update-org! org database ctx)))
+            :ctx (merge ctx {:org org}))
+  (-> org
+      (logic.orgs/enable-sync install_id)
+      (adapter.orgs/->wire)
+      (update-org! database ctx)))

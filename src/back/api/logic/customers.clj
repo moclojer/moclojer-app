@@ -12,17 +12,16 @@
 ;; since sub-domains are the ones we worry about separating
 ;; with `-`, the username shouldn't have `-`s, or it will clash
 ;; with the sub-domains. This is why we remove them.
-(defn add-username
-  [user username]
-  (assoc user :customer/username (str/replace (slugify username) #"-" "")))
-
+(defn edit-user
+  ([user username]
+   (assoc user :customer/username (str/replace (slugify username) #"-" "")))
+  ([user username install-id]
+   (assoc user
+          :customer/username (str/replace (slugify username) #"-" "")
+          :customer/git-install-id install-id)))
 (defn exists?
   [users id]
   (some? (seq (filter #(= (str (:uuid %)) (str id)) users))))
-
-(defn update-install-id
-  [user install-id]
-  (assoc user :customer/git-install-id install-id))
 
 (comment
   (exists? [{:uuid 123}] 123)
@@ -30,3 +29,4 @@
   (exists? [{:uuid 123}] 1234)
   ;; => false
   )
+

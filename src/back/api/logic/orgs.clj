@@ -33,3 +33,6 @@
 
 (defn ->db-delete [{:keys [id]}]
   {:org/id (parse-uuid (str id))})
+
+(defn enable-sync [org install-id]
+  (assoc org {:org/git-install-id install-id}))
