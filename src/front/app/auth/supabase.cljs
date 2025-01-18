@@ -8,9 +8,10 @@
 
 (goog-define SUPABASE_URL "")
 (goog-define SUPABASE_TOKEN "")
-(goog-define SUPABASE_OAUTH_REDIRECT "http://localhost:8200/#/first-login")
 (when-not (every? not-empty [SUPABASE_URL SUPABASE_TOKEN])
   (throw (js/Error. "SUPABASE_URL or SUPABASE_TOKEN weren't defined")))
+
+(goog-define SUPABASE_OAUTH_REDIRECT "")
 (goog-define SUPABASE_REDIRECT "http://localhost:8200/#/")
 
 (defn create-client
@@ -36,8 +37,8 @@
 (defn signin-with-oauth [^js client provider]
   (let [auth (.-auth client)
         options (clj->js
-                 {:provider (clj->js provider)
-                  :options {:redirect-to SUPABASE_OAUTH_REDIRECT}})]
+                 {:provider provider
+                  :options (clj->js {:redirect-to SUPABASE_OAUTH_REDIRECT})})]
     (.signInWithOAuth auth options)))
 
 (defn sign-out [dispatch-fn-logout]

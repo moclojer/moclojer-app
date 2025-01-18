@@ -1,5 +1,6 @@
 (ns back.api.logic.mocks
   (:require
+   [back.api.utils :refer [assoc-if]]
    [camel-snake-kebab.core :as csk]
    [clojure.java.io :as io]
    [clojure.string :as str]))
@@ -91,10 +92,10 @@
 
 (defn update
   [mock {:keys [content sha]}]
-  (-> (assoc mock
-             :mock/content content
-             :mock/sha sha)
-      (select-keys [:mock/id :mock/content])))
+  (-> mock
+      (assoc-if :mock/content content)
+      (assoc-if :mock/sha sha)
+      (select-keys [:mock/id :mock/content :mock/sha])))
 
 (defn publish [mock]
   (assoc mock :mock/enabled true))

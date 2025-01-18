@@ -60,9 +60,8 @@
                  (d/form {:disabled loading?
                           :on-submit (fn [e]
                                        (.preventDefault e)
-                                       (if (:email state)
-                                         (refx/dispatch [:app.auth/send-email state])
-                                         (refx/dispatch [:app.auth/send-oauth state])))
+                                       (when (:email state)
+                                         (refx/dispatch [:app.auth/send-email state])))
                           :class "mt-8 space-y-8 "}
 
                          (d/div
@@ -96,8 +95,7 @@
                                    :class "flex justify-center flex-col items-center w-8 h-8 lg:w-6 lg:h-6"
                                    :on-click (fn [e]
                                                (.preventDefault e)
-                                               (set-state assoc :provider "github")
-                                               (set-state dissoc :email))}
+                                               (refx/dispatch [:app.auth/send-oauth (assoc state :provider "github")]))}
                            (d/div {:class "flex text-gray-400 "}
                                   ($ github))))
 

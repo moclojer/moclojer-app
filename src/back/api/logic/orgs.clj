@@ -1,5 +1,7 @@
 (ns back.api.logic.orgs
-  (:require [slugify.core :refer [slugify]]))
+  (:require
+   [back.api.utils :refer [assoc-if]]
+   [slugify.core :refer [slugify]]))
 
 (defn create
   [{:keys [id orgname]}]
@@ -34,5 +36,6 @@
 (defn ->db-delete [{:keys [id]}]
   {:org/id (parse-uuid (str id))})
 
-(defn enable-sync [org install-id]
-  (assoc org {:org/git-install-id install-id}))
+(defn edit-org [org install-id]
+  (-> org
+      (assoc-if :org/git-install-id install-id)))

@@ -15,10 +15,14 @@
    [refx.alpha :as refx]))
 
 (defn settings-modal []
-  (let [is-settings-open? (refx/use-sub [:app.dashboard/is-settings-open?])
+  (let [current-user (refx/use-sub [:app.auth/current-user])
+        is-settings-open? (refx/use-sub [:app.dashboard/is-settings-open?])
         [setting set-setting] (hooks/use-state {:view "user"})
         user-orgs (refx/use-sub [:app.user/orgs])
-        username (:user_name (:user_metadata  (:user (refx/use-sub [:app.auth/current-user]))))
+        username (-> current-user
+                     :user
+                     :user_metadata
+                     :user_name)
         username-to-save  (refx/use-sub [:app.auth/username-to-save])
         available? (refx/use-sub [:app.auth/is-username-available?])]
     ($ modal
@@ -77,10 +81,17 @@
                                             "Update"))))
 
                          (= (:view setting) "orgs")
-                         (d/p "Work in Progress"
-                              user-orgs)
+                         (do
+                           (d/div
+                            (d/p "Work in Progress")
+                            (if (> (count user-orgs) 1)
+                              (doseq [org user-orgs]
+                                (d/p org)))
+                            (d/p user-orgs)))
+
                          (= (:view setting) "mocks")
-                         (d/p "Work in Progress")
+                         (d/div
+                          (d/p "Work in Progress"))
                          :else
                          (set-setting assoc :view "user")))))})))
 

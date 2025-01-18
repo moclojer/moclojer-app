@@ -122,19 +122,6 @@
                       {:status (:status response)
                        :body (:body response)})))))
 
-(defn get-git-user-email
-  [install-id user {:keys [github-api-url app-id private-key]}]
-  (let [gh-client (create-github-client github-api-url app-id private-key)
-        response (gh-app/request gh-client install-id  :get
-                                 (format "%s/installations/%s/access_tokens" github-api-url install-id)
-                                 {})]
-    (if (#{200 201} (:status response))
-      (if-let [content (-> response
-                           :body)]
-        content)
-      (throw (ex-info "Failed to retrieve file"
-                      {:status (:status response)
-                       :body (:body response)})))))
 
 (defn pull!
   "Uses installation-id to auth as a github app 
@@ -153,7 +140,7 @@
                                     :app-id app-id
                                     :private-key private-key})}))
     (logs/log :info "body of pull request"
-              :ctx (merge ctx {:pull-body @res}))
+              :ctx (assoc ctx :pull-body @res))
     @res))
 
 (defn push!
@@ -201,6 +188,5 @@
                     "f75173c5f3acc456c61d8edcc2d47f6c0d7aef9d"
                     {:github-api-url "https://api.github.com"
                      :app-id app-id
-                     :private-key private-key})
+                     :private-key private-key}))
 
-  (get-git-user-email install-id user {:github-api-url "https://api.github.com" :app-id app-id :private-key private-key}))

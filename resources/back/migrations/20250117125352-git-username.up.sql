@@ -1,0 +1,5 @@
+ALTER TABLE org ADD COLUMN git_username UNIQUE VARCHAR(255);
+
+--;;
+
+ALTER TABLE customer ADD COLUMN git_username UNIQUE VARCHAR(255);

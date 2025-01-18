@@ -102,7 +102,9 @@
   [domain retrying? rm-ongoing-fn {:keys [config mq] :as components} ctx]
 
   (logs/log :info "verifying domain (providers)"
-            :ctx (merge ctx {:domain domain :retrying? retrying?}))
+            :ctx (assoc ctx
+                        :domain domain
+                        :retrying? retrying?))
 
   (let [{:keys [cf-records do-spec]} (logic.cloud/remove-existing-data
                                       (get-current-data components ctx)

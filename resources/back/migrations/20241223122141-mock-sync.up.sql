@@ -1,7 +1,8 @@
-ALTER TABLE mock ADD COLUMN git_repo VARCHAR(255);
+ALTER TABLE mock ADD COLUMN git_repo VARCHAR(255) CHECK (git_repo ~ '^https?://github\.com/.*\.git$');
+CREATE INDEX idx_mock_git_repo ON mock(git_repo);
 
 --;;
 
-ALTER TABLE mock ADD COLUMN sha VARCHAR(255);
+ALTER TABLE mock ADD COLUMN sha CHAR(40) CHECK (sha ~ '^[0-9a-f]{40}$');
 
 --;;

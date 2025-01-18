@@ -15,7 +15,8 @@
    [:uuid string?]
    [:email string?]
    [:username {:optional true} string?]
-   [:git-install-id {:optional true} integer?]])
+   [:git-install-id {:optional true} integer?]
+   [:git-username {:optional true} string?]])
 
 (def Users
   [:vector User])

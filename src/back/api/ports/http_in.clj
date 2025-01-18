@@ -219,17 +219,17 @@
   [{:keys [headers parameters components ctx]}]
   (let [body (:body parameters)
         event-type (get headers "x-github-event")
-        installation-id (get-in body [:installation :id])
-        response {}]
+        installation-id (get-in body [:installation :id])]
+
     (logs/log :info "Webhook received"
-              :ctx (merge ctx {:event-type event-type}))
+              :ctx (assoc ctx :event-type event-type))
     (cond
       (nil? installation-id)
-      (assoc response
-             :status 401
-             :body {:message "Forbidden"})
+      {:status 401
+       :body {:message "Forbidden"}}
       (= event-type "push")
-      (let [repo (:repository body)
+      (let [response {}
+            repo (:repository body)
             head-commit (:head_commit body)
             slug (str/replace (slugify (get-in repo [:owner :name])) #"-" "")
             repo-name (:name repo)
@@ -248,7 +248,7 @@
         (if-not (nil? (:uuid (if org? org user)))
           (do
             (logs/log :info "sim"
-                      :ctx (merge ctx {:mocks mocks}))
+                      :ctx (assoc ctx :mocks mocks))
             (doseq [[mock-content sha] mocks]
               (let [mock-id (controllers.mocks/get-mocks {:uuid (if org? org user)
                                                           :username slug}
@@ -270,7 +270,7 @@
             org? (not (nil? (:orgname org)))
             user (when-not org? (controllers.user/get-by-username slug components ctx))]
         (logs/log :info (str slug)
-                  :ctx (merge ctx {:id (if org? org user)}))
+                  :ctx (assoc ctx :id (if org? org user)))
         (if-not (nil? (:uuid (if org? org user)))
           (assoc response
                  :status 200

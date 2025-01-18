@@ -26,7 +26,8 @@
    (edit-user! user-id username nil database ctx))
   ([user-id username install-id database ctx]
    (-> {:customer/uuid user-id}
-       (logic.customers/edit-user username install-id)
+       (db.customers/get-by-id database ctx)
+       (logic.customers/edit-user {:username username :install-id install-id})
        (db.customers/update! database ctx)
        (adapter.customers/->wire))))
 
@@ -39,7 +40,7 @@
 (defn get-by-username
   [username {:keys [database]} ctx]
   (logs/log :info "retrieving user by its username"
-            :ctx (merge ctx {:username username}))
+            :ctx (assoc ctx :username username))
   (or (-> (db.customers/get-by-username username database ctx)
           (adapter.customers/->wire))
       (throw (ex-info "No user with given username was found"
@@ -50,7 +51,7 @@
 (defn get-user-by-email
   [email {:keys [database]} ctx]
   (logs/log :info "retrieving user by its email"
-            :ctx (merge ctx {:email email}))
+            :ctx (assoc ctx :email email))
   (or (-> (db.customers/get-by-email email database ctx)
           (adapter.customers/->wire))
       (throw (ex-info "No user with given email was found"
@@ -60,10 +61,15 @@
 
 (defn enable-sync
   "Updates user install id field"
-  [install_id user {:keys [database]} ctx]
+  [install-id user {:keys [database]} ctx]
   (logs/log :info "enabling git sync"
-            :ctx (merge ctx {:user user}))
-  (-> user
-      (logic.customers/edit-user (:customer/username user) install_id)
-      (db.customers/update! database ctx)
-      (adapter.customers/->wire)))
+            :ctx (assoc ctx :user user))
+  (if (:customer/git-username user)
+    (-> user
+        (logic.customers/edit-user {:install-id install-id})
+        (db.customers/update! database ctx)
+        (adapter.customers/->wire))
+    (throw (ex-info "Could not enable git sync"
+                    {:status-code 412
+                     :cause :invalid-email
+                     :value (assoc ctx :user user)}))))

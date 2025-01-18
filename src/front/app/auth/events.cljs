@@ -1,6 +1,5 @@
 (ns front.app.auth.events
   (:require
-
    [front.app.auth.db :as auth.db]
    [front.app.auth.effects]
    [front.app.http]
@@ -186,23 +185,42 @@
                 :login-error nil
                 :login-loading? true)}))
 
+(refx/reg-event-db
+ :app.auth/success-oauth
+ (fn
+   [db [_ {:keys [body]}]]
+   (let [user (:user body)
+         current-user (-> (:current-user db)
+                          (assoc-in [:user :valid-user] true)
+                          (assoc-in [:user :user-id] (get user :uuid))
+                          (assoc-in [:user :git-username] (get-in user [:user_metadata :user_name]))
+                          (assoc-in [:user :username] (get-in user [:user_metadata :user_name])))]
+     (prn user)
+     (set-current-user-cookie! current-user)
+     (prn current-user "current-user")
+     (-> db
+         (assoc
+          :login-loading? false
+          :current-user current-user)))))
+
 (refx/reg-event-fx
  :app.auth/send-oauth
  (fn
-   [{db :db} [_ provider]]
-   {:oauth {:provider (:provider provider)
-            :on-failure [:app.auth/send-email-error]}
-    :db  (assoc db
-                :login-error nil
-                :login-loading? true)}))
+   [{db :db} [_ state]]
+   {:oauth {:body state
+            :on-success [:app.auth/success-oauth]
+            :on-failure [:app.auth/failed-save-user]}
+    :db (assoc db
+               :login-error nil
+               :login-loading? true)}))
 
 (refx/reg-event-db
  :app.auth/send-email-again
  (fn
    [db _]
-   (-> db
-       (assoc :login-loading? false)
-       (assoc :login-email-sent nil))))
+   (assoc db
+          :login-loading? false
+          :login-email-sent nil)))
 
 (refx/reg-event-fx
  :app.auth/logout

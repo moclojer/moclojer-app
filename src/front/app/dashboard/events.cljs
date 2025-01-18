@@ -269,10 +269,11 @@
  :app.dashboard/set-new-username
  (fn [{{:keys [current-user]} :db} [_ username-to-save]]
    (js/console.log username-to-save current-user)
-   (let [access-token (:access-token current-user)]
-     {:http {:url (str "user/username/")
-             :method :put
+   (let [access-token (:access-token current-user)
+         user-id (:user_id (:user current-user))]
+     {:http {:url (str "user/" user-id)
+             :method :post
              :headers {"authorization" (str "Bearer " access-token)}
              :body {:username username-to-save}
-             :on-success [:app.dashboard/toggle-settings]
-             :on-failure [:app.dashboard/toggle-settings]}})))
+             :on-success []
+             :on-failure []}})))

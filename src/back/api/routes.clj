@@ -7,15 +7,8 @@
    [back.api.ports.http-in :as ports.http-in]
    [back.api.schemas.wire-in :as schemas.wire-in]
    [back.api.schemas.wire-out :as schemas.wire-out]
-   [reitit.http.interceptors.muuntaja :as muuntaja]
    [reitit.http.interceptors.parameters :as parameters]
-   [muuntaja.core :as m]
    [reitit.swagger :as swagger]))
-
-(def muuntaja-instance
-  (m/create
-   (assoc m/default-options
-          :default-format "application/json")))
 
 (def routes
   [["/swagger.json"
@@ -81,15 +74,6 @@
                           (extract-user-interceptor)]
            :responses {200 {:body schemas.wire-out/Available}}
            :handler ports.http-in/handler-username-available?}}]
-
-   ["/user/username/"
-    {:swagger {:tags ["update username"]}
-     :put {:summary "updates a username"
-           :parameters {:body schemas.wire-in/userUpdate}
-           :interceptors [(error-handler-interceptor)
-                          (extract-user-interceptor)]
-           :responses {200 {:body schemas.wire-in/userUpdate}}
-           :handler ports.http-in/edit-user!}}]
 
    ["/orgs"
     {:get {:summary "Get orgs user is in"
@@ -214,7 +198,6 @@
    ["/webhook"
     {:post {:summary "Handles a webhook"
             :parameters {:body map?}
-            :interceptors [(muuntaja/format-interceptor muuntaja-instance)
-                           (parameters/parameters-interceptor)
+            :interceptors [(parameters/parameters-interceptor)
                            (verify-webhook-signature)]
             :handler ports.http-in/handler-webhook}}]])

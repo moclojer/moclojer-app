@@ -10,10 +10,9 @@
 (defn create-mock!
   [user-id mock {:keys [database mq]} ctx]
   (logs/log :info "creating mock"
-            :ctx (merge ctx
-                        ()
-                        {:mock mock
-                         :user-id user-id}))
+            :ctx (assoc ctx
+                        :mock mock
+                        :user-id user-id))
   (let [owner (assoc {:user-id (parse-uuid (str user-id))}
                      :org-id (parse-uuid (str (:org-id mock))))
         ?existing-mock (-> (select-keys mock [:wildcard :subdomain])
@@ -68,8 +67,9 @@
 (defn get-mocks
   [{:keys [uuid username]} {:keys [database]} ctx]
   (logs/log :info "retrieving mocks"
-            :ctx (merge ctx {:user/uuid uuid
-                             :user/username username}))
+            :ctx (assoc ctx
+                        :user/uuid uuid
+                        :user/username username))
   (logic.mocks/group
    (->> (db.mocks/get-mocks (parse-uuid (str uuid)) database ctx)
         (map adapter.mocks/->wire))
