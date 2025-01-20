@@ -193,11 +193,11 @@
          current-user (-> (:current-user db)
                           (assoc-in [:user :valid-user] true)
                           (assoc-in [:user :user-id] (get user :uuid))
-                          (assoc-in [:user :git-username] (get-in user [:user_metadata :user_name]))
-                          (assoc-in [:user :username] (get-in user [:user_metadata :user_name])))]
+                          (assoc-in [:user :git-username] "Felipe-gsilva")
+                          (assoc-in [:user :username] "Felipe-gsilva"))]
      (prn user)
      (set-current-user-cookie! current-user)
-     (prn current-user "current-user")
+     (refx/dispatch [:app.auth/save-username (get-in user [:raw_user_meta_data :user_name])])
      (-> db
          (assoc
           :login-loading? false

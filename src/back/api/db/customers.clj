@@ -57,6 +57,17 @@
        ((db.utils/build-execute-with-ctx db ctx))
        first)))
 
+(defn get-by-git-username
+  ([git-username db]
+   (get-by-git-username git-username db {}))
+  ([git-username db ctx]
+   (-> (sql.helpers/select :*)
+       (sql.helpers/from :customer)
+       (sql.helpers/where [:= :git_username git-username])
+       sql/format
+       ((db.utils/build-execute-with-ctx db ctx))
+       first)))
+
 (defn get-by-username
   ([username db]
    (get-by-username username db {}))

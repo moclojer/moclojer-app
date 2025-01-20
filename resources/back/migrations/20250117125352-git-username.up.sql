@@ -1,4 +1,4 @@
-ALTER TABLE org ADD COLUMN git_username UNIQUE VARCHAR(255);
+ALTER TABLE org ADD COLUMN git_orgname UNIQUE VARCHAR(255);
 
 --;;
 

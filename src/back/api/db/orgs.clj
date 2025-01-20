@@ -25,6 +25,17 @@
        ((db.utils/build-execute-with-ctx db ctx))
        first)))
 
+(defn get-by-git-orgname
+  ([git-orgname db]
+   (get-by-git-orgname git-orgname db {}))
+  ([git-orgname db ctx]
+   (-> (sql.helpers/select :*)
+       (sql.helpers/from :org)
+       (sql.helpers/where [:= :git_orgname git-orgname])
+       sql/format
+       ((db.utils/build-execute-with-ctx db ctx))
+       first)))
+
 (defn get-by-slug
   ([slug db]
    (get-by-slug slug db {}))

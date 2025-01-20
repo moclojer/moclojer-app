@@ -77,6 +77,17 @@
       (db.orgs/delete-user! database ctx))
   true)
 
+(defn get-by-git-orgname
+  [git-orgname {:keys [database]} ctx]
+  (logs/log :info "retrieving org by its git_orgname"
+            (assoc ctx :git_orgname git-orgname))
+  (or (-> (db.orgs/git-orgname git-orgname database ctx)
+          (adapter.orgs/->wire))
+      (throw (ex-info "No organization with given git_orgname was found"
+                      {:status-code 412
+                       :cause :invalid-git_orgname
+                       :value git-orgname}))))
+
 (defn get-by-slug
   [slug {:keys [database]} ctx]
   (logs/log :info "retrieving org by its slug"

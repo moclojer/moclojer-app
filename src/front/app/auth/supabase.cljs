@@ -11,7 +11,7 @@
 (when-not (every? not-empty [SUPABASE_URL SUPABASE_TOKEN])
   (throw (js/Error. "SUPABASE_URL or SUPABASE_TOKEN weren't defined")))
 
-(goog-define SUPABASE_OAUTH_REDIRECT "")
+(goog-define SUPABASE_OAUTH_REDIRECT "http://localhost:8200/#/")
 (goog-define SUPABASE_REDIRECT "http://localhost:8200/#/")
 
 (defn create-client

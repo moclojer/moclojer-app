@@ -37,6 +37,17 @@
             :ctx (assoc ctx :org-id org-id))
   (map adapter.customers/->wire (db.customers/get-by-org-id org-id database ctx)))
 
+(defn get-by-git-username
+  [git_username {:keys [database]} ctx]
+  (logs/log :info "retrieving user by its git_username"
+            :ctx (assoc ctx :git_username git_username))
+  (or (-> (db.customers/get-by-git-username git_username database ctx)
+          (adapter.customers/->wire))
+      (throw (ex-info "No user with given git_username was found"
+                      {:status-code 412
+                       :cause :invalid-git_username
+                       :value (assoc ctx :git_username git_username)}))))
+
 (defn get-by-username
   [username {:keys [database]} ctx]
   (logs/log :info "retrieving user by its username"
