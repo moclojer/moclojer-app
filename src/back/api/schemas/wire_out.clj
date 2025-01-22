@@ -152,7 +152,8 @@
    [:id string?]
    [:slug string?]
    [:orgname string?]
-   [:git-install-id {:optional true} integer?]])
+   [:git-install-id {:optional true} integer?]
+   [:git-orgname {:optional true} string?]])
 
 (def OrgWithUsers
   [:map
@@ -160,7 +161,8 @@
    [:slug string?]
    [:orgname string?]
    [:users [:vector User]]
-   [:git-install-id {:optional true} integer?]])
+   [:git-install-id {:optional true} integer?]
+   [:git-orgname {:optional true} string?]])
 
 (def OrgsWithUsers
   [:vector OrgWithUsers])

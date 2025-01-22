@@ -1,5 +1,4 @@
 ALTER TABLE mock ADD COLUMN git_repo VARCHAR(255) CHECK (git_repo ~ '^https?://github\.com/.*\.git$');
-CREATE INDEX idx_mock_git_repo ON mock(git_repo);
 
 --;;
 

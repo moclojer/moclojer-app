@@ -189,15 +189,15 @@
  :app.auth/success-oauth
  (fn
    [db [_ {:keys [body]}]]
-   (let [user (:user body)
+   (let [code (:code body)
+         n (:next body)
          current-user (-> (:current-user db)
                           (assoc-in [:user :valid-user] true)
-                          (assoc-in [:user :user-id] (get user :uuid))
+                          #_(assoc-in [:user :user-id] (get code :uuid))
                           (assoc-in [:user :git-username] "Felipe-gsilva")
                           (assoc-in [:user :username] "Felipe-gsilva"))]
-     (prn user)
+     (js/console.log code n)
      (set-current-user-cookie! current-user)
-     (refx/dispatch [:app.auth/save-username (get-in user [:raw_user_meta_data :user_name])])
      (-> db
          (assoc
           :login-loading? false

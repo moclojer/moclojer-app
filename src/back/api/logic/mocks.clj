@@ -90,12 +90,17 @@
 (defn disable [mock]
   (assoc mock :mock/enabled false))
 
-(defn update
-  [mock {:keys [content sha]}]
+(defn update-sha
+  [mock sha]
   (-> mock
-      (assoc-if :mock/content content)
-      (assoc-if :mock/sha sha)
-      (select-keys [:mock/id :mock/content :mock/sha])))
+      (assoc :mock/sha sha)
+      (select-keys [:mock/id :mock/sha])))
+
+(defn update-content
+  [mock content]
+  (-> mock
+      (assoc :mock/content content)
+      (select-keys [:mock/id :mock/content])))
 
 (defn publish [mock]
   (assoc mock :mock/enabled true))

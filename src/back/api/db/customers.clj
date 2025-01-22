@@ -2,13 +2,14 @@
   (:require [back.api.db.utils :as db.utils]
             [honey.sql :as sql]
             [honey.sql.helpers :as sql.helpers]))
+(defn inspect [a] (prn "ai mds " a) a)
 
 (defn insert!
   ([user db]
    (insert! user db {}))
   ([user db ctx]
    (-> (sql.helpers/insert-into :customer)
-       (sql.helpers/values [user])
+       (sql.helpers/values [(inspect user)])
        (sql.helpers/returning :*)
        sql/format
        ((db.utils/build-execute-with-ctx db ctx))

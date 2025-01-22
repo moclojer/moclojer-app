@@ -9,12 +9,11 @@
    [:subdomain string?]
    [:wildcard string?]
    [:enabled boolean?]
-   [:content {:optional true} string?]
-   [:git-repo {:optional true} string?]
-   [:sha {:optional true} string?]])
+   [:content {:optional true} string?]])
 
 (def MockCreate
-  (conj Mock [:org-id {:optional true} string?]))
+  (conj Mock
+        [:org-id {:optional true} string?]))
 
 (def MockUpdate
   [:map
@@ -32,10 +31,10 @@
 
 (def OrgUpdate
   [:map
-   [:orgname string?]
+   [:orgname {:optional true} string?]
    [:git-install-id {:optional true} integer?]])
 
 (def userUpdate
   [:map
-   [:username string?]
+   [:username {:optional true} string?]
    [:git-install-id {:optional true} integer?]])

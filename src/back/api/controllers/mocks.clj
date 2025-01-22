@@ -40,25 +40,17 @@
       (empty?)))
 
 (defn update-mock!
-  ([id content components ctx]
-   (update-mock! id content nil components ctx))
-  ([id content sha {:keys [database mq]} ctx]
+  ([id content {:keys [database mq]} ctx]
    (if-let [mock (db.mocks/get-mock-by-id id database ctx)]
      (let [updated-mock (-> mock
-                            (logic.mocks/update {:content content
-                                                 :sha sha})
+                            (logic.mocks/update-content content)
                             (db.mocks/update! database ctx)
                             (adapter.mocks/->wire))
            ->wired-old-mock (adapter.mocks/->wire mock)]
-
        (ports.producers/generate-single-yml! (:id updated-mock) mq ctx)
-
        (when (and (= (:dns-status ->wired-old-mock) "offline")
                   (:enabled ->wired-old-mock))
-         (ports.producers/create-domain! (logic.mocks/pack-domain ->wired-old-mock)
-                                         mq
-                                         ctx))
-
+         (ports.producers/create-domain! (logic.mocks/pack-domain ->wired-old-mock) mq ctx))
        updated-mock)
      (throw (ex-info "Mock with given id invalid"
                      {:status-code 412

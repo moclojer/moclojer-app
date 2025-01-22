@@ -6,13 +6,11 @@
    [back.api.controllers.orgs :as controllers.orgs]
    [back.api.controllers.user :as controllers.user]
    [back.api.controllers.sync :as controllers.sync]
-   [back.api.db.customers :as db.customers]
    [back.api.logic.customers :as logic.users]
    [back.api.logic.orgs :as logic.orgs]
    [back.api.utils :as utils]
    [clojure.string :as str]
-   [com.moclojer.components.logs :as logs]
-   [slugify.core :refer [slugify]]))
+   [com.moclojer.components.logs :as logs]))
 
 (defn handler-create-user!
   [{{{:keys [access-token]} :body} :parameters
@@ -64,7 +62,7 @@
      :body {:mock (controllers.mocks/create-mock! user-id mock components ctx)}}))
 
 (defn handler-update-mock!
-  [{{{:keys [id content]} :body :as body} :parameters
+  [{{{:keys [id content git-repo sha]} :body} :parameters
     components :components
     ctx :ctx}]
   ;; TODO update push correctly
@@ -229,7 +227,7 @@
       (= event-type "push")
       (let [repo (:repository body)
             head-commit (:head_commit body)
-            slug (str/replace (slugify (get-in repo [:owner :name])) #"-" "")
+            git-slug (get-in repo [:owner :name])
             repo-name (:name repo)
             updated-files (into [] (concat
                                     (:modified head-commit)
@@ -238,18 +236,18 @@
                                          (str/includes? % "mocks/"))
                                    updated-files))
             pull-response (when mocks
-                            (controllers.sync/pull! installation-id slug repo-name mocks components ctx))
+                            (controllers.sync/pull! installation-id git-slug repo-name mocks components ctx))
             content (:content pull-response)
-            org (controllers.orgs/get-by-slug slug components ctx)
-            user (when (nil? (:orgname org)) (controllers.user/get-by-username slug components ctx))
-            org? (not (nil? (:orgname org)))]
+            org (controllers.orgs/get-by-git-org-name git-slug components ctx)
+            org? (not (nil? (:orgname org)))
+            user (when-not org? (controllers.user/get-by-git-username git-slug components ctx))]
         (if-not (nil? (:uuid (if org? org user)))
           (do
-            (logs/log :info "sim"
+            (logs/log :info "mocks"
                       :ctx (assoc ctx :mocks mocks))
             (doseq [[mock-content sha] mocks]
               (let [mock-id (controllers.mocks/get-mocks {:uuid (if org? org user)
-                                                          :username slug}
+                                                          :username git-slug}
                                                          components ctx)
                     decoded-mock (utils/decode mock-content)]
                 (controllers.mocks/update-mock! mock-id decoded-mock sha components ctx)))
@@ -260,7 +258,7 @@
            :body {:message "no org or user found"}}))
       (= event-type "installation")
       (let [git-slug (get-in body [:installation :account :login])
-            org (controllers.orgs/get-by-git-orgname git-slug components ctx)
+            org (controllers.orgs/get-by-git-org-name git-slug components ctx)
             org? (not (nil? (:orgname org)))
             user (when-not org? (controllers.user/get-by-git-username git-slug components ctx))]
         (logs/log :info (str git-slug)
@@ -271,7 +269,7 @@
                   :content (if org?
                              (controllers.orgs/enable-sync installation-id org components ctx)
                              (controllers.user/enable-sync installation-id user components ctx))}}
-          {:status 500
+          {:status 404
            :body {:message "no org or user found"}}))
       :else {:status 400
              :body {:message "Unhandled event type"}})))

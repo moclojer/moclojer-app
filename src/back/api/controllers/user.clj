@@ -45,7 +45,7 @@
           (adapter.customers/->wire))
       (throw (ex-info "No user with given git_username was found"
                       {:status-code 412
-                       :cause :invalid-git_username
+                       :cause :invalid-git-username
                        :value (assoc ctx :git_username git_username)}))))
 
 (defn get-by-username
