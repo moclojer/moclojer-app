@@ -78,15 +78,15 @@
   true)
 
 (defn get-by-git-org-name
-  [git-org-name {:keys [database]} ctx]
+  [git-orgname {:keys [database]} ctx]
   (logs/log :info "retrieving org by its git_orgname"
-            (assoc ctx :git_orgname git-org-name))
-  (or (-> (db.orgs/get-by-git-org-name git-org-name database ctx)
+            (assoc ctx :git-orgname git-orgname))
+  (or (-> (db.orgs/get-by-git-org-name git-orgname database ctx)
           (adapter.orgs/->wire))
-      (throw (ex-info "No organization with given git_orgname was found"
+      (throw (ex-info "No organization with given git-orgname was found"
                       {:status-code 412
                        :cause :invalid-git-org-name
-                       :value git-org-name}))))
+                       :value git-orgname}))))
 
 (defn get-by-slug
   [slug {:keys [database]} ctx]

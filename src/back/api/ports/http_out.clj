@@ -8,4 +8,4 @@
        {:base-url (-> config :config :supabase-url)
         :token token
         :api-key (-> config :config :supabase-api-key)})
-      (select-keys [:email :id])))
+      (select-keys [:email :id :user-metadata])))

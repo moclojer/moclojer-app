@@ -66,6 +66,7 @@
                                {:valid-user valid-user?
                                 :user-id (:uuid resp-user)
                                 :username (:username resp-user)
+                                :git-username (-> (:user old-user) :user_metadata :user_name)
                                 :email (:email resp-user)})
          current-user (-> old-user
                           (merge (:session db))
@@ -98,7 +99,7 @@
              :on-failure [:app.auth/failed-save-user]}
       :db  (assoc db
                   :login-loading? true
-                  ;; :current-user session
+                  :current-user session
                   :login-error nil)})))
 
 (refx/reg-event-fx
@@ -136,8 +137,8 @@
    (let [current-user (-> (:current-user db)
                           (assoc-in [:user :valid-user] true)
                           (assoc-in [:user :user-id] (-> body :user :uuid))
+                          (assoc-in [:user :email] (-> body :user :email))
                           (assoc-in [:user :username] (-> body :user :username)))]
-
      (set-current-user-cookie! current-user)
      (-> db
          (assoc
@@ -187,21 +188,8 @@
 
 (refx/reg-event-db
  :app.auth/success-oauth
- (fn
-   [db [_ {:keys [body]}]]
-   (let [code (:code body)
-         n (:next body)
-         current-user (-> (:current-user db)
-                          (assoc-in [:user :valid-user] true)
-                          #_(assoc-in [:user :user-id] (get code :uuid))
-                          (assoc-in [:user :git-username] "Felipe-gsilva")
-                          (assoc-in [:user :username] "Felipe-gsilva"))]
-     (js/console.log code n)
-     (set-current-user-cookie! current-user)
-     (-> db
-         (assoc
-          :login-loading? false
-          :current-user current-user)))))
+ (fn [db [_ {:keys [body]}]]
+   (assoc db :login-loading? false)))
 
 (refx/reg-event-fx
  :app.auth/send-oauth

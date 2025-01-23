@@ -25,7 +25,11 @@
 
 (defn send-oauth [{:keys [body on-success on-failure]}]
   (.log js/console :sending-oauth)
-  (-> (supabase/signin-with-oauth supabase/client (:provider body))
+  (-> (p/let [oauth-response (supabase/signin-with-oauth supabase/client (:provider body))
+              session (.getSession (.-auth supabase/client))]
+        (clj->js {:data {:user (-> session .-user)
+                         :session (-> session .-session)}
+                  :error nil}))
       (p/then #(handle-auth-response % on-success on-failure))
       (p/catch (fn [resp]
                  (js/console.log :resp resp)

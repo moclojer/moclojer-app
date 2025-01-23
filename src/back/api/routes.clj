@@ -62,8 +62,7 @@
      :get {:summary "Retrieve user by external id"
            :interceptors [(error-handler-interceptor)
                           (extract-user-interceptor)]
-           :responses {200 {:body {:user schemas.wire-out/User}}
-                       404 {}}
+           :responses {200 {:body {:user schemas.wire-out/User}}}
            :handler ports.http-in/handler-get-user-by-external-id}}]
 
    ["/user/username/:username"

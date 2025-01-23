@@ -9,6 +9,7 @@
    [back.api.logic.customers :as logic.users]
    [back.api.logic.orgs :as logic.orgs]
    [back.api.utils :as utils]
+   [back.api.db.customers :as db.customers]
    [clojure.string :as str]
    [com.moclojer.components.logs :as logs]))
 
@@ -259,10 +260,11 @@
       (= event-type "installation")
       (let [git-slug (get-in body [:installation :account :login])
             org (controllers.orgs/get-by-git-org-name git-slug components ctx)
-            org? (not (nil? (:orgname org)))
+            org? (not (nil? org))
             user (when-not org? (controllers.user/get-by-git-username git-slug components ctx))]
         (logs/log :info (str git-slug)
-                  :ctx (assoc ctx :id (if org? org user)))
+                  :ctx (assoc ctx
+                              :id (if org? org user)))
         (if-not (nil? (:uuid (if org? org user)))
           {:status 200
            :body {:message "Enabled Git Sync"

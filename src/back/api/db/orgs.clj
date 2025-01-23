@@ -26,12 +26,12 @@
        first)))
 
 (defn get-by-git-org-name
-  ([git-org-name db]
-   (get-by-git-org-name git-org-name db {}))
-  ([git-org-name db ctx]
+  ([git-orgname db]
+   (get-by-git-org-name git-orgname db {}))
+  ([git-orgname db ctx]
    (-> (sql.helpers/select :*)
        (sql.helpers/from :org)
-       (sql.helpers/where [:= :git_orgname git-org-name])
+       (sql.helpers/where [:= :git_orgname git-orgname])
        sql/format
        ((db.utils/build-execute-with-ctx db ctx))
        first)))
