@@ -26,7 +26,7 @@
     {:keys [database]} :components
     ctx :ctx}]
   {:status 200
-   :body {:user (controllers.user/edit-user! user-id username (when install-id install-id) database ctx)}})
+   :body {:user (controllers.user/edit-user! user-id username install-id database ctx)}})
 
 (defn handler-get-user
   [{{{:keys [id]} :path} :parameters

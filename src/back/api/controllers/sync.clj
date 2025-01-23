@@ -1,7 +1,6 @@
 (ns back.api.controllers.sync
   (:refer-clojure :exclude [ref])
   (:require
-   [com.moclojer.components.logs :as logs]
    [back.api.utils :as utils]
    [cheshire.core :as json]
    [clj-github-app.client :as gh-app]))
@@ -122,7 +121,6 @@
                       {:status (:status response)
                        :body (:body response)})))))
 
-
 (defn pull!
   "Uses installation-id to auth as a github app 
   and pull n files from a repo"
@@ -139,8 +137,6 @@
                                    {:github-api-url github-api-url
                                     :app-id app-id
                                     :private-key private-key})}))
-    (logs/log :info "body of pull request"
-              :ctx (assoc ctx :pull-body @res))
     @res))
 
 (defn push!

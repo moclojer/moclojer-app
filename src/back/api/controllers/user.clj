@@ -26,7 +26,6 @@
    (edit-user! user-id username nil database ctx))
   ([user-id username install-id database ctx]
    (-> {:customer/uuid user-id}
-       (db.customers/get-by-id database ctx)
        (logic.customers/edit-user {:username username :install-id install-id})
        (db.customers/update! database ctx)
        (adapter.customers/->wire))))

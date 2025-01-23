@@ -33,7 +33,6 @@
    :cleanup utils/stop-system!
    :fail-fast? true}
   (flow "setup a customer"
-
     [database (state-flow.api/get-state :database)]
 
     (state/invoke
