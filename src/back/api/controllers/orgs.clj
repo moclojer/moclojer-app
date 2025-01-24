@@ -77,7 +77,7 @@
       (db.orgs/delete-user! database ctx))
   true)
 
-(defn get-by-git-org-name
+(defn get-by-git-orgname
   [git-orgname {:keys [database]} ctx]
   (logs/log :info "retrieving org by its git_orgname"
             (assoc ctx :git-orgname git-orgname))
@@ -92,7 +92,7 @@
   [slug {:keys [database]} ctx]
   (logs/log :info "retrieving org by its slug"
             (assoc ctx :slug slug))
-  (or (-> (db.orgs/get-by-slug slug database)
+  (or (-> (db.orgs/get-by-slug slug database ctx)
           (adapter.orgs/->wire))
       (throw (ex-info "No organization with given slug was found"
                       {:status-code 412
@@ -105,6 +105,6 @@
   (logs/log :info "enabling git sync"
             :ctx (assoc ctx :org org))
   (-> org
-      (logic.orgs/edit-org {:install-id install-id})
+      (logic.orgs/edit-org install-id)
       (db.orgs/update! database ctx)
       (adapter.orgs/->wire)))

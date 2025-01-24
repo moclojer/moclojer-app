@@ -14,6 +14,7 @@
        ((db.utils/build-execute-with-ctx db ctx))
        first)))
 
+(defn inspect [a] (prn a) a)
 (defn update!
   ([user db]
    (update! user db {}))
@@ -23,6 +24,7 @@
        (sql.helpers/where [:= :uuid uuid])
        (sql.helpers/returning :*)
        sql/format
+       (inspect)
        ((db.utils/build-execute-with-ctx db ctx))
        first)))
 

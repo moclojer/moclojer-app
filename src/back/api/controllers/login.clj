@@ -9,13 +9,16 @@
   ([token  {:keys [database config]} ctx]
    (let [customer (http-out/supabase-get-user! token config)
          git-username (-> customer :user-metadata :user-name)
-         customer-saved (db.customers/get-by-external-id (parse-uuid (:id customer))
+         should-oauth (#{"github"} (-> customer :identities first :provider))
+         saved-customer (db.customers/get-by-external-id (parse-uuid (:id customer))
                                                          database
-                                                         ctx)]
-     (if customer-saved
-       (adapter.customers/->wire customer-saved)
+                                                         ctx)
+         customer (select-keys customer [:email :id])]
+     (if saved-customer
+       (adapter.customers/->wire saved-customer)
        (-> customer
            (logic.customers/create)
-           (utils/assoc-if :customer/git-username git-username)
+           (cond-> should-oauth
+             (assoc :customer/git-username git-username))
            (db.customers/insert! database ctx)
            (adapter.customers/->wire))))))

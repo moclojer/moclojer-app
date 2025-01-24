@@ -9,7 +9,6 @@
    [back.api.logic.customers :as logic.users]
    [back.api.logic.orgs :as logic.orgs]
    [back.api.utils :as utils]
-   [back.api.db.customers :as db.customers]
    [clojure.string :as str]
    [com.moclojer.components.logs :as logs]))
 
@@ -218,11 +217,11 @@
   [{:keys [headers parameters components ctx]}]
   (let [body (:body parameters)
         event-type (get headers "x-github-event")
-        installation-id (get-in body [:installation :id])]
+        install-id (get-in body [:installation :id])]
     (logs/log :info "Webhook received"
               :ctx (assoc ctx :event-type event-type))
     (cond
-      (nil? installation-id)
+      (nil? install-id)
       {:status 401
        :body {:message "Forbidden"}}
       (= event-type "push")
@@ -237,9 +236,9 @@
                                          (str/includes? % "mocks/"))
                                    updated-files))
             pull-response (when mocks
-                            (controllers.sync/pull! installation-id git-slug repo-name mocks components ctx))
+                            (controllers.sync/pull! install-id git-slug repo-name mocks components ctx))
             content (:content pull-response)
-            org (controllers.orgs/get-by-git-org-name git-slug components ctx)
+            org (controllers.orgs/get-by-git-orgname git-slug components ctx)
             org? (not (nil? (:orgname org)))
             user (when-not org? (controllers.user/get-by-git-username git-slug components ctx))]
         (if-not (nil? (:uuid (if org? org user)))
@@ -259,18 +258,18 @@
            :body {:message "no org or user found"}}))
       (= event-type "installation")
       (let [git-slug (get-in body [:installation :account :login])
-            org (controllers.orgs/get-by-git-org-name git-slug components ctx)
-            org? (not (nil? org))
-            user (when-not org? (controllers.user/get-by-git-username git-slug components ctx))]
-        (logs/log :info (str git-slug)
+            user  (controllers.user/get-by-git-username git-slug components ctx)
+            org nil #_(controllers.orgs/get-by-git-orgname git-slug components ctx)
+            org? false #_(not (nil? (:orgname org)))]
+        (logs/log :info  git-slug
                   :ctx (assoc ctx
                               :id (if org? org user)))
         (if-not (nil? (:uuid (if org? org user)))
           {:status 200
            :body {:message "Enabled Git Sync"
                   :content (if org?
-                             (controllers.orgs/enable-sync installation-id org components ctx)
-                             (controllers.user/enable-sync installation-id user components ctx))}}
+                             (controllers.orgs/enable-sync install-id org components ctx)
+                             (controllers.user/enable-sync install-id user components ctx))}}
           {:status 404
            :body {:message "no org or user found"}}))
       :else {:status 400

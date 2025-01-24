@@ -36,6 +36,6 @@
 (defn ->db-delete [{:keys [id]}]
   {:org/id (parse-uuid (str id))})
 
-(defn edit-org [org install-id]
-  (-> org
-      (assoc-if :org/git-install-id install-id)))
+(defn edit-org
+  [org install-id]
+  (assoc org :git-install-id install-id))

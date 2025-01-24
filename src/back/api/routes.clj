@@ -42,7 +42,7 @@
             :interceptors [(error-handler-interceptor)
                            (extract-user-interceptor)]
             :parameters {:path {:id uuid?}
-                         :body {:username string?}}
+                         :body schemas.wire-in/UserUpdate}
             :responses {200 {:body {:user schemas.wire-out/User}}}
             :handler ports.http-in/edit-user!}
      :get {:summary "Retrieve user"

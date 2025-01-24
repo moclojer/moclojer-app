@@ -26,7 +26,9 @@
    (edit-user! user-id username nil database ctx))
   ([user-id username install-id database ctx]
    (-> {:customer/uuid user-id}
-       (logic.customers/edit-user {:username username :install-id install-id})
+       (logic.customers/update-username username)
+       (cond-> install-id
+         (logic.customers/update-install-id install-id))
        (db.customers/update! database ctx)
        (adapter.customers/->wire))))
 
@@ -69,17 +71,18 @@
                        :cause :invalid-email
                        :value (assoc ctx :email email)}))))
 
+(defn inspect [a] (prn a) a)
+
 (defn enable-sync
   "Updates user install id field"
   [install-id user {:keys [database]} ctx]
   (logs/log :info "enabling git sync"
             :ctx (assoc ctx :user user))
-  (if (:customer/git-username user)
-    (-> user
-        (logic.customers/edit-user {:install-id install-id})
-        (db.customers/update! database ctx)
-        (adapter.customers/->wire))
-    (throw (ex-info "Could not enable git sync"
-                    {:status-code 412
-                     :cause :invalid-email
-                     :value (assoc ctx :user user)}))))
+  (or  (-> user
+           (logic.customers/update-install-id install-id)
+           (inspect)
+           (db.customers/update! database ctx)
+           (adapter.customers/->wire))
+       (throw (ex-info "Could not enable git sync"
+                       {:status-code 412
+                        :value (assoc ctx :user user)}))))

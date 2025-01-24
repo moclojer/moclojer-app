@@ -186,9 +186,10 @@
                 :login-error nil
                 :login-loading? true)}))
 
+;; oauth handler
 (refx/reg-event-db
  :app.auth/success-oauth
- (fn [db [_ {:keys [body]}]]
+ (fn [_ db]
    (assoc db :login-loading? false)))
 
 (refx/reg-event-fx
@@ -197,10 +198,19 @@
    [{db :db} [_ state]]
    {:oauth {:body state
             :on-success [:app.auth/success-oauth]
-            :on-failure [:app.auth/failed-save-user]}
+            :on-failure [:app.auth/oauth-error]}
     :db (assoc db
                :login-error nil
                :login-loading? true)}))
+
+(refx/reg-event-db
+ :app.auth/oauth-error
+ (fn [db [_ {:keys [body]}]]
+   (js/console.error :oauth-error body)
+   (-> db
+       (assoc :login-loading? false)
+       (assoc :login-error [:oauth-error (:error body)])
+       (assoc :current-user nil))))
 
 (refx/reg-event-db
  :app.auth/send-email-again

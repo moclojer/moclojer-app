@@ -35,7 +35,7 @@
    [:orgname {:optional true} string?]
    [:git-install-id {:optional true} integer?]])
 
-(def userUpdate
+(def UserUpdate
   [:map
    [:username {:optional true} string?]
-   [:git-install-id {:optional true} integer?]])
+   [:install-id {:optional true} integer?]])
