@@ -6,6 +6,7 @@
    [back.api.controllers.orgs :as controllers.orgs]
    [back.api.controllers.user :as controllers.user]
    [back.api.controllers.sync :as controllers.sync]
+   [back.api.logic.mocks :as logic.mocks]
    [back.api.logic.customers :as logic.users]
    [back.api.logic.orgs :as logic.orgs]
    [back.api.utils :as utils]
@@ -213,6 +214,14 @@
      :body {:success (controllers.orgs/remove-org-user! org-id user-id components ctx)
             :users (controllers.user/get-users-by-org-id org-id components ctx)}}))
 
+(defn- filter-mocks [files]
+  (into [] (filter #(and (= (last (str/split % #"/")) "moclojer.yml")
+                         (str/includes? % "mocks/"))
+                   files)))
+(defn inspect [a]
+  (prn "inspecionando " a (newline))
+  a)
+
 (defn handler-webhook
   [{:keys [headers parameters components ctx]}]
   (let [body (:body parameters)
@@ -229,48 +238,52 @@
             head-commit (:head_commit body)
             git-slug (get-in repo [:owner :name])
             repo-name (:name repo)
-            updated-files (into [] (concat
-                                    (:modified head-commit)
-                                    (:added head-commit)))
-            mocks (into [] (filter #(and (= (last (str/split % #"/")) "moclojer.yml")
-                                         (str/includes? % "mocks/"))
-                                   updated-files))
-            pull-response (when mocks
-                            (controllers.sync/pull! install-id git-slug repo-name mocks components ctx))
-            content (:content pull-response)
             org (controllers.orgs/get-by-git-orgname git-slug components ctx)
-            org? (not (nil? (:orgname org)))
-            user (when-not org? (controllers.user/get-by-git-username git-slug components ctx))]
-        (if-not (nil? (:uuid (if org? org user)))
-          (do
-            (logs/log :info "mocks"
-                      :ctx (assoc ctx :mocks mocks))
-            (doseq [[mock-content sha] mocks]
-              (let [mock-id (controllers.mocks/get-mocks {:uuid (if org? org user)
-                                                          :username git-slug}
-                                                         components ctx)
-                    decoded-mock (utils/decode mock-content)]
-                (controllers.mocks/update-mock! mock-id decoded-mock sha components ctx)))
-            {:status 200
-             :body {:content content
-                    :message "Files updated from source"}})
-          {:status 500
-           :body {:message "no org or user found"}}))
+            user (controllers.user/get-by-git-username git-slug components ctx)
+            id (or (parse-uuid (:id org)) (parse-uuid (:uuid user)))]
+        (if-not id
+          {:status 404
+           :body {:message "User and org not found"}}
+          (let [user-mocks  (controllers.mocks/get-mocks {:uuid id :username git-slug} components ctx)
+                added-mocks (filter-mocks (into [] (:added head-commit)))
+                source-add-files (when added-mocks (controllers.sync/pull! install-id git-slug repo-name added-mocks components ctx))
+                modified-mocks  (when user-mocks (filter-mocks (into [] (:modified head-commit))))
+                source-mod-files (when modified-mocks (controllers.sync/pull! install-id git-slug repo-name modified-mocks components ctx))]
+            (do
+              (when (seq added-mocks)
+                (logs/log :info "added mocks"
+                          :ctx (assoc ctx :added-files source-add-files))
+                (doseq [mock source-add-files]
+                  (let [content (->  mock :content :content)
+                        sha (->  mock :content :sha)]
+                    (logs/log :info "Teste feroz " :ctx (assoc ctx :content content :sha sha))
+                    (controllers.mocks/create-mock! id
+                                                    (logic.mocks/create {:content (utils/decode content) :sha sha})
+                                                    components ctx))))
+              (when (seq modified-mocks)
+                (logs/log :info "modified mocks"
+                          :ctx (assoc ctx :modified-mocks source-mod-files))
+                (doseq [[content sha] source-mod-files
+                        id user-mocks]
+                  (controllers.mocks/update-mock! id (utils/decode content) sha components ctx)))
+              {:status 200
+               :body {:message "Files updated from source"}}))))
       (= event-type "installation")
-      (let [git-slug (get-in body [:installation :account :login])
-            user  (controllers.user/get-by-git-username git-slug components ctx)
-            org nil #_(controllers.orgs/get-by-git-orgname git-slug components ctx)
-            org? false #_(not (nil? (:orgname org)))]
-        (logs/log :info  git-slug
-                  :ctx (assoc ctx
-                              :id (if org? org user)))
-        (if-not (nil? (:uuid (if org? org user)))
+      (let [sender-type (get-in body [:installation :account :type])
+            git-slug (get-in body [:installation :account :login])
+            org (when (= sender-type "Organization") (controllers.orgs/get-by-git-orgname git-slug components ctx))
+            user  (when (= sender-type "User") (controllers.user/get-by-git-username git-slug components ctx))
+            id (or (parse-uuid (:id org)) (parse-uuid (:uuid user)))]
+        (logs/log :info git-slug
+                  :ctx (assoc ctx :id id))
+        (if-not (nil? (or (:id org) (:uuid user)))
           {:status 200
            :body {:message "Enabled Git Sync"
-                  :content (if org?
-                             (controllers.orgs/enable-sync install-id org components ctx)
-                             (controllers.user/enable-sync install-id user components ctx))}}
+                  :content (if org
+                             (controllers.orgs/enable-sync install-id id components ctx)
+                             (controllers.user/enable-sync install-id id components ctx))}}
           {:status 404
            :body {:message "no org or user found"}}))
       :else {:status 400
              :body {:message "Unhandled event type"}})))
+

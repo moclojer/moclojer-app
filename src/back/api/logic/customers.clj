@@ -18,7 +18,7 @@
 
 (defn update-install-id
   ([user install-id]
-   (assoc user :git-install-id install-id)))
+   (assoc user :git-install-id (int install-id))))
 
 (defn exists?
   [users id]

@@ -42,12 +42,8 @@
   [git_username {:keys [database]} ctx]
   (logs/log :info "retrieving user by its git_username"
             :ctx (assoc ctx :git_username git_username))
-  (or (-> (db.customers/get-by-git-username git_username database ctx)
-          (adapter.customers/->wire))
-      (throw (ex-info "No user with given git_username was found"
-                      {:status-code 412
-                       :cause :invalid-git-username
-                       :value (assoc ctx :git_username git_username)}))))
+  (-> (db.customers/get-by-git-username git_username database ctx)
+      (adapter.customers/->wire)))
 
 (defn get-by-username
   [username {:keys [database]} ctx]
@@ -71,18 +67,15 @@
                        :cause :invalid-email
                        :value (assoc ctx :email email)}))))
 
-(defn inspect [a] (prn a) a)
-
 (defn enable-sync
   "Updates user install id field"
-  [install-id user {:keys [database]} ctx]
+  [install-id user-id {:keys [database]} ctx]
   (logs/log :info "enabling git sync"
-            :ctx (assoc ctx :user user))
-  (or  (-> user
+            :ctx (assoc ctx :user user-id))
+  (or  (-> {:customer/uuid (parse-uuid user-id)}
            (logic.customers/update-install-id install-id)
-           (inspect)
            (db.customers/update! database ctx)
            (adapter.customers/->wire))
        (throw (ex-info "Could not enable git sync"
                        {:status-code 412
-                        :value (assoc ctx :user user)}))))
+                        :value (assoc ctx :user user-id)}))))

@@ -46,6 +46,7 @@
    (if-let [mock (db.mocks/get-mock-by-id id database ctx)]
      (let [updated-mock (-> mock
                             (logic.mocks/update-content content)
+                            (cond-> sha (logic.mocks/update-sha sha))
                             (db.mocks/update! database ctx)
                             (adapter.mocks/->wire))
            ->wired-old-mock (adapter.mocks/->wire mock)]

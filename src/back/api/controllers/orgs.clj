@@ -81,12 +81,8 @@
   [git-orgname {:keys [database]} ctx]
   (logs/log :info "retrieving org by its git_orgname"
             (assoc ctx :git-orgname git-orgname))
-  (or (-> (db.orgs/get-by-git-org-name git-orgname database ctx)
-          (adapter.orgs/->wire))
-      (throw (ex-info "No organization with given git-orgname was found"
-                      {:status-code 412
-                       :cause :invalid-git-org-name
-                       :value git-orgname}))))
+  (-> (db.orgs/get-by-git-org-name git-orgname database ctx)
+      (adapter.orgs/->wire)))
 
 (defn get-by-slug
   [slug {:keys [database]} ctx]
@@ -101,10 +97,13 @@
 
 (defn enable-sync
   "Updates org install id field"
-  [install-id org {:keys [database]} ctx]
+  [install-id org-id {:keys [database]} ctx]
   (logs/log :info "enabling git sync"
-            :ctx (assoc ctx :org org))
-  (-> org
-      (logic.orgs/edit-org install-id)
-      (db.orgs/update! database ctx)
-      (adapter.orgs/->wire)))
+            :ctx (assoc ctx :org-id org-id))
+  (or  (-> {:org/id (parse-uuid org-id)}
+           (logic.orgs/edit-org install-id)
+           (db.orgs/update! database ctx)
+           (adapter.orgs/->wire))
+       (throw (ex-info "Could not enable git sync"
+                       {:status-code 412
+                        :value (assoc ctx :org-id org-id)}))))
