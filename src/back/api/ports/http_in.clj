@@ -11,7 +11,8 @@
    [back.api.logic.orgs :as logic.orgs]
    [back.api.utils :as utils]
    [clojure.string :as str]
-   [com.moclojer.components.logs :as logs]))
+   [com.moclojer.components.logs :as logs]
+   [slugify.core :refer [slugify]]))
 
 (defn handler-create-user!
   [{{{:keys [access-token]} :body} :parameters
@@ -240,7 +241,12 @@
             repo-name (:name repo)
             org (controllers.orgs/get-by-git-orgname git-slug components ctx)
             user (controllers.user/get-by-git-username git-slug components ctx)
-            id (or (parse-uuid (:id org)) (parse-uuid (:uuid user)))]
+            id (or (parse-uuid (:id org)) (parse-uuid (:uuid user)))
+            name (or (:orgname org) (:username user))]
+        (logs/log :info "Processing Push Event"
+                  :ctx (assoc ctx
+                              :id id
+                              :repo repo-name))
         (if-not id
           {:status 404
            :body {:message "User and org not found"}}
@@ -250,22 +256,55 @@
                 modified-mocks  (when user-mocks (filter-mocks (into [] (:modified head-commit))))
                 source-mod-files (when modified-mocks (controllers.sync/pull! install-id git-slug repo-name modified-mocks components ctx))]
             (do
-              (when (seq added-mocks)
-                (logs/log :info "added mocks"
-                          :ctx (assoc ctx :added-files source-add-files))
-                (doseq [mock source-add-files]
-                  (let [content (->  mock :content :content)
-                        sha (->  mock :content :sha)]
-                    (logs/log :info "Teste feroz " :ctx (assoc ctx :content content :sha sha))
-                    (controllers.mocks/create-mock! id
-                                                    (logic.mocks/create {:content (utils/decode content) :sha sha})
-                                                    components ctx))))
-              (when (seq modified-mocks)
-                (logs/log :info "modified mocks"
-                          :ctx (assoc ctx :modified-mocks source-mod-files))
-                (doseq [[content sha] source-mod-files
-                        id user-mocks]
-                  (controllers.mocks/update-mock! id (utils/decode content) sha components ctx)))
+                ;; Processing added files
+              (when (seq source-add-files)
+                (logs/log :info "Processing added mocks"
+                          :ctx (assoc ctx :added-count (count source-add-files)))
+                (doseq [mock source-add-files
+                        :let [content (get-in mock [:content :content])
+                              sha (get-in mock [:content :sha])
+                              wildcard  (-> (:file mock)
+                                            (str/split #"/")
+                                            (as-> e (take-last 2 e))
+                                            (first))]]
+                  (try
+                    (controllers.mocks/create-mock!
+                     id
+                     (logic.mocks/create {:id (random-uuid)
+                                          :content (utils/decode content)
+                                          :sha sha
+                                          :wildcard wildcard
+                                          :subdomain name
+                                          :enabled true})
+                     components ctx)
+                    (catch Exception e
+                      (logs/log :error "Failed to create mock"
+                                :ctx (assoc ctx :error (.getMessage e)))))))
+              ;; Processing modified files
+              (when (seq source-mod-files)
+                (logs/log :info "Processing modified mocks"
+                          :ctx (assoc ctx :modified-count (count source-mod-files)))
+                (doseq [mock source-mod-files
+                        :let [content (get-in mock [:content :content])
+                              sha (get-in mock [:content :sha])
+                              file-path (:path mock)
+                              ;; "resources/mocks/moclojer-test/moclojer.yml" ==> moclojer-test
+                              wildcard (-> file-path
+                                           (str/split #"/")
+                                           (as-> e (take-last 2 e))
+                                           (first))
+                              existing-mock (first (filter #(= (:wildcard %) wildcard) user-mocks))]]
+                  (if existing-mock
+                    (if-let [mock-id (:id existing-mock)]
+                      (try
+                        (controllers.mocks/update-mock! mock-id (utils/decode content) sha components ctx)
+                        (catch Exception e
+                          (logs/log :error "Failed to update mock"
+                                    :ctx (assoc ctx :error (.getMessage e) :mock-id mock-id))))
+                      (logs/log :error "Mock found but has no ID"
+                                :ctx (assoc ctx :wildcard wildcard)))
+                    (logs/log :debug "Wildcard not in user context"
+                              :ctx (assoc ctx :wildcard wildcard)))))
               {:status 200
                :body {:message "Files updated from source"}}))))
       (= event-type "installation")
@@ -274,7 +313,7 @@
             org (when (= sender-type "Organization") (controllers.orgs/get-by-git-orgname git-slug components ctx))
             user  (when (= sender-type "User") (controllers.user/get-by-git-username git-slug components ctx))
             id (or (parse-uuid (:id org)) (parse-uuid (:uuid user)))]
-        (logs/log :info git-slug
+        (logs/log :info "Processing Installation Event"
                   :ctx (assoc ctx :id id))
         (if-not (nil? (or (:id org) (:uuid user)))
           {:status 200
@@ -286,4 +325,3 @@
            :body {:message "no org or user found"}}))
       :else {:status 400
              :body {:message "Unhandled event type"}})))
-

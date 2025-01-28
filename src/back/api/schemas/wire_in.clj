@@ -10,7 +10,8 @@
    [:subdomain string?]
    [:wildcard string?]
    [:enabled boolean?]
-   [:content {:optional true} string?]])
+   [:content {:optional true} string?]
+   [:sha {:optional true} string?]])
 
 (def MockCreate
   (conj Mock

@@ -40,7 +40,7 @@
       (empty?)))
 
 (defn update-mock!
-  ([id content {:keys [database mq] :as components} ctx]
+  ([id content components ctx]
    (update-mock! id content nil components ctx))
   ([id content sha {:keys [database mq]} ctx]
    (if-let [mock (db.mocks/get-mock-by-id id database ctx)]
@@ -140,4 +140,3 @@
                     {:status-code 400
                      :cause :invalid-id
                      :value mock-id}))))
-

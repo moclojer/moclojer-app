@@ -10,8 +10,8 @@
 
 (defn create [mock]
   (let [new-uuid (random-uuid)
-        content (:content mock)
-        sha (:sha mock)]
+        content (:content mock)]
+
     (-> (reduce-kv
          (fn [acc k v]
            (assoc acc (->> (name k)
@@ -22,9 +22,7 @@
         (-> (merge {:mock/id new-uuid
                     :mock/content (or content default-mock-content)
                     :mock/dns_status "offline"
-                    :mock/unification_status "offline"})
-            (cond-> sha
-              (assoc :mock/sha sha))))))
+                    :mock/unification_status "offline"})))))
 
 (defn gen-host [wildcard subdomain]
   (str wildcard "-" subdomain ".moclojer.com"))
