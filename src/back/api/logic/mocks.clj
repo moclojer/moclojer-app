@@ -8,10 +8,12 @@
 (def default-mock-content
   (slurp (io/resource "back/default-mock.yaml")))
 
+(defn inspect [a]
+  (prn "inspecionando " a (newline))
+  a)
 (defn create [mock]
   (let [new-uuid (random-uuid)
-        content (:content mock)]
-
+        content (or (:content mock) (:mock/content mock))]
     (-> (reduce-kv
          (fn [acc k v]
            (assoc acc (->> (name k)

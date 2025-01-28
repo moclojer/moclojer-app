@@ -270,16 +270,17 @@
                   (try
                     (controllers.mocks/create-mock!
                      id
-                     (logic.mocks/create {:id (random-uuid)
-                                          :content (utils/decode content)
-                                          :sha sha
-                                          :wildcard wildcard
-                                          :subdomain name
-                                          :enabled true})
+                     (inspect (logic.mocks/create {:content (utils/decode content)
+                                                   :sha sha
+                                                   :wildcard wildcard
+                                                   :subdomain name
+                                                   :enabled true}))
                      components ctx)
                     (catch Exception e
                       (logs/log :error "Failed to create mock"
-                                :ctx (assoc ctx :error (.getMessage e)))))))
+                                :ctx (assoc ctx :error (.getMessage e)))
+                      {:status 500
+                       :body {:message (.getMessage e)}}))))
               ;; Processing modified files
               (when (seq source-mod-files)
                 (logs/log :info "Processing modified mocks"
@@ -287,9 +288,9 @@
                 (doseq [mock source-mod-files
                         :let [content (get-in mock [:content :content])
                               sha (get-in mock [:content :sha])
-                              file-path (:path mock)
+                              file (:file mock)
                               ;; "resources/mocks/moclojer-test/moclojer.yml" ==> moclojer-test
-                              wildcard (-> file-path
+                              wildcard (-> file
                                            (str/split #"/")
                                            (as-> e (take-last 2 e))
                                            (first))
@@ -300,7 +301,9 @@
                         (controllers.mocks/update-mock! mock-id (utils/decode content) sha components ctx)
                         (catch Exception e
                           (logs/log :error "Failed to update mock"
-                                    :ctx (assoc ctx :error (.getMessage e) :mock-id mock-id))))
+                                    :ctx (assoc ctx :error (.getMessage e) :mock-id mock-id))
+                          {:status 500
+                           :body {:message (.getMessage e)}}))
                       (logs/log :error "Mock found but has no ID"
                                 :ctx (assoc ctx :wildcard wildcard)))
                     (logs/log :debug "Wildcard not in user context"
