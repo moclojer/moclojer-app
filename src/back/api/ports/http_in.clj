@@ -251,7 +251,7 @@
         (if-not id
           {:status 404
            :body {:message "User and org not found"}}
-          (let [user-mocks (inspect (controllers.mocks/get-mocks {:uuid id :username slug} components ctx))
+          (let [user-mocks (controllers.mocks/get-mocks {:uuid id :username slug} components ctx)
                 mocks (filter-mocks (->> commits
                                          (mapcat #(vals (select-keys % [:added :modified])))
                                          (apply concat)
@@ -271,8 +271,12 @@
                                          (str/split #"/")
                                          (as-> e (take-last 2 e))
                                          (first))
-                            ;; TODO update user-mocks list (id and wildcard only)
-                            existing-mock (when user-mocks (inspect (filter #(= (:wildcard %) wildcard) user-mocks)))]]
+                            existing-mock (when user-mocks
+                                            (first (filter #(= (:wildcard %) wildcard)
+                                                           (->> user-mocks
+                                                                first
+                                                                :apis
+                                                                (map #(select-keys % [:wildcard :id]))))))]]
                 (if (seq existing-mock)
                   (if-let [mock-id (:id existing-mock)]
                     (try
