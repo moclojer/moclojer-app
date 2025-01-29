@@ -81,9 +81,11 @@
                         :value (assoc ctx :user user-id)}))))
 
 (defn get-sync-data
-  "ok"
+  "Retrieves Git synchronization data for a user"
   [user-id {:keys [database]} ctx]
   (-> {:customer/uuid (parse-uuid user-id)}
       (db.customers/get-by-id database ctx)
       (adapter.customers/->wire)
-      (select-keys [:customer/git-install-id :customer/email :customer/git-username])))
+      (select-keys [:customer/git-install-id
+                    :customer/email
+                    :customer/git-username])))

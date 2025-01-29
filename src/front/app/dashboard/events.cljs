@@ -283,10 +283,15 @@
  (fn [{db :db} [_ mock]]
    (let [current-user (:current-user db)]
      (prn db)
+     (prn mock)
+     ;; mock is already at source its sha is not nil
      {:http  {:url "/mocks"
               :method :put
               :headers {"authorization" (str "Bearer " (:access-token (-> db :current-user)))}
-              :body mock
+              :body {:id (:id mock)
+                     :content (:content mock)
+                     :sha (or (:sha mock) "")
+                     :git-repo (or (:git-repo mock) "")}
               :on-success [:app.dashboard/save-mock-success]
               :on-failure [:app.dashboard/save-mock-failed]}
       :db (assoc db :loading-edit-mock true)})))
