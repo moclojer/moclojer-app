@@ -21,11 +21,11 @@
         {:keys [content id]
          :or {content ""}} data
         ref-fn (hooks/use-callback
-                [content]
-                (fn [content]
-                  (refx/dispatch-sync
-                   [:app.dashboard/edit-mock {:mock-id id
-                                              :content content}])))]
+                 [content]
+                 (fn [content]
+                   (refx/dispatch-sync
+                    [:app.dashboard/edit-mock {:mock-id id
+                                               :content content}])))]
 
     ($ c/default
        {:height "calc(100vh - 171px)"
@@ -93,6 +93,17 @@
                                :on-change handle-file-fn})
                      ($ svg/upload {:class-name "w-3 h-3 fill-white"}))))
 
+(defnc push-button [{:keys [mock]}]
+  (let [mock-valid? (refx/use-sub [:app.dashboard/mock-valid?])]
+    (d/button
+     {:class-name (str "px-3 py-2 bg-gray-500 rounded-lg flex justify-center items-center btn-add space-x-2 "
+                       (when-not mock-valid? " opacity-50 cursor-not-allowed"))
+      :on-click #(when-not mock-valid?
+                   (refx/dispatch-sync [:app.dashboard/push-mock mock])
+                   (refx/dispatch-sync [:app.dashboard/reset-mock-pub-stts (:id mock)]))}
+     (d/div {:class-name "text-white text-xs font-bold leading-[18px]"} " push to origin")
+     ($ svg/save))))
+
 (defnc index [{:keys [route]}]
   (let [on-load (fn [e fnstate]
                   (let [f (-> e .-target .-result)]
@@ -114,13 +125,13 @@
     ;; outside of this component's state, this logic lets us know
     ;; when the popup `really delete this mock?` is confirmed (if so).
     (hooks/use-effect
-     [mock-to-delete]
-     (if (and deleting? (nil? mock-to-delete))
-       (do
-         (set-deleting! false)
-         (rfe/push-state :app.core/mocks))
-       (when (= (:id mock-to-delete) mock-id)
-         (set-deleting! true))))
+      [mock-to-delete]
+      (if (and deleting? (nil? mock-to-delete))
+        (do
+          (set-deleting! false)
+          (rfe/push-state :app.core/mocks))
+        (when (= (:id mock-to-delete) mock-id)
+          (set-deleting! true))))
 
     ($ base/index
        (d/div
@@ -169,6 +180,7 @@
                                         ($ svg/arrow-link)))))
 
                 (d/div {:class-name "w-full lg:w-1/2 xl:w-1/3 2xl:w-1/4 flex flex-row mt-2 mb-4 lg:my-0 space-x-2"}
+                       ($ push-button {:mock mock-data})
                        (d/button {:class-name (str "w-full px-3 py-2 rounded-lg border border-gray-200 "
                                                    "flex flex-row justify-center items-center space-x-2")
                                   :on-click #(refx/dispatch-sync [:app.dashboard/set-mock-to-delete {:id mock-id}])}

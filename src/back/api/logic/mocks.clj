@@ -96,6 +96,12 @@
       (assoc :mock/sha sha)
       (select-keys [:mock/id :mock/sha])))
 
+(defn update-repo
+  [mock git-repo]
+  (-> mock
+      (assoc :mock/git_repo git-repo)
+      (select-keys [:mock/id :mock/git_repo])))
+
 (defn update-content
   [mock content]
   (-> mock

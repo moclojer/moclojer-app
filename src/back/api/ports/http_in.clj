@@ -64,20 +64,25 @@
      :body {:mock (controllers.mocks/create-mock! user-id mock components ctx)}}))
 
 (defn handler-update-mock!
-  [{{{:keys [id content git-repo sha]} :body} :parameters
-    components :components
-    ctx :ctx}]
-  ;; TODO update push correctly
-  #_(prn body
-         (keys body))
-  (let [mock (controllers.mocks/update-mock! (java.util.UUID/fromString id)
-                                             content
-                                             components
-                                             ctx)]
-    #_(when install-id
-        (let [path (str "mocks/" "/moclojer.yml")]
-          (controllers.mocks/push! install-id owner repo email path sha
-                                   (utils/encode content) components ctx)))
+  [{:keys [parameters session-data components ctx]}]
+  (let [user-id (:user-id session-data)
+        old-mock (:mock (:body parameters))
+        content (:content (:body parameters))
+        id (:id (:mock (:body parameters)))]
+
+    (controllers.mocks/update-mock! (java.util.UUID/fromString id)
+                                    content
+                                    {:git-repo git-repo
+                                     :sha sha}
+                                    components
+                                    ctx)
+    (when-let [git-user (controllers.user/get-sync-data user-id components ctx)]
+
+      (let [path (str "mocks/" "/moclojer.yml")
+            install-id (:install-id git-user)
+            email (:email git-user)]
+        (controllers.sync/push! install-id owner repo email path sha
+                                (utils/encode content) components ctx)))
     {:status 200
      :body {:mock mock}}))
 
@@ -280,7 +285,10 @@
                 (if (seq existing-mock)
                   (if-let [mock-id (:id existing-mock)]
                     (try
-                      (controllers.mocks/update-mock! mock-id content sha components ctx)
+                      (controllers.mocks/update-mock! mock-id content
+                                                      {:git-repo (:url repo)
+                                                       :sha sha}
+                                                      components ctx)
                       (catch Exception e
                         (logs/log :error "Failed to update mock"
                                   :ctx (assoc ctx :error (.getMessage e) :mock-id mock-id))
@@ -295,7 +303,8 @@
                                           :sha sha
                                           :wildcard wildcard
                                           :subdomain slug
-                                          :enabled true})
+                                          :enabled true
+                                          :git-repo (:url repo)})
                      components ctx)
                     (catch Exception e
                       (logs/log :error "Failed to create mock"

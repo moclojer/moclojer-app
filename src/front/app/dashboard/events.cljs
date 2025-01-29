@@ -277,3 +277,17 @@
              :body {:username username-to-save}
              :on-success []
              :on-failure []}})))
+
+(refx/reg-event-fx
+ :app.dashboard/push-mock
+ (fn [{db :db} [_ mock]]
+   (let [current-user (:current-user db)]
+     (prn db)
+     {:http  {:url "/mocks"
+              :method :put
+              :headers {"authorization" (str "Bearer " (:access-token (-> db :current-user)))}
+              :body {:mock mock
+                     :user current-user}
+              :on-success [:app.dashboard/save-mock-success]
+              :on-failure [:app.dashboard/save-mock-failed]}
+      :db (assoc db :loading-edit-mock true)})))
