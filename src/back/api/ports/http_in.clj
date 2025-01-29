@@ -66,25 +66,29 @@
 (defn handler-update-mock!
   [{:keys [parameters session-data components ctx]}]
   (let [user-id (:user-id session-data)
-        old-mock (:mock (:body parameters))
-        content (:content (:body parameters))
-        id (:id (:mock (:body parameters)))]
-
-    (controllers.mocks/update-mock! (java.util.UUID/fromString id)
-                                    content
-                                    {:git-repo git-repo
-                                     :sha sha}
-                                    components
-                                    ctx)
-    (when-let [git-user (controllers.user/get-sync-data user-id components ctx)]
-
-      (let [path (str "mocks/" "/moclojer.yml")
-            install-id (:install-id git-user)
-            email (:email git-user)]
-        (controllers.sync/push! install-id owner repo email path sha
-                                (utils/encode content) components ctx)))
+        old-mock (:body parameters)
+        content (:content old-mock)
+        id (:id old-mock)
+        sha (or (:sha old-mock) nil)
+        git-path  (:git-repo old-mock)
+        git-repo (when git-path (last (str/split git-path #"/")))
+        new-mock (controllers.mocks/update-mock! (java.util.UUID/fromString id)
+                                                 content
+                                                 {:git-repo git-repo
+                                                  :sha sha}
+                                                 components
+                                                 ctx)]
+    (when (and git-repo sha)
+      (when-let [git-user (controllers.user/get-sync-data user-id components ctx)]
+        (let [owner (first (take-last 2 (str/split (:git-repo old-mock) #"/")))
+              wildcard (:wildcard new-mock)
+              path (str "mocks/" wildcard "/moclojer.yml")
+              install-id (:install-id git-user)
+              email (:email git-user)]
+          (controllers.sync/push! install-id owner git-repo email path sha
+                                  (utils/encode content) components ctx))))
     {:status 200
-     :body {:mock mock}}))
+     :body {:mock new-mock}}))
 
 (defn handler-get-mocks
   [{:keys [session-data components ctx]}]

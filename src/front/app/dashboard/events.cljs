@@ -286,8 +286,7 @@
      {:http  {:url "/mocks"
               :method :put
               :headers {"authorization" (str "Bearer " (:access-token (-> db :current-user)))}
-              :body {:mock mock
-                     :user current-user}
+              :body mock
               :on-success [:app.dashboard/save-mock-success]
               :on-failure [:app.dashboard/save-mock-failed]}
       :db (assoc db :loading-edit-mock true)})))
