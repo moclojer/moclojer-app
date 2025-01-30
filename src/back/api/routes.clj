@@ -199,4 +199,11 @@
             :parameters {:body map?}
             :interceptors [(parameters/parameters-interceptor)
                            (verify-webhook-signature)]
-            :handler ports.http-in/handler-webhook}}]])
+            :handler ports.http-in/handler-webhook}}]
+
+   ["/repos"
+    {:get {:summary "Returns a user repos linked by its installation"
+           :interceptors [(error-handler-interceptor)
+                          (extract-user-interceptor)]
+           :responses {200 {:body [map?]}}
+           :handler ports.http-in/handler-get-repos}}]])

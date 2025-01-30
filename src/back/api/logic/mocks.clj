@@ -1,6 +1,5 @@
 (ns back.api.logic.mocks
   (:require
-   [back.api.utils :refer [assoc-if]]
    [camel-snake-kebab.core :as csk]
    [clojure.java.io :as io]
    [clojure.string :as str]))
@@ -57,7 +56,7 @@
                old-apis (vec (:apis subdomain-group))
                new-apis (->> (select-keys mock [:wildcard :subdomain :url :enabled
                                                 :id :content :dns-status
-                                                :unification-status])
+                                                :unification-status :git-repo :sha])
                              (merge url)
                              (conj old-apis))]
            (assoc grouped-mocks
@@ -90,23 +89,14 @@
 (defn disable [mock]
   (assoc mock :mock/enabled false))
 
-(defn update-sha
-  [mock sha]
-  (-> mock
-      (assoc :mock/sha sha)
-      (select-keys [:mock/id :mock/sha])))
+(defn update-sha [mock sha]
+  (assoc mock :mock/sha sha))
 
-(defn update-repo
-  [mock git-repo]
-  (-> mock
-      (assoc :mock/git_repo git-repo)
-      (select-keys [:mock/id :mock/git_repo])))
+(defn update-repo [mock git-repo]
+  (assoc mock :mock/git_repo git-repo))
 
-(defn update-content
-  [mock content]
-  (-> mock
-      (assoc :mock/content content)
-      (select-keys [:mock/id :mock/content])))
+(defn update-content [mock content]
+  (assoc mock :mock/content content))
 
 (defn publish [mock]
   (assoc mock :mock/enabled true))

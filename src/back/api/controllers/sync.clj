@@ -121,6 +121,43 @@
                       {:status (:status response)
                        :body (:body response)})))))
 
+(defn get-default-branch-data
+  [install-id owner repo components]
+  (let [config (get-in components [:config :config :git-sync])
+        github-api-url (:api-url config)
+        app-id (:app-id config)
+        private-key (:private-key config)
+        gh-client (create-github-client github-api-url app-id private-key)
+        response (gh-app/request gh-client install-id :get
+                                 (format "%s/repos/%s/%s/branches" github-api-url owner repo)
+                                 {})]
+    (if (#{200 201} (:status response))
+      (-> response
+          :body
+          (first)
+          (select-keys [:commit :name]))
+      (throw (ex-info "Failed to retrieve branches"
+                      {:status (:status response)
+                       :body (:body response)})))))
+
+(defn get-user-repos
+  [install-id components]
+  (let [config (get-in components [:config :config :git-sync])
+        github-api-url (:api-url config)
+        app-id (:app-id config)
+        private-key (:private-key config)
+        gh-client (create-github-client github-api-url app-id private-key)
+        response (gh-app/request gh-client install-id :get
+                                 (format "%s/installation/repositories" github-api-url)
+                                 {})]
+    (if (#{200 201} (:status response))
+      (-> response
+          :body
+          :repositories)
+      (throw (ex-info "Failed to retrieve user repos"
+                      {:status (:status response)
+                       :body (:body response)})))))
+
 (defn pull!
   "Uses installation-id to auth as a github app 
   and pull n files from a repo"
@@ -143,7 +180,7 @@
 (defn push!
   "Uses installation-id to auth as a github app 
   and push n files from a repo"
-  [install-id owner repo email paths base-tree-sha files components ctx]
+  [install-id owner repo email paths base-tree-sha branch files components ctx]
   (let [config (get-in components [:config :config :git-sync])
         github-api-url (:api-url config)
         app-id (:app-id config)
@@ -155,7 +192,7 @@
                                :private-key private-key})
         commit-sha (:sha commit)]
     (when commit-sha
-      (update-reference install-id owner repo "refs/heads/main" commit-sha
+      (update-reference install-id owner repo (str "refs/heads/" branch) commit-sha
                         {:github-api-url github-api-url
                          :app-id app-id
                          :private-key private-key}))))
@@ -185,5 +222,14 @@
                     "f75173c5f3acc456c61d8edcc2d47f6c0d7aef9d"
                     {:github-api-url "https://api.github.com"
                      :app-id app-id
-                     :private-key private-key}))
+                     :private-key private-key})
+
+  (gh-app/request* gh-client install-id
+                   {:method :get
+                    :url (format "%s/repos/%s/%s/" github-api-url user "gh-app-test")
+                    :headers {"Accept" "application/vnd.github+json"
+                              "Content-Type" "application/json"}})
+  (select-keys (first (:body (gh-app/request gh-client install-id :get
+                                             (format "%s/repos/%s/%s/branches" github-api-url user "gh-app-test")
+                                             {}))) [:commit :name]))
 

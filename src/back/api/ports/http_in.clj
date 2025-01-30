@@ -11,8 +11,7 @@
    [back.api.logic.orgs :as logic.orgs]
    [back.api.utils :as utils]
    [clojure.string :as str]
-   [com.moclojer.components.logs :as logs]
-   [slugify.core :refer [slugify]]))
+   [com.moclojer.components.logs :as logs]))
 
 (defn handler-create-user!
   [{{{:keys [access-token]} :body} :parameters
@@ -42,7 +41,7 @@
   (let [same-user? (= (some-> ext-user :customer/uuid str) id)
         user (if same-user?
                (adapters.customers/->wire ext-user)
-               (controllers.user/get-user-by-id id database ctx))
+               (controllers.user/get-user-by-id id {:database database} ctx))
         valid-user? (some-> user :uuid uuid?)]
     (if valid-user?
       {:status 200
@@ -63,37 +62,48 @@
     {:status 201
      :body {:mock (controllers.mocks/create-mock! user-id mock components ctx)}}))
 
+(defn inspect [a] (prn "inspeciona " a) a)
+
 (defn handler-update-mock!
   [{:keys [parameters session-data components ctx]}]
   (let [user-id (:user-id session-data)
         old-mock (:body parameters)
         content (:content old-mock)
         id (:id old-mock)
-        sha (or (:sha old-mock) nil)
-        git-path  (:git-repo old-mock)
+        sha (:sha old-mock)
+        git-path (:git-repo old-mock)
         git-repo (when git-path (last (str/split git-path #"/")))
-        new-mock (controllers.mocks/update-mock! (java.util.UUID/fromString id)
-                                                 content
-                                                 {:git-repo git-repo
-                                                  :sha sha}
+        new-mock (controllers.mocks/update-mock! (parse-uuid (str id))
+                                                 (-> {}
+                                                     (utils/assoc-if :content content)
+                                                     (cond->
+                                                      (not= sha "") (utils/assoc-if :sha sha)
+                                                      (not= git-repo "") (utils/assoc-if :git-repo git-path)))
                                                  components
                                                  ctx)]
+    ;; TODO check if it is a org or user
     (when (and git-repo sha)
-      (when-let [git-user (controllers.user/get-sync-data user-id components ctx)]
-        (let [owner (first (take-last 2 (str/split (:git-repo old-mock) #"/")))
+      (when-let [git-user (controllers.user/get-user-by-id user-id components ctx)]
+        (let [owner (inspect (-> (str/split git-path  #"/")
+                                 (as-> [e] (take-last 2 e))
+                                 (first)))
+              install-id (:git-install-id git-user)
+              repo (inspect (controllers.sync/get-default-branch-data install-id owner git-repo components))
+              base-sha (-> repo :commit :sha)
+              branch (-> repo :name)
               wildcard (:wildcard new-mock)
-              path (str "mocks/" wildcard "/moclojer.yml")
-              install-id (:install-id git-user)
-              email (:email git-user)]
-          (controllers.sync/push! install-id owner git-repo email path sha
-                                  (utils/encode content) components ctx))))
+              path (into [] (str "resoureces/mocks/" wildcard "/moclojer.yml"))
+              email (:email git-user)
+              encoded-content (into [] (utils/encode content))]
+          (controllers.sync/push! install-id owner git-repo email path base-sha branch
+                                  encoded-content components ctx))))
     {:status 200
      :body {:mock new-mock}}))
 
 (defn handler-get-mocks
   [{:keys [session-data components ctx]}]
   (let [user (controllers.user/get-user-by-id
-              (:user-id session-data) (:database components) ctx)
+              (:user-id session-data) components ctx)
         mocks (controllers.mocks/get-mocks user components ctx)]
     {:status 200
      :body {:mocks mocks}}))
@@ -159,13 +169,12 @@
 
 (defn handler-create-org
   [{:keys [session-data parameters components ctx]}]
-  (let [{:keys [database]} components
-        org (get-in parameters [:body :org])
+  (let [org (get-in parameters [:body :org])
         user-id (:user-id session-data)
         new-org (controllers.orgs/create-org! org components ctx)
         {:keys [user-id]} (controllers.orgs/add-org-user!
                            new-org user-id true components ctx)
-        new-user (controllers.user/get-user-by-id user-id database ctx)]
+        new-user (controllers.user/get-user-by-id user-id components ctx)]
     {:status 201
      :body {:org (logic.orgs/group-org-with-users new-org [new-user])}}))
 
@@ -212,7 +221,7 @@
       (let [new-org-user (controllers.orgs/add-org-user!
                           org user-id false components ctx)
             new-user (controllers.user/get-user-by-id
-                      (:user-id new-org-user) (:database components) ctx)]
+                      (:user-id new-org-user) components ctx)]
         {:status 200
          :body {:users (conj old-users new-user)}}))))
 
@@ -289,8 +298,9 @@
                 (if (seq existing-mock)
                   (if-let [mock-id (:id existing-mock)]
                     (try
-                      (controllers.mocks/update-mock! mock-id content
-                                                      {:git-repo (:url repo)
+                      (controllers.mocks/update-mock! mock-id
+                                                      {:content content
+                                                       :git-repo (:url repo)
                                                        :sha sha}
                                                       components ctx)
                       (catch Exception e
@@ -335,3 +345,14 @@
            :body {:message "no org or user found"}}))
       :else {:status 400
              :body {:message "Unhandled event type"}})))
+
+(defn handler-get-repos
+  [{:keys [session-data components ctx]}]
+  (let [user (controllers.user/get-user-by-id (:user-id session-data) components ctx)
+        install-id (:git-install-id user)]
+    (if install-id
+      {:status 200
+       :body {:repositories (->> (controllers.sync/get-user-repos install-id components)
+                                 (map #(select-keys % [:full_name :html_url :owner])))}}
+      {:status 404
+       :body {:message "Could not retrieve user repos"}})))

@@ -40,12 +40,11 @@
       (empty?)))
 
 (defn update-mock!
-  ([id content {:keys [sha git-repo] 
-                :or {sha nil git-repo nil}} {:keys [database mq]} ctx]
+  ([id {:keys [content sha git-repo] :or {sha nil git-repo nil}} {:keys [database mq]} ctx]
    (if-let [mock (db.mocks/get-mock-by-id id database ctx)]
      (let [updated-mock (-> mock
-                            (logic.mocks/update-content content)
                             (cond->
+                             content (logic.mocks/update-content content)
                              sha (logic.mocks/update-sha sha)
                              git-repo (logic.mocks/update-repo git-repo))
                             (db.mocks/update! database ctx)

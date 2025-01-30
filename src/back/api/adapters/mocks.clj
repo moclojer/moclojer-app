@@ -3,7 +3,7 @@
 
 (defn ->wire
   [{:mock/keys [id user_id org_id wildcard subdomain content sha
-                repo enabled dns_status unification_status]}]
+                git_repo enabled dns_status unification_status]}]
   (-> {:id id
        :user-id user_id
        :wildcard wildcard
@@ -13,5 +13,5 @@
        :unification-status unification_status}
       (assoc-if :org-id org_id)
       (assoc-if :content content)
-      (assoc-if :repo repo)
+      (assoc-if :git-repo git_repo)
       (assoc-if :sha sha)))

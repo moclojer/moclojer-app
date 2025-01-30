@@ -278,20 +278,57 @@
              :on-success []
              :on-failure []}})))
 
+(refx/reg-event-db
+ :app.dashboard/toggle-git-repo-modal
+ (fn [db [_ modal-open?]]
+   (assoc db :require-git-repo? (not modal-open?))))
+
+(refx/reg-event-fx
+ :app.dashboard/update-git-repo
+ (fn [{db :db} [_ git-repo]]
+   {:http  {:url "/mocks"
+            :method :put
+            :headers {"authorization" (str "Bearer " (:access-token (-> db :current-user)))}
+            :body {:id (:curr-mock-id db)
+                   :git-repo git-repo}
+            :on-success [:app.dashboard/push-mock (:curr-mock-id db)]
+            :on-failure [:app.dashboard/save-mock-failed]}
+    :db (assoc db
+               :loading-edit-mock true
+               :curr-mock-id nil)}))
+
+(refx/reg-event-db
+ :app.dashboard/save-repos
+ (fn [db [_ repos]]
+   (assoc db
+          :require-git-repo? true
+          :repositories (-> repos
+                            :body
+                            :repositories
+                            (vec)))))
+
 (refx/reg-event-fx
  :app.dashboard/push-mock
- (fn [{db :db} [_ mock]]
-   (let [current-user (:current-user db)]
-     (prn db)
-     (prn mock)
-     ;; mock is already at source its sha is not nil
-     {:http  {:url "/mocks"
-              :method :put
-              :headers {"authorization" (str "Bearer " (:access-token (-> db :current-user)))}
-              :body {:id (:id mock)
-                     :content (:content mock)
-                     :sha (or (:sha mock) "")
-                     :git-repo (or (:git-repo mock) "")}
-              :on-success [:app.dashboard/save-mock-success]
-              :on-failure [:app.dashboard/save-mock-failed]}
-      :db (assoc db :loading-edit-mock true)})))
+ (fn [{db :db} [_  mock-id]]
+   (let [mock  [:app.dashboard/mock mock-id]]
+     (prn "mock :" mock)
+     (prn "mock repo: " (:git_repo mock))
+     (if  (nil? (:git_repo mock))
+       {:notification {:type :error
+                       :content "Mock has no linked repo"}
+        :http {:url "/repos"
+               :method :get
+               :headers {"authorization" (str "Bearer " (:access-token (-> db :current-user)))}
+               :on-success [:app.dashboard/save-repos]
+               :on-failure [:app.dashboard/save-mock-failed]}
+        :db (assoc db :curr-mock-id mock-id)}
+       {:http  {:url "/mocks"
+                :method :put
+                :headers {"authorization" (str "Bearer " (:access-token (-> db :current-user)))}
+                :body {:id mock-id
+                       :content (:content mock)
+                       :git-repo (:git-repo mock)
+                       :sha (or (:sha mock) "")}
+                :on-success [:app.dashboard/save-mock-success]
+                :on-failure [:app.dashboard/save-mock-failed]}
+        :db (assoc db :loading-edit-mock true)}))))

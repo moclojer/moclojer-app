@@ -289,6 +289,35 @@
                :on-click #(close-modal!)}
               "No, cancel"))))})))
 
+(defn update-repo-modal []
+  (let [require-git-repo? (refx/use-sub [:app.dashboard/require-git-repo?])
+        repos (refx/use-sub [:app.dashboard/repos])]
+    ($ modal
+       {:title "Add a repo to your mock"
+        :open? require-git-repo?
+        :on-close #(refx/dispatch-sync [:app.dashboard/toggle-git-repo-modal require-git-repo?])
+        :children
+        (d/div
+         {:class "w-screen md:w-[600px] p-6 gap-4 z-10"}
+         (d/div
+          {:class "w-[calc(100%)]"}
+          (d/ul
+           {:class "space-y-2"}
+           (for [repo repos]
+             (d/li
+              {:key (:full_name repo)
+               :class "flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer"
+               :on-click #(do
+                            (refx/dispatch-sync [:app.dashboard/update-git-repo (:html_url repo)])
+                            (refx/dispatch-sync [:app.dashboard/toggle-git-repo-modal require-git-repo?]))}
+              (d/img
+               {:src (get-in repo [:owner :avatar_url])
+                :alt (str (get-in repo [:owner :login]) "'s avatar")
+                :class "w-8 h-8 rounded-full mr-3"})
+              (d/span
+               {:class "flex-1"}
+               (:full_name repo)))))))})))
+
 (defnc index [{:keys [children]}]
   (let [user (-> (refx/use-sub [:app.auth/current-user])
                  :user)]
@@ -301,4 +330,5 @@
             ($ aside-container children)
             ($ new-mock-modal)
             ($ mock-deletion-modal)
-            ($ settings-modal)))))
+            ($ settings-modal)
+            ($ update-repo-modal)))))

@@ -9,7 +9,7 @@
   (nil? (db.customers/get-by-username username database ctx)))
 
 (defn get-user-by-id
-  [id database ctx]
+  [id {:keys [database]} ctx]
   (adapter.customers/->wire
    (or (db.customers/get-by-id id database ctx)
        (throw (ex-info "No user with given id was found"
@@ -72,20 +72,10 @@
   [install-id user-id {:keys [database]} ctx]
   (logs/log :info "enabling git sync"
             :ctx (assoc ctx :user user-id))
-  (or  (-> {:customer/uuid (parse-uuid user-id)}
+  (or  (-> {:customer/uuid (parse-uuid (str user-id))}
            (logic.customers/update-install-id install-id)
            (db.customers/update! database ctx)
            (adapter.customers/->wire))
        (throw (ex-info "Could not enable git sync"
                        {:status-code 412
                         :value (assoc ctx :user user-id)}))))
-
-(defn get-sync-data
-  "Retrieves Git synchronization data for a user"
-  [user-id {:keys [database]} ctx]
-  (-> {:customer/uuid (parse-uuid user-id)}
-      (db.customers/get-by-id database ctx)
-      (adapter.customers/->wire)
-      (select-keys [:customer/git-install-id
-                    :customer/email
-                    :customer/git-username])))

@@ -177,12 +177,13 @@
                   :clip-rule "evenodd"
                   :d "M8 12C8 11.4477 8.44772 11 9 11H15C15.5523 11 16 11.4477 16 12V22C16 22.5523 15.5523 23 15 23C14.4477 23 14 22.5523 14 22V13H10V22C10 22.5523 9.55228 23 9 23C8.44772 23 8 22.5523 8 22V12Z"})))
 
-(defnc upload [{:keys [class]}]
+(defnc upload []
   (d/svg
-   {:class class
-    :aria-hidden "true"
-    :fill "none"
-    :viewBox  "0 0 20 16"}
+   {:width "17"
+    :class "shrink-0 relative overflow-visible"
+    :height "17"
+    :viewBox "0 0 17 17"
+    :fill "none"}
    (d/path {:stroke "currentColor"
             :stroke-linecap "round"
             :stroke-linejoin "round"
