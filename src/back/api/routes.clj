@@ -29,12 +29,34 @@
            :responses {200 {:body healthcheck/HealthResponse}}
            :handler healthcheck/live}}]
 
+   ["/webhook"
+    {:post {:summary "Handles a webhook"
+            :parameters {:body map?}
+            ;; TODO check if this can be removed
+            :interceptors [(parameters/parameters-interceptor)
+                           (verify-webhook-signature)]
+            :handler ports.http-in/handler-webhook}}]
+
    ["/login/auth"
     {:swagger {:tags ["login"]}
      :post {:summary "Login supabase retrieve user"
             :parameters {:body schemas.wire-in/AuthLogin}
             :responses {201 {:body {:user schemas.wire-out/User}}}
             :handler ports.http-in/handler-create-user!}}]
+
+   ["/repos"
+    {:get {:summary "Returns a user repos linked by its installation"
+           :interceptors [(error-handler-interceptor)
+                          (extract-user-interceptor)]
+           :responses {200 {:body [map?]}}
+           :handler ports.http-in/handler-get-repos}}]
+
+   ["/sync"
+    {:get {:summary "Returns true if sync is enabled"
+           :interceptors [(error-handler-interceptor)
+                          (extract-user-interceptor)]
+           :responses {200 {:body [map?]}}
+           :handler ports.http-in/handler-sync-status}}]
 
    ["/user/:id"
     {:swagger {:tags ["login"]}
@@ -193,17 +215,4 @@
             :interceptors [(error-handler-interceptor)
                            (extract-user-interceptor)]
             :responses {200 {:body {}}}
-            :handler ports.http-in/handler-unpublish-mock!}}]
-   ["/webhook"
-    {:post {:summary "Handles a webhook"
-            :parameters {:body map?}
-            :interceptors [(parameters/parameters-interceptor)
-                           (verify-webhook-signature)]
-            :handler ports.http-in/handler-webhook}}]
-
-   ["/repos"
-    {:get {:summary "Returns a user repos linked by its installation"
-           :interceptors [(error-handler-interceptor)
-                          (extract-user-interceptor)]
-           :responses {200 {:body [map?]}}
-           :handler ports.http-in/handler-get-repos}}]])
+            :handler ports.http-in/handler-unpublish-mock!}}]])

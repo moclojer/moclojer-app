@@ -105,6 +105,7 @@
   (let [user (controllers.user/get-user-by-id
               (:user-id session-data) components ctx)
         mocks (controllers.mocks/get-mocks user components ctx)]
+    (prn mocks)
     {:status 200
      :body {:mocks mocks}}))
 
@@ -356,3 +357,15 @@
                                  (map #(select-keys % [:full_name :html_url :owner])))}}
       {:status 404
        :body {:message "Could not retrieve user repos"}})))
+
+(defn handler-sync-status [session-data components ctx]
+  (prn "data sessao " session-data)
+  (let [user (controllers.user/get-user-by-id (:user-id session-data) components ctx)
+        install-id (:git-install-id user)]
+    (prn "usuario " user)
+    (if install-id
+      {:status 200
+       :body {:sync-enabled true}}
+      {:status 404
+       :body {:sync-enabled false
+              :message "Sync disabled"}})))

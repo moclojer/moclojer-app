@@ -97,7 +97,12 @@
  (fn [db _]
    (:require-git-repo? db)))
 
-(refx/reg-sub 
-  :app.dashboard/repos
+(refx/reg-sub
+ :app.dashboard/repos
  (fn [db _]
    (:repositories db)))
+
+(refx/reg-sub
+ :app.dashboard/is-sync-enabled?
+ (fn [db _]
+   (:sync-enabled db)))

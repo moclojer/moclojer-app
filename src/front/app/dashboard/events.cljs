@@ -307,6 +307,29 @@
                             :repositories
                             (vec)))))
 
+(refx/reg-event-db
+ :app.dashboard/enabled-sync
+ (fn [db _]
+   {:notification {:type :success
+                   :message "Git Sync is enabled"}
+    :db (assoc db :sync-enabled true)}))
+
+(refx/reg-event-db
+ :app.dashboard/not-enabled-sync
+ (fn [db _]
+   {:notification {:type :error
+                   :message "Git Sync is Disabled"}
+    :db (assoc db :sync-enabled false)}))
+
+(refx/reg-event-db
+ :app.dashboard/enable-sync
+ (fn [db _]
+   {:http {:url "/sync"
+           :method :get
+           :headers {"authorization" (str "Bearer " (:access-token (-> db :current-user)))}
+           :on-success [:app.dashboard/enabled-sync]
+           :on-failure [:app.dashboard/not-enabled-sync]}}))
+
 (refx/reg-event-fx
  :app.dashboard/push-mock
  (fn [{db :db} [_  mock-id]]
