@@ -38,4 +38,4 @@
 
 (defn edit-org
   [org install-id]
-  (assoc org :git-install-id install-id))
+  (assoc org :git-install-id (int install-id)))

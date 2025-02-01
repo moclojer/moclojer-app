@@ -323,7 +323,7 @@
                        :body {:message (.getMessage e)}})))))
             {:status 200
              :body {:message "Files updated from source"}})))
-      (= event-type "installation")
+      (#{"installation" "installation_repositories"} event-type)
       (let [sender-type (get-in body [:installation :account :type])
             git-slug (get-in body [:installation :account :login])
             org (when (= sender-type "Organization") (controllers.orgs/get-by-git-orgname git-slug components ctx))
@@ -415,15 +415,3 @@
 
       {:status 400
        :body {:error {:message "Missing required git sync data"}}})))
-
-(comment
-
-  (def thing [{:subdomain "felipegsilva" :mock-type "personal" :apis [{:git-repo "https://github.com/Felipe-gsilva/gh-app-test" :wildcard "mock" :content "# The following schema is an example of ho w you can\n# use the power of Moclojer to create your applications.\n#\n# Documentation: https://docs.moclojer.com\n# Source Code: https://github.com/moclojer/moclojer\n\n# This mock regis ter route: GET /hello/:uname\n- endpoint:\n    # Note: the method could be omitted because GET is the default\n    method: GET\n    path: /hello/:uname\n    response:\n      # Note: the st atus could be omitted because 200 is the default\n      status: 200\n      headers:\n        Content-Type: application/json\n      # Note: the body will receive the value passed in the url using the\n      # :uname placeholder\n      body: |\n        {\n          \"hello\": \"{{path-params.uname}}!\"\n        }\n" :dns-status "offline" :subdomain "felipegsilva" :id #uuid "2b0bbfe2-f056-4841-ae7f-1d00ca3d4a9d" :url "mock-felipegsilva.moclojer.com" :unification-status "offline" :enabled true :sha "408bf62de65fcbedbba78d325ce4ab987e41d607"}]}]
-
-    (->> thing
-         first
-         :apis
-         (filter #(= (-> % :id str) (str  "2b0bbfe2-f056-4841-ae7f-1d00ca3d4a9d")))
-         first)))
-
-

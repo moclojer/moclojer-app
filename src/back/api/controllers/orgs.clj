@@ -100,7 +100,7 @@
   [install-id org-id {:keys [database]} ctx]
   (logs/log :info "enabling git sync"
             :ctx (assoc ctx :org-id org-id))
-  (or  (-> {:org/id (parse-uuid org-id)}
+  (or  (-> {:org/id (parse-uuid (str org-id))}
            (logic.orgs/edit-org install-id)
            (db.orgs/update! database ctx)
            (adapter.orgs/->wire))
