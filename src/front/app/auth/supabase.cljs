@@ -4,8 +4,6 @@
    [promesa.core :as p]
    [reitit.frontend.easy :as rfe]))
 
-(defn inspect [a] (js/console.log a) a)
-
 (goog-define SUPABASE_URL "")
 (goog-define SUPABASE_TOKEN "")
 (when-not (every? not-empty [SUPABASE_URL SUPABASE_TOKEN])

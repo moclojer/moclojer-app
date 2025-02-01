@@ -58,7 +58,6 @@
      (throw (ex-info "Mock with given id invalid"
                      {:status-code 412
                       :cause :invalid-id})))))
-
 (defn get-mocks
   [{:keys [uuid username]} {:keys [database]} ctx]
   (logs/log :info "retrieving mocks"

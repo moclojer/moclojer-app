@@ -27,6 +27,13 @@
                    (refx/dispatch-sync
                     [:app.dashboard/edit-mock {:mock-id id
                                                :content content}])))]
+
+    (hooks/use-effect
+      [id]
+      (when id
+        (refx/dispatch [:app.dashboard/start-mock-polling id]))
+      #(refx/dispatch [:app.dashboard/stop-mock-polling]))
+
     (let [mock-id (:id data)
           has-changes? (refx/use-sub [:app.dashboard/mock-has-changes? mock-id])]
       (d/div {:class (str "relative w-full h-full rounded-lg overflow-hidden m-2 "

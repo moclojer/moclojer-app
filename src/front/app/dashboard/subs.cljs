@@ -1,5 +1,6 @@
 (ns front.app.dashboard.subs
   (:require
+   [clojure.string :as str]
    [refx.alpha :as refx]))
 
 (defn conj-if [xs & ys]
@@ -118,5 +119,8 @@
    (let [curr-mock (->> (:mocks-raw db)
                         (filter #(= (str (:id %)) (str mock-id)))
                         first)
-         saved-mock (:server-mock db)]
-     (not= (:content curr-mock) (:content saved-mock)))))
+         server-mock (:server-mock db)]
+     (prn (:content curr-mock))
+     (prn (:content server-mock))
+     (prn (not= (:content curr-mock) (:content server-mock)))
+     (not= (:content curr-mock) (:content server-mock)))))

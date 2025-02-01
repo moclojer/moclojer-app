@@ -16,7 +16,6 @@
    [refx.alpha :as refx]
    [reitit.frontend.easy :as rfe]))
 
-(defn inspect [a] (js/console.log a) a)
 (defnc not-found-view []
   (d/div "404"))
 

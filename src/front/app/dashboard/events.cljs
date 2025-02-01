@@ -393,3 +393,53 @@
     :notification {:type :error
                    :content (or (-> response :body :message)
                                 "Failed to push to GitHub")}}))
+
+(refx/reg-event-fx
+ :app.dashboard/start-mock-polling
+ (fn [{db :db} [_ mock-id]]
+   {:db (assoc db :polling-mock-id mock-id)
+    :dispatch-n [[:app.dashboard/poll-mock]]}))
+
+(refx/reg-event-fx
+ :app.dashboard/stop-mock-polling
+ (fn [{db :db} _]
+   {:db (dissoc db :polling-mock-id)}))
+
+(refx/reg-event-fx
+ :app.dashboard/poll-mock
+ (fn [{db :db} _]
+   (when-let [id (:polling-mock-id db)]
+     {:http {:url (str "/mocks/" id)
+             :method :get
+             :headers {"authorization" (str "Bearer " (-> db :current-user :access-token))}
+             :on-success [:app.dashboard/update-server-mocks]
+             :on-failure [:app.dashboard/poll-mock-failed]}
+      :dispatch-later [{:ms 5000
+                       :dispatch [:app.dashboard/poll-mock]}]})))
+
+(refx/reg-event-fx
+ :app.dashboard/poll-mock-failed
+ (fn [{db :db} [_ response]]
+   (js/console.warn "Poll failed:", 
+                   (clj->js response)
+                   "for mock ID:", 
+                   (:polling-mock-id db))
+   {:db db}))
+
+(refx/reg-event-db
+ :app.dashboard/update-server-mocks
+ (fn [db [_ response]]
+   (let [mock (-> response :body :mock)]
+     (if mock  ;; Only update if we got a valid mock
+       (assoc db :server-mock mock)
+       db))))  ;; Return unchanged db if no mock
+
+(refx/reg-event-fx
+ :app.dashboard/reload-mock
+ (fn [{db :db} [_ mock-id]]
+   (let [server-mock (:server-mock db)]
+     {:dispatch [:app.dashboard/edit-mock
+                 {:mock-id mock-id
+                  :content (:content server-mock)}]
+      :notification {:type :info
+                     :content "Mock reloaded from server"}})))

@@ -63,8 +63,6 @@
     {:status 201
      :body {:mock (controllers.mocks/create-mock! user-id mock components ctx)}}))
 
-(defn inspect [a] (prn "inspeciona " a) a)
-
 (defn handler-update-mock!
   [{:keys [parameters session-data components ctx]}]
   (let [user-id (:user-id session-data)
@@ -82,22 +80,6 @@
                                                       (not= git-repo "") (utils/assoc-if :git-repo git-path)))
                                                  components
                                                  ctx)]
-    ;; TODO check if it is a org or user
-    (when (and git-repo sha)
-      (when-let [git-user (controllers.user/get-user-by-id user-id components ctx)]
-        (let [owner (inspect (-> (str/split git-path  #"/")
-                                 (as-> [e] (take-last 2 e))
-                                 (first)))
-              install-id (:git-install-id git-user)
-              repo (inspect (controllers.sync/get-default-branch-data install-id owner git-repo components))
-              base-sha (-> repo :commit :sha)
-              branch (-> repo :name)
-              wildcard (:wildcard new-mock)
-              path (into [] (str "resoureces/mocks/" wildcard "/moclojer.yml"))
-              email (:email git-user)
-              encoded-content (into [] (utils/encode content))]
-          (controllers.sync/push! install-id owner git-repo email path base-sha branch
-                                  encoded-content components ctx))))
     {:status 200
      :body {:mock new-mock}}))
 
@@ -158,6 +140,22 @@
         pub-stts (controllers.mocks/get-mock-publication-status id database ctx)]
     {:status 200
      :body pub-stts}))
+
+(defn handler-get-mock-by-id
+  [{:keys [parameters session-data components ctx]}]
+  (let [id (-> parameters :path :id)
+        user (controllers.user/get-user-by-id
+              (:user-id session-data) components ctx)
+        mocks (controllers.mocks/get-mocks user components ctx)
+        mock (->> mocks
+                  (mapcat :apis)
+                  (filter #(= (str (:id %)) id))
+                  first)]
+    (if mock
+      {:status 200
+       :body {:mock mock}}
+      {:status 404
+       :body {:error "Mock not found"}})))
 
 (defn handler-get-orgs
   [{:keys [session-data components ctx]}]
@@ -239,10 +237,6 @@
   (into [] (filter #(and (= (last (str/split % #"/")) "moclojer.yml")
                          (str/includes? % "mocks/"))
                    files)))
-(defn inspect [a]
-  (prn "inspecionando " a (newline))
-  a)
-
 (defn handler-webhook
   [{:keys [headers parameters components ctx]}]
   (let [body (:body parameters)
@@ -379,19 +373,19 @@
     ctx :ctx}]
   (let [git-user (controllers.user/get-user-by-id user-id components ctx)
         [owner repo-name] (-> git-repo
-                             (str/replace #"https://github.com/" "")
-                             (str/split #"/"))
+                              (str/replace #"https://github.com/" "")
+                              (str/split #"/"))
         install-id (:git-install-id git-user)
         path [(str "resources/mocks/" wildcard "/moclojer.yml")]
         email (:email git-user)]
-    
+
     (logs/log :info "Starting GitHub push"
               :ctx (assoc ctx
-                         :owner owner
-                         :repo repo-name
-                         :path path
-                         :install-id install-id))
-    
+                          :owner owner
+                          :repo repo-name
+                          :path path
+                          :install-id install-id))
+
     (if (and install-id owner repo-name content)
       (try
         (let [repo (controllers.sync/get-default-branch-data install-id owner repo-name components)
@@ -399,25 +393,37 @@
               branch (-> repo :name)
               encoded-content [content]
               response (controllers.sync/push! install-id owner repo-name email path base-sha branch
-                                             encoded-content components ctx)]
-          
+                                               encoded-content components ctx)]
+
           (logs/log :info "Push successful"
                     :ctx (assoc ctx :response response))
-          
+
           {:status 200
            :body {:response response}})
-        
+
         (catch Exception e
           (logs/log :error "Failed to push to GitHub"
                     :ctx (assoc ctx
-                              :error (.getMessage e)
-                              :mock-id id
-                              :paths path
-                              :content-length (count content)
-                              :stack-trace (with-out-str (clojure.stacktrace/print-stack-trace e))))
+                                :error (.getMessage e)
+                                :mock-id id
+                                :paths path
+                                :content-length (count content)
+                                :stack-trace (with-out-str (clojure.stacktrace/print-stack-trace e))))
           {:status 500
            :body {:message "Failed to push to GitHub"
-                  :details (.getMessage e)}}))  
-      
+                  :details (.getMessage e)}}))
+
       {:status 400
        :body {:error {:message "Missing required git sync data"}}})))
+
+(comment
+
+  (def thing [{:subdomain "felipegsilva" :mock-type "personal" :apis [{:git-repo "https://github.com/Felipe-gsilva/gh-app-test" :wildcard "mock" :content "# The following schema is an example of ho w you can\n# use the power of Moclojer to create your applications.\n#\n# Documentation: https://docs.moclojer.com\n# Source Code: https://github.com/moclojer/moclojer\n\n# This mock regis ter route: GET /hello/:uname\n- endpoint:\n    # Note: the method could be omitted because GET is the default\n    method: GET\n    path: /hello/:uname\n    response:\n      # Note: the st atus could be omitted because 200 is the default\n      status: 200\n      headers:\n        Content-Type: application/json\n      # Note: the body will receive the value passed in the url using the\n      # :uname placeholder\n      body: |\n        {\n          \"hello\": \"{{path-params.uname}}!\"\n        }\n" :dns-status "offline" :subdomain "felipegsilva" :id #uuid "2b0bbfe2-f056-4841-ae7f-1d00ca3d4a9d" :url "mock-felipegsilva.moclojer.com" :unification-status "offline" :enabled true :sha "408bf62de65fcbedbba78d325ce4ab987e41d607"}]}]
+
+    (->> thing
+         first
+         :apis
+         (filter #(= (-> % :id str) (str  "2b0bbfe2-f056-4841-ae7f-1d00ca3d4a9d")))
+         first)))
+
+

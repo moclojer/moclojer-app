@@ -191,6 +191,15 @@
            :responses {200 {:body schemas.wire-out/Available}}
            :handler ports.http-in/handler-wildcard-available?}}]
 
+   ["/mocks/:id"
+    {:get {:summary "Gets a specific mock"
+           :parameters {:path {:id string?}}
+           :interceptors [(error-handler-interceptor)
+                          (extract-user-interceptor)]
+           :responses {200 {:body {:mock map?}}
+                       404 {:body {:error string?}}}
+           :handler ports.http-in/handler-get-mock-by-id}}]
+
    ["/mocks/:id/publication"
     {:swagger {:tags ["mocks"]}
      :get {:summary "Get mock publication status"

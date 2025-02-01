@@ -6,8 +6,6 @@
    [clj-github-app.client :as gh-app]
    [com.moclojer.components.logs :as logs]))
 
-(defn inspect [a] (prn a) a)
-
 (defn commit-message
   [author co-author email]
   (str "Auto genereted commit by " author "!!\n"
@@ -42,7 +40,7 @@
 (defn create-blob [gh-client install-id owner repo file]
   (let [response (gh-app/request* gh-client install-id
                                   {:method :post
-                                   :url (inspect (format "%s/repos/%s/%s/git/blobs" "https://api.github.com" owner repo))
+                                   :url (format "%s/repos/%s/%s/git/blobs" "https://api.github.com" owner repo)
                                    :headers {"Accept" "application/vnd.github+json"
                                              "Content-Type" "application/json"}
                                    :body (json/encode {:content file
@@ -74,12 +72,12 @@
                                    :url (format "%s/repos/%s/%s/git/trees" github-api-url owner repo)
                                    :headers {"Accept" "application/vnd.github+json"
                                              "Content-Type" "application/json"}
-                                   :body (inspect (json/encode {:base_tree (str base-tree-sha)
-                                                                :tree (create-file-map gh-client install-id paths contents owner repo)}))})]
+                                   :body  (json/encode {:base_tree (str base-tree-sha)
+                                                        :tree (create-file-map gh-client install-id paths contents owner repo)})})]
     (if (#{200 201} (:status response))
-      (let [content (inspect (-> response
-                                 :body
-                                 :sha))]
+      (let [content (-> response
+                        :body
+                        :sha)]
         content)
       (throw (ex-info "Failed to create a tree"
                       {:status (:status response)
@@ -186,35 +184,35 @@
         github-api-url (:api-url config)
         app-id (:app-id config)
         private-key (:private-key config)]
-    
-    (logs/log :info "Creating blob" 
-              :ctx (assoc ctx 
-                         :paths paths
-                         :files-count (count files)))
-    
+
+    (logs/log :info "Creating blob"
+              :ctx (assoc ctx
+                          :paths paths
+                          :files-count (count files)))
+
     (let [encoded-files (mapv utils/encode files)
-          _ (logs/log :info "Files encoded" 
+          _ (logs/log :info "Files encoded"
                       :ctx (assoc ctx :encoded-count (count encoded-files)))
-          
+
           commit (create-commit install-id owner repo email paths encoded-files base-tree-sha
-                               {:github-api-url github-api-url
-                                :app-id app-id
-                                :private-key private-key})
-          _ (logs/log :info "Commit created" 
+                                {:github-api-url github-api-url
+                                 :app-id app-id
+                                 :private-key private-key})
+          _ (logs/log :info "Commit created"
                       :ctx (assoc ctx :commit commit))
-          
+
           commit-sha (:sha commit)]
-      
+
       (when commit-sha
-        (logs/log :info "Updating reference" 
-                  :ctx (assoc ctx 
-                             :commit-sha commit-sha
-                             :branch branch))
-        
+        (logs/log :info "Updating reference"
+                  :ctx (assoc ctx
+                              :commit-sha commit-sha
+                              :branch branch))
+
         (update-reference install-id owner repo (str "refs/heads/" branch) commit-sha
-                         {:github-api-url github-api-url
-                          :app-id app-id
-                          :private-key private-key})))))
+                          {:github-api-url github-api-url
+                           :app-id app-id
+                           :private-key private-key})))))
 
 (comment
   (def app-id "1089795")
