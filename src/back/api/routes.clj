@@ -32,7 +32,6 @@
    ["/webhook"
     {:post {:summary "Handles a webhook"
             :parameters {:body map?}
-            ;; TODO check if this can be removed
             :interceptors [(parameters/parameters-interceptor)
                            (verify-webhook-signature)]
             :handler ports.http-in/handler-webhook}}]
@@ -215,4 +214,13 @@
             :interceptors [(error-handler-interceptor)
                            (extract-user-interceptor)]
             :responses {200 {:body {}}}
-            :handler ports.http-in/handler-unpublish-mock!}}]])
+            :handler ports.http-in/handler-unpublish-mock!}}]
+
+   ["/mocks/:id/push"
+    {:post {:summary "Push mock to GitHub"
+            :parameters {:path {:id uuid?}
+                         :body schemas.wire-in/MockPush}
+            :interceptors [(error-handler-interceptor)
+                           (extract-user-interceptor)]
+            :responses {200 {:body [map?]}}
+            :handler ports.http-in/handler-push-mock!}}]])

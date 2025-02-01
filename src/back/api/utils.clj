@@ -1,5 +1,6 @@
 (ns back.api.utils
-  (:require [clojure.string :as str]))
+  (:require [clojure.string :as str])
+  (:import [java.util Base64]))
 
 (defn assoc-if
   "This function returns a map with a respective associated key and value 
@@ -16,11 +17,11 @@
         decoder (java.util.Base64/getDecoder)]
     (String. (.decode decoder cleaned-str) "UTF-8")))
 
-(defn encode
-  "Encodes a given string into base64 format"
-  [s]
-  (let [encoder (java.util.Base64/getEncoder)]
-    (.encodeToString encoder (.getBytes s "UTF-8"))))
+(defn encode [content]
+  (let [content-str (str content)
+        bytes (.getBytes content-str "UTF-8")
+        encoder (Base64/getEncoder)]
+    (.encodeToString encoder bytes)))
 
 (defn sha256?
   "Checks if the input string is a valid SHA-256 hash."

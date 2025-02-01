@@ -106,3 +106,17 @@
  :app.dashboard/is-sync-enabled?
  (fn [db _]
    (:sync-enabled db)))
+
+(refx/reg-sub
+ :app.dashboard/loading-sync?
+ (fn [db _]
+   (:loading-sync? db)))
+
+(refx/reg-sub
+ :app.dashboard/mock-has-changes?
+ (fn [db [_ mock-id]]
+   (let [curr-mock (->> (:mocks-raw db)
+                        (filter #(= (str (:id %)) (str mock-id)))
+                        first)
+         saved-mock (:server-mock db)]
+     (not= (:content curr-mock) (:content saved-mock)))))

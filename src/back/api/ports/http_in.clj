@@ -11,7 +11,8 @@
    [back.api.logic.orgs :as logic.orgs]
    [back.api.utils :as utils]
    [clojure.string :as str]
-   [com.moclojer.components.logs :as logs]))
+   [com.moclojer.components.logs :as logs]
+   [clojure.stacktrace :as stacktrace]))
 
 (defn handler-create-user!
   [{{{:keys [access-token]} :body} :parameters
@@ -358,14 +359,65 @@
       {:status 404
        :body {:message "Could not retrieve user repos"}})))
 
-(defn handler-sync-status [session-data components ctx]
-  (prn "data sessao " session-data)
+(defn handler-sync-status
+  [{:keys [session-data components ctx]}]
   (let [user (controllers.user/get-user-by-id (:user-id session-data) components ctx)
         install-id (:git-install-id user)]
-    (prn "usuario " user)
-    (if install-id
+    (if (number? install-id)
       {:status 200
-       :body {:sync-enabled true}}
+       :body {:sync-enabled true
+              :message "Sync Enabled"}}
       {:status 404
        :body {:sync-enabled false
-              :message "Sync disabled"}})))
+              :message "Sync Disabled"}})))
+
+(defn handler-push-mock!
+  [{{{:keys [id]} :path
+     {:keys [content git-repo wildcard]} :body} :parameters
+    {:keys [user-id]} :session-data
+    components :components
+    ctx :ctx}]
+  (let [git-user (controllers.user/get-user-by-id user-id components ctx)
+        [owner repo-name] (-> git-repo
+                             (str/replace #"https://github.com/" "")
+                             (str/split #"/"))
+        install-id (:git-install-id git-user)
+        path [(str "resources/mocks/" wildcard "/moclojer.yml")]
+        email (:email git-user)]
+    
+    (logs/log :info "Starting GitHub push"
+              :ctx (assoc ctx
+                         :owner owner
+                         :repo repo-name
+                         :path path
+                         :install-id install-id))
+    
+    (if (and install-id owner repo-name content)
+      (try
+        (let [repo (controllers.sync/get-default-branch-data install-id owner repo-name components)
+              base-sha (-> repo :commit :sha)
+              branch (-> repo :name)
+              encoded-content [content]
+              response (controllers.sync/push! install-id owner repo-name email path base-sha branch
+                                             encoded-content components ctx)]
+          
+          (logs/log :info "Push successful"
+                    :ctx (assoc ctx :response response))
+          
+          {:status 200
+           :body {:response response}})
+        
+        (catch Exception e
+          (logs/log :error "Failed to push to GitHub"
+                    :ctx (assoc ctx
+                              :error (.getMessage e)
+                              :mock-id id
+                              :paths path
+                              :content-length (count content)
+                              :stack-trace (with-out-str (clojure.stacktrace/print-stack-trace e))))
+          {:status 500
+           :body {:message "Failed to push to GitHub"
+                  :details (.getMessage e)}}))  
+      
+      {:status 400
+       :body {:error {:message "Missing required git sync data"}}})))

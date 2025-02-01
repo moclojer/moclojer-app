@@ -9,7 +9,7 @@
      [front.app.components.svg :as svg]
      [front.app.dashboard.base :as base]
      [front.app.dashboard.linter :as linter]
-     [front.app.components.modal :refer [modal]]
+     [front.app.components.loading :refer [loading-spinner]]
      [mockingbird.lib :refer-macros [defnc]]
      [helix.core :refer [$ <>]]
      [helix.dom :as d]
@@ -27,17 +27,20 @@
                    (refx/dispatch-sync
                     [:app.dashboard/edit-mock {:mock-id id
                                                :content content}])))]
-
-    ($ c/default
-       {:height "calc(100vh - 171px)"
-        :autoFocus true
-        :value content
-        :theme theme/githubLight
-        :extensions #js [(.define language/StreamLanguage yaml/yaml)
-                         (clint/lintGutter) linter/yaml-linter]
-        :onDragOver #(set-dragging-over! true)
-        :onChange (partial ref-fn)
-        :mode "yaml"})))
+    (let [mock-id (:id data)
+          has-changes? (refx/use-sub [:app.dashboard/mock-has-changes? mock-id])]
+      (d/div {:class (str "relative w-full h-full rounded-lg overflow-hidden m-2 "
+                          (when has-changes? "border-2 border-yellow-500"))}
+             ($ c/default
+                {:height "calc(100vh - 171px)"
+                 :autoFocus true
+                 :value content
+                 :theme theme/githubLight
+                 :extensions #js [(.define language/StreamLanguage yaml/yaml)
+                                  (clint/lintGutter) linter/yaml-linter]
+                 :onDragOver #(set-dragging-over! true)
+                 :onChange (partial ref-fn)
+                 :mode "yaml"})))))
 
 (defn file-handler [on-load set-dragging-over! e]
   (set-dragging-over! false)
@@ -62,27 +65,27 @@
                        "border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 "
                        "dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 "
                        "dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600")}
-          (d/div {:class-name "flex flex-col items-center justify-center pt-5 pb-6"}
-                 ($ svg/upload {:class-name "mb-4 text-gray-500 dark:text-gray-400 w-8 h-8"})
-                 (d/p {:class-name "mb-2 text-sm text-gray-500 dark:text-gray-400"}
-                      (d/span {:class-name "font-semibold"} "Drop the YAML here to upload the mock"))
-                 (d/p {:class-name "text-xs text-gray-500 dark:text-gray-400"} "YAML"))
+          (d/div {:class "flex flex-col items-center justify-center pt-5 pb-6"}
+                 ($ svg/upload {:class "mb-4 text-gray-500 dark:text-gray-400 w-8 h-8"})
+                 (d/p {:class "mb-2 text-sm text-gray-500 dark:text-gray-400"}
+                      (d/span {:class "font-semibold"} "Drop the YAML here to upload the mock"))
+                 (d/p {:class "text-xs text-gray-500 dark:text-gray-400"} "YAML"))
           #_($ drop-input {:handle-file-fn handle-file-fn}))))
 
 (defnc save-button [{:keys [mock-id full-width?]}]
   (let [mock-valid? (refx/use-sub [:app.dashboard/mock-valid?])]
     (d/button
-     {:class-name (str "px-3 py-2 bg-pink-600 rounded-lg flex justify-center items-center btn-add space-x-2 transition-all duration-75 "
-                       (when full-width? "w-full ")
-                       (when-not mock-valid? " opacity-50 cursor-not-allowed"))
+     {:class (str "w-full px-3 py-2 bg-pink-600 rounded-lg flex justify-center items-center btn-add space-x-2 transition-all duration-75 "
+                  (when full-width? "w-full ")
+                  (when-not mock-valid? " opacity-50 cursor-not-allowed"))
       :on-click #(when mock-valid?
                    (refx/dispatch-sync [:app.dashboard/save-mock mock-id])
                    (refx/dispatch-sync [:app.dashboard/reset-mock-pub-stts mock-id]))}
-     (d/div {:class-name "text-white text-xs font-bold leading-[18px]"} " save")
+     (d/div {:class "text-white text-xs font-bold leading-[18px]"} "save")
      ($ svg/save))))
 
 (defnc file-upload-button [{:keys [handle-file-fn]}]
-  (d/button {:class "w-full px-3 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 transition-all duration-75 "}
+  (d/button {:class "w-full px-2 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 transition-all duration-75 "}
             (d/label {:class (str "text-white text-sm font-medium whitespace-nowrap "
                                   "flex flex-row justify-center items-center space-x-2 "
                                   "cursor-pointer")
@@ -103,25 +106,50 @@
             ($ svg/trash)))
 
 (defnc push-button [{:keys [mock-id]}]
-  (let [mock-valid? (refx/use-sub [:app.dashboard/mock-valid?])]
+  (let [mock-valid? (refx/use-sub [:app.dashboard/mock-valid?])
+        sync-enabled? (refx/use-sub [:app.dashboard/is-sync-enabled?])]
     (d/button
-     {:class-name (str "px-3 py-2 bg-gray-500 rounded-lg flex justify-center items-center btn-add space-x-2 "
-                       "hover:bg-gray-600 transition-all duration-75 "
-                       (when-not mock-valid? " opacity-50 cursor-not-allowed"))
-      :on-click #(when mock-valid?
+     {:class (str "px-3 py-2 bg-gray-500 rounded-lg flex justify-center items-center space-x-2 "
+                  "hover:bg-gray-600 transition-all duration-75 "
+                  (when (not mock-valid?)
+                    " opacity-50 cursor-not-allowed"))
+      :on-click #(when  mock-valid?
                    (refx/dispatch-sync [:app.dashboard/push-mock mock-id])
                    (refx/dispatch-sync [:app.dashboard/reset-mock-pub-stts mock-id]))}
-     (d/div {:class-name "text-white text-xs font-bold leading-[18px]"} " push to origin")
-     ($ svg/save))))
+     (d/div {:class "text-white text-xs font-bold leading-[18px]"}
+            "Push ")
+     ($ svg/github))))
 
 (defnc enable-button [{:keys [mock-id]}]
-  (let [mock-valid? (refx/use-sub [:app.dashboard/mock-valid?])]
+  (let [loading? (refx/use-sub [:app.dashboard/loading-sync?])]
     (d/button
-     {:class-name (str "px-3 py-2 bg-gray-500 rounded-lg flex justify-center items-center btn-add space-x-2 "
-                       "hover:bg-gray-600 transition-all duration-75 ")
-      :on-click #(refx/dispatch-sync [:app.dashboard/enable-sync])}
-     (d/div {:class-name "text-white text-xs font-bold leading-[18px]"} " enable git sync")
-     ($ svg/save))))
+     {:class (str "bg-gray-50 rounded-lg flex justify-center items-center space-x-2 "
+                  "transition-all duration-75 "
+                  (when loading? "opacity-50 cursor-not-allowed"))
+      :disabled loading?
+      :on-click #(refx/dispatch-sync [:app.dashboard/enable-git-sync])}
+     (if loading?
+       ($ loading-spinner)
+       ($ svg/github)))))
+
+(defnc reload-button [{:keys [mock-id]}]
+  (d/button
+   {:class (str "px-3 py-2 bg-yellow-500 rounded-lg flex justify-center items-center space-x-2 "
+                "hover:bg-yellow-600 transition-all duration-75 ")
+    :on-click #(refx/dispatch-sync [:app.dashboard/reload-mock mock-id])}
+   (d/div {:class "text-white text-xs font-bold leading-[18px]"}
+          "reload ")
+   ($ loading-spinner)))
+
+(defnc editor-toolbar [{:keys [mock-id]}]
+  (let [has-changes? (refx/use-sub [:app.dashboard/mock-has-changes? mock-id])]
+    (d/div {:class "flex items-center space-x-2"}
+           (if has-changes?
+             ($ reload-button {:mock-id mock-id})
+             ($ push-button {:mock-id mock-id}))
+           ($ remove-button {:mock-id mock-id})
+           ($ save-button {:mock-id mock-id
+                           :class "ml-auto "}))))
 
 (defnc index [{:keys [route]}]
   (let [on-load (fn [e fnstate]
@@ -174,8 +202,8 @@
             (d/p
              {:class "text-gray-700 text-sm font-medium"}
              (or (:subdomain mock-data) "my")))))
-         (d/div {:class-name "flex flex-col items-left lg:flex-row lg:justify-between"}
-                (d/div {:class-name "flex flex-row items-center space-x-2"}
+         (d/div {:class "flex flex-col items-left lg:flex-row lg:justify-between"}
+                (d/div {:class "flex flex-row items-center space-x-2"}
                        (if (:enabled mock-data)
                          ($ svg/mock-enabled)
                          ($ svg/mock-disabled))
@@ -199,25 +227,17 @@
                                                      "hover:bg-gray-200 group-hover:block")}
                                         ($ svg/arrow-link)))))
 
-                (d/div {:class-name "w-full lg:w-1/2 xl:w-1/3 2xl:w-1/4 flex flex-row mt-2 mb-4 lg:my-0 space-x-2"}
-                       ($ remove-button {:mock-id mock-id})
-
-                       (if sync-enabled?
-                         ($ push-button {:mock-id mock-id})
-                         ($ enable-button))
-
-                       ($ save-button {:mock-id mock-id
-                                       :full-width? true})
-
-                       ($ file-upload-button {:handle-file-fn handle-file-fn})))
-         ($ drag-drop
-            {:on-load (fn [e]
-                        (on-load e
-                                 #(refx/dispatch [:app.dashboard/edit-mock {:mock-id mock-id
-                                                                            :content %}])))
-             :dragging-over? dragging-over?
-             :set-dragging-over! set-dragging-over!
-             :handle-file-fn handle-file-fn}))
-        ($ editor {:data mock-data
-                   :set-dragging-over! set-dragging-over!
-                   :handle-file-fn handle-file-fn})))))
+                (d/div {:class "w-full lg:w-1/2 xl:w-1/4  flex flex-row mt-2 mb-4 lg:my-0 space-x-2 lg:mr-4 sm:mr-0 "}
+                       ($ editor-toolbar {:mock-id mock-id})
+                       ($ file-upload-button {:handle-file-fn handle-file-fn}))
+                ($ drag-drop
+                   {:on-load (fn [e]
+                               (on-load e
+                                        #(refx/dispatch [:app.dashboard/edit-mock {:mock-id mock-id
+                                                                                   :content %}])))
+                    :dragging-over? dragging-over?
+                    :set-dragging-over! set-dragging-over!
+                    :handle-file-fn handle-file-fn}))
+         ($ editor {:data mock-data
+                    :set-dragging-over! set-dragging-over!
+                    :handle-file-fn handle-file-fn}))))))

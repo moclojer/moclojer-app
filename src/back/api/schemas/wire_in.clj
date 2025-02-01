@@ -17,6 +17,12 @@
   (conj Mock
         [:org-id {:optional true} string?]))
 
+(def MockPush
+  [:map
+   [:content string?]
+   [:git-repo string?]
+   [:wildcard string?]])
+
 (def MockUpdate
   [:map
    [:id string?]

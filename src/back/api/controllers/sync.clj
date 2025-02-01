@@ -3,7 +3,8 @@
   (:require
    [back.api.utils :as utils]
    [cheshire.core :as json]
-   [clj-github-app.client :as gh-app]))
+   [clj-github-app.client :as gh-app]
+   [com.moclojer.components.logs :as logs]))
 
 (defn inspect [a] (prn a) a)
 
@@ -184,18 +185,36 @@
   (let [config (get-in components [:config :config :git-sync])
         github-api-url (:api-url config)
         app-id (:app-id config)
-        private-key (:private-key config)
-        encoded-files (mapv utils/encode files)
-        commit (create-commit install-id owner repo email paths encoded-files base-tree-sha
-                              {:github-api-url github-api-url
-                               :app-id app-id
-                               :private-key private-key})
-        commit-sha (:sha commit)]
-    (when commit-sha
-      (update-reference install-id owner repo (str "refs/heads/" branch) commit-sha
-                        {:github-api-url github-api-url
-                         :app-id app-id
-                         :private-key private-key}))))
+        private-key (:private-key config)]
+    
+    (logs/log :info "Creating blob" 
+              :ctx (assoc ctx 
+                         :paths paths
+                         :files-count (count files)))
+    
+    (let [encoded-files (mapv utils/encode files)
+          _ (logs/log :info "Files encoded" 
+                      :ctx (assoc ctx :encoded-count (count encoded-files)))
+          
+          commit (create-commit install-id owner repo email paths encoded-files base-tree-sha
+                               {:github-api-url github-api-url
+                                :app-id app-id
+                                :private-key private-key})
+          _ (logs/log :info "Commit created" 
+                      :ctx (assoc ctx :commit commit))
+          
+          commit-sha (:sha commit)]
+      
+      (when commit-sha
+        (logs/log :info "Updating reference" 
+                  :ctx (assoc ctx 
+                             :commit-sha commit-sha
+                             :branch branch))
+        
+        (update-reference install-id owner repo (str "refs/heads/" branch) commit-sha
+                         {:github-api-url github-api-url
+                          :app-id app-id
+                          :private-key private-key})))))
 
 (comment
   (def app-id "1089795")
