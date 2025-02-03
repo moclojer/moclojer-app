@@ -79,7 +79,7 @@
                  (d/p {:class "text-xs text-gray-500 dark:text-gray-400"} "YAML"))
           #_($ drop-input {:handle-file-fn handle-file-fn}))))
 
-(defnc save-button [{:keys [mock-id full-width?]}]
+(defnc save-button [{:keys [mock-id full-width? sync-enabled?]}]
   (let [mock-valid? (refx/use-sub [:app.dashboard/mock-valid?])]
     (d/button
      {:class (str "w-full px-3 py-2 bg-pink-600 rounded-lg flex justify-center items-center btn-add space-x-2 transition-all duration-75 "
@@ -87,12 +87,15 @@
                   (when-not mock-valid? " opacity-50 cursor-not-allowed"))
       :on-click #(when mock-valid?
                    (refx/dispatch-sync [:app.dashboard/save-mock mock-id])
+                   (refx/dispatch-sync [:app.dashboard/push-mock mock-id])
                    (refx/dispatch-sync [:app.dashboard/reset-mock-pub-stts mock-id]))}
      (d/div {:class "text-white text-xs font-bold leading-[18px]"} "save")
-     ($ svg/save))))
+     (if sync-enabled?
+       ($ svg/github)
+       ($ svg/save)))))
 
 (defnc file-upload-button [{:keys [handle-file-fn]}]
-  (d/button {:class "w-full px-2 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 transition-all duration-75 "}
+  (d/button {:class "px-3 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 transition-all duration-75 "}
             (d/label {:class (str "text-white text-sm font-medium whitespace-nowrap "
                                   "flex flex-row justify-center items-center space-x-2 "
                                   "cursor-pointer")
@@ -106,38 +109,11 @@
 
 (defnc remove-button [{:keys [mock-id]}]
   (d/button {:class (str "w-full px-3 py-2 rounded-lg border border-gray-200 bg-white transition-all "
-                         "hover:bg-red hover:border-red  duration-75 "
+                         "hover:border-red-500  duration-75 "
                          "flex flex-row justify-center items-center space-x-2 ")
              :on-click #(refx/dispatch-sync [:app.dashboard/set-mock-to-delete {:id mock-id}])}
             (d/div {:class "text-gray-800 text-sm font-medium "} "remove")
             ($ svg/trash)))
-
-(defnc push-button [{:keys [mock-id]}]
-  (let [mock-valid? (refx/use-sub [:app.dashboard/mock-valid?])
-        sync-enabled? (refx/use-sub [:app.dashboard/is-sync-enabled?])]
-    (d/button
-     {:class (str "px-3 py-2 bg-gray-500 rounded-lg flex justify-center items-center space-x-2 "
-                  "hover:bg-gray-600 transition-all duration-75 "
-                  (when (not mock-valid?)
-                    " opacity-50 cursor-not-allowed"))
-      :on-click #(when  mock-valid?
-                   (refx/dispatch-sync [:app.dashboard/push-mock mock-id])
-                   (refx/dispatch-sync [:app.dashboard/reset-mock-pub-stts mock-id]))}
-     (d/div {:class "text-white text-xs font-bold leading-[18px]"}
-            "Push ")
-     ($ svg/github))))
-
-(defnc enable-button [{:keys [mock-id]}]
-  (let [loading? (refx/use-sub [:app.dashboard/loading-sync?])]
-    (d/button
-     {:class (str "bg-gray-50 rounded-lg flex justify-center items-center space-x-2 "
-                  "transition-all duration-75 "
-                  (when loading? "opacity-50 cursor-not-allowed"))
-      :disabled loading?
-      :on-click #(refx/dispatch-sync [:app.dashboard/enable-git-sync])}
-     (if loading?
-       ($ loading-spinner)
-       ($ svg/github)))))
 
 (defnc reload-button [{:keys [mock-id]}]
   (d/button
@@ -148,15 +124,44 @@
           "reload ")
    ($ loading-spinner)))
 
+(defnc enable-sync-button [{:keys [mock-id]}]
+  (d/button
+   {:class (str "px-3 py-2 rounded-lg flex justify-center items-center space-x-2 "
+                "transition-all duration-75 ")
+    :on-click #(refx/dispatch-sync [:app.dashboard/reload-mock mock-id])}
+   (d/div {:class "text-black text-xs font-bold leading-[18px]"}
+          "enable git sync")
+   ($ loading-spinner)))
+
+(defnc enable-sync-status [{:keys [mock-id sync-enabled?]}]
+  (let [loading-sync? (refx/use-sub [:app.dashboard/loading-sync?])]
+    (hooks/use-effect
+      []
+      (when-not sync-enabled?
+        (refx/dispatch-sync [:app.dashboard/enable-git-sync mock-id])))
+
+    (when loading-sync?
+      (d/div
+       {:class "px-3 py-2 bg-gray-500 rounded-lg flex justify-center items-center space-x-2"}
+       (d/div {:class "text-white text-xs font-bold leading-[18px]"}
+              "Enabling sync...")
+       ($ loading-spinner)))))
+
 (defnc editor-toolbar [{:keys [mock-id]}]
-  (let [has-changes? (refx/use-sub [:app.dashboard/mock-has-changes? mock-id])]
+  (let [has-changes? (refx/use-sub [:app.dashboard/mock-has-changes? mock-id])
+        sync-enabled? (refx/use-sub [:app.dashboard/is-sync-enabled?])]
     (d/div {:class "flex items-center space-x-2"}
-           (if has-changes?
-             ($ reload-button {:mock-id mock-id})
-             ($ push-button {:mock-id mock-id}))
+           (when-not sync-enabled?
+             ($ enable-sync-button {:mock-id mock-id}))
+           (when (and sync-enabled? has-changes?)
+             ($ reload-button {:mock-id mock-id}))
            ($ remove-button {:mock-id mock-id})
-           ($ save-button {:mock-id mock-id
-                           :class "ml-auto "}))))
+           (if sync-enabled?
+             ($ save-button {:mock-id mock-id
+                             :sync-enabled? sync-enabled?
+                             :class "ml-auto "})
+             ($ enable-sync-status {:mock-id mock-id
+                                    :sync-enabled? sync-enabled?})))))
 
 (defnc index [{:keys [route]}]
   (let [on-load (fn [e fnstate]
@@ -173,10 +178,9 @@
                                     :uploaded? true}])
                                 set-dragging-over!)
         [deleting? set-deleting!] (hooks/use-state false)
-        mock-to-delete (refx/use-sub [:app.dashboard/mock-to-delete])
-        sync-enabled? (or (refx/use-sub [:app.dashboard/is-sync-enabled?]) false)]
+        mock-to-delete (refx/use-sub [:app.dashboard/mock-to-delete])]
 
-;; since deleting the mock being currently being edited happens
+    ;; since deleting the mock being currently being edited happens
     ;; outside of this component's state, this logic lets us know
     ;; when the popup `really delete this mock?` is confirmed (if so).
     (hooks/use-effect
@@ -234,7 +238,7 @@
                                                      "hover:bg-gray-200 group-hover:block")}
                                         ($ svg/arrow-link)))))
 
-                (d/div {:class "w-full lg:w-1/2 xl:w-1/4  flex flex-row mt-2 mb-4 lg:my-0 space-x-2 lg:mr-4 sm:mr-0 "}
+                (d/div {:class "w-full lg:w-1/2 xl:w-1/4 flex flex-row  justify-center lg:items-end items-start mt-2 mb-4 lg:my-0 space-x-2 lg:mr-4 sm:mr-0 "}
                        ($ editor-toolbar {:mock-id mock-id})
                        ($ file-upload-button {:handle-file-fn handle-file-fn}))
                 ($ drag-drop

@@ -88,7 +88,6 @@
   (let [user (controllers.user/get-user-by-id
               (:user-id session-data) components ctx)
         mocks (controllers.mocks/get-mocks user components ctx)]
-    (prn mocks)
     {:status 200
      :body {:mocks mocks}}))
 
@@ -355,6 +354,7 @@
 
 (defn handler-sync-status
   [{:keys [session-data components ctx]}]
+  (prn session-data)
   (let [user (controllers.user/get-user-by-id (:user-id session-data) components ctx)
         install-id (:git-install-id user)]
     (if (number? install-id)
@@ -408,7 +408,7 @@
                                 :mock-id id
                                 :paths path
                                 :content-length (count content)
-                                :stack-trace (with-out-str (clojure.stacktrace/print-stack-trace e))))
+                                :stack-trace (with-out-str (stacktrace/print-stack-trace e))))
           {:status 500
            :body {:message "Failed to push to GitHub"
                   :details (.getMessage e)}}))

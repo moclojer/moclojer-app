@@ -23,7 +23,7 @@
                      :user
                      :user_metadata
                      :user_name)
-        username-to-save  (refx/use-sub [:app.auth/username-to-save])
+        username-to-save (refx/use-sub [:app.auth/username-to-save])
         available? (refx/use-sub [:app.auth/is-username-available?])]
     ($ modal
        {:title "Settings"

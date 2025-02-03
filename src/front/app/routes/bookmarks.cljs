@@ -40,4 +40,3 @@
     {:name :app.core/not-found
      :view auth/not-found-view
      :public? true}]])
-
