@@ -338,7 +338,7 @@
      (-> {}
          (cond->
           (not (:git-repo mock))
-           (assoc :dispatch [:app.dashboard/verify-mock-repo mock-id]))
+           (assoc :dispatch-sync [:app.dashboard/verify-mock-repo mock-id]))
          (assoc :http {:url "/sync"
                        :method :get
                        :headers {"authorization" (str "Bearer " (-> db :current-user :access-token))}

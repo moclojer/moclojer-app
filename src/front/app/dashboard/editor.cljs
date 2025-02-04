@@ -31,13 +31,15 @@
     (hooks/use-effect
       [id]
       (when id
-        (refx/dispatch [:app.dashboard/start-mock-polling id]))
-      #(refx/dispatch [:app.dashboard/stop-mock-polling]))
+        (refx/dispatch-sync [:app.dashboard/start-mock-polling id]))
+      #(refx/dispatch-sync [:app.dashboard/stop-mock-polling]))
 
     (let [mock-id (:id data)
           has-changes? (refx/use-sub [:app.dashboard/mock-has-changes? mock-id])]
-      (d/div {:class (str "relative w-full h-full rounded-lg overflow-hidden m-2 "
-                          (when has-changes? "border-2 border-yellow-500"))}
+      (d/div {:class (str "relative w-full h-full rounded-lg overflow-hidden m-2  "
+                          (if has-changes? "border-2 border-yellow-500 "
+                            "border-none "
+                            ))}
              ($ c/default
                 {:height "calc(100vh - 171px)"
                  :autoFocus true
@@ -238,7 +240,8 @@
                                                      "hover:bg-gray-200 group-hover:block")}
                                         ($ svg/arrow-link)))))
 
-                (d/div {:class "w-full lg:w-1/2 xl:w-1/4 flex flex-row  justify-center lg:items-end items-start mt-2 mb-4 lg:my-0 space-x-2 lg:mr-4 sm:mr-0 "}
+                (d/div {:class (str "w-full lg:w-1/2 xl:w-1/4 flex flex-row justify-start lg:justify-end "
+                                    "items-center mt-2 mb-4 lg:my-0 space-x-2 lg:mr-4 sm:mr-0 ")}
                        ($ editor-toolbar {:mock-id mock-id})
                        ($ file-upload-button {:handle-file-fn handle-file-fn}))
                 ($ drag-drop

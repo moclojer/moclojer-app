@@ -63,7 +63,7 @@
                                    :on-submit (fn [e]
                                                 (.preventDefault e)
                                                 (when (and (not-empty username-to-save) available?)
-                                                  (refx/dispatch [:app.dashboard/set-new-username username-to-save])))}
+                                                  (refx/dispatch-sync [:app.dashboard/set-new-username username-to-save])))}
                                   (d/div {:class  "w-[calc(100%)]"}
                                          ($ input {:label "Edit Username"
                                                    :on-change (fn [e]
