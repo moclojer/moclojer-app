@@ -129,6 +129,15 @@
               :responses {200 {:body {:success boolean?}}}
               :handler ports.http-in/handler-delete-org}}]
 
+   ["/org/orgname/:orgname"
+    {:swagger {:tags ["get orgname"]}
+     :get {:summary "Check if orgname is available"
+           :parameters {:path {:orgname string?}}
+           :interceptors [(error-handler-interceptor)
+                          (extract-user-interceptor)]
+           :responses {200 {:body schemas.wire-out/Available}}
+           :handler ports.http-in/handler-orgname-available?}}]
+
    ["/orgs/:id/users"
     {:get {:summary "Get an org's users"
            :interceptors [(error-handler-interceptor)
