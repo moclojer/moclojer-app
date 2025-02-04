@@ -1,5 +1,6 @@
 (ns front.app.dashboard.events
-  (:require [refx.alpha :as refx]))
+  (:require
+   [refx.alpha :as refx]))
 
 (refx/reg-event-db
  :app.dashboard/toggle-aside!
@@ -20,8 +21,14 @@
  (fn
    [{db :db} [_ _]]
    (let [toggle (:is-modal-open? db)]
-     {:db  (assoc db
-                  :is-modal-open? (not toggle))})))
+     {:db (assoc db :is-modal-open? (not toggle))})))
+
+(refx/reg-event-fx
+ :app.dashboard/toggle-settings
+ (fn
+   [{db :db} [_ _]]
+   (let [toggle (:is-settings-open? db)]
+     {:db (assoc db :is-settings-open? (not toggle))})))
 
 (defn mocks->raw [mocks]
   (->> mocks
@@ -29,13 +36,13 @@
        flatten
        (into [])))
 
-(refx/reg-event-db
+(refx/reg-event-fx
  :app.dashboard/get-mocks-success
- (fn [db [_ {{mocks :mocks} :body}]]
-   (merge db
-          {:mocks-raw (mocks->raw mocks)
-           :mocks mocks
-           :loading-mocks? false})))
+ (fn [{db :db} [_ {{mocks :mocks} :body}]]
+   {:db (assoc db
+               :loading-mocks? false
+               :mocks mocks
+               :mocks-raw (mocks->raw mocks))}))
 
 (refx/reg-event-db
  :app.dashboard/get-mocks-failure
@@ -105,17 +112,21 @@
 
 (refx/reg-event-fx
  :app.dashboard/save-mock-success
- (fn [_ _]
+ (fn [{db :db} _]
    {:dispatch [:app.dashboard/get-mocks]
     :notification {:type :info
                    :content "Saved successfully!"}}))
 
 (refx/reg-event-fx
  :app.dashboard/save-mock-failed
- (fn [{db :db} _]
-   {:notification {:type :error
-                   :content "Error when saving!"}
-    :db (assoc db :save-edit-mock true)}))
+ (fn [{db :db} [_ response]]
+   (js/console.error "Save mock failed:", (clj->js response))
+   {:db (assoc db
+               :loading-edit-mock false
+               :loading-sync? false)
+    :notification {:type :error
+                   :content (or (-> response :body :error :message)
+                                "Failed to save mock")}}))
 
 (refx/reg-event-db
  :app.dashboard/set-mock-validation
@@ -146,7 +157,8 @@
 (refx/reg-event-fx
  :app.dashboard/edit-mock-success
  (fn [{db :db} [_ {:keys [new-mocks-raw uploaded?]}]]
-   (let [fx {:db (assoc db :mocks-raw new-mocks-raw)}]
+   (let [fx {:db (assoc db
+                        :mocks-raw new-mocks-raw)}]
      (if uploaded?
        (assoc fx :notification {:type :info
                                 :message "File uploaded successfully!"})
@@ -255,3 +267,205 @@
  :app.dashboard/set-mock-to-delete
  (fn [db [_ mock]]
    (assoc db :mock-to-delete mock)))
+
+(refx/reg-event-fx
+ :app.dashboard/save-username-success
+ (fn [{db :db} [_ user]]
+   {:notification {:type :info
+                   :content (str "Username updated" (:username user))}
+    :dispatch [:app.dashboard/toggle-settings]}))
+
+(refx/reg-event-fx
+ :app.dashboard/save-username-failure
+ (fn [{db :db}  [_ _]]
+   {:notification {:type :error
+                   :content "Unable to update username"}}))
+
+(refx/reg-event-fx
+ :app.dashboard/set-new-username
+ (fn [{{:keys [current-user]} :db} [_ username-to-save]]
+   (js/console.log username-to-save current-user)
+   (let [access-token (:access-token current-user)
+         user-id (:user_id (:user current-user))]
+     {:http {:url (str "user/" user-id)
+             :method :post
+             :headers {"authorization" (str "Bearer " access-token)}
+             :body {:username username-to-save}
+             :on-success [:app.dashboard/save-username-success]
+             :on-failure [:app.dashboard/save-username-failure]}})))
+
+(refx/reg-event-db
+ :app.dashboard/toggle-git-repo-modal
+ (fn [db [_ modal-open?]]
+   (assoc db :require-git-repo? (not modal-open?))))
+
+(refx/reg-event-fx
+ :app.dashboard/update-git-repo
+ (fn [{db :db} [_ git-repo]]
+   (let [mock-id (:curr-mock-id db)
+         mock (->> db :mocks-raw
+                   (filter #(= (str (:id %)) (str mock-id)))
+                   first)]
+     (js/console.log "Updating git repo with:" git-repo)
+     {:http {:url "/mocks"
+             :method :put
+             :headers {"authorization" (str "Bearer " (-> db :current-user :access-token))}
+             :body {:id mock-id
+                    :git-repo git-repo
+                    :content (:content mock)}
+             :on-success [:app.dashboard/save-mock-success]
+             :on-failure [:app.dashboard/save-mock-failed]}
+      :db (-> db
+              (assoc :loading-edit-mock true)
+              (dissoc :curr-mock-id))})))
+
+(refx/reg-event-db
+ :app.dashboard/save-repos
+ (fn [db [_ repos]]
+   (assoc db
+          :require-git-repo? true
+          :repositories (-> repos
+                            :body
+                            :repositories
+                            (vec)))))
+
+(refx/reg-event-fx
+ :app.dashboard/enable-git-sync
+ (fn [{db :db} [_ mock-id]]
+   (let [mock (->> db :mocks-raw
+                   (filter #(= (str (:id %)) (str mock-id)))
+                   first)]
+     (-> {}
+         (cond->
+          (not (:git-repo mock))
+           (assoc :dispatch-sync [:app.dashboard/verify-mock-repo mock-id]))
+         (assoc :http {:url "/sync"
+                       :method :get
+                       :headers {"authorization" (str "Bearer " (-> db :current-user :access-token))}
+                       :on-success [:app.dashboard/save-enabled-sync]
+                       :on-failure [:app.dashboard/not-enabled-sync]}
+                :db (assoc db :loading-sync? true))))))
+
+(refx/reg-event-fx
+ :app.dashboard/verify-mock-repo
+ (fn [db [_ mock-id]]
+   {:notification {:type :error
+                   :content "Mock has no linked repo"}
+    :http {:url "/repos"
+           :method :get
+           :headers {"authorization" (str "Bearer " (-> db :current-user :access-token))}
+           :on-success [:app.dashboard/save-repos]
+           :on-failure [:app.dashboard/save-mock-failed]}
+    :db (assoc db :curr-mock-id mock-id)}))
+
+(refx/reg-event-fx
+ :app.dashboard/save-enabled-sync
+ (fn [{db :db} [_ response]]
+   (let []
+     {:db (assoc db
+                 :sync-enabled true
+                 :loading-sync? false)
+      :notification {:type :info
+                     :content "Git Sync is enabled"}})))
+
+(refx/reg-event-fx
+ :app.dashboard/not-enabled-sync
+ (fn [{db :db} [_ _]]
+   {:db (assoc db
+               :sync-enabled false
+               :loading-sync? false)
+    :notification {:type :error
+                   :content "Failed to check Git Sync status"}}))
+
+(refx/reg-event-fx
+ :app.dashboard/push-mock
+ (fn [{db :db} [_ mock-id]]
+   (let [mock (->> (:mocks-raw db)
+                   (filter #(= (-> % :id str) (str mock-id)))
+                   first)]
+     (js/console.log "Mock being pushed:" (clj->js mock))
+     (js/console.log "Content type:" (type (:content mock)))
+     (if (nil? (:git-repo mock))
+       {:notification {:type :error
+                       :content "Mock has no linked repo"}
+        :http {:url "/repos"
+               :method :get
+               :headers {"authorization" (str "Bearer " (-> db :current-user :access-token))}
+               :on-success [:app.dashboard/save-repos]
+               :on-failure [:app.dashboard/save-mock-failed]}
+        :db (assoc db :curr-mock-id mock-id)}
+       {:http {:url (str "/mocks/" mock-id "/push")
+               :method :post
+               :headers {"authorization" (str "Bearer " (-> db :current-user :access-token))}
+               :body {:content (:content mock)
+                      :git-repo (:git-repo mock)
+                      :wildcard (:wildcard mock)}
+               :on-success [:app.dashboard/push-mock-success]
+               :on-failure [:app.dashboard/push-mock-failed]}
+        :db (assoc db :loading-push true)}))))
+
+(refx/reg-event-fx
+ :app.dashboard/push-mock-success
+ (fn [{db :db} _]
+   {:db (assoc db :loading-push false)
+    :notification {:type :info
+                   :content "Successfully pushed to GitHub"}}))
+
+(refx/reg-event-fx
+ :app.dashboard/push-mock-failed
+ (fn [{db :db} [_ response]]
+   (js/console.error "Push failed:", (clj->js response))
+   {:db (assoc db :loading-push false)
+    :notification {:type :error
+                   :content (or (-> response :body :message)
+                                "Failed to push to GitHub")}}))
+
+(refx/reg-event-fx
+ :app.dashboard/start-mock-polling
+ (fn [{db :db} [_ mock-id]]
+   {:db (assoc db :polling-mock-id mock-id)
+    :dispatch-n [[:app.dashboard/poll-mock]]}))
+
+(refx/reg-event-fx
+ :app.dashboard/stop-mock-polling
+ (fn [{db :db} _]
+   {:db (dissoc db :polling-mock-id)}))
+
+(refx/reg-event-fx
+ :app.dashboard/poll-mock
+ (fn [{db :db} _]
+   (when-let [id (:polling-mock-id db)]
+     {:http {:url (str "/mocks/" id)
+             :method :get
+             :headers {"authorization" (str "Bearer " (-> db :current-user :access-token))}
+             :on-success [:app.dashboard/update-server-mocks]
+             :on-failure [:app.dashboard/poll-mock-failed]}
+      :dispatch-later [{:ms 5000
+                        :dispatch [:app.dashboard/poll-mock]}]})))
+
+(refx/reg-event-fx
+ :app.dashboard/poll-mock-failed
+ (fn [{db :db} [_ response]]
+   (js/console.warn "Poll failed:",
+                    (clj->js response)
+                    "for mock ID:",
+                    (:polling-mock-id db))
+   {:db db}))
+
+(refx/reg-event-db
+ :app.dashboard/update-server-mocks
+ (fn [db [_ response]]
+   (let [mock (-> response :body :mock)]
+     (if mock
+       (assoc db :server-mock mock)
+       db))))
+
+(refx/reg-event-fx
+ :app.dashboard/reload-mock
+ (fn [{db :db} [_ mock-id]]
+   (let [server-mock (:server-mock db)]
+     {:dispatch [:app.dashboard/edit-mock
+                 {:mock-id mock-id
+                  :content (:content server-mock)}]
+      :notification {:type :info
+                     :content "Mock reloaded from server"}})))

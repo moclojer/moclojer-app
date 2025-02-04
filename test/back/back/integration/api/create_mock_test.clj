@@ -33,45 +33,45 @@
    :fail-fast? true}
   (flow ""
 
-    [database (state-flow.api/get-state :database)]
+        [database (state-flow.api/get-state :database)]
 
-    (state/invoke
-     #(db.customers/insert! {:customer/uuid #uuid "cd989358-af38-4a2f-a1a1-88096aa425a7"
-                             :customer/email "test@gmail.com"
-                             :customer/username "chico"
-                             :customer/external-uuid #uuid "dcff4c06-1c9e-4abb-a49b-438e1869ec5b"}
-                            database))
+        (state/invoke
+         #(db.customers/insert! {:customer/uuid #uuid "cd989358-af38-4a2f-a1a1-88096aa425a7"
+                                 :customer/email "test@gmail.com"
+                                 :customer/username "chico"
+                                 :customer/external-uuid #uuid "dcff4c06-1c9e-4abb-a49b-438e1869ec5b"}
+                                database))
 
-    (flow "it will send a mock"
-      [resp (helpers/request! {:method :post
-                               :headers {"authorization" token}
-                               :uri "/mocks"
-                               :body {:subdomain "chico"
-                                      :wildcard "test"
-                                      :enabled true}})]
-      (match?
-       (matchers/embeds {:status 201
-                         :body {:mock {:subdomain "chico"
-                                       :id string?
-                                       :wildcard "test"
-                                       :user-id "cd989358-af38-4a2f-a1a1-88096aa425a7"
-                                       :enabled true
-                                       :dns-status "offline"
-                                       :unification-status "offline"}}})
-       resp)
-      (flow "retrieve the mock"
-        [resp-get (helpers/request! {:method :get
-                                     :headers {"authorization" token}
-                                     :uri "/mocks"
-                                     :body {}})]
-        (match?
-         (matchers/embeds {:mocks [{:subdomain "chico"
-                                    :mock-type "personal"
-                                    :apis [{:id #(uuid? (java.util.UUID/fromString %))
-                                            :url "test-chico.moclojer.com"
-                                            :subdomain "chico"
-                                            :wildcard "test"
-                                            :enabled true
-                                            :dns-status "offline"
-                                            :unification-status "offline"}]}]})
-         (-> resp-get :body))))))
+        (flow "it will send a mock"
+              [resp (helpers/request! {:method :post
+                                       :headers {"authorization" token}
+                                       :uri "/mocks"
+                                       :body {:subdomain "chico"
+                                              :wildcard "test"
+                                              :enabled true}})]
+              (match?
+               (matchers/embeds {:status 201
+                                 :body {:mock {:subdomain "chico"
+                                               :id string?
+                                               :wildcard "test"
+                                               :user-id "cd989358-af38-4a2f-a1a1-88096aa425a7"
+                                               :enabled true
+                                               :dns-status "offline"
+                                               :unification-status "offline"}}})
+               resp)
+              (flow "retrieve the mock"
+                    [resp-get (helpers/request! {:method :get
+                                                 :headers {"authorization" token}
+                                                 :uri "/mocks"
+                                                 :body {}})]
+                    (match?
+                     (matchers/embeds {:mocks [{:subdomain "chico"
+                                                :mock-type "personal"
+                                                :apis [{:id #(uuid? (java.util.UUID/fromString %))
+                                                        :url "test-chico.moclojer.com"
+                                                        :subdomain "chico"
+                                                        :wildcard "test"
+                                                        :enabled true
+                                                        :dns-status "offline"
+                                                        :unification-status "offline"}]}]})
+                     (-> resp-get :body))))))

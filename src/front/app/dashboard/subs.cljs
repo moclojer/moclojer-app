@@ -1,5 +1,6 @@
 (ns front.app.dashboard.subs
-  (:require [refx.alpha :as refx]))
+  (:require
+   [refx.alpha :as refx]))
 
 (defn conj-if [xs & ys]
   (reduce (fn [xs y]
@@ -50,6 +51,11 @@
    (:is-modal-open? db)))
 
 (refx/reg-sub
+ :app.dashboard/is-settings-open?
+ (fn [db _]
+   (:is-settings-open? db)))
+
+(refx/reg-sub
  :app.dashboard/loading-creating-mock?
  (fn [db _]
    (:loading-creating-mock? db)))
@@ -85,3 +91,32 @@
  :app.dashboard/mock-to-delete
  (fn [db _]
    (:mock-to-delete db)))
+
+(refx/reg-sub
+ :app.dashboard/require-git-repo?
+ (fn [db _]
+   (:require-git-repo? db)))
+
+(refx/reg-sub
+ :app.dashboard/repos
+ (fn [db _]
+   (:repositories db)))
+
+(refx/reg-sub
+ :app.dashboard/is-sync-enabled?
+ (fn [db _]
+   (:sync-enabled db)))
+
+(refx/reg-sub
+ :app.dashboard/loading-sync?
+ (fn [db _]
+   (:loading-sync? db)))
+
+(refx/reg-sub
+ :app.dashboard/mock-has-changes?
+ (fn [db [_ mock-id]]
+   (let [curr-mock (->> (:mocks-raw db)
+                        (filter #(= (str (:id %)) (str mock-id)))
+                        first)
+         server-mock (:server-mock db)]
+     (not= (:content curr-mock) (:content server-mock)))))

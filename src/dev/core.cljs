@@ -12,7 +12,7 @@
 
 (defn ^:export init []
   (p/do #_(mock/init!)
-        (dev-setup)
+   (dev-setup)
         (app/init)))
 
 (comment

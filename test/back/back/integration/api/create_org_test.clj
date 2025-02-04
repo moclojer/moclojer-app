@@ -48,7 +48,7 @@
    :cleanup utils/stop-system!
    :fail-fast? true}
   (flow
-    ""
+    "should create a user to be inserted into an org"
     [:let [user #:customer{:uuid #uuid "cd989358-af38-4a2f-a1a1-88096aa425a7"
                            :email "test@gmail.com"
                            :username "foobar123"

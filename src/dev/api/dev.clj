@@ -1,10 +1,11 @@
 (ns dev.api.dev
-  (:require [back.api.ports.workers :as p.workers]
-            [back.api.routes :as routes]
-            [com.moclojer.components.core :as components]
-            [com.moclojer.components.mq :as mq]
-            [com.stuartsierra.component :as component]
-            [dev.utils :as utils])
+  (:require
+   [back.api.ports.workers :as p.workers]
+   [back.api.routes :as routes]
+   [com.moclojer.components.core :as components]
+   [com.moclojer.components.mq :as mq]
+   [com.stuartsierra.component :as component]
+   [dev.utils :as utils])
   (:gen-class))
 
 ;; This namespace is used for development purposes only;
@@ -20,15 +21,14 @@
    :database (component/using (components/new-database) [:config])
    :mq (component/using
         (components/new-mq
-         p.workers/workers
-         #_[{:channel "mocks.verify"
-             :event {}
-             ;; every other minute
-             :sleep 120000}
-            {:qname "yml.verify"
-             :event {}
-             ;; every 5 minutes
-             :sleep 300000}]
+         p.workers/workers #_[{:channel "mocks.verify"
+                               :event {}
+                               ;; every other minute
+                               :sleep 120000}
+                              {:qname "yml.verify"
+                               :event {}
+                               ;; every 5 minutes
+                               :sleep 300000}]
          false)
         [:config :database :sentry])
    :webserver (component/using (components/new-webserver)

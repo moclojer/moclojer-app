@@ -13,11 +13,11 @@
   (let [{:keys [card tittle desc]} error-styles]
     (d/div
      {:id id
-      :class-name card}
+      :class card}
      (d/strong
-      {:class-name tittle}
+      {:class tittle}
       error)
      (when description
        (d/p
-        {:class-name desc}
+        {:class desc}
         (str description))))))

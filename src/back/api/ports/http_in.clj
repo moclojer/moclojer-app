@@ -1,11 +1,18 @@
 (ns back.api.ports.http-in
-  (:require [back.api.adapters.customers :as adapters.customers]
-            [back.api.controllers.login :as controllers.login]
-            [back.api.controllers.mocks :as controllers.mocks]
-            [back.api.controllers.orgs :as controllers.orgs]
-            [back.api.controllers.user :as controllers.user]
-            [back.api.logic.customers :as logic.users]
-            [back.api.logic.orgs :as logic.orgs]))
+  (:require
+   [back.api.adapters.customers :as adapters.customers]
+   [back.api.controllers.login :as controllers.login]
+   [back.api.controllers.mocks :as controllers.mocks]
+   [back.api.controllers.orgs :as controllers.orgs]
+   [back.api.controllers.user :as controllers.user]
+   [back.api.controllers.sync :as controllers.sync]
+   [back.api.logic.mocks :as logic.mocks]
+   [back.api.logic.customers :as logic.users]
+   [back.api.logic.orgs :as logic.orgs]
+   [back.api.utils :as utils]
+   [clojure.string :as str]
+   [com.moclojer.components.logs :as logs]
+   [clojure.stacktrace :as stacktrace]))
 
 (defn handler-create-user!
   [{{{:keys [access-token]} :body} :parameters
@@ -16,12 +23,12 @@
      :body {:user user}}))
 
 (defn edit-user!
-  [{{{:keys [username]} :body} :parameters
+  [{{{:keys [username install-id]} :body} :parameters
     {:keys [user-id]} :session-data
     {:keys [database]} :components
     ctx :ctx}]
   {:status 200
-   :body {:user (controllers.user/edit-user! user-id username database ctx)}})
+   :body {:user (controllers.user/edit-user! user-id username install-id database ctx)}})
 
 (defn handler-get-user
   [{{{:keys [id]} :path} :parameters
@@ -35,7 +42,7 @@
   (let [same-user? (= (some-> ext-user :customer/uuid str) id)
         user (if same-user?
                (adapters.customers/->wire ext-user)
-               (controllers.user/get-user-by-id id database ctx))
+               (controllers.user/get-user-by-id id {:database database} ctx))
         valid-user? (some-> user :uuid uuid?)]
     (if valid-user?
       {:status 200
@@ -57,20 +64,29 @@
      :body {:mock (controllers.mocks/create-mock! user-id mock components ctx)}}))
 
 (defn handler-update-mock!
-  [{{{:keys [id content]} :body} :parameters
-    components :components
-    ctx :ctx}]
-  (let [mock (controllers.mocks/update-mock! (java.util.UUID/fromString id)
-                                             content
-                                             components
-                                             ctx)]
+  [{:keys [parameters session-data components ctx]}]
+  (let [user-id (:user-id session-data)
+        old-mock (:body parameters)
+        content (:content old-mock)
+        id (:id old-mock)
+        sha (:sha old-mock)
+        git-path (:git-repo old-mock)
+        git-repo (when git-path (last (str/split git-path #"/")))
+        new-mock (controllers.mocks/update-mock! (parse-uuid (str id))
+                                                 (-> {}
+                                                     (utils/assoc-if :content content)
+                                                     (cond->
+                                                      (not= sha "") (utils/assoc-if :sha sha)
+                                                      (not= git-repo "") (utils/assoc-if :git-repo git-path)))
+                                                 components
+                                                 ctx)]
     {:status 200
-     :body {:mock mock}}))
+     :body {:mock new-mock}}))
 
 (defn handler-get-mocks
   [{:keys [session-data components ctx]}]
   (let [user (controllers.user/get-user-by-id
-              (:user-id session-data) (:database components) ctx)
+              (:user-id session-data) components ctx)
         mocks (controllers.mocks/get-mocks user components ctx)]
     {:status 200
      :body {:mocks mocks}}))
@@ -124,6 +140,22 @@
     {:status 200
      :body pub-stts}))
 
+(defn handler-get-mock-by-id
+  [{:keys [parameters session-data components ctx]}]
+  (let [id (-> parameters :path :id)
+        user (controllers.user/get-user-by-id
+              (:user-id session-data) components ctx)
+        mocks (controllers.mocks/get-mocks user components ctx)
+        mock (->> mocks
+                  (mapcat :apis)
+                  (filter #(= (str (:id %)) id))
+                  first)]
+    (if mock
+      {:status 200
+       :body {:mock mock}}
+      {:status 404
+       :body {:error "Mock not found"}})))
+
 (defn handler-get-orgs
   [{:keys [session-data components ctx]}]
   (let [user-id (:user-id session-data)
@@ -136,13 +168,12 @@
 
 (defn handler-create-org
   [{:keys [session-data parameters components ctx]}]
-  (let [{:keys [database]} components
-        org (get-in parameters [:body :org])
+  (let [org (get-in parameters [:body :org])
         user-id (:user-id session-data)
         new-org (controllers.orgs/create-org! org components ctx)
         {:keys [user-id]} (controllers.orgs/add-org-user!
                            new-org user-id true components ctx)
-        new-user (controllers.user/get-user-by-id user-id database ctx)]
+        new-user (controllers.user/get-user-by-id user-id components ctx)]
     {:status 201
      :body {:org (logic.orgs/group-org-with-users new-org [new-user])}}))
 
@@ -189,7 +220,7 @@
       (let [new-org-user (controllers.orgs/add-org-user!
                           org user-id false components ctx)
             new-user (controllers.user/get-user-by-id
-                      (:user-id new-org-user) (:database components) ctx)]
+                      (:user-id new-org-user) components ctx)]
         {:status 200
          :body {:users (conj old-users new-user)}}))))
 
@@ -200,3 +231,187 @@
     {:status 200
      :body {:success (controllers.orgs/remove-org-user! org-id user-id components ctx)
             :users (controllers.user/get-users-by-org-id org-id components ctx)}}))
+
+(defn- filter-mocks [files]
+  (into [] (filter #(and (= (last (str/split % #"/")) "moclojer.yml")
+                         (str/includes? % "mocks/"))
+                   files)))
+(defn handler-webhook
+  [{:keys [headers parameters components ctx]}]
+  (let [body (:body parameters)
+        event-type (get headers "x-github-event")
+        install-id (get-in body [:installation :id])]
+    (logs/log :info "Webhook received"
+              :ctx (assoc ctx :event-type event-type))
+    (cond
+      (nil? install-id)
+      {:status 401
+       :body {:message "Forbidden"}}
+      (= event-type "push")
+      (let [repo (:repository body)
+            commits  (:commits body)
+            git-slug (get-in repo [:owner :name])
+            repo-name (:name repo)
+            org (controllers.orgs/get-by-git-orgname git-slug components ctx)
+            user (controllers.user/get-by-git-username git-slug components ctx)
+            id (or (parse-uuid (:id org)) (parse-uuid (:uuid user)))
+            slug (or (:orgname org) (:username user))]
+        (logs/log :info "Processing Push Event"
+                  :ctx (assoc ctx
+                              :id id
+                              :repo repo-name))
+
+        (if-not id
+          {:status 404
+           :body {:message "User and org not found"}}
+          (let [user-mocks (controllers.mocks/get-mocks {:uuid id :username slug} components ctx)
+                mocks (filter-mocks (->> commits
+                                         (mapcat #(vals (select-keys % [:added :modified])))
+                                         (apply concat)
+                                         vec))
+                source-files (when mocks (controllers.sync/pull! install-id git-slug repo-name mocks components ctx))]
+            (when (seq source-files)
+              (logs/log :info "Processing modified mocks"
+                        :ctx (assoc ctx
+                                    :mocks mocks
+                                    :user-mocks user-mocks
+                                    :modified-count (count source-files)))
+              (doseq [mock source-files
+                      :let [content (utils/decode (get-in mock [:content :content]))
+                            sha (get-in mock [:content :sha])
+                            ;; "resources/mocks/moclojer-test/moclojer.yml" ==> moclojer-test
+                            wildcard (-> (:file mock)
+                                         (str/split #"/")
+                                         (as-> e (take-last 2 e))
+                                         (first))
+                            existing-mock (when user-mocks
+                                            (first (filter #(= (:wildcard %) wildcard)
+                                                           (->> user-mocks
+                                                                first
+                                                                :apis
+                                                                (map #(select-keys % [:wildcard :id]))))))]]
+                (if (seq existing-mock)
+                  (if-let [mock-id (:id existing-mock)]
+                    (try
+                      (controllers.mocks/update-mock! mock-id
+                                                      {:content content
+                                                       :git-repo (:url repo)
+                                                       :sha sha}
+                                                      components ctx)
+                      (catch Exception e
+                        (logs/log :error "Failed to update mock"
+                                  :ctx (assoc ctx :error (.getMessage e) :mock-id mock-id))
+                        {:status 500
+                         :body {:message (.getMessage e)}}))
+                    (logs/log :error "Mock found but has no ID"
+                              :ctx (assoc ctx :wildcard wildcard)))
+                  (try
+                    (controllers.mocks/create-mock!
+                     id
+                     (logic.mocks/create {:content content
+                                          :sha sha
+                                          :wildcard wildcard
+                                          :subdomain slug
+                                          :enabled true
+                                          :git-repo (:url repo)})
+                     components ctx)
+                    (catch Exception e
+                      (logs/log :error "Failed to create mock"
+                                :ctx (assoc ctx :error (.getMessage e)))
+                      {:status 500
+                       :body {:message (.getMessage e)}})))))
+            {:status 200
+             :body {:message "Files updated from source"}})))
+      (#{"installation" "installation_repositories"} event-type)
+      (let [sender-type (get-in body [:installation :account :type])
+            git-slug (get-in body [:installation :account :login])
+            org (when (= sender-type "Organization") (controllers.orgs/get-by-git-orgname git-slug components ctx))
+            user  (when (= sender-type "User") (controllers.user/get-by-git-username git-slug components ctx))
+            id (or (parse-uuid (:id org)) (parse-uuid (:uuid user)))]
+        (logs/log :info "Processing Installation Event"
+                  :ctx (assoc ctx :id id))
+        (if-not (nil? (or (:id org) (:uuid user)))
+          {:status 200
+           :body {:message "Enabled Git Sync"
+                  :content (if org
+                             (controllers.orgs/enable-sync install-id id components ctx)
+                             (controllers.user/enable-sync install-id id components ctx))}}
+          {:status 404
+           :body {:message "no org or user found"}}))
+      :else {:status 400
+             :body {:message "Unhandled event type"}})))
+
+(defn handler-get-repos
+  [{:keys [session-data components ctx]}]
+  (let [user (controllers.user/get-user-by-id (:user-id session-data) components ctx)
+        install-id (:git-install-id user)]
+    (if install-id
+      {:status 200
+       :body {:repositories (->> (controllers.sync/get-user-repos install-id components)
+                                 (map #(select-keys % [:full_name :html_url :owner])))}}
+      {:status 404
+       :body {:message "Could not retrieve user repos"}})))
+
+(defn handler-sync-status
+  [{:keys [session-data components ctx]}]
+  (prn session-data)
+  (let [user (controllers.user/get-user-by-id (:user-id session-data) components ctx)
+        install-id (:git-install-id user)]
+    (if (number? install-id)
+      {:status 200
+       :body {:sync-enabled true
+              :message "Sync Enabled"}}
+      {:status 404
+       :body {:sync-enabled false
+              :message "Sync Disabled"}})))
+
+(defn handler-push-mock!
+  [{{{:keys [id]} :path
+     {:keys [content git-repo wildcard]} :body} :parameters
+    {:keys [user-id]} :session-data
+    components :components
+    ctx :ctx}]
+  (let [git-user (controllers.user/get-user-by-id user-id components ctx)
+        [owner repo-name] (-> git-repo
+                              (str/replace #"https://github.com/" "")
+                              (str/split #"/"))
+        install-id (:git-install-id git-user)
+        path [(str "resources/mocks/" wildcard "/moclojer.yml")]
+        email (:email git-user)]
+
+    (logs/log :info "Starting GitHub push"
+              :ctx (assoc ctx
+                          :owner owner
+                          :repo repo-name
+                          :path path
+                          :install-id install-id))
+
+    (if (and install-id owner repo-name content)
+      (try
+        (let [repo (controllers.sync/get-default-branch-data install-id owner repo-name components)
+              base-sha (-> repo :commit :sha)
+              branch (-> repo :name)
+              encoded-content [content]
+              response (controllers.sync/push! install-id owner repo-name email path base-sha branch
+                                               encoded-content components ctx)]
+
+          (logs/log :info "Push successful"
+                    :ctx (assoc ctx :response response))
+
+          {:status 200
+           :body {:response response}})
+
+        (catch Exception e
+          (logs/log :error "Failed to push to GitHub"
+                    :ctx (assoc ctx
+                                :error (.getMessage e)
+                                :mock-id id
+                                :paths path
+                                :content-length (count content)
+                                :stack-trace (with-out-str (stacktrace/print-stack-trace e))))
+          {:status 500
+           :body {:message "Failed to push to GitHub"
+                  :details (.getMessage e)}}))
+
+      {:status 400
+       :body {:error {:message "Missing required git sync data"}}})))

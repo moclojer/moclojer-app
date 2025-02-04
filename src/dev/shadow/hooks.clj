@@ -58,7 +58,8 @@
         target-file (io/file target)]
     (cond
       (not (.exists source-file))
-      (do (s.util/log {:type ::source-does-not-exist
+      (do (s.util/log build-state
+                      {:type ::source-does-not-exist
                        :source source})
           (constantly build-state))
 

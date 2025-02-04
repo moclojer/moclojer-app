@@ -66,6 +66,7 @@
                                {:valid-user valid-user?
                                 :user-id (:uuid resp-user)
                                 :username (:username resp-user)
+                                :git-username (-> (:user old-user) :user_metadata :user_name)
                                 :email (:email resp-user)})
          current-user (-> old-user
                           (merge (:session db))
@@ -98,7 +99,7 @@
              :on-failure [:app.auth/failed-save-user]}
       :db  (assoc db
                   :login-loading? true
-                  ;; :current-user session
+                  :current-user session
                   :login-error nil)})))
 
 (refx/reg-event-fx
@@ -136,8 +137,8 @@
    (let [current-user (-> (:current-user db)
                           (assoc-in [:user :valid-user] true)
                           (assoc-in [:user :user-id] (-> body :user :uuid))
+                          (assoc-in [:user :email] (-> body :user :email))
                           (assoc-in [:user :username] (-> body :user :username)))]
-
      (set-current-user-cookie! current-user)
      (-> db
          (assoc
@@ -185,13 +186,39 @@
                 :login-error nil
                 :login-loading? true)}))
 
+;; oauth handler
+(refx/reg-event-db
+ :app.auth/success-oauth
+ (fn [_ db]
+   (assoc db :login-loading? false)))
+
+(refx/reg-event-fx
+ :app.auth/send-oauth
+ (fn
+   [{db :db} [_ state]]
+   {:oauth {:body state
+            :on-success [:app.auth/success-oauth]
+            :on-failure [:app.auth/oauth-error]}
+    :db (assoc db
+               :login-error nil
+               :login-loading? true)}))
+
+(refx/reg-event-db
+ :app.auth/oauth-error
+ (fn [db [_ {:keys [body]}]]
+   (js/console.error :oauth-error body)
+   (-> db
+       (assoc :login-loading? false)
+       (assoc :login-error [:oauth-error (:error body)])
+       (assoc :current-user nil))))
+
 (refx/reg-event-db
  :app.auth/send-email-again
  (fn
    [db _]
-   (-> db
-       (assoc :login-loading? false)
-       (assoc :login-email-sent nil))))
+   (assoc db
+          :login-loading? false
+          :login-email-sent nil)))
 
 (refx/reg-event-fx
  :app.auth/logout

@@ -39,13 +39,13 @@
    :cleanup utils/stop-system!
    :fail-fast? true}
   (sf/flow
-    "should fail to create cloudflare record"
-    [components (sf/get-state)
-     err-url (sf/invoke #(try
-                           (workers/create-domain-handler
-                            {:event {:domain.create {:domain "test-j0suetm"}}}
-                            components)
-                           (catch Throwable e
-                             (-> e ex-data :req :url))))]
-    (sf/match? "https://api.cloudflare.com/client/v4/zones/c6f10cf4dd7ace4b979d60c22066be23/dns_records"
-               err-url)))
+   "should fail to create cloudflare record"
+   [components (sf/get-state)
+    err-url (sf/invoke #(try
+                          (workers/create-domain-handler
+                           {:event {:domain.create {:domain "test-j0suetm"}}}
+                           components)
+                          (catch Throwable e
+                            (-> e ex-data :req :url))))]
+   (sf/match? "https://api.cloudflare.com/client/v4/zones/c6f10cf4dd7ace4b979d60c22066be23/dns_records"
+              err-url)))

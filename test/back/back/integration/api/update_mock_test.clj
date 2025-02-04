@@ -1,16 +1,17 @@
 (ns back.integration.api.update-mock-test
-  (:require [back.api.db.customers :as db.customers]
-            [back.api.routes :as routes]
-            [back.integration.api.helpers :as helpers]
-            [back.integration.components.utils :as utils]
-            [com.moclojer.components.core :as components]
-            [com.moclojer.components.mq :as mq]
-            [com.stuartsierra.component :as component]
-            [matcher-combinators.matchers :as matchers]
-            [state-flow.api :refer [defflow]]
-            [state-flow.assertions.matcher-combinators :refer [match?]]
-            [state-flow.core :refer [flow]]
-            [state-flow.state :as state]))
+  (:require
+   [back.api.db.customers :as db.customers]
+   [back.api.routes :as routes]
+   [back.integration.api.helpers :as helpers]
+   [back.integration.components.utils :as utils]
+   [com.moclojer.components.core :as components]
+   [com.moclojer.components.mq :as mq]
+   [com.stuartsierra.component :as component]
+   [matcher-combinators.matchers :as matchers]
+   [state-flow.api :refer [defflow]]
+   [state-flow.assertions.matcher-combinators :refer [match?]]
+   [state-flow.core :refer [flow]]
+   [state-flow.state :as state]))
 
 (defn- create-and-start-components []
   (component/start-system

@@ -49,3 +49,6 @@ resources/front/public/index.html
 
 # Sentry Config File
 .sentryclirc
+
+# local supabase instance
+supabase/

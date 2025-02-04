@@ -1,16 +1,18 @@
 (ns back.api.controllers.mocks
-  (:require [back.api.adapters.mocks :as adapter.mocks]
-            [back.api.db.mocks :as db.mocks]
-            [back.api.logic.mocks :as logic.mocks]
-            [back.api.ports.producers :as ports.producers]
-            [com.moclojer.components.logs :as logs]))
+  (:refer-clojure :exclude [ref])
+  (:require
+   [back.api.adapters.mocks :as adapter.mocks]
+   [back.api.db.mocks :as db.mocks]
+   [back.api.logic.mocks :as logic.mocks]
+   [back.api.ports.producers :as ports.producers]
+   [com.moclojer.components.logs :as logs]))
 
 (defn create-mock!
   [user-id mock {:keys [database mq]} ctx]
   (logs/log :info "creating mock"
-            :ctx (merge ctx
-                        {:mock mock
-                         :user-id user-id}))
+            :ctx (assoc ctx
+                        :mock mock
+                        :user-id user-id))
   (let [owner (assoc {:user-id (parse-uuid (str user-id))}
                      :org-id (parse-uuid (str (:org-id mock))))
         ?existing-mock (-> (select-keys mock [:wildcard :subdomain])
@@ -38,32 +40,30 @@
       (empty?)))
 
 (defn update-mock!
-  [id content {:keys [database mq]} ctx]
-  (if-let [mock (db.mocks/get-mock-by-id id database ctx)]
-    (let [updated-mock (-> mock
-                           (logic.mocks/update {:content content})
-                           (db.mocks/update! database ctx)
-                           (adapter.mocks/->wire))
-          ->wired-old-mock (adapter.mocks/->wire mock)]
-
-      (ports.producers/generate-single-yml! (:id updated-mock) mq ctx)
-
-      (when (and (= (:dns-status ->wired-old-mock) "offline")
-                 (:enabled ->wired-old-mock))
-        (ports.producers/create-domain! (logic.mocks/pack-domain ->wired-old-mock)
-                                        mq
-                                        ctx))
-
-      updated-mock)
-    (throw (ex-info "Mock with given id invalid"
-                    {:status-code 412
-                     :cause :invalid-id}))))
-
+  ([id {:keys [content sha git-repo] :or {sha nil git-repo nil}} {:keys [database mq]} ctx]
+   (if-let [mock (db.mocks/get-mock-by-id id database ctx)]
+     (let [updated-mock (-> mock
+                            (cond->
+                             content (logic.mocks/update-content content)
+                             sha (logic.mocks/update-sha sha)
+                             git-repo (logic.mocks/update-repo git-repo))
+                            (db.mocks/update! database ctx)
+                            (adapter.mocks/->wire))
+           ->wired-old-mock (adapter.mocks/->wire mock)]
+       (ports.producers/generate-single-yml! (:id updated-mock) mq ctx)
+       (when (and (= (:dns-status ->wired-old-mock) "offline")
+                  (:enabled ->wired-old-mock))
+         (ports.producers/create-domain! (logic.mocks/pack-domain ->wired-old-mock) mq ctx))
+       updated-mock)
+     (throw (ex-info "Mock with given id invalid"
+                     {:status-code 412
+                      :cause :invalid-id})))))
 (defn get-mocks
   [{:keys [uuid username]} {:keys [database]} ctx]
   (logs/log :info "retrieving mocks"
-            :ctx (merge ctx {:user/uuid uuid
-                             :user/username username}))
+            :ctx (assoc ctx
+                        :user/uuid uuid
+                        :user/username username))
   (logic.mocks/group
    (->> (db.mocks/get-mocks (parse-uuid (str uuid)) database ctx)
         (map adapter.mocks/->wire))

@@ -8,6 +8,8 @@
 (goog-define SUPABASE_TOKEN "")
 (when-not (every? not-empty [SUPABASE_URL SUPABASE_TOKEN])
   (throw (js/Error. "SUPABASE_URL or SUPABASE_TOKEN weren't defined")))
+
+(goog-define SUPABASE_OAUTH_REDIRECT "")
 (goog-define SUPABASE_REDIRECT "http://localhost:8200/#/")
 
 (defn create-client
@@ -30,6 +32,18 @@
                   :options {:emailRedirectTo SUPABASE_REDIRECT}})]
     (.signInWithOtp auth options)))
 
+(defn signin-with-oauth [^js client provider]
+  (when-not (contains? #{"github"} provider)
+    (throw (js/Error. (str "Unsupported OAuth provider: " provider))))
+  (let [auth (.-auth client)
+        options (clj->js
+                 {:provider provider
+                  :options (clj->js {:redirectTo SUPABASE_OAUTH_REDIRECT})})]
+    (-> (.signInWithOAuth auth options)
+        (.catch (fn [error]
+                  (js/console.error "OAuth sign-in failed:" error)
+                  (throw error))))))
+
 (defn sign-out [dispatch-fn-logout]
   (let [auth (.-auth client)]
     (-> (.signOut auth)
@@ -50,4 +64,5 @@
      "token"))
 
   (prn :client client-test)
-  (signin-with-email client "chicao@cljazz.co"))
+  (signin-with-email client "chicao@cljazz.co")
+  (signin-with-oauth client "github"))

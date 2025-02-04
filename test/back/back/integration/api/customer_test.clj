@@ -22,7 +22,10 @@
     :webserver (component/using (components/new-webserver)
                                 [:config :http :router :database]))))
 
-(def token "Beare eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJkY2ZmNGMwNi0xYzllLTRhYmItYTQ5Yi00MzhlMTg2OWVjNWIifQ.Gd42MG5EQCVvQwsvlhRQWHuEr-BBo4GB7Pd9di8w_No")
+(def token (str "Bearer "
+                "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJkY2ZmNGMwNi0"
+                "xYzllLTRhYmItYTQ5Yi00MzhlMTg2OWVjNWIifQ.Gd42M"
+                "G5EQCVvQwsvlhRQWHuEr-BBo4GB7Pd9di8w_No"))
 
 (defflow
   flow-save-customer-username
@@ -30,7 +33,6 @@
    :cleanup utils/stop-system!
    :fail-fast? true}
   (flow "setup a customer"
-
     [database (state-flow.api/get-state :database)]
 
     (state/invoke

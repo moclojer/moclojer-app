@@ -34,7 +34,7 @@
                                "G5EQCVvQwsvlhRQWHuEr-BBo4GB7Pd9di8w_No")}
                 :uri (str "/orgs/" (:org/id org) "/users")
                 :method :post
-                :body {:user-id (:customer/uuid user)}}
+                :body {:user-id (str (:customer/uuid user))}}
            resp (helpers/request! req)]]
     (match?
      (matchers/embeds
@@ -59,5 +59,4 @@
      {:keys [database]} (state-flow.api/get-state)]
     (state/invoke #(db.customers/insert! user database))
     (state/invoke #(db.orgs/insert! org database))
-
     (fcreate-org-user org user)))

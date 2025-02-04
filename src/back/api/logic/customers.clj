@@ -1,6 +1,7 @@
 (ns back.api.logic.customers
-  (:require [clojure.string :as str]
-            [slugify.core :refer [slugify]]))
+  (:require
+   [clojure.string :as str]
+   [slugify.core :refer [slugify]]))
 
 (defn create
   [{:keys [email id]}]
@@ -11,9 +12,13 @@
 ;; since sub-domains are the ones we worry about separating
 ;; with `-`, the username shouldn't have `-`s, or it will clash
 ;; with the sub-domains. This is why we remove them.
-(defn add-username [user username]
-  [user username]
-  (assoc user :customer/username (str/replace (slugify username) #"-" "")))
+(defn update-username
+  ([user username]
+   (assoc user :username (str/replace (slugify username) #"-" ""))))
+
+(defn update-install-id
+  ([user install-id]
+   (assoc user :git-install-id (int install-id))))
 
 (defn exists?
   [users id]

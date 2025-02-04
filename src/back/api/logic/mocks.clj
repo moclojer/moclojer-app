@@ -1,14 +1,15 @@
 (ns back.api.logic.mocks
-  (:require [camel-snake-kebab.core :as csk]
-            [clojure.java.io :as io]
-            [clojure.string :as str]))
+  (:require
+   [camel-snake-kebab.core :as csk]
+   [clojure.java.io :as io]
+   [clojure.string :as str]))
 
 (def default-mock-content
   (slurp (io/resource "back/default-mock.yaml")))
 
 (defn create [mock]
   (let [new-uuid (random-uuid)
-        content (:content mock)]
+        content (or (:content mock) (:mock/content mock))]
     (-> (reduce-kv
          (fn [acc k v]
            (assoc acc (->> (name k)
@@ -16,10 +17,10 @@
                            csk/->snake_case
                            keyword) v))
          {} mock)
-        (merge {:mock/id new-uuid
-                :mock/content (or content default-mock-content)
-                :mock/dns_status "offline"
-                :mock/unification_status "offline"}))))
+        (-> (merge {:mock/id new-uuid
+                    :mock/content (or content default-mock-content)
+                    :mock/dns_status "offline"
+                    :mock/unification_status "offline"})))))
 
 (defn gen-host [wildcard subdomain]
   (str wildcard "-" subdomain ".moclojer.com"))
@@ -55,7 +56,7 @@
                old-apis (vec (:apis subdomain-group))
                new-apis (->> (select-keys mock [:wildcard :subdomain :url :enabled
                                                 :id :content :dns-status
-                                                :unification-status])
+                                                :unification-status :git-repo :sha])
                              (merge url)
                              (conj old-apis))]
            (assoc grouped-mocks
@@ -88,10 +89,14 @@
 (defn disable [mock]
   (assoc mock :mock/enabled false))
 
-(defn update
-  [mock {:keys [content]}]
-  (-> (assoc mock :mock/content content)
-      (select-keys [:mock/id :mock/content])))
+(defn update-sha [mock sha]
+  (assoc mock :mock/sha sha))
+
+(defn update-repo [mock git-repo]
+  (assoc mock :mock/git_repo git-repo))
+
+(defn update-content [mock content]
+  (assoc mock :mock/content content))
 
 (defn publish [mock]
   (assoc mock :mock/enabled true))

@@ -24,17 +24,18 @@
 
     (storage/upload! storage "moclojer" path content-with-host ctx)
     (logs/log :info "uploaded generated yaml"
-              :ctx (merge ctx {:path path
-                               :?file ?file}))
+              :ctx (assoc ctx
+                          :path path
+                          :?file ?file))
 
     (if valid?
       (when enabled
         (ports.producers/generate-unified-yml! path true mq ctx))
       (do
         (logs/log :warn "invalid mock content"
-                  :ctx (merge ctx
-                              {:content content
-                               :explanation (logic.yml/explain-mock-validation content)}))
+                  :ctx (assoc ctx
+                              :content content
+                              :explanation (logic.yml/explain-mock-validation content)))
         (ports.producers/set-unification-status! mock-id
                                                  "offline-invalid"
                                                  mq

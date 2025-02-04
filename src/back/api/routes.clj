@@ -1,11 +1,14 @@
 (ns back.api.routes
-  (:require [back.api.healthcheck :as healthcheck]
-            [back.api.interceptors.error-handler :refer [error-handler-interceptor]]
-            [back.api.interceptors.extract-user :refer [extract-user-interceptor]]
-            [back.api.ports.http-in :as ports.http-in]
-            [back.api.schemas.wire-in :as schemas.wire-in]
-            [back.api.schemas.wire-out :as schemas.wire-out]
-            [reitit.swagger :as swagger]))
+  (:require
+   [back.api.healthcheck :as healthcheck]
+   [back.api.interceptors.error-handler :refer [error-handler-interceptor]]
+   [back.api.interceptors.extract-user :refer [extract-user-interceptor]]
+   [back.api.interceptors.verify-webhook :refer [verify-webhook-signature]]
+   [back.api.ports.http-in :as ports.http-in]
+   [back.api.schemas.wire-in :as schemas.wire-in]
+   [back.api.schemas.wire-out :as schemas.wire-out]
+   [reitit.http.interceptors.parameters :as parameters]
+   [reitit.swagger :as swagger]))
 
 (def routes
   [["/swagger.json"
@@ -26,6 +29,13 @@
            :responses {200 {:body healthcheck/HealthResponse}}
            :handler healthcheck/live}}]
 
+   ["/webhook"
+    {:post {:summary "Handles a webhook"
+            :parameters {:body map?}
+            :interceptors [(parameters/parameters-interceptor)
+                           (verify-webhook-signature)]
+            :handler ports.http-in/handler-webhook}}]
+
    ["/login/auth"
     {:swagger {:tags ["login"]}
      :post {:summary "Login supabase retrieve user"
@@ -33,13 +43,27 @@
             :responses {201 {:body {:user schemas.wire-out/User}}}
             :handler ports.http-in/handler-create-user!}}]
 
+   ["/repos"
+    {:get {:summary "Returns a user repos linked by its installation"
+           :interceptors [(error-handler-interceptor)
+                          (extract-user-interceptor)]
+           :responses {200 {:body [map?]}}
+           :handler ports.http-in/handler-get-repos}}]
+
+   ["/sync"
+    {:get {:summary "Returns true if sync is enabled"
+           :interceptors [(error-handler-interceptor)
+                          (extract-user-interceptor)]
+           :responses {200 {:body [map?]}}
+           :handler ports.http-in/handler-sync-status}}]
+
    ["/user/:id"
     {:swagger {:tags ["login"]}
      :post {:summary "Update user"
             :interceptors [(error-handler-interceptor)
                            (extract-user-interceptor)]
             :parameters {:path {:id uuid?}
-                         :body {:username string?}}
+                         :body schemas.wire-in/UserUpdate}
             :responses {200 {:body {:user schemas.wire-out/User}}}
             :handler ports.http-in/edit-user!}
      :get {:summary "Retrieve user"
@@ -59,8 +83,7 @@
      :get {:summary "Retrieve user by external id"
            :interceptors [(error-handler-interceptor)
                           (extract-user-interceptor)]
-           :responses {200 {:body {:user schemas.wire-out/User}}
-                       404 {}}
+           :responses {200 {:body {:user schemas.wire-out/User}}}
            :handler ports.http-in/handler-get-user-by-external-id}}]
 
    ["/user/username/:username"
@@ -152,7 +175,8 @@
            :responses {200 {:body {:mock schemas.wire-out/Mock}}}
            :handler ports.http-in/handler-update-mock!}
      :delete {:summary "Delete a mock"
-              :interceptors [(extract-user-interceptor)]
+              :interceptors [(error-handler-interceptor)
+                             (extract-user-interceptor)]
               :parameters {:body schemas.wire-in/MockDelete}
               :responses {200 {:body {}}}
               :handler ports.http-in/handler-delete-mock!}}]
@@ -166,6 +190,15 @@
                           (extract-user-interceptor)]
            :responses {200 {:body schemas.wire-out/Available}}
            :handler ports.http-in/handler-wildcard-available?}}]
+
+   ["/mocks/:id"
+    {:get {:summary "Gets a specific mock"
+           :parameters {:path {:id string?}}
+           :interceptors [(error-handler-interceptor)
+                          (extract-user-interceptor)]
+           :responses {200 {:body {:mock map?}}
+                       404 {:body {:error string?}}}
+           :handler ports.http-in/handler-get-mock-by-id}}]
 
    ["/mocks/:id/publication"
     {:swagger {:tags ["mocks"]}
@@ -190,4 +223,13 @@
             :interceptors [(error-handler-interceptor)
                            (extract-user-interceptor)]
             :responses {200 {:body {}}}
-            :handler ports.http-in/handler-unpublish-mock!}}]])
+            :handler ports.http-in/handler-unpublish-mock!}}]
+
+   ["/mocks/:id/push"
+    {:post {:summary "Push mock to GitHub"
+            :parameters {:path {:id uuid?}
+                         :body schemas.wire-in/MockPush}
+            :interceptors [(error-handler-interceptor)
+                           (extract-user-interceptor)]
+            :responses {200 {:body [map?]}}
+            :handler ports.http-in/handler-push-mock!}}]])
