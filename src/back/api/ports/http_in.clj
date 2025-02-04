@@ -35,10 +35,10 @@
     {:keys [database]} :components
     ext-user :user
     ctx :ctx}]
-  ;; since we're already fetching the current session user,
-  ;; it doesn't make sense to make another request, incase the
-  ;; user being retrieved, is the same one in the session.
-  ;; So we just return the extracted user.
+    ;; since we're already fetching the current session user,
+    ;; it doesn't make sense to make another request, incase the
+    ;; user being retrieved, is the same one in the session.
+    ;; So we just return the extracted user.
   (let [same-user? (= (some-> ext-user :customer/uuid str) id)
         user (if same-user?
                (adapters.customers/->wire ext-user)
@@ -128,6 +128,15 @@
     ctx :ctx}]
   (let [available (controllers.mocks/wildcard-available?
                    (merge mock {:user-id user-id}) components ctx)]
+    {:status 200
+     :body {:available available}}))
+
+(defn handler-orgname-available?
+  [{{orgname :path} :parameters
+    components :components
+    ctx :ctx}]
+  (let [available (controllers.orgs/slug-available?
+                   orgname components ctx)]
     {:status 200
      :body {:available available}}))
 

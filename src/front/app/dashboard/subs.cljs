@@ -36,6 +36,11 @@
      (conj-if [] orgs private))))
 
 (refx/reg-sub
+ :app.dashboard/orgs-data
+ (fn [db _]
+   (:orgs-data db)))
+
+(refx/reg-sub
  :app.dashboard/aside
  (fn [db _]
    (:aside db)))
@@ -49,6 +54,11 @@
  :app.dashboard/is-modal-open?
  (fn [db _]
    (:is-modal-open? db)))
+
+(refx/reg-sub
+ :app.dashboard/is-org-modal-open?
+ (fn [db _]
+   (:is-org-modal-open? db)))
 
 (refx/reg-sub
  :app.dashboard/is-settings-open?
@@ -120,3 +130,8 @@
                         first)
          server-mock (:server-mock db)]
      (not= (:content curr-mock) (:content server-mock)))))
+
+(refx/reg-sub
+ :app.dashboard/orgname-valid?
+ (fn [db _]
+   (:orgname-available db)))
