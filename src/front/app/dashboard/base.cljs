@@ -289,6 +289,66 @@
                :on-click #(close-modal!)}
               "No, cancel"))))})))
 
+(defn new-org-modal []
+  (let [is-org-modal-open? (refx/use-sub [:app.dashboard/is-org-modal-open?])
+        default-orgname "moclojer-org"
+        [new-org set-org] (hooks/use-state {:orgname default-orgname})
+        allow-save? (refx/use-sub [:app.dashboard/orgname-valid?])]
+
+    (hooks/use-effect
+      [new-org]
+      (refx/dispatch [:app.dashboard/orgname-available? (:orgname new-org)]))
+
+    ($ modal
+       {:title "New org"
+        :open? is-org-modal-open?
+        :on-close #(refx/dispatch-sync [:app.dashboard/toggle-org-modal])
+        :children
+        (d/div
+         {:class "w-screen md:w-[600px] p-6 space-y-4"}
+         (d/div
+          (d/div
+           {:class "grid grid-cols-6 gap-4"}
+           (d/div
+            {:class "col-span-6 lm:col-span-3"}
+            ($ input
+               {:label "org name"
+                :class (str "shadow-sm bg-gray-50 focus:ring-pink-500 "
+                            "focus:border-pink-500 block w-full sm:text-sm "
+                            "border-gray-300 rounded-md")
+                :placeholder default-orgname
+                :on-load #(set-org assoc :orgname default-orgname)
+                :type "text"
+                :on-change #(set-org
+                             assoc :orgname
+                             (slugify/default (or (.. % -target -value)
+                                                  default-orgname)
+                                              #js {:replacement "-"
+                                                   :lower true
+                                                   :trim true}))
+                :name "product-name"
+                :id "product-name"})))
+          (d/div
+           {:class "mb-4"}
+           (d/div
+            {:class "mt-2 text-sm text-gray-500 dark:text-gray-400"}
+            (d/span
+             {:class "text-gray-900 text-base font-semibold "}
+             (or (str "<" (:orgname new-org) ">") "<org-name>"))))
+
+          (d/div
+           {:class "flex justify-between items-end py-4"}
+           ($ button
+              {:theme :mockingbird
+               :class (str "px-3 py-2 rounded-lg justify-end items-center gap-2 flex btn-add "
+                           (when-not allow-save? "btn-add__disabled bg-gray-600 cursor-not-allowed "))
+               :on-click #(when allow-save?
+                            (refx/dispatch [:app.dashboard/create-org (:orgname new-org)]))}
+              (d/div
+               {:class "text-white text-xs font-bold leading-[18px]"}
+               " save")
+              ($ svg/save)))))})))
+
 (defn update-repo-modal []
   (let [require-git-repo? (refx/use-sub [:app.dashboard/require-git-repo?])
         repos (refx/use-sub [:app.dashboard/repos])]
@@ -331,4 +391,5 @@
             ($ new-mock-modal)
             ($ mock-deletion-modal)
             ($ settings-modal)
-            ($ update-repo-modal)))))
+            ($ update-repo-modal)
+            ($ new-org-modal)))))

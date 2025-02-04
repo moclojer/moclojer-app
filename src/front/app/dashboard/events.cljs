@@ -24,6 +24,13 @@
      {:db (assoc db :is-modal-open? (not toggle))})))
 
 (refx/reg-event-fx
+ :app.dashboard/toggle-org-modal
+ (fn
+   [{db :db} [_ _]]
+   (let [toggle (:is-org-modal-open? db)]
+     {:db (assoc db :is-org-modal-open? (not toggle))})))
+
+(refx/reg-event-fx
  :app.dashboard/toggle-settings
  (fn
    [{db :db} [_ _]]
@@ -469,3 +476,53 @@
                   :content (:content server-mock)}]
       :notification {:type :info
                      :content "Mock reloaded from server"}})))
+
+(refx/reg-event-db
+ :app.dashboard/save-orgs-data
+ (fn [db [_ response]]
+   (assoc db :orgs-data (:orgs (:body response)))))
+
+(refx/reg-event-fx
+ :app.dashboard/failed-retrieve-orgs-data
+ (fn [db [_ response]]
+   {:notification {:type :error
+                   :content response}}))
+
+(refx/reg-event-fx
+ :app.dashboard/get-orgs
+ (fn [{db :db} [_ _]]
+   {:http {:url "/orgs"
+           :method :get
+           :headers {"authorization" (str "Bearer " (-> db :current-user :access-token))}
+           :on-success [:app.dashboard/save-orgs-data]
+           :on-failure [:app.dashboard/failed-retrieve-orgs-data]}}))
+
+(refx/reg-event-db
+ :app.dashboard/orgname-available
+ (fn [db _]
+   (assoc db :orgname-available true)))
+
+(refx/reg-event-db
+ :app.dashboard/create-org-failure
+ (fn [db _]
+   (dissoc db :orgname-available)))
+
+(refx/reg-event-fx
+ :app.dashboard/create-org
+ (fn [{db :db} [_ orgname]]
+   {:http {:url "/orgs"
+           :method :post
+           :headers {"authorization" (str "Bearer " (-> db :current-user :access-token))}
+           :body {:orgname orgname}
+           :on-success [:app.dashboard/create-org-success]
+           :on-failure [:app.dashboard/create-org-failure]}}))
+
+(refx/reg-event-fx
+ :app.dashboard/orgname-available?
+ (fn [{db :db} [_ orgname]]
+   {:http {:url (str "/org/orgname/" orgname)
+           :method :get
+           :headers {"authorization" (str "Bearer " (-> db :current-user :access-token))}
+           :body {:orgname orgname}
+           :on-success [:app.dashboard/orgname-available]
+           :on-failure [:app.dashboard/create-org-failure]}}))

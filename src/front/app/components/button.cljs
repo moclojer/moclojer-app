@@ -47,3 +47,18 @@
    (d/span {:class (str "ml-3 "
                         (when-not aside-open?
                           "lg:hidden lg:absolute"))} "Home")))
+
+(defnc org-btn
+  [{:keys [aside-open?]
+    :or {aside-open? false}}]
+  (d/button
+   {:class (str "flex items-center p-2 text-base font-normal text-gray-900 rounded-lg "
+                "transtion duration-75 hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-gray-700 "
+                (if aside-open?
+                  "w-[calc(100%-8px)]"
+                  "w-full"))
+    :on-click #(rfe/push-state :app.core/orgs)}
+   ($ svg/org-mock)
+   (d/span {:class (str "ml-3 "
+                        (when-not aside-open?
+                          "lg:hidden lg:absolute"))} "Orgs")))

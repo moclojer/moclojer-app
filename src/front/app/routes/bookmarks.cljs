@@ -3,6 +3,7 @@
    [front.app.auth.views :as auth]
    [front.app.dashboard.editor :as editor]
    [front.app.dashboard.mocks :as mocks]
+   [front.app.dashboard.orgs :as orgs]
    [front.app.dashboard.views :as d.views]))
 
 (def routes
@@ -34,6 +35,16 @@
    ["/dashboard/mocks/:mock-id"
     {:name :app.core/mocks-view
      :view editor/index
+     :public? false}]
+
+   ["/dashboard/orgs"
+    {:name :app.core/orgs
+     :view orgs/orgs
+     :public? false}]
+
+   ["/dashboard/orgs/:id"
+    {:name :app.core/orgs-view
+     :view orgs/orgs-view
      :public? false}]
 
    ["/404"

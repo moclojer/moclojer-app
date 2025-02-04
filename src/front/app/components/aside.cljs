@@ -1,7 +1,7 @@
 (ns front.app.components.aside
   (:require
    [front.app.auth.supabase :as supabase]
-   [front.app.components.button :refer [new-mock-btn toggle-aside-btn home-btn]]
+   [front.app.components.button :refer [new-mock-btn toggle-aside-btn home-btn org-btn]]
    [front.app.components.svg :as svg]
    [front.app.lib :refer [defnc]]
    [helix.core :refer [$]]
@@ -85,7 +85,10 @@
                             ($ toggle-aside-btn {:aside-open? aside-open?}))
                            (d/li
                             ($ home-btn {:aside-open? aside-open?}))
-                           ($ mock aside))
+                           ($ mock aside)
+                           (d/li 
+                             ($ org-btn {:aside-open? aside-open?}))
+                           )
                      (d/div {:class "pt-2 space-y-2"}
                             (d/a {:href "https://docs.moclojer.com/"
                                   :target "_blank"
