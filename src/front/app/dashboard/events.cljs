@@ -306,6 +306,11 @@
  (fn [db [_ modal-open?]]
    (assoc db :require-git-repo? (not modal-open?))))
 
+(refx/reg-event-db
+ :app.dashboard/toggle-add-user-org-modal
+ (fn [{db :db} [_ _]]
+   (assoc db :add-user-org-modal (not (:add-user-org-modal db)))))
+
 (refx/reg-event-fx
  :app.dashboard/update-git-repo
  (fn [{db :db} [_ git-repo]]
@@ -498,22 +503,31 @@
            :on-failure [:app.dashboard/failed-retrieve-orgs-data]}}))
 
 (refx/reg-event-db
- :app.dashboard/orgname-available
- (fn [db _]
-   (assoc db :orgname-available true)))
+ :app.dashboard/update-orgname-availability
+ (fn [db [_ response]]
+   (assoc db :orgname-available (-> response :body :available))))
 
-(refx/reg-event-db
+(refx/reg-event-fx
  :app.dashboard/create-org-failure
  (fn [db _]
-   (dissoc db :orgname-available)))
+   {:db (dissoc db :orgname-available)
+    :notification {:type :error
+                   :content "Could not create org!"}}))
+
+(refx/reg-event-fx
+ :app.dashboard/create-org-success
+ (fn [db _]
+   {:dispatch [:app.dashboard/toggle-org-modal]
+    :notification {:type :info
+                   :content "Successfully created org!"}}))
 
 (refx/reg-event-fx
  :app.dashboard/create-org
- (fn [{db :db} [_ orgname]]
+ (fn [{db :db} [_ org]]
    {:http {:url "/orgs"
            :method :post
            :headers {"authorization" (str "Bearer " (-> db :current-user :access-token))}
-           :body {:orgname orgname}
+           :body {:org org}
            :on-success [:app.dashboard/create-org-success]
            :on-failure [:app.dashboard/create-org-failure]}}))
 
@@ -523,6 +537,6 @@
    {:http {:url (str "/org/orgname/" orgname)
            :method :get
            :headers {"authorization" (str "Bearer " (-> db :current-user :access-token))}
-           :body {:orgname orgname}
-           :on-success [:app.dashboard/orgname-available]
-           :on-failure [:app.dashboard/create-org-failure]}}))
+           :on-success [:app.dashboard/update-orgname-availability]
+           :on-failure [:app.dashboard/update-orgname-availability]}}))
+

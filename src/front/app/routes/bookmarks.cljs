@@ -42,7 +42,7 @@
      :view orgs/orgs
      :public? false}]
 
-   ["/dashboard/orgs/:id"
+   ["/dashboard/orgs/:org-id"
     {:name :app.core/orgs-view
      :view orgs/orgs-view
      :public? false}]

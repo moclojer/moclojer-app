@@ -132,11 +132,11 @@
      :body {:available available}}))
 
 (defn handler-orgname-available?
-  [{{orgname :path} :parameters
+  [{parameters :parameters
     components :components
     ctx :ctx}]
   (let [available (controllers.orgs/slug-available?
-                   orgname components ctx)]
+                   (-> parameters :path :orgname) components ctx)]
     {:status 200
      :body {:available available}}))
 
