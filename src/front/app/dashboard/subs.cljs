@@ -61,6 +61,11 @@
    (:is-org-modal-open? db)))
 
 (refx/reg-sub
+ :app.dashboard/add-user-org-modal
+ (fn [db _]
+   (:add-user-org-modal db)))
+
+(refx/reg-sub
  :app.dashboard/is-settings-open?
  (fn [db _]
    (:is-settings-open? db)))
