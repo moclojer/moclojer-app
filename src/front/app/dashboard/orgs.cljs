@@ -28,24 +28,23 @@
 
 (defnc org [{:keys [orgname slug id users]}]
   (let [filtered-users (take 5 users)]
-    (d/a {:class "w-full hover:cursor-pointer"
-          :on-click (fn [_] (rfe/push-state :app.core/orgs-view {:org-id id}))}
-         (d/div {:class "w-full flex flex-col items-start border-b-2 "}
-                (d/div {:class "flex justify-between w-full items-center "}
-                       (d/div {:class "w-full text-black flex flex-col my-2 space-y-2"}
+    (d/div {:class "w-full hover:cursor-pointer"}
+           (d/div {:class "w-full flex flex-col items-start border-b-2 "}
+                  (d/div {:class "flex justify-between w-full items-center "}
+                         (d/div {:class "w-full text-black flex flex-col my-2 space-y-2 "}
+                                (d/div {:on-click (fn [_] (rfe/push-state :app.core/orgs-view {:org-id id}))}
+                                       (d/p {:class "font-bold text-black "} orgname))
+                                (d/div {:class " h-1/3"}
+                                       (for [{:keys [username email]} filtered-users]
+                                         (<> {:key username}
+                                             ($ user-li {:username username :email email})))))
 
-                              (d/p {:class "font-bold text-black "} orgname)
-                              (d/div {:class " h-1/3"}
-                                     (for [{:keys [username email]} filtered-users]
-                                       (<> {:key username}
-                                           ($ user-li {:username username :email email})))))
-
-                       (d/button {:class "px-3 py-2 mt-2 rounded-lg border border-gray-200 justify-center items-center gap-2 flex button-remove "
+                         (d/button {:class "px-3 py-2 mt-2 rounded-lg border border-gray-200 justify-center items-center gap-2 flex button-remove "
                                        ;; TODO create this event
-                                  :on-click #(refx/dispatch-sync [:app.dashboard/set-org-to-delete {:id id}])}
-                                 (d/div {:class "text-gray-800 text-sm font-medium leading-[21px]"}
-                                        "remove")
-                                 ($ svg/trash)))))))
+                                    :on-click #(refx/dispatch-sync [:app.dashboard/set-org-to-delete {:id id}])}
+                                   (d/div {:class "text-gray-800 text-sm font-medium leading-[21px]"}
+                                          "remove")
+                                   ($ svg/trash)))))))
 
 (defnc user-orgs [{:keys [username orgs]}]
   (d/div {:class (str "w-full h-full px-6 py-4 bg-white rounded-lg shadow flex-col justify-center items-start inline-flex "
@@ -74,13 +73,60 @@
              " new org")
             ($ svg/box))))
 
+(defnc orgs-view-editor [{:keys [orgname slug id git-orgname users] :as org :or {git-orgname ""}}]
+  (when git-orgname
+    (prn git-orgname))
+  (let [current-user (refx/use-sub [:app.auth/current-user])
+        [show-slug? set-show-slug] (hooks/use-state false)]
+    (d/div {:class "space-y-2 "}
+           (d/div
+            {:class "rounded-br-lg flex-col justify-start inline-flex"}
+            (d/div
+             {:class "rounded-md justify-start items-center space-x-2 inline-flex"}
+             ($ svg/box {:color "black"})
+             (d/button
+              {:class "justify-center items-center flex"
+               :on-click #(rfe/push-state :app.core/orgs)}
+              (d/p
+               {:class "text-gray-700 text-sm font-medium underline"}
+               "orgs"))
+             (d/p ">")
+             (d/div
+              {:class "justify-center items-center flex"}
+              (d/p
+               {:class "text-gray-700 text-sm font-medium"}
+               (or orgname "my")))))
+           (d/div {:class (str "w-full h-full px-6 py-4 bg-white rounded-lg shadow flex-col justify-center items-start inline-flex "
+                               "lg:p-8 space-y-2")}
+                  (d/div {:class "self-stretch justify-start items-center gap-[15px] inline-flex "}
+                         (d/div {:class "w-full self-stretch text-gray-900 text-xl font-bold leading-[30px] flex justify-between"}
+                                (d/span {:class "flex items-center space-x-2"}
+                                        (d/button {:class " transition-all duration-75 flex justify-center items-center mt-1"
+                                                   :on-click #(set-show-slug (not show-slug?))}
+                                                  (if show-slug?
+                                                    ($ svg/eye-opened)
+                                                    ($ svg/eye-closed)))
+                                        (if show-slug?
+                                          (d/p slug)
+                                          (d/p orgname)))
+                                ($ button)))))))
 (defnc orgs-view [props]
   (let [{:keys [route]} props
         {:keys [path-params]} route
-        {:keys [org-id]} path-params]
+        {:keys [org-id]} path-params
+        orgs (refx/use-sub [:app.dashboard/orgs-data])
+        org (->> orgs
+                 (filter #(= (:id %) org-id))
+                 (first))
+        {:keys [orgname slug id git-orgname users]} org]
+    (hooks/use-effect
+      []
+      (refx/dispatch-sync [:app.dashboard/get-orgs]))
+
     ($ base/index
        (d/div {:class "flex flex-col lg:p-8"}
-              (d/p "ok: " org-id)))))
+              ($ orgs-view-editor {:orgname orgname :slug slug :id id
+                                   :git-orgname git-orgname :users users})))))
 
 (defnc orgs []
   (let [current-user (refx/use-sub [:app.auth/current-user])

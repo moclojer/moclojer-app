@@ -289,6 +289,48 @@
                :on-click #(close-modal!)}
               "No, cancel"))))})))
 
+(defn org-deletion-modal []
+  (let [[open? set-open!] (hooks/use-state false)
+        close-modal! #(do (set-open! false)
+                          (refx/dispatch-sync
+                           [:app.dashboard/set-org-to-delete nil]))
+        org (refx/use-sub [:app.dashboard/org-to-delete])]
+
+    (hooks/use-effect
+      [org]
+      (if (nil? org)
+        (close-modal!)
+        (set-open! true)))
+
+    ($ modal
+       {:title nil
+        :open? open?
+        :loading? false
+        :on-close close-modal!
+        :children
+        (d/div
+         {:class "px-4 py-4 flex flex-col space-y-4 items-center align-center"}
+         ($ svg/warning)
+         (d/p "Do you want to delete this org?")
+         (d/div
+          {:class "flex flex-row space-x-2"}
+          ($ button
+             {:class "px-4 py-2 bg-red-500 rounded-lg hover:opacity-80"
+              :on-click #(do
+                           (close-modal!)
+                           (refx/dispatch-sync [:app.dashboard/delete-org org]))}
+             (d/p
+              {:class "text-white"}
+              "Yes, I want to delete it"))
+          ($ button
+             {:class "px-4 py-2 border-2 border-gray-400 rounded-lg hover:bg-gray-200"}
+             (d/p
+              {:class-name "text-gray-800 text-sm font-medium"
+               :on-click #(close-modal!)}
+              "No, cancel"))))})))
+
+
+
 (defn new-org-modal []
   (let [is-org-modal-open? (refx/use-sub [:app.dashboard/is-org-modal-open?])
         current-user (refx/use-sub [:app.auth/current-user])
@@ -453,6 +495,7 @@
             ($ aside-container children)
             ($ new-mock-modal)
             ($ mock-deletion-modal)
+            ($ org-deletion-modal)
             ($ settings-modal)
             ($ update-repo-modal)
             ($ new-org-modal)

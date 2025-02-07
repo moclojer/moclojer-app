@@ -108,6 +108,11 @@
    (:mock-to-delete db)))
 
 (refx/reg-sub
+ :app.dashboard/org-to-delete
+ (fn [db _]
+   (:org-to-delete db)))
+
+(refx/reg-sub
  :app.dashboard/require-git-repo?
  (fn [db _]
    (:require-git-repo? db)))
