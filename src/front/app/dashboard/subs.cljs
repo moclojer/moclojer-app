@@ -31,9 +31,9 @@
 (refx/reg-sub
  :app.user/orgs
  (fn [db _]
-   (let [private (-> db :current-user :user :username)
+   (let [private (conj [] (-> db :current-user :user :username))
          orgs (-> db :orgs)]
-     (conj-if [] orgs private))))
+     (into private orgs))))
 
 (refx/reg-sub
  :app.dashboard/orgs-data
