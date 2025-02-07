@@ -540,3 +540,26 @@
            :on-success [:app.dashboard/update-orgname-availability]
            :on-failure [:app.dashboard/update-orgname-availability]}}))
 
+(refx/reg-event-db
+ :app.dashboard/set-org-to-delete
+ (fn [db [_ org]]
+   (assoc db :org-to-delete org)))
+
+(refx/reg-event-fx
+ :app.dashboard/delete-org-success
+ (fn [{db :db} _]
+   {:dispatch [:app.dashboard/get-orgs]
+    :notification {:type :info
+                   :content "Deleted org succesfully!"}
+    :db (assoc db
+               :delete-org-err nil
+               :org-to-delete nil)}))
+
+(refx/reg-event-fx
+ :app.dashboard/delete-org-failure
+ (fn [{db :db} [_ body]]
+   {:notification {:type :error
+                   :content "Error when deleting org!"}
+    :db (assoc db
+               :delete-org-err body
+               :org-to-delete nil)}))
