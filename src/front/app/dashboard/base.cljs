@@ -84,9 +84,6 @@
                          (do
                            (d/div
                             (d/p "Work in Progress")
-                            (when (> (count user-orgs) 1)
-                              (doseq [org user-orgs]
-                                (d/p org)))
                             (d/p user-orgs)))
 
                          (= (:view setting) "mocks")
@@ -117,6 +114,11 @@
            inc
            (str "my-mock-")
            set-default-wildcard!))
+
+    (hooks/use-effect
+      [user-orgs]
+      (when (nil? user-orgs)
+        (refx/dispatch [:app.dashboard/get-orgs])))
 
     (hooks/use-effect
       [new-mock]
@@ -329,8 +331,6 @@
                :on-click #(close-modal!)}
               "No, cancel"))))})))
 
-
-
 (defn new-org-modal []
   (let [is-org-modal-open? (refx/use-sub [:app.dashboard/is-org-modal-open?])
         current-user (refx/use-sub [:app.auth/current-user])
@@ -480,8 +480,7 @@
               (d/div
                {:class "text-white text-xs font-bold leading-[18px]"}
                " save")
-              ($ svg/save)))))}))
-  )
+              ($ svg/save)))))})))
 
 (defnc index [{:keys [children]}]
   (let [user (-> (refx/use-sub [:app.auth/current-user])

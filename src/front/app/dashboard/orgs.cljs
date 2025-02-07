@@ -2,7 +2,8 @@
   (:require
    [front.app.components.svg :as svg]
    [front.app.dashboard.base :as base]
-   [front.app.lib :refer [defnc]]
+   [front.app.dashboard.mocks :as mocks]
+   [mockingbird.lib :refer-macros [defnc]]
    [mockingbird.components.button :refer [button]]
    [helix.core :refer [$ <>]]
    [helix.dom :as d]
@@ -28,7 +29,7 @@
 (defnc org [{:keys [orgname slug id users]}]
   (let [filtered-users (take 5 users)]
     (d/div {:class "w-full "}
-           (d/div {:class "w-full flex flex-col items-start border-b-2 "}
+           (d/div {:class "w-full flex flex-col items-start border-b "}
                   (d/div {:class "flex justify-between w-full items-center "}
                          (d/div {:class "w-full text-black flex flex-col my-2 space-y-2 hover:cursor-pointer"
                                  :on-click (fn [_] (rfe/push-state :app.core/orgs-view {:org-id id}))}
@@ -66,12 +67,37 @@
              " new org")
             ($ svg/box))))
 
+(defnc apis-mocks [{:keys [subdomain mock-type apis]}]
+  (d/div {:id "custom-mock"
+          :class (str "w-full px-6 py-4 flex-col justify-center items-start inline-flex "
+                      "lg:p-8")
+          :key (str subdomain)}
+         (for [{:keys [enabled url id]} apis]
+           (<> {:key id}
+               ($ mocks/api-mock {:enabled enabled :url url :id id})))
+         (d/div {:class "self-stretch pt-6 justify-start items-start inline-flex text-white text-xs font-bold leading-[18px]"}
+
+                ($ button {:class "px-3 py-2 text-white hover:text-white bg-pink-600 rounded-lg justify-end items-center gap-2 flex btn-add"
+                           :theme :mockingbird
+                           :on-click (fn [_] (refx/dispatch [:app.dashboard/toggle-mock-modal]))}
+                   ($ svg/plus-sign)
+                   (d/span
+                    " new mock")
+                   ($ svg/box)))))
+
+(defnc orgs-mocks []
+  (let [mocks (refx/use-sub [:app.dashboard/mocks])]
+    (d/div {:class "w-full self-stretch justify-start items-center gap-[15px] inline-flex "}
+           (d/div {:class "w-full self-stretch text-gray-900 text-xl font-bold leading-[30px] flex justify-between"}
+                  (for [{:keys [mock-type subdomain apis] :or {mock-type "personal"}} mocks]
+                    (<> {:key subdomain}
+                        ($ apis-mocks {:mock-type mock-type :subdomain subdomain :apis apis})))))))
+
 (defnc orgs-view-editor [{:keys [orgname slug id git-orgname users] :as org :or {git-orgname ""}}]
   (when git-orgname
     (prn git-orgname))
-  (let [current-user (refx/use-sub [:app.auth/current-user])
-        [show-slug? set-show-slug] (hooks/use-state false)]
-    (d/div {:class "space-y-2 "}
+  (let [[show-slug? set-show-slug] (hooks/use-state false)]
+    (d/div {:class "space-y-2 w-full "}
            (d/div
             {:class "rounded-br-lg flex-col justify-start inline-flex"}
             (d/div
@@ -90,7 +116,7 @@
                {:class "text-gray-700 text-sm font-medium"}
                (or orgname "my")))))
            (d/div {:class (str "w-full h-full px-6 py-4 bg-white rounded-lg shadow flex-col justify-center items-start inline-flex "
-                               "lg:p-8 space-y-2")}
+                               "lg:p-8 space-y-2 ")}
                   (d/div {:class "self-stretch justify-start items-center gap-[15px] inline-flex "}
                          (d/div {:class "w-full self-stretch text-gray-900 text-xl font-bold leading-[30px] flex justify-between"}
                                 (d/span {:class "flex items-center space-x-2"}
@@ -104,10 +130,12 @@
                                           (d/p orgname)))
                                 ($ button ($ svg/edit-pen))))
 
-                  (d/div {:class ""}
+                  (d/div {:class "w-full border-b border-gray-200 pb-2"}
                          (for [{:keys [username email]} users]
                            (<> {:key username}
-                               ($ user-li {:username username :email email}))))))))
+                               ($ user-li {:username username :email email}))))
+                  (d/div {:class "w-full "}
+                         ($ orgs-mocks))))))
 
 (defnc orgs-view [props]
   (let [{:keys [route]} props
@@ -118,9 +146,11 @@
                  (filter #(= (:id %) org-id))
                  (first))
         {:keys [orgname slug id git-orgname users]} org]
+
     (hooks/use-effect
-      []
-      (refx/dispatch-sync [:app.dashboard/get-orgs]))
+      [orgs]
+      (when (nil? orgs)
+        (refx/dispatch [:app.dashboard/get-orgs])))
 
     ($ base/index
        (d/div {:class "flex flex-col lg:p-8"}

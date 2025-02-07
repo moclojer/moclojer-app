@@ -485,7 +485,13 @@
 (refx/reg-event-db
  :app.dashboard/save-orgs-data
  (fn [db [_ response]]
-   (assoc db :orgs-data (:orgs (:body response)))))
+   (-> db
+       (assoc :orgs-data (:orgs (:body response))
+              :orgs  (into []
+                           (->> (:orgs (:body response))
+                                (mapv (fn [e] (-> (select-keys e [:orgname])
+                                                  (vals)
+                                                  (first))))))))))
 
 (refx/reg-event-fx
  :app.dashboard/failed-retrieve-orgs-data
@@ -517,7 +523,8 @@
 (refx/reg-event-fx
  :app.dashboard/create-org-success
  (fn [db _]
-   {:dispatch [:app.dashboard/toggle-org-modal]
+   {:dispatch-n [[:app.dashboard/toggle-org-modal]
+                 [:app.dashboard/get-orgs]]
     :notification {:type :info
                    :content "Successfully created org!"}}))
 
@@ -563,3 +570,15 @@
     :db (assoc db
                :delete-org-err body
                :org-to-delete nil)}))
+
+(refx/reg-event-fx
+ :app.dashboard/delete-org
+ (fn [{{:keys [current-user]} :db}
+      [_ {:keys [id]}]]
+   (let [access-token (:access-token current-user)]
+     {:http {:url (str "/orgs/" id)
+             :method :delete
+             :headers {"authorization" (str "Bearer " access-token)}
+             :body {:id (str id)}
+             :on-success [:app.dashboard/delete-org-success current-user]
+             :on-failure [:app.dashboard/delete-org-failure]}})))
