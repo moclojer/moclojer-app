@@ -9,10 +9,10 @@
    [reitit.frontend.easy :as rfe]))
 
 (defnc new-mock-btn []
-  ($ button {:class "px-3 py-2 bg-pink-600 rounded-lg flex flex-row space-x-2 items-center btn-add"
+  ($ button {:class "px-3 py-2 bg-pink-600 rounded-lg flex flex-row space-x-2 items-center btn-add text-white " 
              :on-click #(refx/dispatch [:app.dashboard/toggle-mock-modal])}
      ($ svg/plus-sign)
-     (d/p {:class "text-white text-xs font-bold"}
+     (d/p {:class "text-xs font-bold"}
           "new mock")
      ($ svg/box)))
 
@@ -52,13 +52,13 @@
   [{:keys [aside-open?]
     :or {aside-open? false}}]
   (d/button
-   {:class (str "flex items-center p-2 text-base font-normal text-gray-900 rounded-lg "
+   {:class (str "flex items-center p-2 text-base font-normal text-gray-800 hover:text-gray-900 rounded-lg "
                 "transtion duration-75 hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-gray-700 "
                 (if aside-open?
                   "w-[calc(100%-8px)]"
                   "w-full"))
     :on-click #(rfe/push-state :app.core/orgs)}
-   ($ svg/org-mock)
-   (d/span {:class (str "ml-3 "
+   ($ svg/people)
+   (d/span {:class (str "ml-3 text-gray-900 "
                         (when-not aside-open?
                           "lg:hidden lg:absolute"))} "Orgs")))
