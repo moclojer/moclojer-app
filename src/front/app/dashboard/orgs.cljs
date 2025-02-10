@@ -23,14 +23,14 @@
          (d/button {:class (str "border-2 py-[4px] px-[5px] w-max h-max rounded-full z-100 hover:bg-gray-100 "
                                 "transition-all duration-75 text-sm text-gray-200 hover:border-gray-400 "
                                 "hover:text-gray-400 ")
-                    :on-click #(refx/dispatch [:app.dashboard/toggle-settings])}
+                    :on-click #(refx/dispatch [:app.dashboard/toggle-add-user-org-modal])}
                    ($ svg/plus-sign))))
 
 (defnc org [{:keys [orgname slug id users]}]
   (let [filtered-users (take 5 users)]
     (d/div {:class "w-full "}
-           (d/div {:class "w-full flex flex-col items-start border-b "}
-                  (d/div {:class "flex justify-between w-full items-center "}
+           (d/div {:class "w-full flex flex-col items-start border-b space-y-2"}
+                  (d/div {:class "flex flex-col sm:flex-row justify-between w-full items-center "}
                          (d/div {:class "w-full text-black flex flex-col my-2 space-y-2 hover:cursor-pointer"
                                  :on-click (fn [_] (rfe/push-state :app.core/orgs-view {:org-id id}))}
                                 (d/p {:class "font-bold text-black "} orgname)
@@ -39,7 +39,7 @@
                                          (<> {:key username}
                                              ($ user-li {:username username :email email})))))
 
-                         (d/button {:class "px-3 py-2 mt-2 rounded-lg border border-gray-200 justify-center items-center gap-2 flex button-remove "
+                         (d/button {:class "sm:w-max w-full px-3 py-2 mt-2 rounded-lg border border-gray-200 justify-center items-center gap-2 flex button-remove "
                                     :on-click #(refx/dispatch-sync [:app.dashboard/set-org-to-delete {:id id}])}
                                    (d/div {:class "text-gray-800 text-sm font-medium leading-[21px]"}
                                           "remove")
@@ -85,18 +85,21 @@
                     " new mock")
                    ($ svg/box)))))
 
-(defnc orgs-mocks []
+(defnc orgs-mocks [{:keys [orgname]}]
   (let [mocks (refx/use-sub [:app.dashboard/mocks])]
     (d/div {:class "w-full self-stretch justify-start items-center gap-[15px] inline-flex "}
            (d/div {:class "w-full self-stretch text-gray-900 text-xl font-bold leading-[30px] flex justify-between"}
+                  (prn mocks)
                   (for [{:keys [mock-type subdomain apis] :or {mock-type "personal"}} mocks]
                     (<> {:key subdomain}
-                        ($ apis-mocks {:mock-type mock-type :subdomain subdomain :apis apis})))))))
+                        (when  (and  (= mock-type "org") (= subdomain orgname))
+                          ($ apis-mocks {:mock-type mock-type :subdomain subdomain :apis apis}))))))))
 
 (defnc orgs-view-editor [{:keys [orgname slug id git-orgname users] :as org :or {git-orgname ""}}]
   (when git-orgname
     (prn git-orgname))
-  (let [[show-slug? set-show-slug] (hooks/use-state false)]
+  (let [filtered-users (take 5 users)
+        [show-slug? set-show-slug] (hooks/use-state false)]
     (d/div {:class "space-y-2 w-full "}
            (d/div
             {:class "rounded-br-lg flex-col justify-start inline-flex"}
@@ -131,11 +134,11 @@
                                 ($ button ($ svg/edit-pen))))
 
                   (d/div {:class "w-full border-b border-gray-200 pb-2"}
-                         (for [{:keys [username email]} users]
+                         (for [{:keys [username email]} filtered-users]
                            (<> {:key username}
                                ($ user-li {:username username :email email}))))
                   (d/div {:class "w-full "}
-                         ($ orgs-mocks))))))
+                         ($ orgs-mocks {:orgname orgname}))))))
 
 (defnc orgs-view [props]
   (let [{:keys [route]} props

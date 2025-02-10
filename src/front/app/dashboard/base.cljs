@@ -422,7 +422,7 @@
                (:full_name repo)))))))})))
 
 (defn add-user-org-modal []
-  (let [is-org-modal-open? (refx/use-sub [:app.dashboard/is-org-modal-open?])
+  (let [is-add-user-org-modal-open? (refx/use-sub [:app.dashboard/is-add-user-org-modal-open?])
         current-user (refx/use-sub [:app.auth/current-user])
         default-orgname (str (-> current-user :user :username) "-org")
         [new-org set-org] (hooks/use-state {:orgname default-orgname})
@@ -434,7 +434,7 @@
 
     ($ modal
        {:title "Add users"
-        :open? is-org-modal-open?
+        :open? is-add-user-org-modal-open?
         :on-close #(refx/dispatch-sync [:app.dashboard/toggle-add-user-org-modal])
         :children
         (d/div
