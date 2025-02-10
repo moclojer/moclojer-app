@@ -29,3 +29,10 @@
   (and (string? s)
        (= 64 (count s))
        (re-matches #"^[0-9a-fA-F]{64}$" s)))
+
+(defn github-link?
+  "Checks if the input string correctly represents a github repo link"
+  [s]
+  (and (string? s)
+       (not-empty s)
+       (str/starts-with? s "https://github.com/")))

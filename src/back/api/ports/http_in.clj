@@ -76,8 +76,8 @@
                                                  (-> {}
                                                      (utils/assoc-if :content content)
                                                      (cond->
-                                                      (not= sha "") (utils/assoc-if :sha sha)
-                                                      (not= git-repo "") (utils/assoc-if :git-repo git-path)))
+                                                      (utils/sha256? sha) (utils/assoc-if :sha sha)
+                                                      (utils/github-link? git-repo) (utils/assoc-if :git-repo git-path)))
                                                  components
                                                  ctx)]
     {:status 200
