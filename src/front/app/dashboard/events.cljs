@@ -313,7 +313,6 @@
  (fn [db [_ modal-open?]]
    (assoc db :require-git-repo? (not modal-open?))))
 
-
 (refx/reg-event-fx
  :app.dashboard/update-git-repo
  (fn [{db :db} [_ git-repo]]
@@ -582,6 +581,35 @@
      {:http {:url (str "/orgs/" id)
              :method :delete
              :headers {"authorization" (str "Bearer " access-token)}
-             :body {:id (str id)}
              :on-success [:app.dashboard/delete-org-success current-user]
              :on-failure [:app.dashboard/delete-org-failure]}})))
+
+(refx/reg-event-fx
+ :app.dashboard/update-org-success
+ (fn [{db :db} _]
+   {:dispatch [:app.dashboard/get-orgs]
+    :notification {:type :info
+                   :content "updated org succesfully!"}
+    :db (assoc db
+               :update-org-err nil
+               :org-to-update nil)}))
+
+(refx/reg-event-fx
+ :app.dashboard/update-org-failure
+ (fn [{db :db} [_ body]]
+   {:notification {:type :error
+                   :content "Error when deleting org!"}
+    :db (assoc db
+               :update-org-err body
+               :org-to-update nil)}))
+
+(refx/reg-event-fx
+ :app.dashboard/set-new-orgname
+ (fn [{{:keys [current-user]} :db} [_ id orgname-to-save]]
+   (let [access-token (:access-token current-user)]
+     {:http {:url (str "/orgs/" id)
+             :method :put
+             :headers {"authorization" (str "Bearer " access-token)}
+             :body {:org  {:orgname orgname-to-save}}
+             :on-success [:app.dashboard/update-org-success current-user]
+             :on-failure [:app.dashboard/update-org-failure]}})))

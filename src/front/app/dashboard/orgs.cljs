@@ -5,6 +5,7 @@
    [front.app.dashboard.mocks :as mocks]
    [mockingbird.lib :refer-macros [defnc]]
    [mockingbird.components.button :refer [button]]
+   [mockingbird.components.input :refer [input]]
    [helix.core :refer [$ <>]]
    [helix.dom :as d]
    [helix.hooks :as hooks]
@@ -87,19 +88,22 @@
 
 (defnc orgs-mocks [{:keys [orgname]}]
   (let [mocks (refx/use-sub [:app.dashboard/mocks])]
+    (prn mocks)
+
     (d/div {:class "w-full self-stretch justify-start items-center gap-[15px] inline-flex "}
            (d/div {:class "w-full self-stretch text-gray-900 text-xl font-bold leading-[30px] flex justify-between"}
-                  (prn mocks)
                   (for [{:keys [mock-type subdomain apis] :or {mock-type "personal"}} mocks]
                     (<> {:key subdomain}
-                        (when  (and  (= mock-type "org") (= subdomain orgname))
+                        (when  (and (= mock-type "org") (= subdomain orgname))
                           ($ apis-mocks {:mock-type mock-type :subdomain subdomain :apis apis}))))))))
 
 (defnc orgs-view-editor [{:keys [orgname slug id git-orgname users] :as org :or {git-orgname ""}}]
   (when git-orgname
     (prn git-orgname))
   (let [filtered-users (take 5 users)
-        [show-slug? set-show-slug] (hooks/use-state false)]
+        [show-slug? set-show-slug] (hooks/use-state false)
+        [editing-org? set-editing-org] (hooks/use-state false)
+        [orgname-to-save set-orgname-to-save] (hooks/use-state nil)]
     (d/div {:class "space-y-2 w-full "}
            (d/div
             {:class "rounded-br-lg flex-col justify-start inline-flex"}
@@ -122,16 +126,35 @@
                                "lg:p-8 space-y-2 ")}
                   (d/div {:class "self-stretch justify-start items-center gap-[15px] inline-flex "}
                          (d/div {:class "w-full self-stretch text-gray-900 text-xl font-bold leading-[30px] flex justify-between"}
-                                (d/span {:class "flex items-center space-x-2"}
-                                        (d/button {:class " transition-all duration-75 flex justify-center items-center mt-1"
-                                                   :on-click #(set-show-slug (not show-slug?))}
-                                                  (if show-slug?
-                                                    ($ svg/eye-opened)
-                                                    ($ svg/eye-closed)))
-                                        (if show-slug?
-                                          (d/p slug)
-                                          (d/p orgname)))
-                                ($ button ($ svg/edit-pen))))
+                                (if editing-org?
+                                  (d/span {:class "flex items-center space-x-2"}
+                                          (d/button {:class "text-gray-400 hover:text-gray-900 "} ($ svg/save))
+                                          ($ input {:class "bg-none border-b focus:border-blue-500 focus:border-gray-500 focus:outline-none"
+                                                    :type :login
+                                                    :border :none
+                                                    :placeholder orgname
+                                                    :on-change (fn [e] (set-orgname-to-save  (.. e -target -value)))}))
+                                  (d/span {:class "flex items-center space-x-2"}
+                                          (d/button {:class " transition-all duration-75 flex justify-center items-center mt-1"
+                                                     :on-click #(set-show-slug (not show-slug?))}
+                                                    (if show-slug?
+                                                      ($ svg/eye-opened)
+                                                      ($ svg/eye-closed)))
+
+                                          (if show-slug?
+                                            (d/p slug)
+                                            (d/p orgname))))
+                                (d/span {:class "flex items-center justify-around "}
+                                        (when editing-org?
+                                          (d/span {:class "flex"}
+                                                  ($ button {:class "text-gray-200 hover:underline transition-all duration-75 bg-pink-600 hover:bg-pink-700 text-white space-x-1"
+                                                             :on-click #((set-editing-org false)
+                                                                         (refx/dispatch [:app.dashboard/set-new-orgname id orgname-to-save]))} (d/p "save") ($ svg/save))
+                                                  ($ button {:class "text-gray-200 hover:underline transition-all duration-75 border-none outline-none"
+                                                             :on-click #(set-editing-org (not editing-org?))} "cancel")))
+                                        ($ button {:class "border-none outline-none "
+                                                   :on-click #(set-editing-org (not editing-org?))}
+                                           ($ svg/edit-pen)))))
 
                   (d/div {:class "w-full border-b border-gray-200 pb-2"}
                          (for [{:keys [username email]} filtered-users]
@@ -166,8 +189,9 @@
         orgs (refx/use-sub [:app.dashboard/orgs-data])]
 
     (hooks/use-effect
-      []
-      (refx/dispatch-sync [:app.dashboard/get-orgs]))
+      [orgs]
+      (when-not orgs
+        (refx/dispatch-sync [:app.dashboard/get-orgs])))
 
     (hooks/use-effect
       [orgs]
