@@ -31,6 +31,13 @@
      {:db (assoc db :is-org-modal-open? (not toggle))})))
 
 (refx/reg-event-fx
+ :app.dashboard/toggle-add-user-org-modal
+ (fn
+   [{db :db} [_ _]]
+   (let [toggle (:is-add-user-org-modal-open? db)]
+     {:db (assoc db :is-add-user-org-modal-open? (not toggle))})))
+
+(refx/reg-event-fx
  :app.dashboard/toggle-settings
  (fn
    [{db :db} [_ _]]
@@ -306,10 +313,6 @@
  (fn [db [_ modal-open?]]
    (assoc db :require-git-repo? (not modal-open?))))
 
-(refx/reg-event-db
- :app.dashboard/toggle-add-user-org-modal
- (fn [{db :db} [_ _]]
-   (assoc db :add-user-org-modal (not (:add-user-org-modal db)))))
 
 (refx/reg-event-fx
  :app.dashboard/update-git-repo
