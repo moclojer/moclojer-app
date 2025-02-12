@@ -106,19 +106,24 @@
 
 (refx/reg-event-fx
  :app.dashboard/create-mock
- (fn [{db :db} [_ mock]]
-   {:http {:url "/mocks"
-           :method :post
-           :headers {"authorization" (str "Bearer " (get-in db [:current-user :access-token]))}
-           :body mock
-           :on-success [:app.dashboard/create-mock-success]
-           :on-failure [:app.dashboard/create-mock-failure]}
-    :db (assoc db :loading-creating-mock? true)}))
+ (fn [{db :db} [_ mock & orgname]]
+   (let [org-id (when orgname (-> (filter #(= (:orgname %) (first orgname)) (:orgs-data db))
+                                  (first)
+                                  (:id)))
+         mock (assoc mock :org-id  org-id)]
+     {:http {:url "/mocks"
+             :method :post
+             :headers {"authorization" (str "Bearer " (get-in db [:current-user :access-token]))}
+             :body mock
+             :on-success [:app.dashboard/create-mock-success]
+             :on-failure [:app.dashboard/create-mock-failure]}
+      :db (assoc db :loading-creating-mock? true)})))
 
 (refx/reg-event-fx
  :app.dashboard/create-mock-success
  (fn [{db :db} _]
-   {:dispatch [:app.dashboard/get-mocks]
+   {:dispatch-n [[:app.dashboard/get-mocks]
+                 [:app.dashboard/get-org-mocks]]
     :notification {:type :info
                    :content "Created mock succesfully!"}
     :db (merge db
@@ -223,7 +228,8 @@
 (refx/reg-event-fx
  :app.dashboard/delete-mock-success
  (fn [{db :db} _]
-   {:dispatch [:app.dashboard/get-mocks]
+   {:dispatch-n [[:app.dashboard/get-mocks]
+                 [:app.dashboard/get-org-mocks]]
     :notification {:type :info
                    :content "Deleted mock succesfully!"}
     :db (merge db {:delete-mock-err nil
@@ -639,3 +645,6 @@
              :body {:org  {:orgname orgname-to-save}}
              :on-success [:app.dashboard/update-org-success]
              :on-failure [:app.dashboard/update-org-failure]}})))
+
+(comment
+  (def sim [{:id "deb44093-f4dc-40d7-9baf-b71c282c7042", :slug "ok-deb44093", :orgname "ok", :users [{:uuid "65aa685a-8734-42ca-95ea-474dc0778817", :email "felipe.gsilva@protonmail.com", :username "felipegsilva", :git-install-id 58505217, :git-username "Felipe-gsilva"}]} {:id "f90a5b51-df09-4db2-aa2d-4d6e15afc45c", :slug "doidera-f90a5b51", :orgname "doidera", :users [{:uuid "65aa685a-8734-42ca-95ea-474dc0778817", :email "felipe.gsilva@protonmail.com", :username "felipegsilva", :git-install-id 58505217, :git-username "Felipe-gsilva"}]}]))

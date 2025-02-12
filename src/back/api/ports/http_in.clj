@@ -96,10 +96,9 @@
   [{:keys [parameters session-data components ctx]}]
   (let [id (get-in parameters [:path :id])
         org (controllers.orgs/get-org-by-id id components ctx)
-        user (controllers.user/get-user-by-id (:user-id session-data) components ctx)
         mocks (logic.mocks/group
                (controllers.mocks/get-org-mocks org components ctx)
-               (:username user))]
+               "")]
     {:status 200
      :body {:mocks mocks}}))
 

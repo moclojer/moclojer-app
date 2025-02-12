@@ -1,6 +1,7 @@
 (ns front.app.dashboard.orgs
   (:require
    [front.app.components.svg :as svg]
+   [front.app.components.loading :refer [loading-spinner]]
    [front.app.dashboard.base :as base]
    [front.app.dashboard.mocks :as mocks]
    [mockingbird.lib :refer-macros [defnc]]
@@ -78,31 +79,35 @@
           :key (str subdomain)}
          (for [{:keys [enabled url id]} apis]
            (<> {:key id}
-               ($ mocks/api-mock {:enabled enabled :url url :id id})))
-         (d/div {:class "self-stretch pt-6 justify-start items-start inline-flex text-white text-xs font-bold leading-[18px]"}
-
-                ($ button {:class "px-3 py-2 text-white hover:text-white bg-pink-600 rounded-lg justify-end items-center gap-2 flex btn-add"
-                           :theme :mockingbird
-                           :on-click (fn [_] (refx/dispatch [:app.dashboard/toggle-mock-modal]))}
-                   ($ svg/plus-sign)
-                   (d/span
-                    " new mock")
-                   ($ svg/box)))))
+               ($ mocks/api-mock {:enabled enabled :url url :id id})))))
 
 (defnc orgs-mocks [{:keys [orgname org-id]}]
-  (let [mocks (refx/use-sub [:app.dashboard/org-mocks])]
+  (let [mocks (refx/use-sub [:app.dashboard/org-mocks])
+        loading? (refx/use-sub [:app.dashboard/loading-mocks?])]
 
     (hooks/use-effect
-      [mocks]
-      (when (empty? mocks)
-        (refx/dispatch [:app.dashboard/get-org-mocks org-id])))
+      [mocks org-id]
+      (when (or (empty? mocks)
+                (not= (:org-id (first (:apis (first mocks)))) org-id))
+        (refx/dispatch-sync [:app.dashboard/get-org-mocks org-id])))
 
-    (d/div {:class "w-full self-stretch justify-start items-center gap-[15px] inline-flex "}
+    (d/div {:class "w-full self-stretch flex flex-col justify-start items-center gap-[15px] inline-flex "}
            (d/div {:class "w-full self-stretch text-gray-900 text-xl font-bold leading-[30px] flex justify-between"}
-                  (for [{:keys [mock-type subdomain apis] :or {mock-type "personal"}} mocks]
-                    (<> {:key subdomain}
-                        (when (and (= mock-type "org") true #_(= subdomain orgname))
-                          ($ apis-mocks {:mock-type mock-type :subdomain subdomain :apis apis}))))))))
+                  (if loading?
+                    ($ loading-spinner)
+                    (for [{:keys [mock-type subdomain apis] :or {mock-type "personal"}} mocks]
+                      (<> {:key subdomain}
+                          (when (= mock-type "org")
+                            ($ apis-mocks {:mock-type mock-type :subdomain subdomain :apis apis}))))))
+           (d/div {:class "self-stretch pt-6 justify-start items-start inline-flex text-white text-xs font-bold leading-[18px]"}
+
+                  ($ button {:class "px-3 py-2 text-white hover:text-white bg-pink-600 rounded-lg justify-end items-center gap-2 flex btn-add"
+                             :theme :mockingbird
+                             :on-click (fn [_] (refx/dispatch [:app.dashboard/toggle-mock-modal]))}
+                     ($ svg/plus-sign)
+                     (d/span
+                      " new mock")
+                     ($ svg/box))))))
 
 (defnc orgs-view-editor [{:keys [orgname slug id git-orgname users] :as org :or {git-orgname ""}}]
   (when git-orgname
