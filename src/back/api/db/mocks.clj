@@ -84,15 +84,14 @@
        ((db.utils/build-execute-with-ctx db ctx)))))
 
 (defn get-org-mocks
-([org-id db]
- (get-org-mocks org-id db {}))
-([org-id db ctx]
- (-> (sql.helpers/select :m.*)
-     (sql.helpers/from [:mock :m])
-     (sql.helpers/where [:= :m.org_id org-id])
-     sql/format
-     ((db.utils/build-execute-with-ctx db ctx)))))
-
+  ([org-id db]
+   (get-org-mocks org-id db {}))
+  ([org-id db ctx]
+   (-> (sql.helpers/select :*)
+       (sql.helpers/from :mock)
+       (sql.helpers/where [:= :org_id org-id])
+       sql/format
+       ((db.utils/build-execute-with-ctx db ctx)))))
 
 (defn get-mocks-by-publication
   [stt-type pub-stts db ctx & [user-id]]

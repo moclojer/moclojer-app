@@ -245,7 +245,9 @@
                (str "px-3 py-2 rounded-lg justify-end items-center gap-2 flex btn-add text-white "
                     (if allow-save? "bg-pink-600" "btn-add__disabled bg-gray-600 cursor-not-allowed"))
                :on-click #(when allow-save?
-                            (refx/dispatch [:app.dashboard/create-mock new-mock]))}
+                            (if (= (:subdomain new-mock) default-subdomain)
+                              (refx/dispatch [:app.dashboard/create-mock new-mock])
+                              (refx/dispatch [:app.dashboard/create-mock new-mock (:subdomain new-mock)])))}
               (d/div
                {:class " text-xs font-bold leading-[18px]"}
                " save")

@@ -70,8 +70,7 @@
    username))
 
 (defn get-org-mocks
-  [{:org/keys [id orgname]} {:keys [database]} ctx]
-  (prn id orgname)
+  [{:keys [id orgname]} {:keys [database]} ctx]
   (logs/log :info "retrieving mocks"
             :ctx (assoc ctx
                         :org/id id
