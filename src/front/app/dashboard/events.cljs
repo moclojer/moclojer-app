@@ -110,7 +110,7 @@
    (let [org-id (when orgname (-> (filter #(= (:orgname %) (first orgname)) (:orgs-data db))
                                   (first)
                                   (:id)))
-         mock (assoc mock :org-id  org-id)]
+         mock (if org-id (assoc mock :org-id org-id) mock)]
      {:http {:url "/mocks"
              :method :post
              :headers {"authorization" (str "Bearer " (get-in db [:current-user :access-token]))}

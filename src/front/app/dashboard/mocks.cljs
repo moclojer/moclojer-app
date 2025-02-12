@@ -65,17 +65,17 @@
     "org" svg/org-mock
     :else svg/org-mock))
 
-(defnc apis-mocks [{:keys [subdomain mock-type apis org-id]}]
+(defnc apis-mocks [{:keys [subdomain mock-type apis]}]
   (d/div {:id "custom-mock"
           :class (str "w-full px-6 py-4 bg-white rounded-lg shadow flex-col justify-center items-start inline-flex "
                       "lg:p-8")
           :key (str subdomain)}
          (d/div {:class "self-stretch justify-start items-center gap-[15px] inline-flex"}
                 ($ (mock-svg-by-type mock-type))
-                (d/div {:on-click #(when (= mock-type "org") (rfe/push-state :app.core/orgs-view {:org-id org-id}))
+                (d/div {:on-click #(when (= mock-type "org") (rfe/push-state :app.core/orgs-view {:org-id (:org-id (first apis))}))
                         :class (str "w-full self-stretch text-gray-900 text-xl font-bold leading-[30px] "
                                     (when (= mock-type "org") "hover:cursor-pointer "))} subdomain))
-         (for [{:keys [enabled url id]} apis]
+         (for [{:keys [enabled url id org-id]} apis]
            (<> {:key id}
                ($ api-mock {:enabled enabled :url url :id id})))
          (d/div {:class "self-stretch pt-6 justify-start items-start inline-flex text-white text-xs font-bold leading-[18px]"}
@@ -91,13 +91,8 @@
 (defnc mocks []
   (let [current-user (refx/use-sub [:app.auth/current-user])
         mocks (refx/use-sub [:app.dashboard/mocks])
-        loading-mocks? (refx/use-sub [:app.dashboard/loading-mocks?])
-        orgs (into [] (map #(select-keys % [:id]) (refx/use-sub [:app.dashboard/orgs-data])))]
+        loading-mocks? (refx/use-sub [:app.dashboard/loading-mocks?]) ]
 
-    (hooks/use-effect
-      [orgs]
-      (when (empty? orgs)
-        (refx/dispatch-sync [:app.dashboard/get-orgs])))
 
     (hooks/use-effect
       [mocks]
@@ -114,7 +109,6 @@
     ($ base/index
        (d/div {:class "flex flex-col lg:p-8 space-y-4"}
               (if (and (some? mocks) (not loading-mocks?))
-                (for [{:keys [mock-type subdomain apis] :or {mock-type "personal"}} mocks
-                      {:keys [id]} orgs]
+                (for [{:keys [mock-type subdomain apis] :or {mock-type "personal"}} mocks ]
                   (<> {:key subdomain}
-                      ($ apis-mocks {:mock-type mock-type :subdomain subdomain :apis apis :org-id id}))))))))
+                      ($ apis-mocks {:mock-type mock-type :subdomain subdomain :apis apis}))))))))
