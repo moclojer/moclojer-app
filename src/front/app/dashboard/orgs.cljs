@@ -27,13 +27,16 @@
                     :on-click #(refx/dispatch [:app.dashboard/toggle-add-user-org-modal])}
                    ($ svg/plus-sign))))
 
-(defnc org [{:keys [orgname slug id users]}]
+(defnc org [{:keys [orgname slug id users]} should-orgs-view]
   (let [filtered-users (take 5 users)]
     (d/div {:class "w-full "}
            (d/div {:class "w-full flex flex-col items-start border-b space-y-2"}
                   (d/div {:class "flex flex-col sm:flex-row justify-between w-full items-center "}
                          (d/div {:class "w-full text-black flex flex-col my-2 space-y-2 hover:cursor-pointer"
-                                 :on-click (fn [_] (rfe/push-state :app.core/orgs-view {:org-id id}))}
+                                 :on-click (fn [e]
+                                             (.preventDefault e)
+                                             (when should-orgs-view
+                                               (rfe/push-state :app.core/orgs-view {:org-id id})))}
                                 (d/p {:class "font-bold text-black "} orgname)
                                 (d/div {:class " h-1/3"}
                                        (for [{:keys [username email]} filtered-users]
@@ -86,15 +89,19 @@
                     " new mock")
                    ($ svg/box)))))
 
-(defnc orgs-mocks [{:keys [orgname]}]
-  (let [mocks (refx/use-sub [:app.dashboard/mocks])]
-    (prn mocks)
+(defnc orgs-mocks [{:keys [orgname org-id]}]
+  (let [mocks (refx/use-sub [:app.dashboard/org-mocks])]
+
+    (hooks/use-effect
+      [mocks]
+      (when (empty? mocks)
+        (refx/dispatch [:app.dashboard/get-org-mocks org-id])))
 
     (d/div {:class "w-full self-stretch justify-start items-center gap-[15px] inline-flex "}
            (d/div {:class "w-full self-stretch text-gray-900 text-xl font-bold leading-[30px] flex justify-between"}
                   (for [{:keys [mock-type subdomain apis] :or {mock-type "personal"}} mocks]
                     (<> {:key subdomain}
-                        (when  (and (= mock-type "org") (= subdomain orgname))
+                        (when (and (= mock-type "org") true #_(= subdomain orgname))
                           ($ apis-mocks {:mock-type mock-type :subdomain subdomain :apis apis}))))))))
 
 (defnc orgs-view-editor [{:keys [orgname slug id git-orgname users] :as org :or {git-orgname ""}}]
@@ -161,7 +168,7 @@
                            (<> {:key username}
                                ($ user-li {:username username :email email}))))
                   (d/div {:class "w-full "}
-                         ($ orgs-mocks {:orgname orgname}))))))
+                         ($ orgs-mocks {:orgname orgname :org-id id}))))))
 
 (defnc orgs-view [props]
   (let [{:keys [route]} props

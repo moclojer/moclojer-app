@@ -79,11 +79,37 @@
     :db (assoc db :loading-mocks? true)}))
 
 (refx/reg-event-fx
+ :app.dashboard/get-org-mocks-success
+ (fn [{db :db} [_ {{:keys [mocks]} :body}]]
+   {:db (assoc db
+               :loading-mocks? false
+               :org-mocks mocks)}))
+
+(refx/reg-event-db
+ :app.dashboard/get-org-mocks-failure
+ (fn [db [_ response]]
+   (merge db
+          {:error-fetch-mocks response
+           :org-mocks []
+           :loading-mocks? false})))
+
+(refx/reg-event-fx
+ :app.dashboard/get-org-mocks
+ (fn [{db :db} [_ org-id]]
+   {:http {:url (str "/org/" org-id "/mocks")
+           :method :get
+           :headers {"authorization"
+                     (str "Bearer " (get-in db [:current-user :access-token]))}
+           :on-success [:app.dashboard/get-org-mocks-success]
+           :on-failure [:app.dashboard/get-org-mocks-failure]}
+    :db (assoc db :loading-mocks? true)}))
+
+(refx/reg-event-fx
  :app.dashboard/create-mock
  (fn [{db :db} [_ mock]]
    {:http {:url "/mocks"
            :method :post
-           :headers {"authorization" (str "Bearer " (:access-token (:current-user db)))}
+           :headers {"authorization" (str "Bearer " (get-in db [:current-user :access-token]))}
            :body mock
            :on-success [:app.dashboard/create-mock-success]
            :on-failure [:app.dashboard/create-mock-failure]}
@@ -543,7 +569,7 @@
 (refx/reg-event-fx
  :app.dashboard/orgname-available?
  (fn [{db :db} [_ orgname]]
-   {:http {:url (str "/org/orgname/" orgname)
+   {:http {:url (str "/org/" orgname)
            :method :get
            :headers {"authorization" (str "Bearer " (-> db :current-user :access-token))}
            :on-success [:app.dashboard/update-orgname-availability]
@@ -605,11 +631,11 @@
 
 (refx/reg-event-fx
  :app.dashboard/set-new-orgname
- (fn [{{:keys [current-user]} :db} [_ id orgname-to-save]]
+ (fn [{{:keys [current-user]} :db} [_ id curr-orgname orgname-to-save]]
    (let [access-token (:access-token current-user)]
      {:http {:url (str "/orgs/" id)
              :method :put
              :headers {"authorization" (str "Bearer " access-token)}
              :body {:org  {:orgname orgname-to-save}}
-             :on-success [:app.dashboard/update-org-success current-user]
+             :on-success [:app.dashboard/update-org-success]
              :on-failure [:app.dashboard/update-org-failure]}})))

@@ -69,6 +69,17 @@
         (map adapter.mocks/->wire))
    username))
 
+(defn get-org-mocks
+  [{:org/keys [id orgname]} {:keys [database]} ctx]
+  (prn id orgname)
+  (logs/log :info "retrieving mocks"
+            :ctx (assoc ctx
+                        :org/id id
+                        :org/orgname orgname))
+  (->> (db.mocks/get-org-mocks (parse-uuid (str id)) database ctx)
+       (map adapter.mocks/->wire)
+       (into [])))
+
 (defn publish-mock!
   [id {:keys [database mq]} ctx]
   (-> (db.mocks/get-mock-by-id id database ctx)
