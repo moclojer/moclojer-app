@@ -383,12 +383,12 @@
            {:class "flex justify-between items-end py-4"}
            ($ button
               {:theme :mockingbird
-               :class (str "px-3 py-2 rounded-lg justify-end items-center gap-2 flex btn-add bg-pink-600 "
+               :class (str "px-3 py-2 rounded-lg justify-end items-center gap-2 flex btn-add bg-pink-600 text-white"
                            (when-not allow-save? "btn-add__disabled bg-gray-600 cursor-not-allowed "))
                :on-click #(when allow-save?
                             (refx/dispatch [:app.dashboard/create-org new-org]))}
               (d/div
-               {:class "text-white text-xs font-bold leading-[18px]"}
+               {:class "text-xs font-bold leading-[18px]"}
                " save")
               ($ svg/save)))))})))
 

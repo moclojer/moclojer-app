@@ -16,6 +16,11 @@
    (:mocks db)))
 
 (refx/reg-sub
+:app.dashboard/org-mocks
+ (fn [db _]
+   (:org-mocks db)))
+
+(refx/reg-sub
  :app.dashboard/mocks-raw
  (fn [db _]
    (:mocks-raw db)))

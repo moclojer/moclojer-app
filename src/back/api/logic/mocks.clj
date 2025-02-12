@@ -55,7 +55,7 @@
                url {:url (gen-host (:wildcard mock) subdomain)}
                old-apis (vec (:apis subdomain-group))
                new-apis (->> (select-keys mock [:wildcard :subdomain :url :enabled
-                                                :id :content :dns-status
+                                                :id :content :dns-status :org-id
                                                 :unification-status :git-repo :sha])
                              (merge url)
                              (conj old-apis))]

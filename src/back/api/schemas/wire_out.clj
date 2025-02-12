@@ -49,6 +49,7 @@
 (def GroupedMockAPI
   [:map
    [:id uuid?]
+   [:org-id {:optional true} uuid?]
    [:wildcard string?]
    [:url string?]
    [:content {:optional true} string?]

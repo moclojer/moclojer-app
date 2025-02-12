@@ -129,7 +129,7 @@
               :responses {200 {:body {:success boolean?}}}
               :handler ports.http-in/handler-delete-org}}]
 
-   ["/org/orgname/:orgname"
+   ["/org/:orgname"
     {:swagger {:tags ["get orgname"]}
      :get {:summary "Check if orgname is available"
            :parameters {:path {:orgname string?}}
@@ -137,6 +137,15 @@
                           (extract-user-interceptor)]
            :responses {200 {:body schemas.wire-out/Available}}
            :handler ports.http-in/handler-orgname-available?}}]
+
+   ["/org/:id/mocks"
+    {:swagger {:tags ["get org mocks"]}
+     :get {:summary "Get org mocks"
+           :parameters {:path {:id uuid?}}
+           :interceptors [(error-handler-interceptor)
+                          (extract-user-interceptor)]
+           :responses {200 {:body {:mocks schemas.wire-out/GroupedMocks}}}
+           :handler ports.http-in/handler-get-org-mocks}}]
 
    ["/orgs/:id/users"
     {:get {:summary "Get an org's users"
