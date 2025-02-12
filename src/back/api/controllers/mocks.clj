@@ -1,5 +1,4 @@
 (ns back.api.controllers.mocks
-  (:refer-clojure :exclude [ref])
   (:require
    [back.api.adapters.mocks :as adapter.mocks]
    [back.api.db.mocks :as db.mocks]
