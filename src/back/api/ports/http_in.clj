@@ -49,6 +49,14 @@
        :body {:user user}}
       {:status 404})))
 
+(defn handler-get-user-by-email
+  [{{{:keys [email]} :path} :parameters
+    components :components
+    ctx :ctx}]
+  (let [user (controllers.user/get-user-by-email email components ctx)]
+  {:status 200
+   :body {:user user}}))
+
 (defn handler-get-user-by-external-id
   [{:keys [user]}]
   (if (some-> user :customer/uuid uuid?)
@@ -88,12 +96,11 @@
   (let [user (controllers.user/get-user-by-id
               (:user-id session-data) components ctx)
         mocks (controllers.mocks/get-mocks user components ctx)]
-    (prn "mock forte " mocks)
     {:status 200
      :body {:mocks mocks}}))
 
 (defn handler-get-org-mocks
-  [{:keys [parameters session-data components ctx]}]
+  [{:keys [parameters components ctx]}]
   (let [id (get-in parameters [:path :id])
         org (controllers.orgs/get-org-by-id id components ctx)
         mocks (logic.mocks/group
@@ -374,7 +381,6 @@
 
 (defn handler-sync-status
   [{:keys [session-data components ctx]}]
-  (prn session-data)
   (let [user (controllers.user/get-user-by-id (:user-id session-data) components ctx)
         install-id (:git-install-id user)]
     (if (number? install-id)
