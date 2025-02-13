@@ -35,7 +35,10 @@
  (fn
    [{db :db} [_ _]]
    (let [toggle (:is-add-user-org-modal-open? db)]
-     {:db (assoc db :is-add-user-org-modal-open? (not toggle))})))
+     {:db (->  db
+               (assoc :is-add-user-org-modal-open? (not toggle))
+               (cond-> toggle
+                 (assoc :org-users nil)))})))
 
 (refx/reg-event-fx
  :app.dashboard/toggle-settings
@@ -637,7 +640,7 @@
 
 (refx/reg-event-fx
  :app.dashboard/set-new-orgname
- (fn [{{:keys [current-user]} :db} [_ id curr-orgname orgname-to-save]]
+ (fn [{{:keys [current-user]} :db} [_ id orgname-to-save]]
    (let [access-token (:access-token current-user)]
      {:http {:url (str "/orgs/" id)
              :method :put
@@ -646,5 +649,89 @@
              :on-success [:app.dashboard/update-org-success]
              :on-failure [:app.dashboard/update-org-failure]}})))
 
-(comment
-  (def sim [{:id "deb44093-f4dc-40d7-9baf-b71c282c7042", :slug "ok-deb44093", :orgname "ok", :users [{:uuid "65aa685a-8734-42ca-95ea-474dc0778817", :email "felipe.gsilva@protonmail.com", :username "felipegsilva", :git-install-id 58505217, :git-username "Felipe-gsilva"}]} {:id "f90a5b51-df09-4db2-aa2d-4d6e15afc45c", :slug "doidera-f90a5b51", :orgname "doidera", :users [{:uuid "65aa685a-8734-42ca-95ea-474dc0778817", :email "felipe.gsilva@protonmail.com", :username "felipegsilva", :git-install-id 58505217, :git-username "Felipe-gsilva"}]}]))
+(refx/reg-event-fx
+ :app.dashboard/get-org-users-success
+ (fn [{db :db} [_ request]]
+   {:db (assoc db :org-users (get-in request [:body :org :users]))}))
+
+(refx/reg-event-fx
+ :app.dashboard/get-org-users-failure
+ (fn [{db :db} [_ body]]
+   (prn "error " body)
+   {:notification {:type :error
+                   :content "Could not retrieve org users!"}
+    :db (assoc db
+               :org-users "error")}))
+
+(refx/reg-event-fx
+ :app.dashboard/get-org-users
+ (fn [{{:keys [current-user]} :db} [_ id]]
+   (let [access-token (:access-token current-user)]
+     {:http {:url (str "/orgs/" id)
+             :method :get
+             :headers {"authorization" (str "Bearer " access-token)}
+             :on-success [:app.dashboard/get-org-users-success]
+             :on-failure [:app.dashboard/get-org-users-failure]}})))
+
+(refx/reg-event-fx
+ :app.dashboard/set-curr-org
+ (fn [{db :db} [_ curr-org]]
+   {:db (assoc db :curr-org curr-org)}))
+
+(refx/reg-event-fx
+ :app.dashboard/send-org-invite-success
+ (fn [{db :db} [_ request]]
+   (prn request)
+   {:notification {:type :info
+                   :content "User invited"}}))
+(refx/reg-event-fx
+ :app.dashboard/send-org-invite-failure
+ (fn [{db :db} [_ body]]
+   (prn "error " body)
+   {:notification {:type :error
+                   :content "Could not invite user!"}}))
+
+(refx/reg-event-fx
+ :app.dashboard/send-org-invite
+ (fn [{db :db} [_ email]]
+   (prn "erro " email)
+   {:notification {:type :info
+                   :content (str "Inviting " email)}}))
+
+(refx/reg-event-fx
+ :app.dashboard/add-org-user-failure
+ (fn [{db :db} [_]]
+   {:notification {:type :error
+                   :content "Could not add user!"}}))
+
+(refx/reg-event-fx
+ :app.dashboard/add-org-user-success
+ (fn [{db :db} [_ org-id]]
+   {:dispatch [:app.dashboard/get-org-users org-id]
+    :notification {:type :info
+                   :content "User invited"}}))
+
+(refx/reg-event-fx
+ :app.dashboard/retrieve-user-success
+ (fn [{{:keys [current-user]} :db} [_ org-id request]]
+   (let [user (get-in request [:body :user])
+         access-token (:access-token current-user)]
+     (prn "usuario " org-id user)
+     {:http {:url (str "/orgs/" (:uuid user) "/users")
+             :method :get
+             :headers {"authorization" (str "Bearer " access-token)}
+             :on-success [:app.dashboard/add-org-user-success org-id]
+             :on-failure [:app.dashboard/add-org-user-failure]}
+      :notification {:type :info
+                     :content "User added"}})))
+
+(refx/reg-event-fx
+ :app.dashboard/add-org-user
+ (fn [{{:keys [current-user]} :db} [_ email org-id]]
+   (prn "ok" email org-id)
+   (let [access-token (:access-token current-user)]
+     {:http {:url (str "/user/email/" email)
+             :method :get
+             :headers {"authorization" (str "Bearer " access-token)}
+             :on-success [:app.dashboard/retrieve-user-success org-id]
+             :on-failure [:app.dashboard/send-org-invite email]}})))

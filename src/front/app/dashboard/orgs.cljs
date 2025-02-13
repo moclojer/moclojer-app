@@ -13,7 +13,7 @@
    [refx.alpha :as refx]
    [reitit.frontend.easy :as rfe]))
 
-(defnc user-li [{:keys [username email]}]
+(defnc user-li [{:keys [username email] :as user}]
   (d/div {:class "flex flex-row space-x-2 items-center"}
          (d/div {:class (str "px-3 py-1 rounded-full border-2 "
                              (or (first (random-sample 0.5 ["border-blue-500"
@@ -21,12 +21,7 @@
                                                             "border-pink-500"
                                                             "border-purple-500"]))
                                  "border-pink-500"))}
-                (d/p {:class "text-xs"} username))
-         (d/button {:class (str "border-2 py-[4px] px-[5px] w-max h-max rounded-full z-100 hover:bg-gray-100 "
-                                "transition-all duration-75 text-sm text-gray-200 hover:border-gray-400 "
-                                "hover:text-gray-400 ")
-                    :on-click #(refx/dispatch [:app.dashboard/toggle-add-user-org-modal])}
-                   ($ svg/plus-sign))))
+                (d/p {:class "text-xs"} username))))
 
 (defnc org [{:keys [orgname slug id users]} should-orgs-view]
   (let [filtered-users (take 5 users)]
@@ -39,10 +34,16 @@
                                              (when should-orgs-view
                                                (rfe/push-state :app.core/orgs-view {:org-id id})))}
                                 (d/p {:class "font-bold text-black "} orgname)
-                                (d/div {:class " h-1/3"}
+                                (d/div {:class "border-gray-200 overflow-x-auto max-w-128 flex space-x-2"}
                                        (for [{:keys [username email]} filtered-users]
                                          (<> {:key username}
-                                             ($ user-li {:username username :email email})))))
+                                             ($ user-li {:username username :email email :org-id id})))
+                                       (d/button {:class (str "border-2 py-[4px] px-[5px] w-max h-max rounded-full z-100 hover:bg-gray-100 "
+                                                              "transition-all duration-75 text-sm text-gray-200 hover:border-gray-400 "
+                                                              "hover:text-gray-400 ")
+
+                                                  :on-click #(refx/dispatch-sync [:app.dashboard/toggle-add-user-org-modal])}
+                                                 ($ svg/plus-sign))))
 
                          (d/button {:class "sm:w-max w-full px-3 py-2 mt-2 rounded-lg border border-gray-200 justify-center items-center gap-2 flex button-remove "
                                     :on-click #(refx/dispatch-sync [:app.dashboard/set-org-to-delete {:id id}])}
@@ -110,9 +111,7 @@
                      ($ svg/box))))))
 
 (defnc orgs-view-editor [{:keys [orgname slug id git-orgname users] :as org :or {git-orgname ""}}]
-  (when git-orgname
-    (prn git-orgname))
-  (let [filtered-users (take 5 users)
+  (let [filtered-users (into [] (take 5 users))
         [show-slug? set-show-slug] (hooks/use-state false)
         [editing-org? set-editing-org] (hooks/use-state false)
         [orgname-to-save set-orgname-to-save] (hooks/use-state nil)]
@@ -168,10 +167,17 @@
                                                    :on-click #(set-editing-org (not editing-org?))}
                                            ($ svg/edit-pen)))))
 
-                  (d/div {:class "w-full border-b border-gray-200 pb-2"}
+                  (d/div {:class "w-full border-b border-gray-200 pb-2 overflow-x-auto max-w-128 flex space-x-2"}
                          (for [{:keys [username email]} filtered-users]
                            (<> {:key username}
-                               ($ user-li {:username username :email email}))))
+                               ($ user-li {:username username :email email :org-id id})))
+                         (d/button {:class (str "border-2 py-[4px] px-[5px] w-max h-max rounded-full z-100 hover:bg-gray-100 "
+                                                "transition-all duration-75 text-sm text-gray-200 hover:border-gray-400 "
+                                                "hover:text-gray-400 ")
+
+                                    :on-click #(refx/dispatch-sync [:app.dashboard/toggle-add-user-org-modal])}
+                                   ($ svg/plus-sign)))
+
                   (d/div {:class "w-full "}
                          ($ orgs-mocks {:orgname orgname :org-id id}))))))
 
@@ -188,7 +194,8 @@
     (hooks/use-effect
       [orgs]
       (when (nil? orgs)
-        (refx/dispatch [:app.dashboard/get-orgs])))
+        (refx/dispatch-sync [:app.dashboard/get-orgs])
+        (refx/dispatch [:app.dashboard/set-curr-org org-id])))
 
     ($ base/index
        (d/div {:class "flex flex-col lg:p-8"}

@@ -423,21 +423,37 @@
                {:class "flex-1"}
                (:full_name repo)))))))})))
 
+(defnc user-li [{:keys [email username git]}]
+  (d/div {:class "p-2 flex justify-between items-center border-b "}
+         (d/div {:class "flex space-x-4"}
+                (d/div {:class "flex items-center justify-center p-1"} (if git
+                                                                         ($ svg/github)
+                                                                         ($ svg/personal-mock)))
+                (d/div {:class "flex flex-col select-none truncate grow-0 shrink overflow-none"}
+                       (d/p {:class "text-lg"} username)
+                       (d/p {:class "text-sm italic text-gray-500"} email)))
+         (d/div {:class "flex sm:flex-row flex-col"}
+                ($ button "edit role")
+                ($ button "remove"))))
+
 (defn add-user-org-modal []
   (let [is-add-user-org-modal-open? (refx/use-sub [:app.dashboard/is-add-user-org-modal-open?])
         current-user (refx/use-sub [:app.auth/current-user])
-        default-orgname (str (-> current-user :user :username) "-org")
-        [new-org set-org] (hooks/use-state {:orgname default-orgname})
-        allow-save? (refx/use-sub [:app.dashboard/orgname-valid?])]
+        default-email (str (-> current-user :user :username) "@email.com")
+        [email set-email] (hooks/use-state default-email)
+        org-users (refx/use-sub [:app.dashboard/org-users])
+        org-id (refx/use-sub [:app.dashboard/curr-org])
+        allow-invite true]
 
     (hooks/use-effect
-      [new-org]
-      (refx/dispatch [:app.dashboard/orgname-available? (:orgname new-org)]))
+      [org-users is-add-user-org-modal-open? org-id]
+      (when (and (empty? org-users) is-add-user-org-modal-open?)
+        (refx/dispatch [:app.dashboard/get-org-users org-id])))
 
     ($ modal
        {:title "Add users"
         :open? is-add-user-org-modal-open?
-        :on-close #(refx/dispatch-sync [:app.dashboard/toggle-add-user-org-modal])
+        :on-close #(refx/dispatch-sync [:app.dashboard/toggle-add-user-org-modal nil])
         :children
         (d/div
          {:class "w-screen md:w-[600px] p-6 space-y-4"}
@@ -447,42 +463,36 @@
            (d/div
             {:class "col-span-6 lm:col-span-3"}
             ($ input
-               {:label "org name"
+               {:label "send a invite"
                 :class (str "shadow-sm bg-gray-50 focus:ring-pink-500 "
                             "focus:border-pink-500 block w-full sm:text-sm "
                             "border-gray-300 rounded-md")
-                :placeholder default-orgname
-                :on-load #(set-org assoc :orgname default-orgname)
+                :placeholder default-email
+                :on-load #(set-email default-email)
                 :type "text"
-                :on-change #(set-org
-                             assoc :orgname
-                             (slugify/default (or (.. % -target -value)
-                                                  default-orgname)
-                                              #js {:replacement "-"
-                                                   :lower true
-                                                   :trim true}))
+                :on-change #(set-email
+                             (or (.. % -target -value)
+                                 default-email))
+
                 :name "product-name"
                 :id "product-name"})))
-          (d/div
-           {:class "mb-4"}
-           (d/div
-            {:class "mt-2 text-sm text-gray-500 dark:text-gray-400"}
-            (d/span
-             {:class "text-gray-900 text-base font-semibold "}
-             (or (str "<" (:orgname new-org) ">") "<org-name>"))))
 
           (d/div
            {:class "flex justify-between items-end py-4"}
            ($ button
               {:theme :mockingbird
                :class (str "px-3 py-2 rounded-lg justify-end items-center gap-2 flex btn-add bg-pink-600 text-white  "
-                           (when-not allow-save? "btn-add__disabled bg-gray-600 cursor-not-allowed "))
-               :on-click #(when allow-save?
-                            (refx/dispatch [:app.dashboard/create-org new-org]))}
+                           (when-not allow-invite "btn-add__disabled bg-gray-600 cursor-not-allowed "))
+               :on-click #(when allow-invite
+                            (refx/dispatch-sync [:app.dashboard/add-org-user email org-id]))}
               (d/div
                {:class "text-xs font-bold leading-[18px]"}
-               " save")
-              ($ svg/save)))))})))
+               " invite")
+              ($ svg/save))))
+         (d/div {:class "border-t overflow-y-auto overscroll-contain flex flex-col flex-no-wrap  max-h-96"}
+                (for [{:keys [email uuid username git-username]} org-users]
+                  (<> {:key uuid}
+                      ($ user-li {:email email :username username :git (not-empty git-username)})))))})))
 
 (defnc index [{:keys [children]}]
   (let [user (-> (refx/use-sub [:app.auth/current-user])

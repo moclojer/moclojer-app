@@ -16,7 +16,7 @@
    (:mocks db)))
 
 (refx/reg-sub
-:app.dashboard/org-mocks
+ :app.dashboard/org-mocks
  (fn [db _]
    (:org-mocks db)))
 
@@ -150,3 +150,13 @@
  :app.dashboard/orgname-valid?
  (fn [db _]
    (:orgname-available db)))
+
+(refx/reg-sub
+ :app.dashboard/org-users
+ (fn [db _]
+   (:org-users db)))
+
+(refx/reg-sub
+ :app.dashboard/curr-org
+ (fn [db _]
+   (:curr-org db)))

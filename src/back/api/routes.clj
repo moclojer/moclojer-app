@@ -95,6 +95,15 @@
            :responses {200 {:body schemas.wire-out/Available}}
            :handler ports.http-in/handler-username-available?}}]
 
+   ["/user/email/:email"
+    {:swagger {:tags ["get a user by its email"]}
+     :get {:summary "Retrieves a user based on its email"
+           :parameters {:path {:email string?}}
+           :interceptors [(error-handler-interceptor)
+                          (extract-user-interceptor)]
+           :responses {200 {:body {:user  schemas.wire-out/User}}}
+           :handler ports.http-in/handler-get-user-by-email}}]
+
    ["/orgs"
     {:get {:summary "Get orgs user is in"
            :interceptors [(error-handler-interceptor)
