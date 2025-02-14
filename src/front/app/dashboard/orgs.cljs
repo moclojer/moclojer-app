@@ -50,7 +50,7 @@
                       "lg:p-8 space-y-2")
           :key (str username)}
          (d/div {:class "self-stretch justify-start items-center gap-[15px] inline-flex"}
-                ($ svg/people)
+                ($ svg/people {:class "w-6 w-6 "})
                 (d/div {:class "w-full self-stretch text-gray-900 text-xl font-bold leading-[30px]"} username))
          (for [{:keys [orgname slug users id]} orgs]
            (<> {:key slug}
@@ -104,7 +104,7 @@
                       " new mock")
                      ($ svg/box))))))
 
-(defnc orgs-view-editor [{:keys [orgname slug id git-orgname users] :as org :or {git-orgname ""}}]
+(defnc orgs-view-editor [{:keys [orgname slug id git-orgname users] :or {git-orgname ""}}]
   (let [filtered-users (into [] (take 5 users))
         [show-slug? set-show-slug] (hooks/use-state false)
         [editing-org? set-editing-org] (hooks/use-state false)
@@ -114,7 +114,7 @@
             {:class "rounded-br-lg flex-col justify-start inline-flex"}
             (d/div
              {:class "rounded-md justify-start items-center space-x-2 inline-flex"}
-             ($ svg/box {:color "black"})
+             ($ svg/people {:class "w-3 h-3 "})
              (d/button
               {:class "justify-center items-center flex"
                :on-click #(rfe/push-state :app.core/orgs)}
@@ -203,7 +203,7 @@
 
     (hooks/use-effect
       [orgs]
-      (when-not orgs
+      (when (empty? orgs)
         (refx/dispatch-sync [:app.dashboard/get-orgs])))
 
     (hooks/use-effect

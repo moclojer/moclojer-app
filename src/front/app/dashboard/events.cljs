@@ -701,7 +701,6 @@
 (refx/reg-event-fx
  :app.dashboard/add-org-user-failure
  (fn [{db :db} [_ body]]
-   (prn "ja existe" body)
 
    (let [user-exists? (= (get-in body [:body :error :cause]) "user-already-in-org")]
      {:notification {:type (if user-exists? :info :error)
@@ -710,6 +709,7 @@
 (refx/reg-event-fx
  :app.dashboard/add-org-user-success
  (fn [{db :db} [_ org-id]]
+   (prn org-id)
    {:dispatch [:app.dashboard/get-org-users org-id]
     :notification {:type :info
                    :content "User invited"}}))
@@ -719,7 +719,6 @@
  (fn [{{:keys [current-user]} :db} [_ org-id request]]
    (let [user (get-in request [:body :user])
          access-token (:access-token current-user)]
-     (prn "usuario " org-id user)
      {:http {:url (str "/orgs/" org-id "/users")
              :method :post
              :body {:user-id (:uuid user)}
@@ -730,10 +729,36 @@
 (refx/reg-event-fx
  :app.dashboard/add-org-user
  (fn [{{:keys [current-user]} :db} [_ email org-id]]
-   (prn "ok" email org-id)
    (let [access-token (:access-token current-user)]
      {:http {:url (str "/user/email/" email)
              :method :get
              :headers {"authorization" (str "Bearer " access-token)}
              :on-success [:app.dashboard/retrieve-user-success org-id]
              :on-failure [:app.dashboard/send-org-invite email]}})))
+
+
+(refx/reg-event-fx
+ :app.dashboard/remove-org-user-failure
+ (fn [{db :db} [_ body]]
+
+   (let [user-exists? (= (get-in body [:body :error :cause]) "user-already-in-org")]
+     {:notification {:type (if user-exists? :info :error)
+                     :content (if user-exists? "User already in org" "Could not remove user!")}})))
+
+(refx/reg-event-fx
+ :app.dashboard/remove-org-user-success
+ (fn [{db :db} [_ org-id]]
+   (prn org-id)
+   {:dispatch [:app.dashboard/get-org-users org-id]
+    :notification {:type :info
+                   :content "User removed"}}))
+
+(refx/reg-event-fx
+ :app.dashboard/remove-org-user
+ (fn [{{:keys [current-user]} :db} [_ org-id user-id]]
+   (let [access-token (:access-token current-user)]
+     {:http {:url (str "/orgs/" org-id "/users/" user-id)
+             :method :delete
+             :headers {"authorization" (str "Bearer " access-token)}
+             :on-success [:app.dashboard/remove-org-user-success org-id]
+             :on-failure [:app.dashboard/remove-org-user-failure]}})))
