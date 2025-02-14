@@ -700,9 +700,12 @@
 
 (refx/reg-event-fx
  :app.dashboard/add-org-user-failure
- (fn [{db :db} [_]]
-   {:notification {:type :error
-                   :content "Could not add user!"}}))
+ (fn [{db :db} [_ body]]
+   (prn "ja existe" body)
+
+   (let [user-exists? (= (get-in body [:body :error :cause]) "user-already-in-org")]
+     {:notification {:type (if user-exists? :info :error)
+                     :content (if user-exists? "User already in org" "Could not add user!")}})))
 
 (refx/reg-event-fx
  :app.dashboard/add-org-user-success
@@ -717,13 +720,12 @@
    (let [user (get-in request [:body :user])
          access-token (:access-token current-user)]
      (prn "usuario " org-id user)
-     {:http {:url (str "/orgs/" (:uuid user) "/users")
-             :method :get
+     {:http {:url (str "/orgs/" org-id "/users")
+             :method :post
+             :body {:user-id (:uuid user)}
              :headers {"authorization" (str "Bearer " access-token)}
              :on-success [:app.dashboard/add-org-user-success org-id]
-             :on-failure [:app.dashboard/add-org-user-failure]}
-      :notification {:type :info
-                     :content "User added"}})))
+             :on-failure [:app.dashboard/add-org-user-failure]}})))
 
 (refx/reg-event-fx
  :app.dashboard/add-org-user

@@ -37,13 +37,7 @@
                                 (d/div {:class "border-gray-200 overflow-x-auto max-w-128 flex space-x-2"}
                                        (for [{:keys [username email]} filtered-users]
                                          (<> {:key username}
-                                             ($ user-li {:username username :email email :org-id id})))
-                                       (d/button {:class (str "border-2 py-[4px] px-[5px] w-max h-max rounded-full z-100 hover:bg-gray-100 "
-                                                              "transition-all duration-75 text-sm text-gray-200 hover:border-gray-400 "
-                                                              "hover:text-gray-400 ")
-
-                                                  :on-click #(refx/dispatch-sync [:app.dashboard/toggle-add-user-org-modal])}
-                                                 ($ svg/plus-sign))))
+                                             ($ user-li {:username username :email email :org-id id})))))
 
                          (d/button {:class "sm:w-max w-full px-3 py-2 mt-2 rounded-lg border border-gray-200 justify-center items-center gap-2 flex button-remove "
                                     :on-click #(refx/dispatch-sync [:app.dashboard/set-org-to-delete {:id id}])}
@@ -193,9 +187,9 @@
 
     (hooks/use-effect
       [orgs]
-      (when (nil? orgs)
-        (refx/dispatch-sync [:app.dashboard/get-orgs])
-        (refx/dispatch [:app.dashboard/set-curr-org org-id])))
+      (when-not (seq orgs)
+        (refx/dispatch-sync [:app.dashboard/set-curr-org org-id])
+        (refx/dispatch-sync [:app.dashboard/get-orgs])))
 
     ($ base/index
        (d/div {:class "flex flex-col lg:p-8"}
