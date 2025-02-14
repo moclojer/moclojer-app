@@ -423,7 +423,7 @@
                {:class "flex-1"}
                (:full_name repo)))))))})))
 
-(defnc user-li [{:keys [email username git]}]
+(defnc user-li [{:keys [email username git user-id org-id]}]
   (d/div {:class "p-2 flex justify-between items-center border-b "}
          (d/div {:class "flex space-x-4"}
                 (d/div {:class "flex items-center justify-center p-1"} (if git
@@ -434,7 +434,7 @@
                        (d/p {:class "text-sm italic text-gray-500"} email)))
          (d/div {:class "flex sm:flex-row flex-col"}
                 ($ button "edit role")
-                ($ button "remove"))))
+                ($ button {:on-click #(refx/dispatch-sync [:app.dashboard/remove-org-user org-id user-id])} "remove"))))
 
 (defn add-user-org-modal []
   (let [is-add-user-org-modal-open? (refx/use-sub [:app.dashboard/is-add-user-org-modal-open?])
@@ -492,7 +492,7 @@
          (d/div {:class "border-t overflow-y-auto overscroll-contain flex flex-col flex-no-wrap  max-h-96"}
                 (for [{:keys [email uuid username git-username]} org-users]
                   (<> {:key uuid}
-                      ($ user-li {:email email :username username :git (not-empty git-username)})))))})))
+                      ($ user-li {:email email :username username :git (not-empty git-username) :user-id uuid :org-id org-id})))))})))
 
 (defnc index [{:keys [children]}]
   (let [user (-> (refx/use-sub [:app.auth/current-user])
