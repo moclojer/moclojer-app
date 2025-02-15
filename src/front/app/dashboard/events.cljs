@@ -1,5 +1,7 @@
 (ns front.app.dashboard.events
   (:require
+   [front.app.dashboard.effects]
+   [front.app.http]
    [refx.alpha :as refx]))
 
 (refx/reg-event-db
@@ -693,9 +695,15 @@
 
 (refx/reg-event-fx
  :app.dashboard/send-org-invite
- (fn [{db :db} [_ email]]
-   (prn "erro " email)
-   {:notification {:type :info
+ (fn [{db :db} [_ email org-id]]
+   {:invite-user {:body {:email email
+                         :org-id org-id}
+                  :on-success [:app.dashboard/send-org-invite-success]
+                  :on-failure [:app.dashboard/send-org-invite-failure]}
+    :db  (assoc db
+                :login-error nil
+                :login-loading? true)
+    :notification {:type :info
                    :content (str "Inviting " email)}}))
 
 (refx/reg-event-fx
@@ -734,8 +742,7 @@
              :method :get
              :headers {"authorization" (str "Bearer " access-token)}
              :on-success [:app.dashboard/retrieve-user-success org-id]
-             :on-failure [:app.dashboard/send-org-invite email]}})))
-
+             :on-failure [:app.dashboard/send-org-invite email org-id]}})))
 
 (refx/reg-event-fx
  :app.dashboard/remove-org-user-failure

@@ -51,6 +51,14 @@
                   (dispatch-fn-logout e)
                   (rfe/push-state :app.core/login))))))
 
+(defn invite-user-to-org [^js client email org-id]
+  (let [auth (.-admin (.-auth client))
+        options (clj->js
+                 {:options {:redirectTo SUPABASE_REDIRECT
+                            :data (clj->js {:org-id org-id})}})]
+    (prn auth options)
+    (.inviteUserByEmail auth email options)))
+
 (defn event-changes [invoke]
   (.onAuthStateChange (.-auth client)
                       (fn [event new-session]
