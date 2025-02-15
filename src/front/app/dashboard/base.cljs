@@ -433,8 +433,9 @@
                        (d/p {:class "text-lg"} username)
                        (d/p {:class "text-sm italic text-gray-500"} email)))
          (d/div {:class "flex sm:flex-row flex-col"}
-                ($ button "edit role")
-                ($ button {:on-click #(refx/dispatch-sync [:app.dashboard/remove-org-user org-id user-id])} "remove"))))
+                ;; TODO this needs a org role update
+                #_($ button "edit role")
+                #_($ button {:on-click #(refx/dispatch-sync [:app.dashboard/remove-org-user org-id user-id])} "remove"))))
 
 (defn add-user-org-modal []
   (let [is-add-user-org-modal-open? (refx/use-sub [:app.dashboard/is-add-user-org-modal-open?])
