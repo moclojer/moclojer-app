@@ -58,7 +58,7 @@
                   "w-[calc(100%-8px)]"
                   "w-full"))
     :on-click #(rfe/push-state :app.core/orgs)}
-   ($ svg/people)
+   ($ svg/people {:class "w-6 h-6 "})
    (d/span {:class (str "ml-3 text-gray-900 "
                         (when-not aside-open?
                           "lg:hidden lg:absolute"))} "Orgs")))
