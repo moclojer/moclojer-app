@@ -54,8 +54,8 @@
     components :components
     ctx :ctx}]
   (let [user (controllers.user/get-user-by-email email components ctx)]
-  {:status 200
-   :body {:user user}}))
+    {:status 200
+     :body {:user user}}))
 
 (defn handler-get-user-by-external-id
   [{:keys [user]}]

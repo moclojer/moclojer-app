@@ -90,12 +90,13 @@
  :app.auth/saving-user
  (fn
    [{db :db} [_ session]]
-   (let [access-token (-> session :access-token)]
+   (let [access-token (-> session :access-token)
+         org-id (get-in session [:user :user_metadata :org-id])]
      {:http {:url "/login/auth"
              :method :post
              :headers {"authorization" (str "Bearer " access-token)}
              :body {:access-token access-token}
-             :on-success [:app.auth/success-save]
+             :on-success [:app.auth/success-save org-id]
              :on-failure [:app.auth/failed-save-user]}
       :db  (assoc db
                   :login-loading? true
@@ -130,20 +131,23 @@
           :login-loading? false
           :current-user current-user)))))
 
-(refx/reg-event-db
+(refx/reg-event-fx
  :app.auth/success-save
  (fn
-   [db [_ {:keys [body]}]]
+   [db [_ {:keys [org-id body]}]]
+   (prn org-id body)
    (let [current-user (-> (:current-user db)
                           (assoc-in [:user :valid-user] true)
                           (assoc-in [:user :user-id] (-> body :user :uuid))
                           (assoc-in [:user :email] (-> body :user :email))
                           (assoc-in [:user :username] (-> body :user :username)))]
      (set-current-user-cookie! current-user)
-     (-> db
-         (assoc
-          :login-loading? false
-          :current-user current-user)))))
+     (-> {:db (-> db
+                  (assoc
+                   :login-loading? false
+                   :current-user current-user))}
+         (cond-> org-id
+           (assoc :dispatch [:app.dashboard/add-org-user (-> body :user :email) org-id]))))))
 
 (refx/reg-event-db
  :app.auth/failed-save-user

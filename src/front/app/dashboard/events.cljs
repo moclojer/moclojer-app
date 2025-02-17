@@ -658,8 +658,7 @@
 
 (refx/reg-event-fx
  :app.dashboard/get-org-users-failure
- (fn [{db :db} [_ body]]
-   (prn "error " body)
+ (fn [{db :db} [_ _]]
    {:notification {:type :error
                    :content "Could not retrieve org users!"}
     :db (assoc db
@@ -683,13 +682,11 @@
 (refx/reg-event-fx
  :app.dashboard/send-org-invite-success
  (fn [{db :db} [_ request]]
-   (prn request)
    {:notification {:type :info
                    :content "User invited"}}))
 (refx/reg-event-fx
  :app.dashboard/send-org-invite-failure
- (fn [{db :db} [_ body]]
-   (prn "error " body)
+ (fn [{db :db} [_ _]]
    {:notification {:type :error
                    :content "Could not invite user!"}}))
 
@@ -717,7 +714,6 @@
 (refx/reg-event-fx
  :app.dashboard/add-org-user-success
  (fn [{db :db} [_ org-id]]
-   (prn org-id)
    {:dispatch [:app.dashboard/get-org-users org-id]
     :notification {:type :info
                    :content "User invited"}}))
@@ -755,7 +751,6 @@
 (refx/reg-event-fx
  :app.dashboard/remove-org-user-success
  (fn [{db :db} [_ org-id]]
-   (prn org-id)
    {:dispatch [:app.dashboard/get-org-users org-id]
     :notification {:type :info
                    :content "User removed"}}))
