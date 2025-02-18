@@ -92,6 +92,7 @@
    [{db :db} [_ session]]
    (let [access-token (-> session :access-token)
          org-id (get-in session [:user :user_metadata :org-id])]
+     (prn "inicio " access-token org-id)
      {:http {:url "/login/auth"
              :method :post
              :headers {"authorization" (str "Bearer " access-token)}
@@ -132,22 +133,36 @@
           :current-user current-user)))))
 
 (refx/reg-event-fx
+ :app.auth/add-org-user
+ (fn [{db :db} [_ org-id user]]
+   (let [current-user (:current-user db)
+         access-token (:access-token current-user)]
+     (prn user)
+     {:http {:url (str "/orgs/" org-id "/users")
+             :method :post
+             :body {:user-id (:uuid user)}
+             :headers {"authorization" (str "Bearer " access-token)}}
+      :db (assoc db :login-loading false)})))
+
+(refx/reg-event-fx
  :app.auth/success-save
  (fn
-   [db [_ {:keys [org-id body]}]]
-   (prn org-id body)
+   [db [_ org-id {:keys [body]}]]
+   (prn "testando 2 " org-id body)
    (let [current-user (-> (:current-user db)
                           (assoc-in [:user :valid-user] true)
                           (assoc-in [:user :user-id] (-> body :user :uuid))
                           (assoc-in [:user :email] (-> body :user :email))
-                          (assoc-in [:user :username] (-> body :user :username)))]
+                          (assoc-in [:user :username] (-> body :user :username)))
+         has-org-invite? (uuid? (parse-uuid (str org-id)))]
      (set-current-user-cookie! current-user)
      (-> {:db (-> db
+                  (cond-> has-org-invite?
+                    (assoc :login-loading? true))
                   (assoc
-                   :login-loading? false
                    :current-user current-user))}
-         (cond-> org-id
-           (assoc :dispatch [:app.dashboard/add-org-user (-> body :user :email) org-id]))))))
+         (cond-> has-org-invite?
+           (assoc :dispatch-sync [:app.auth/add-org-user org-id (:user body)]))))))
 
 (refx/reg-event-db
  :app.auth/failed-save-user

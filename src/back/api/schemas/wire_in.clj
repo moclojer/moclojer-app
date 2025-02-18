@@ -3,8 +3,7 @@
 (def AuthLogin
   [:map
    [:access-token string?]
-   [:git-username {:optional true} string?]
-   [:org-id {:optional true} string?]])
+   [:git-username {:optional true} string?]])
 
 (def Mock
   [:map
