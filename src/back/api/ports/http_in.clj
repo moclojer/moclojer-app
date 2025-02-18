@@ -19,6 +19,7 @@
     components :components
     ctx :ctx}]
   (let [user (controllers.login/create-customer! access-token components ctx)]
+    (prn "usuario " user)
     {:status 201
      :body {:user user}}))
 
