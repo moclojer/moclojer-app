@@ -54,7 +54,8 @@
 (defn invite-user-to-org [^js client email org-id]
   (let [auth (.-admin (.-auth client))
         options (clj->js {:redirectTo SUPABASE_REDIRECT
-                          :data (clj->js {:org-id org-id})})]
+                          :data (clj->js {:org {:org-id org-id
+                                                :invite? true}})})]
     (.inviteUserByEmail auth email options)))
 
 (defn event-changes [invoke]

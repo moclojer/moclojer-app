@@ -25,6 +25,7 @@
                      :user_name)
         username-to-save (refx/use-sub [:app.auth/username-to-save])
         available? (refx/use-sub [:app.auth/is-username-available?])]
+
     ($ modal
        {:title "Settings"
         :open? is-settings-open?
@@ -430,7 +431,13 @@
                                                                          ($ svg/github)
                                                                          ($ svg/personal-mock)))
                 (d/div {:class "flex flex-col select-none truncate grow-0 shrink overflow-none"}
-                       (d/p {:class "text-lg"} username)
+                       ;; Since a user must have a username when it creates an account, we are adding 
+                       ;; this invited tag which is resolved when the user enters the invite link
+                       (if username
+                         (d/p {:class "text-lg"} username)
+                         (d/span  {:class "text-md flex justify-center items-center space-x-2 text-yellow-300 w-1/2"}
+                                  ($ svg/mail {:class "w-4 h-4 "})
+                                  (d/p "invited")))
                        (d/p {:class "text-sm italic text-gray-500"} email)))
          (d/div {:class "flex sm:flex-row flex-col"}
                 ;; TODO this needs a org role update
@@ -444,12 +451,19 @@
         [email set-email] (hooks/use-state default-email)
         org-users (refx/use-sub [:app.dashboard/org-users])
         org-id (refx/use-sub [:app.dashboard/curr-org])
-        allow-invite true]
+        [allow-invite set-allow-invite] (hooks/use-state true)]
+
+    (hooks/use-effect
+      [email set-allow-invite]
+      (if (and (string?  email)
+               (re-matches #".+\@.+\..+" email))
+        (set-allow-invite true)
+        (set-allow-invite false)))
 
     (hooks/use-effect
       [org-users is-add-user-org-modal-open? org-id]
-      (when (and (empty? org-users) is-add-user-org-modal-open?)
-        (refx/dispatch [:app.dashboard/get-org-users org-id])))
+      (when (and (not (seq org-users)) is-add-user-org-modal-open?)
+        (refx/dispatch-sync [:app.dashboard/get-org-users org-id])))
 
     ($ modal
        {:title "Add users"
@@ -482,8 +496,10 @@
            {:class "flex justify-between items-end py-4"}
            ($ button
               {:theme :mockingbird
-               :class (str "px-3 py-2 rounded-lg justify-end items-center gap-2 flex btn-add bg-pink-600 text-white  "
-                           (when-not allow-invite "btn-add__disabled bg-gray-600 cursor-not-allowed "))
+               :class (str "px-3 py-2 rounded-lg justify-end items-center gap-2 flex text-white "
+                           (if-not allow-invite
+                             "btn-add__disabled bg-gray-600 cursor-not-allowed "
+                             "bg-pink-600 btn-add"))
                :on-click #(when allow-invite
                             (refx/dispatch-sync [:app.dashboard/add-org-user email org-id]))}
               (d/div
