@@ -186,9 +186,12 @@
         {:keys [orgname slug id git-orgname users]} org]
 
     (hooks/use-effect
+      :once
+      (refx/dispatch-sync [:app.dashboard/set-curr-org org-id]))
+
+    (hooks/use-effect
       [orgs]
       (when-not (seq orgs)
-        (refx/dispatch-sync [:app.dashboard/set-curr-org org-id])
         (refx/dispatch-sync [:app.dashboard/get-orgs])))
 
     ($ base/index

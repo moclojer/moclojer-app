@@ -66,7 +66,7 @@
                                {:valid-user valid-user?
                                 :user-id (:uuid resp-user)
                                 :username (:username resp-user)
-                                :git-username (-> (:user old-user) :user_metadata :user_name)
+                                :git-username (get-in old-user [:user :user_metadata :user_name])
                                 :email (:email resp-user)})
          current-user (-> old-user
                           (merge (:session db))
@@ -91,13 +91,12 @@
  (fn
    [{db :db} [_ session]]
    (let [access-token (-> session :access-token)
-         org-id (get-in session [:user :user_metadata :org-id])]
-     (prn "inicio " access-token org-id)
+         org (get-in session [:user :user_metadata :org])]
      {:http {:url "/login/auth"
              :method :post
              :headers {"authorization" (str "Bearer " access-token)}
              :body {:access-token access-token}
-             :on-success [:app.auth/success-save org-id]
+             :on-success [:app.auth/success-save org]
              :on-failure [:app.auth/failed-save-user]}
       :db  (assoc db
                   :login-loading? true
@@ -133,36 +132,48 @@
           :current-user current-user)))))
 
 (refx/reg-event-fx
+ :app.auth/add-org-user-success
+ (fn [{db :db} [_ response]]
+   {:notification {:type :info
+                   :content "Entered org!"}
+    :db (assoc db :login-loading? false)}))
+
+(refx/reg-event-fx
+ :app.auth/add-org-user-failure
+ (fn [{db :db} [_ response]]
+   {:notification {:type :error
+                   :content "Could not enter org!"}}))
+
+(refx/reg-event-fx
  :app.auth/add-org-user
  (fn [{db :db} [_ org-id user]]
    (let [current-user (:current-user db)
          access-token (:access-token current-user)]
-     (prn user)
      {:http {:url (str "/orgs/" org-id "/users")
              :method :post
-             :body {:user-id (:uuid user)}
-             :headers {"authorization" (str "Bearer " access-token)}}
+             :body {:user-id (str (:uuid user))}
+             :headers {"authorization" (str "Bearer " access-token)}
+             :on-success [:app.auth/add-org-user-success]
+             :on-failure [:app.auth/add-org-user-failure]}
       :db (assoc db :login-loading false)})))
 
 (refx/reg-event-fx
  :app.auth/success-save
  (fn
-   [db [_ org-id {:keys [body]}]]
-   (prn "testando 2 " org-id body)
+   [{db :db} [_ org response]]
    (let [current-user (-> (:current-user db)
                           (assoc-in [:user :valid-user] true)
-                          (assoc-in [:user :user-id] (-> body :user :uuid))
-                          (assoc-in [:user :email] (-> body :user :email))
-                          (assoc-in [:user :username] (-> body :user :username)))
-         has-org-invite? (uuid? (parse-uuid (str org-id)))]
+                          (assoc-in [:user :user_metadata :org :org-id] nil)
+                          (assoc-in [:user :user_metadata :org :invite?] false)
+                          (assoc-in [:user :user-id] (-> response :body :user :uuid))
+                          (assoc-in [:user :email] (-> response :body :user :email))
+                          (assoc-in [:user :username] (-> response :body :user :username)))]
      (set-current-user-cookie! current-user)
      (-> {:db (-> db
-                  (cond-> has-org-invite?
-                    (assoc :login-loading? true))
-                  (assoc
-                   :current-user current-user))}
-         (cond-> has-org-invite?
-           (assoc :dispatch-sync [:app.auth/add-org-user org-id (:user body)]))))))
+                  (assoc :login-loading? false)
+                  (assoc :current-user current-user))}
+         (cond-> (and org (:invite? org))
+           (assoc :dispatch [:app.auth/add-org-user (:org-id org) (-> response :body :user)]))))))
 
 (refx/reg-event-db
  :app.auth/failed-save-user
