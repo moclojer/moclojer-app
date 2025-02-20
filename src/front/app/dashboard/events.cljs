@@ -170,7 +170,6 @@
 (refx/reg-event-fx
  :app.dashboard/save-mock-failed
  (fn [{db :db} [_ response]]
-   (js/console.error "Save mock failed:", (clj->js response))
    {:db (assoc db
                :loading-edit-mock false
                :loading-sync? false)
@@ -328,18 +327,19 @@
 
 (refx/reg-event-fx
  :app.dashboard/save-username-failure
- (fn [{db :db}  [_ _]]
+ (fn [_ [_ response]]
+   (prn response)
    {:notification {:type :error
                    :content "Unable to update username"}}))
 
 (refx/reg-event-fx
  :app.dashboard/set-new-username
  (fn [{{:keys [current-user]} :db} [_ username-to-save]]
-   (js/console.log username-to-save current-user)
    (let [access-token (:access-token current-user)
-         user-id (:user_id (:user current-user))]
-     {:http {:url (str "user/" user-id)
-             :method :post
+         user-id (:user-id (:user current-user))]
+     (prn user-id username-to-save)
+     {:http {:url (str "/user/" user-id)
+             :method :put
              :headers {"authorization" (str "Bearer " access-token)}
              :body {:username username-to-save}
              :on-success [:app.dashboard/save-username-success]
@@ -357,7 +357,6 @@
          mock (->> db :mocks-raw
                    (filter #(= (str (:id %)) (str mock-id)))
                    first)]
-     (js/console.log "Updating git repo with:" git-repo)
      {:http {:url "/mocks"
              :method :put
              :headers {"authorization" (str "Bearer " (-> db :current-user :access-token))}
@@ -434,8 +433,6 @@
    (let [mock (->> (:mocks-raw db)
                    (filter #(= (-> % :id str) (str mock-id)))
                    first)]
-     (js/console.log "Mock being pushed:" (clj->js mock))
-     (js/console.log "Content type:" (type (:content mock)))
      (if (nil? (:git-repo mock))
        {:notification {:type :error
                        :content "Mock has no linked repo"}
@@ -465,7 +462,6 @@
 (refx/reg-event-fx
  :app.dashboard/push-mock-failed
  (fn [{db :db} [_ response]]
-   (js/console.error "Push failed:", (clj->js response))
    {:db (assoc db :loading-push false)
     :notification {:type :error
                    :content (or (-> response :body :message)
@@ -497,10 +493,6 @@
 (refx/reg-event-fx
  :app.dashboard/poll-mock-failed
  (fn [{db :db} [_ response]]
-   (js/console.warn "Poll failed:",
-                    (clj->js response)
-                    "for mock ID:",
-                    (:polling-mock-id db))
    {:db db}))
 
 (refx/reg-event-db

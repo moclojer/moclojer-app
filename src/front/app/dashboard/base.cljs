@@ -31,67 +31,69 @@
         :open? is-settings-open?
         :on-close #(refx/dispatch-sync [:app.dashboard/toggle-settings])
         :children
-        (d/div
-         {:class "w-screen md:w-[600px] p-6 gap-4"}
-         (d/div {:class "grid grid-cols-4 grid-rows-8 gap-2"}
-                (d/div {:class "row-span-1"}
-                       (d/div {:class (str "col-span-1 rounded-md hover:bg-gray-100 transition-all duration-75 "
-                                           (when (= (:view setting) "user") "bg-gray-50"))}
-                              ($ button {:size :full
-                                         :on-click (fn []
-                                                     (set-setting assoc :view "user"))}
-                                 "User")))
-                (d/div {:class "row-span-1"}
-                       (d/div {:class "col-span-1"}
-                              (d/div {:class (str "col-span-1 rounded-md hover:bg-gray-100 transition-all duration-75 "
-                                                  (when (= (:view setting) "orgs") "bg-gray-50"))}
-                                     ($ button {:size :full
-                                                :on-click (fn []
-                                                            (set-setting assoc :view "orgs"))}
-                                        "Orgs"))))
-                (d/div {:class "row-span-1"}
-                       (d/div {:class (str "col-span-1 rounded-md hover:bg-gray-100 transition-all duration-75 "
-                                           (when (= (:view setting) "mocks") "bg-gray-50"))}
-                              ($ button {:size :full
-                                         :on-click (fn []
-                                                     (set-setting assoc :view "mocks"))}
-                                 "Mocks")))
-                (d/div {:class "col-span-6 row-span-7 h-64 rounded-md bg-gray-50 space-y-4 p-4"}
-                       (cond
-                         (= (:view setting) "user")
-                         (d/div
-                          (d/form {:class "flex flex-col justify-between w-full items-start"
-                                   :on-submit (fn [e]
-                                                (.preventDefault e)
-                                                (when (and (not-empty username-to-save) available?)
-                                                  (refx/dispatch-sync [:app.dashboard/set-new-username username-to-save])))}
-                                  (d/div {:class  "w-[calc(100%)]"}
-                                         ($ input {:label "Edit Username"
-                                                   :on-change (fn [e]
-                                                                (.preventDefault e)
-                                                                (refx/dispatch-sync [:app.auth/username-available? (.. e -target -value)]))
-                                                   :placeholder username})
-                                         (d/p {:class "text-sm select-none "}
-                                              (str "<" username ">.moclojer.com")))
-                                  (d/div {:class  (str "w-[calc(20%)] flex justify-center items-center text-white rounded-md "
-                                                       "my-2 p-2 ")}
-                                         ($ button {:class (when (not available?) "cursor-not-allowed ")
-                                                    :theme :mockingbird
-                                                    :padding :sm
-                                                    :type :submit}
-                                            "Update"))))
+        (d/div {:class "w-screen md:w-[600px] p-6 gap-4"}
+               (d/div {:class "grid grid-cols-4 grid-rows-8 gap-2"}
+                      (d/div {:class "row-span-1"}
+                             (d/div {:class (str "col-span-1 rounded-md hover:bg-gray-100 transition-all duration-75 "
+                                                 (when (= (:view setting) "user") "bg-gray-50"))}
+                                    ($ button {:size :full
+                                               :class "outline-none "
+                                               :on-click (fn []
+                                                           (set-setting assoc :view "user"))}
+                                       "User")))
+                      (d/div {:class "row-span-1"}
+                             (d/div {:class "col-span-1"}
+                                    (d/div {:class (str "col-span-1 rounded-md hover:bg-gray-100 transition-all duration-75 "
+                                                        (when (= (:view setting) "orgs") "bg-gray-50"))}
+                                           ($ button {:size :full
+                                                      :class "outline-none "
+                                                      :on-click (fn []
+                                                                  (set-setting assoc :view "orgs"))}
+                                              "Orgs"))))
+                      #_(d/div {:class "row-span-1"}
+                               (d/div {:class (str "col-span-1 rounded-md hover:bg-gray-100 transition-all duration-75 "
+                                                   (when (= (:view setting) "mocks") "bg-gray-50"))}
+                                      ($ button {:size :full
+                                                 :class "outline-none "
+                                                 :on-click (fn []
+                                                             (set-setting assoc :view "mocks"))}
+                                         "Mocks")))
+                      (d/div {:class "col-span-6 row-span-7 h-64 rounded-md bg-gray-50 space-y-4 p-4"}
+                             (cond
+                               (= (:view setting) "user")
+                               (d/div
+                                (d/form {:class "flex flex-col justify-between w-full items-start"
+                                         :on-submit (fn [e]
+                                                      (.preventDefault e)
+                                                      (when (and (not-empty username-to-save) available?)
+                                                        (refx/dispatch-sync [:app.dashboard/set-new-username username-to-save])))}
+                                        (d/div {:class  "w-[calc(100%)]"}
+                                               ($ input {:label "Edit Username"
+                                                         :on-change (fn [e]
+                                                                      (.preventDefault e)
+                                                                      (refx/dispatch-sync [:app.auth/username-available? (.. e -target -value)]))
+                                                         :placeholder username})
+                                               (d/p {:class "text-sm select-none "}
+                                                    (str "<" username ">.moclojer.com")))
+                                        (d/div {:class  (str "w-[calc(20%)] flex justify-center items-center text-white rounded-md "
+                                                             "my-2 p-2 ")}
+                                               ($ button {:class (when (not available?) "cursor-not-allowed ")
+                                                          :theme :mockingbird
+                                                          :padding :sm
+                                                          :type :submit}
+                                                  "Update"))))
 
-                         (= (:view setting) "orgs")
-                         (do
-                           (d/div
-                            (d/p "Work in Progress")
-                            (d/p user-orgs)))
+                               (= (:view setting) "orgs")
+                               (do
+                                 (d/div
+                                  (d/p "Work in Progress")
+                                  (d/p user-orgs)))
 
-                         (= (:view setting) "mocks")
-                         (d/div
-                          (d/p "Work in Progress"))
-                         :else
-                         (set-setting assoc :view "user")))))})))
+                               (= (:view setting) "mocks")
+                               (d/div
+                                (d/p "Work in Progress"))
+                               :else
+                               (set-setting assoc :view "user")))))})))
 
 (defn new-mock-modal []
   (let [is-modal-open? (refx/use-sub [:app.dashboard/is-modal-open?])

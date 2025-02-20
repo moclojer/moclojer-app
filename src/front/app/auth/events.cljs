@@ -108,7 +108,7 @@
  (fn
    [{db :db} [_ username]]
    {:http {:url (str "/user/" (-> db :current-user :user :user-id))
-           :method :post
+           :method :put
            :body {:username username}
            :headers {"authorization" (str "Bearer " (-> db :current-user :access-token))}
            :on-success [:app.auth/username-saved]

@@ -42,7 +42,7 @@
                             database))
 
     (flow "send the username to be added"
-      [resp (helpers/request! {:method :post
+      [resp (helpers/request! {:method :put
                                :headers {"authorization" token}
                                :uri "/user/cd989358-af38-4a2f-a1a1-88096aa425a7"
                                :body {:username "chico"}})]

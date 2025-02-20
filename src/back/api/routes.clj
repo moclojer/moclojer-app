@@ -59,7 +59,7 @@
 
    ["/user/:id"
     {:swagger {:tags ["login"]}
-     :post {:summary "Update user"
+     :put {:summary "Update user"
             :interceptors [(error-handler-interceptor)
                            (extract-user-interceptor)]
             :parameters {:path {:id uuid?}
