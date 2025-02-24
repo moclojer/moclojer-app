@@ -96,7 +96,7 @@
                                                (.preventDefault e)
                                                (refx/dispatch [:app.auth/send-oauth (assoc state :provider "github")]))}
                            (d/div {:class "flex text-gray-400 "}
-                                  ($ github))))
+                                  ($ github {:class "w-6 h-6 "}))))
 
                  (d/div {:class "text-sm font-medium text-gray-500 dark:text-gray-400 mt-4 "}
                         (if error

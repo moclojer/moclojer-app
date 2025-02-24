@@ -14,17 +14,37 @@
    [helix.hooks :as hooks]
    [refx.alpha :as refx]))
 
+(defnc orgs-li [{:keys [orgname git id set-setting]}]
+  (d/div {:class "p-2 flex justify-between items-center border-b "}
+         (d/div {:class "flex space-x-4"}
+                (d/div {:class "flex items-center justify-center p-1"} (if git
+                                                                         ($ svg/github)
+                                                                         ($ svg/people {:class "w-6 h-6 "})))
+                (d/div {:class "flex flex-col select-none truncate grow-0 shrink overflow-none"}
+                       ;; Since a user must have a username when it creates an account, we are adding 
+                       ;; this invited tag which is resolved when the user finish the login process 
+                       (d/p {:class "text-lg"} orgname)))
+         (d/div {:class "flex sm:flex-row flex-col justify-center items-center"}
+                ($ button {:class "space-x-2 text-black hover:text-gray-800 group:duration-75 group:transition-all "
+                           on-click #(set-setting {:view "git-org-update"
+                                                   :org-id id
+                                                   :orgname orgname})}
+                   (d/p "Link to git")
+                   ($ svg/github {:class "w-5 h-5 text-gray-800 "}))
+                #_($ button {:on-click #(refx/dispatch-sync [:app.dashboard/remove-org-user org-id user-id])} "remove"))))
+
 (defn settings-modal []
   (let [current-user (refx/use-sub [:app.auth/current-user])
         is-settings-open? (refx/use-sub [:app.dashboard/is-settings-open?])
         [setting set-setting] (hooks/use-state {:view "user"})
-        user-orgs (refx/use-sub [:app.user/orgs])
+        orgs-data (refx/use-sub [:app.user/orgs])
         username (-> current-user
                      :user
                      :user_metadata
                      :user_name)
         username-to-save (refx/use-sub [:app.auth/username-to-save])
-        available? (refx/use-sub [:app.auth/is-username-available?])]
+        username-available? (refx/use-sub [:app.auth/is-username-available?])
+        [git-orgname-to-save set-git-orgname-to-save] (hooks/use-state "")]
 
     ($ modal
        {:title "Settings"
@@ -65,7 +85,7 @@
                                 (d/form {:class "flex flex-col justify-between w-full items-start"
                                          :on-submit (fn [e]
                                                       (.preventDefault e)
-                                                      (when (and (not-empty username-to-save) available?)
+                                                      (when (and (not-empty username-to-save) username-available?)
                                                         (refx/dispatch-sync [:app.dashboard/set-new-username username-to-save])))}
                                         (d/div {:class  "w-[calc(100%)]"}
                                                ($ input {:label "Edit Username"
@@ -77,21 +97,42 @@
                                                     (str "<" username ">.moclojer.com")))
                                         (d/div {:class  (str "w-[calc(20%)] flex justify-center items-center text-white rounded-md "
                                                              "my-2 p-2 ")}
-                                               ($ button {:class (when (not available?) "cursor-not-allowed ")
+                                               ($ button {:class (when (not username-available?) "cursor-not-allowed ")
                                                           :theme :mockingbird
                                                           :padding :sm
                                                           :type :submit}
                                                   "Update"))))
 
                                (= (:view setting) "orgs")
-                               (do
-                                 (d/div
-                                  (d/p "Work in Progress")
-                                  (d/p user-orgs)))
+                               (d/div
+                                (for [{:keys [orgname git-orgname id]} orgs-data]
+                                  (<> {:key id}
+                                      ($ orgs-li {:orgname orgname :git (not (nil? git-orgname)) :set-setting set-setting}))))
 
                                (= (:view setting) "mocks")
                                (d/div
                                 (d/p "Work in Progress"))
+                               (= (:view setting) "git-org-update")
+                               (d/div
+                                (d/form {:class "flex flex-col justify-between w-full items-start"
+                                         :on-submit (fn [e]
+                                                      (.preventDefault e)
+                                                      (when (and (not-empty username-to-save) username-available?)
+                                                        (refx/dispatch-sync [:app.dashboard/set-new-username username-to-save])))}
+                                        (d/div {:class  "w-[calc(100%)]"}
+                                               ($ input {:label "Git Organization Name"
+                                                         :on-change (fn [e]
+                                                                      (.preventDefault e)
+                                                                      (set-git-orgname-to-save (.. e -target -value)))
+                                                         :placeholder username})
+                                               (d/p {:class "text-sm select-none "}))
+                                        (d/div {:class  (str "w-[calc(20%)] flex justify-center items-center text-white rounded-md "
+                                                             "my-2 p-2 ")}
+                                               ($ button {:class (when (not username-available?) "cursor-not-allowed ")
+                                                          :theme :mockingbird
+                                                          :padding :sm
+                                                          :type :submit}
+                                                  "Update"))))
                                :else
                                (set-setting assoc :view "user")))))})))
 

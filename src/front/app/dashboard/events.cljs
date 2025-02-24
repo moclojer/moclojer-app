@@ -328,7 +328,6 @@
 (refx/reg-event-fx
  :app.dashboard/save-username-failure
  (fn [_ [_ response]]
-   (prn response)
    {:notification {:type :error
                    :content "Unable to update username"}}))
 
@@ -337,7 +336,6 @@
  (fn [{{:keys [current-user]} :db} [_ username-to-save]]
    (let [access-token (:access-token current-user)
          user-id (:user-id (:user current-user))]
-     (prn user-id username-to-save)
      {:http {:url (str "/user/" user-id)
              :method :put
              :headers {"authorization" (str "Bearer " access-token)}
@@ -388,7 +386,7 @@
      (-> {}
          (cond->
           (not (:git-repo mock))
-           (assoc :dispatch-sync [:app.dashboard/verify-mock-repo mock-id]))
+           (assoc :dispatch [:app.dashboard/verify-mock-repo mock-id]))
          (assoc :http {:url "/sync"
                        :method :get
                        :headers {"authorization" (str "Bearer " (-> db :current-user :access-token))}
@@ -531,7 +529,7 @@
                    :content response}}))
 
 (refx/reg-event-fx
- :app.dashboard/get-orgs
+ :app.user/get-orgs-data
  (fn [{db :db} [_ _]]
    {:http {:url "/orgs"
            :method :get
@@ -555,7 +553,7 @@
  :app.dashboard/create-org-success
  (fn [db _]
    {:dispatch-n [[:app.dashboard/toggle-org-modal]
-                 [:app.dashboard/get-orgs]]
+                 [:app.user/get-orgs-data]]
     :notification {:type :info
                    :content "Successfully created org!"}}))
 
@@ -586,7 +584,7 @@
 (refx/reg-event-fx
  :app.dashboard/delete-org-success
  (fn [{db :db} _]
-   {:dispatch [:app.dashboard/get-orgs]
+   {:dispatch [:app.user/get-orgs-data]
     :notification {:type :info
                    :content "Deleted org succesfully!"}
     :db (assoc db
@@ -616,7 +614,7 @@
 (refx/reg-event-fx
  :app.dashboard/update-org-success
  (fn [{db :db} _]
-   {:dispatch [:app.dashboard/get-orgs]
+   {:dispatch [:app.user/get-orgs-data]
     :notification {:type :info
                    :content "updated org succesfully!"}
     :db (assoc db
@@ -756,3 +754,19 @@
              :headers {"authorization" (str "Bearer " access-token)}
              :on-success [:app.dashboard/remove-org-user-success org-id]
              :on-failure [:app.dashboard/remove-org-user-failure]}})))
+
+(refx/reg-event-fx
+ :app.dashboard/check-user-org-membership
+ (fn [{{:keys [current-user]} :db} [_ git-orgname git-username]]
+   (let [access-token (:access-token current-user)]
+     {:http {:url (str "/orgs/" git-orgname "/user/" git-username)
+             :method :delete
+             :headers {"authorization" (str "Bearer " access-token)}
+             :on-success []
+             :on-failure []}})))
+
+(refx/reg-event-fx
+ :app.dashboard/set-new-orgname
+;; TODO finish this update
+ (fn [_ [_ org-id user-id]]
+   {:http {:url (str "/orgs/" org-id "/users/" user-id)}}))

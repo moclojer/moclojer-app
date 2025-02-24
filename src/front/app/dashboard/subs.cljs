@@ -41,7 +41,7 @@
      (into private orgs))))
 
 (refx/reg-sub
- :app.dashboard/orgs-data
+ :app.user/orgs-data
  (fn [db _]
    (:orgs-data db)))
 

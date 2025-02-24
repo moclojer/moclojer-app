@@ -184,25 +184,20 @@
         github-api-url (:api-url config)
         app-id (:app-id config)
         private-key (:private-key config)]
-
     (logs/log :info "Creating blob"
               :ctx (assoc ctx
                           :paths paths
                           :files-count (count files)))
-
     (let [encoded-files (mapv utils/encode files)
           _ (logs/log :info "Files encoded"
                       :ctx (assoc ctx :encoded-count (count encoded-files)))
-
           commit (create-commit install-id owner repo email paths encoded-files base-tree-sha
                                 {:github-api-url github-api-url
                                  :app-id app-id
                                  :private-key private-key})
           _ (logs/log :info "Commit created"
                       :ctx (assoc ctx :commit commit))
-
           commit-sha (:sha commit)]
-
       (when commit-sha
         (logs/log :info "Updating reference"
                   :ctx (assoc ctx
@@ -214,12 +209,29 @@
                            :app-id app-id
                            :private-key private-key})))))
 
+(defn check-user-org-mermbership [install-id git-username git-orgname components]
+  (let [config (get-in components [:config :config :git-sync])
+        github-api-url (:api-url config)
+        app-id (:app-id config)
+        private-key (:private-key config)
+        gh-client (create-github-client github-api-url app-id private-key)
+        response (gh-app/request gh-client install-id :get
+                                 (format "%s/orgs/%s/members/%s" github-api-url git-orgname git-username)
+                                 {})]
+    (if (#{204} (:status response))
+      {:status 204
+       :body {:is-member? true}}
+      (throw (ex-info "Failed to retrieve user repos"
+                      {:status (:status response)
+                       :body {:error (:body response)
+                              :is-member? false}})))))
+
 (comment
-  (def app-id "1089795")
-  (def private-key (slurp "/home/felipe-gsilva/Documents/documentos-pessoais/felipe-gsilva-auth-test.2024-12-17.private-key.pem"))
+  (def app-id "")
+  (def private-key (slurp ""))
   (def github-api-url "https://api.github.com")
-  (def install-id "58505217")
-  (def base-sha "2679f7712ea94d9b7261f059f5dd95241ce1cfcf")
+  (def install-id "")
+  (def base-sha "")
   (def paths ["file.md" "file2.md"])
   (def files (mapv utils/encode ["Hello world!!" "better \nHello world!!"]))
   (def user "Felipe-gsilva")

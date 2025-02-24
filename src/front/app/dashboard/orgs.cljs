@@ -179,7 +179,7 @@
   (let [{:keys [route]} props
         {:keys [path-params]} route
         {:keys [org-id]} path-params
-        orgs (refx/use-sub [:app.dashboard/orgs-data])
+        orgs (refx/use-sub [:app.user/orgs-data])
         org (->> orgs
                  (filter #(= (:id %) org-id))
                  (first))
@@ -192,7 +192,7 @@
     (hooks/use-effect
       [orgs]
       (when-not (seq orgs)
-        (refx/dispatch-sync [:app.dashboard/get-orgs])))
+        (refx/dispatch-sync [:app.user/get-orgs-data])))
 
     ($ base/index
        (d/div {:class "flex flex-col lg:p-8"}
@@ -202,12 +202,12 @@
 (defnc orgs []
   (let [current-user (refx/use-sub [:app.auth/current-user])
         username (-> current-user :user :username)
-        orgs (refx/use-sub [:app.dashboard/orgs-data])]
+        orgs (refx/use-sub [:app.user/orgs-data])]
 
     (hooks/use-effect
       [orgs]
       (when (empty? orgs)
-        (refx/dispatch-sync [:app.dashboard/get-orgs])))
+        (refx/dispatch-sync [:app.user/get-orgs-data])))
 
     (hooks/use-effect
       [orgs]

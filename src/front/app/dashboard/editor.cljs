@@ -38,8 +38,7 @@
           has-changes? (refx/use-sub [:app.dashboard/mock-has-changes? mock-id])]
       (d/div {:class (str "relative w-full h-full rounded-lg overflow-hidden m-2  "
                           (if has-changes? "border-2 border-yellow-500 "
-                            "border-none "
-                            ))}
+                              "border-none "))}
              ($ c/default
                 {:height "calc(100vh - 171px)"
                  :autoFocus true
@@ -130,7 +129,7 @@
   (d/button
    {:class (str "px-3 py-2 rounded-lg flex justify-center items-center space-x-2 "
                 "transition-all duration-75 ")
-    :on-click #(refx/dispatch-sync [:app.dashboard/reload-mock mock-id])}
+    :on-click #(refx/dispatch-sync [:app.dashboard/enable-git-sync mock-id])}
    (d/div {:class "text-black text-xs font-bold leading-[18px]"}
           "enable git sync")
    ($ loading-spinner)))

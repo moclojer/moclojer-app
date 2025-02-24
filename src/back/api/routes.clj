@@ -60,12 +60,12 @@
    ["/user/:id"
     {:swagger {:tags ["login"]}
      :put {:summary "Update user"
-            :interceptors [(error-handler-interceptor)
-                           (extract-user-interceptor)]
-            :parameters {:path {:id uuid?}
-                         :body schemas.wire-in/UserUpdate}
-            :responses {200 {:body {:user schemas.wire-out/User}}}
-            :handler ports.http-in/edit-user!}
+           :interceptors [(error-handler-interceptor)
+                          (extract-user-interceptor)]
+           :parameters {:path {:id uuid?}
+                        :body schemas.wire-in/UserUpdate}
+           :responses {200 {:body {:user schemas.wire-out/User}}}
+           :handler ports.http-in/edit-user!}
      :get {:summary "Retrieve user"
            :parameters {:path {:id uuid?}}
            :interceptors [(error-handler-interceptor)
@@ -170,6 +170,15 @@
                          :body {:user-id string?}}
             :responses {201 {:body {:users schemas.wire-out/Users}}}
             :handler ports.http-in/handler-add-org-user}}]
+
+   ["/orgs/:git-orgname/user/:git-username"
+    {:get {:summary "Checks a user membership on a git organization "
+           :interceptors [(error-handler-interceptor)
+                          (extract-user-interceptor)]
+           :parameters {:path {:git-orgname string?
+                               :git-username string?}}
+           :responses {200 {:body schemas.wire-out/Available}}
+           :handler ports.http-in/handler-check-user-org-membership}}]
 
    ["/orgs/:org-id/users/:user-id"
     {:delete {:summary "Remove user from org"
