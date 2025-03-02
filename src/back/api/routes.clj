@@ -171,14 +171,12 @@
             :responses {201 {:body {:users schemas.wire-out/Users}}}
             :handler ports.http-in/handler-add-org-user}}]
 
-   ["/orgs/:git-orgname/user/:git-username"
-    {:get {:summary "Checks a user membership on a git organization "
+   ["/users/git-orgs"
+    {:get {:summary "Returns a user's git orgname "
            :interceptors [(error-handler-interceptor)
                           (extract-user-interceptor)]
-           :parameters {:path {:git-orgname string?
-                               :git-username string?}}
-           :responses {200 {:body schemas.wire-out/Available}}
-           :handler ports.http-in/handler-check-user-org-membership}}]
+           :responses {200 {:body [map?]}}
+           :handler ports.http-in/handler-get-user-git-orgs}}]
 
    ["/orgs/:org-id/users/:user-id"
     {:delete {:summary "Remove user from org"

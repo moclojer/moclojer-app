@@ -391,17 +391,12 @@
        :body {:sync-enabled false
               :message "Sync Disabled"}})))
 
-(defn handler-check-user-org-membership
-  [{:keys [session-data parameters components ctx]}]
+(defn handler-get-user-git-orgs
+  [{:keys [session-data components ctx]}]
   (let [user (controllers.user/get-user-by-id (:user-id session-data) components ctx)
-        install-id (:git-install-id user)
-        orgname (get-in parameters [:path :git-orgname])
-        username (get-in parameters [:path :git-username])]
-    (if install-id
-      {:status 200
-       :body (controllers.sync/check-user-org-mermbership install-id orgname username components)}
-      {:status 401
-       :body {:message "Forbidden - no install-id found!"}})))
+        install-id (:git-install-id user)]
+    {:status 200
+     :body (controllers.sync/get-user-orgs install-id 0 components)}))
 
 (defn handler-push-mock!
   [{{{:keys [id]} :path

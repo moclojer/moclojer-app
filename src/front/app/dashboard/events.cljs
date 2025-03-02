@@ -755,15 +755,27 @@
              :on-success [:app.dashboard/remove-org-user-success org-id]
              :on-failure [:app.dashboard/remove-org-user-failure]}})))
 
+(refx/reg-event-db
+ :app.dashboard/save-git-orgs
+ (fn [db [_ response]]
+   (-> db
+       (assoc :git-orgs (:orgs (:body response))))))
+
 (refx/reg-event-fx
- :app.dashboard/check-user-org-membership
- (fn [{{:keys [current-user]} :db} [_ git-orgname git-username]]
+ :app.dashboard/failed-retrieve-git-orgs
+ (fn [db [_ response]]
+   {:notification {:type :error
+                   :content response}}))
+
+(refx/reg-event-fx
+ :app.dashboard/get-user-git-orgs
+ (fn [{{:keys [current-user]} :db} [_ _]]
    (let [access-token (:access-token current-user)]
-     {:http {:url (str "/orgs/" git-orgname "/user/" git-username)
-             :method :delete
+     {:http {:url "/users/git-orgs"
+             :method :get
              :headers {"authorization" (str "Bearer " access-token)}
-             :on-success []
-             :on-failure []}})))
+             :on-success [:app.dashboard/save-git-orgs]
+             :on-failure [:app.dashboard/failed-retrieve-git-orgs]}})))
 
 (refx/reg-event-fx
  :app.dashboard/set-new-orgname

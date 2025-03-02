@@ -137,7 +137,7 @@
 (defnc enable-sync-status [{:keys [mock-id sync-enabled?]}]
   (let [loading-sync? (refx/use-sub [:app.dashboard/loading-sync?])]
     (hooks/use-effect
-      []
+      [sync-enabled?]
       (when-not sync-enabled?
         (refx/dispatch-sync [:app.dashboard/enable-git-sync mock-id])))
 

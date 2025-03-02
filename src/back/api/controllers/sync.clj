@@ -226,6 +226,28 @@
                        :body {:error (:body response)
                               :is-member? false}})))))
 
+(defn get-user-orgs [install-id access-token components]
+  (let [config (get-in components [:config :config :git-sync])
+        github-api-url (:api-url config)
+        app-id (:app-id config)
+        private-key (:private-key config)
+        gh-client (create-github-client github-api-url app-id private-key)
+        response (gh-app/request gh-client install-id :get
+                                 (format "%s/user/memberships/orgs" github-api-url)
+                                 {})]
+    (if (#{204} (:status response))
+      {:status 204
+       :body {:orgs (-> response
+                        :body)}}
+      (throw (ex-info "Failed to retrieve user orgs"
+                      {:status (:status response)
+                       :body {:error (:body response)
+                              :is-member? false}})))))
+
+(defn get-user-install-id [access-token git-repo components]
+  ;; TODO
+  )
+
 (comment
   (def app-id "")
   (def private-key (slurp ""))
@@ -260,5 +282,9 @@
                               "Content-Type" "application/json"}})
   (select-keys (first (:body (gh-app/request gh-client install-id :get
                                              (format "%s/repos/%s/%s/branches" github-api-url user "gh-app-test")
-                                             {}))) [:commit :name]))
+                                             {}))) [:commit :name])
+
+  (gh-app/request gh-client install-id :get
+                  (format "%s/user/installations" github-api-url)
+                  {}))
 

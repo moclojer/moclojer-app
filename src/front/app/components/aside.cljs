@@ -52,7 +52,7 @@
         (for [{:keys [mock-type wildcard id]
                :or {mock-type :personal}} mocks-raw]
           (d/li
-           {:key wildcard}
+           {:key id}
            (d/button {:on-click #(rfe/push-state :app.core/mocks-view {:mock-id id})
                       :class (str "pl-11 w-full flex items-center overflow-hidden ellipsis p-2 "
                                   "text-base font-normal text-gray-900 rounded-lg transition "
@@ -86,9 +86,8 @@
                            (d/li
                             ($ home-btn {:aside-open? aside-open?}))
                            ($ mock aside)
-                           (d/li 
-                             ($ org-btn {:aside-open? aside-open?}))
-                           )
+                           (d/li
+                            ($ org-btn {:aside-open? aside-open?})))
                      (d/div {:class "pt-2 space-y-2"}
                             (d/a {:href "https://docs.moclojer.com/"
                                   :target "_blank"

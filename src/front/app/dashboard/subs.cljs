@@ -160,3 +160,8 @@
  :app.dashboard/curr-org
  (fn [db _]
    (:curr-org db)))
+
+(refx/reg-sub
+ :app.user/git-orgs
+ (fn [db _]
+   (:git-orgs db)))

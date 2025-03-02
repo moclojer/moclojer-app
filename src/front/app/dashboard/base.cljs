@@ -21,8 +21,6 @@
                                                                          ($ svg/github)
                                                                          ($ svg/people {:class "w-6 h-6 "})))
                 (d/div {:class "flex flex-col select-none truncate grow-0 shrink overflow-none"}
-                       ;; Since a user must have a username when it creates an account, we are adding 
-                       ;; this invited tag which is resolved when the user finish the login process 
                        (d/p {:class "text-lg"} orgname)))
          (d/div {:class "flex sm:flex-row flex-col justify-center items-center"}
                 ($ button {:class "space-x-2 text-black hover:text-gray-800 group:duration-75 group:transition-all "
@@ -30,8 +28,7 @@
                                                    :org-id id
                                                    :orgname orgname})}
                    (d/p "Link to git")
-                   ($ svg/github {:class "w-5 h-5 text-gray-800 "}))
-                #_($ button {:on-click #(refx/dispatch-sync [:app.dashboard/remove-org-user org-id user-id])} "remove"))))
+                   ($ svg/github {:class "w-5 h-5 text-gray-800 "})))))
 
 (defn settings-modal []
   (let [current-user (refx/use-sub [:app.auth/current-user])
@@ -44,7 +41,13 @@
                      :user_name)
         username-to-save (refx/use-sub [:app.auth/username-to-save])
         username-available? (refx/use-sub [:app.auth/is-username-available?])
-        [git-orgname-to-save set-git-orgname-to-save] (hooks/use-state "")]
+        [git-orgname-to-save set-git-orgname-to-save] (hooks/use-state "")
+        git-orgs (refx/use-sub [:app.user/git-orgs])]
+
+    (hooks/use-effect
+      [git-orgs setting]
+      (when (and (empty? git-orgs) (= (:view setting) "git-org-update"))
+        (refx/dispatch-sync [:app.dashboard/get-user-git-orgs])))
 
     ($ modal
        {:title "Settings"
@@ -114,25 +117,20 @@
                                 (d/p "Work in Progress"))
                                (= (:view setting) "git-org-update")
                                (d/div
-                                (d/form {:class "flex flex-col justify-between w-full items-start"
-                                         :on-submit (fn [e]
-                                                      (.preventDefault e)
-                                                      (when (and (not-empty username-to-save) username-available?)
-                                                        (refx/dispatch-sync [:app.dashboard/set-new-username username-to-save])))}
-                                        (d/div {:class  "w-[calc(100%)]"}
-                                               ($ input {:label "Git Organization Name"
-                                                         :on-change (fn [e]
-                                                                      (.preventDefault e)
-                                                                      (set-git-orgname-to-save (.. e -target -value)))
-                                                         :placeholder username})
-                                               (d/p {:class "text-sm select-none "}))
-                                        (d/div {:class  (str "w-[calc(20%)] flex justify-center items-center text-white rounded-md "
-                                                             "my-2 p-2 ")}
-                                               ($ button {:class (when (not username-available?) "cursor-not-allowed ")
-                                                          :theme :mockingbird
-                                                          :padding :sm
-                                                          :type :submit}
-                                                  "Update"))))
+                                (prn git-orgs)
+                                (for [org git-orgs]
+                                  (<>
+                                   (prn org)
+                                   (d/li {:key (str (random-uuid))
+                                          :class "flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer"
+                                        ;:on-click #(refx/dispatch-sync [:app.dashboard/ (:html_url repo)]) 
+                                          }
+                                         (if (:git setting)
+                                           ($ svg/github {:class "w-6 h-6 "})
+                                           ($ svg/people {:class "w-6 h-6 "}))
+
+                                         (d/span
+                                          {:class "flex-1"})))))
                                :else
                                (set-setting assoc :view "user")))))})))
 
@@ -162,7 +160,7 @@
     (hooks/use-effect
       [user-orgs]
       (when (nil? user-orgs)
-        (refx/dispatch [:app.dashboard/get-orgs])))
+        (refx/dispatch [:app.user/get-orgs-data])))
 
     (hooks/use-effect
       [new-mock]
