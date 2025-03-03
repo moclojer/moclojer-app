@@ -444,7 +444,7 @@
 
     (hooks/use-effect
       [repos]
-      (when (empty? repos)
+      (when (and (empty? repos) require-git-repo?)
         (refx/dispatch-sync [:app.dashboard/verify-mock-repo mock-id])))
 
     ($ modal
@@ -476,6 +476,7 @@
 (defn git-docs-modal []
   (let [docs-modal-open? (refx/use-sub [:app.dashboard/git-docs-modal-open?])
         [page set-page] (hooks/use-state {:view 0})
+        git-userame (get-in (refx/use-sub [:app.auth/current-user]) [:user :user_metadata :user_name])
         change-page-btn-style "px-4 py-2 border rounded-lg hover:bg-gray-50 transition-all duration-75 "]
     ($ modal
        {:title (str "Docs 📖")
@@ -488,26 +489,70 @@
           {:class "w-[calc(100%)]"}
           (d/div {:class "h-[300px]"}
                  (cond
-                   (= (:view page) 0) (d/div {:class "h-[95%] space-y-2 overflow-y-auto overscroll-contain p-4"}
-                                             (d/h1 {:class "text-2xl border-b border-gray-100"} "Moclojer Git Sync")
-                                             (d/p {:class "w-full bg-red-100 py-2 px-1"} "Orgs cannot use git sync for now")
-                                             (d/p {:class "text-md"} "Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum comes from a line in section 1"))
+                   (= (:view page) 0)
+                   (d/div {:class "h-[95%] space-y-2 overflow-y-auto overscroll-contain p-4"}
+                          (d/h1 {:class "text-2xl border-b border-gray-100"}
+                                "1. Moclojer Git Sync")
+                          (d/p {:class "w-full bg-red-100 py-2  flex justify-center items-center"} "Orgs mocks cannot use git sync for now")
+                          (d/p {:class "text-md"}
+                               "Moclojer Git Sync is a feature designed to seamlessly synchronize user mocks with a GitHub repository. 
+       This ensures that any changes made to your mocks are automatically reflected in your repository and vice versa. 
+       The feature leverages GitHub's infrastructure to provide a reliable and efficient syncing mechanism, 
+       allowing you to focus on your work without worrying about manual updates."))
 
-                   (= (:view page) 1)  (d/div {:class "h-[95%] space-y-2 overflow-y-auto overscroll-contain p-4"}
-                                              (d/h1 {:class "text-2xl border-b border-gray-100"}
-                                                    "Github Oauth"))
+                   (= (:view page) 1)
+                   (d/div {:class "h-[95%] space-y-2 overflow-y-auto overscroll-contain p-4"}
+                          (d/h1 {:class "text-2xl border-b border-gray-100"}
+                                "2. GitHub OAuth")
+                          (if git-userame
+                            (d/div {:class "w-full bg-green-100 py-2 flex justify-center items-center"}
+                                   (d/p
+                                    "You are currently logged in as " (d/a {:class "underline transition-all duration-75"
+                                                                            :target "_blank"
+                                                                            :href (str "https://github.com/" git-userame)} git-userame)))
+                            (d/div {:class "w-full bg-red-100 py-2 flex justify-center items-center"}
+                                   (d/p
+                                    "You are not logged with a git account" (d/a {:class "underline transition-all duration-75"
+                                                                                  :target "_blank"
+                                                                                  :href (str "https://github.com/" git-userame)} git-userame))))
+                          (d/p {:class "text-md"}
+                               "To use Moclojer Git Sync, you need to be logged in with a GitHub account. 
+       If you are not already logged in with a GitHub account, you can log out and click the GitHub button 
+       on the login page to authenticate. This will grant the necessary permissions for Moclojer 
+       to interact with your repositories."))
 
-                   (= (:view page) 2) (d/div {:class "h-[95%] space-y-2 overflow-y-auto overscroll-contain p-4"}
+                   (= (:view page) 2)
+                   (d/div {:class "h-[95%] space-y-2 overflow-y-auto overscroll-contain p-4"}
+                          (d/h1 {:class "text-2xl border-b border-gray-100"}
+                                "3. Installing The App")
+                          (d/p {:class "w-full bg-red-100 py-2 flex justify-center items-center "}
+                               "Install the app "
+                               (d/a {:class "underline ml-1"
+                                     :target "_blank"
+                                     :href "https://github.com/apps/moclojer-sync"} "here"))
+                          (d/p {:class "text-md"}
+                               "To get started with Moclojer Git Sync, you need to install our app via the following link: "
+                               (d/a {:class "underline"
+                                     :target "_blank"
+                                     :href "https://github.com/apps/moclojer-sync"} "Install Moclojer Git Sync "))
+                          (d/br)
 
-                                             (d/h1 {:class "text-2xl border-b border-gray-100"}
-                                                   "Install Our App ")
-
-                                             (d/p {:class "w-full bg-red-100 py-2 px-1 underline"}
-                                                  (d/a {:href "https://github.com/apps/moclojer-sync"}
-                                                       "apps/moclojer-sync")))
-
-                   (= (:view page) 3) (d/div {:class "h-[95%] space-y-2 overflow-y-auto overscroll-contain p-4"}
-                                             (d/h1 {:class "text-2xl "} "Usage "))))
+                          "You just need to install the app wherever you want it to be able to access. Install it and come back to the editor to update the git repo.")
+                   (= (:view page) 3)
+                   (d/div {:class "h-[95%] space-y-2 overflow-y-auto overscroll-contain p-4"}
+                          (d/h1 {:class "text-2xl border-b border-gray-100"} "4. Usage")
+                          (d/p {:class "text-md"}
+                               "To use Moclojer Git Sync, you will need to link a mock with a repository. This is handled by our system. 
+       Every push from outside our editor, located in the path"
+                               (d/p {:class "bg-green-100 py-2"} "`resources/mocks/<mock-wildcard-here>/moclojer.yml`")
+                               "on your repository, will be updated on our server automatically." (d/br) "You can reload the editor or the page 
+       to see the changes. If you want to push over the received push content, you will need to do it while 
+       on the page; reloading it will erase any local progress.")
+                          (d/br)
+                          (d/h1 {:class "text-xl border-b border-gray-100"} "Pushing content")
+                          (d/p
+                           "Clicking the save button will push content to the source, following the same path.")
+                          (d/p {:class "bg-green-100 py-2"} "`resources/mocks/<mock-wildcard-here>/moclojer.yml`"))))
           (d/div {:class "w-full flex justify-end items-end space-x-2"}
                  (d/button {:class change-page-btn-style
                             :on-click #(set-page assoc :view (- (if (< 1 (:view page))
