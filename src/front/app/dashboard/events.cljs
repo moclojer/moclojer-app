@@ -210,7 +210,7 @@
                         :mocks-raw new-mocks-raw)}]
      (if uploaded?
        (assoc fx :notification {:type :info
-                                :message "File uploaded successfully!"})
+                                :content "File uploaded successfully!"})
        fx))))
 
 (refx/reg-event-db
@@ -368,14 +368,22 @@
               (dissoc :curr-mock-id))})))
 
 (refx/reg-event-db
- :app.dashboard/save-repos
- (fn [db [_ repos]]
+ :app.dashboard/success-save-repos
+ (fn [db [_ mock-id repos]]
    (assoc db
+          :curr-mock-id mock-id
           :require-git-repo? true
           :repositories (-> repos
                             :body
                             :repositories
                             (vec)))))
+(refx/reg-event-fx
+ :app.dashboard/failed-save-repos
+ (fn [{db :db} _]
+   {:db  (assoc db
+                :require-git-repo? false)
+    :notification {:type :error
+                   :content "could not retrieve user repos!"}}))
 
 (refx/reg-event-fx
  :app.dashboard/enable-git-sync
@@ -383,28 +391,25 @@
    (let [mock (->> db :mocks-raw
                    (filter #(= (str (:id %)) (str mock-id)))
                    first)]
-     (-> {}
-         (cond->
-          (not (:git-repo mock))
-           (assoc :dispatch [:app.dashboard/verify-mock-repo mock-id]))
-         (assoc :http {:url "/sync"
-                       :method :get
-                       :headers {"authorization" (str "Bearer " (-> db :current-user :access-token))}
-                       :on-success [:app.dashboard/save-enabled-sync]
-                       :on-failure [:app.dashboard/not-enabled-sync]}
-                :db (assoc db :loading-sync? true))))))
+     (prn mock)
+     (when (:git-repo mock)
+       {:http {:url "/sync"
+               :method :get
+               :headers {"authorization" (str "Bearer " (-> db :current-user :access-token))}
+               :on-success [:app.dashboard/save-enabled-sync]
+               :on-failure [:app.dashboard/not-enabled-sync]}
+        :db (assoc db :loading-sync? true)}))))
 
 (refx/reg-event-fx
  :app.dashboard/verify-mock-repo
- (fn [db [_ mock-id]]
+ (fn [{db :db} [_ mock-id]]
    {:notification {:type :error
                    :content "Mock has no linked repo"}
     :http {:url "/repos"
            :method :get
-           :headers {"authorization" (str "Bearer " (-> db :current-user :access-token))}
-           :on-success [:app.dashboard/save-repos]
-           :on-failure [:app.dashboard/save-mock-failed]}
-    :db (assoc db :curr-mock-id mock-id)}))
+           :headers {"authorization" (str "Bearer " (get-in db [:current-user :access-token]))}
+           :on-success [:app.dashboard/success-save-repos mock-id]
+           :on-failure [:app.dashboard/failed-save-repos]}}))
 
 (refx/reg-event-fx
  :app.dashboard/save-enabled-sync
@@ -430,25 +435,27 @@
  (fn [{db :db} [_ mock-id]]
    (let [mock (->> (:mocks-raw db)
                    (filter #(= (-> % :id str) (str mock-id)))
-                   first)]
+                   first)
+         diff-from-source? (not= (get-in db [:server-mock :content]) (:content mock))]
      (if (nil? (:git-repo mock))
        {:notification {:type :error
                        :content "Mock has no linked repo"}
         :http {:url "/repos"
                :method :get
-               :headers {"authorization" (str "Bearer " (-> db :current-user :access-token))}
-               :on-success [:app.dashboard/save-repos]
-               :on-failure [:app.dashboard/save-mock-failed]}
+               :headers {"authorization" (str "Bearer " (get-in db [:current-user :access-token]))}
+               :on-success [:app.dashboard/success-save-repos mock-id]
+               :on-failure [:app.dashboard/failed-save-repos]}
         :db (assoc db :curr-mock-id mock-id)}
-       {:http {:url (str "/mocks/" mock-id "/push")
-               :method :post
-               :headers {"authorization" (str "Bearer " (-> db :current-user :access-token))}
-               :body {:content (:content mock)
-                      :git-repo (:git-repo mock)
-                      :wildcard (:wildcard mock)}
-               :on-success [:app.dashboard/push-mock-success]
-               :on-failure [:app.dashboard/push-mock-failed]}
-        :db (assoc db :loading-push true)}))))
+       (when  diff-from-source?
+         {:http {:url (str "/mocks/" mock-id "/push")
+                 :method :post
+                 :headers {"authorization" (str "Bearer " (-> db :current-user :access-token))}
+                 :body {:content (:content mock)
+                        :git-repo (:git-repo mock)
+                        :wildcard (:wildcard mock)}
+                 :on-success [:app.dashboard/push-mock-success]
+                 :on-failure [:app.dashboard/push-mock-failed]}
+          :db (assoc db :loading-push true)})))))
 
 (refx/reg-event-fx
  :app.dashboard/push-mock-success
@@ -782,3 +789,10 @@
 ;; TODO finish this update
  (fn [_ [_ org-id user-id]]
    {:http {:url (str "/orgs/" org-id "/users/" user-id)}}))
+
+(refx/reg-event-fx
+ :app.dashboard/toggle-git-docs
+ (fn [{db :db} [_ _]]
+   (let [toggle (or (:git-docs-modal-open? db)
+                    false)]
+     {:db (assoc db :git-docs-modal-open? (not toggle))})))

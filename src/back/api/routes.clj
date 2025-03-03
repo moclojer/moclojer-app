@@ -43,19 +43,19 @@
             :responses {201 {:body {:user schemas.wire-out/User}}}
             :handler ports.http-in/handler-create-user!}}]
 
-   ["/repos"
-    {:get {:summary "Returns a user repos linked by its installation"
-           :interceptors [(error-handler-interceptor)
-                          (extract-user-interceptor)]
-           :responses {200 {:body [map?]}}
-           :handler ports.http-in/handler-get-repos}}]
-
    ["/sync"
     {:get {:summary "Returns true if sync is enabled"
            :interceptors [(error-handler-interceptor)
                           (extract-user-interceptor)]
            :responses {200 {:body [map?]}}
            :handler ports.http-in/handler-sync-status}}]
+
+   ["/repos"
+    {:get {:summary "Returns a user repos linked by its installation"
+           :interceptors [(error-handler-interceptor)
+                          (extract-user-interceptor)]
+           :responses {200 {:body {:repositories [vector?]}}}
+           :handler ports.http-in/handler-get-repos}}]
 
    ["/user/:id"
     {:swagger {:tags ["login"]}

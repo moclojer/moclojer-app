@@ -9,7 +9,7 @@
    [reitit.frontend.easy :as rfe]))
 
 (defnc new-mock-btn []
-  ($ button {:class "px-3 py-2 bg-pink-600 rounded-lg flex flex-row space-x-2 items-center btn-add text-white " 
+  ($ button {:class "px-3 py-2 bg-pink-600 rounded-lg flex flex-row space-x-2 items-center btn-add text-white hover:text-white " 
              :on-click #(refx/dispatch [:app.dashboard/toggle-mock-modal])}
      ($ svg/plus-sign)
      (d/p {:class "text-xs font-bold"}
@@ -40,8 +40,8 @@
    {:class (str "flex items-center p-2 text-base font-normal text-gray-900 rounded-lg "
                 "transtion duration-75 hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-gray-700 "
                 (if aside-open?
-                  "w-[calc(100%-8px)]"
-                  "w-full"))
+                  "w-[calc(100%-8px)] "
+                  "w-full "))
     :on-click #(rfe/push-state :app.core/dashboard)}
    ($ svg/house)
    (d/span {:class (str "ml-3 "
@@ -52,7 +52,7 @@
   [{:keys [aside-open?]
     :or {aside-open? false}}]
   (d/button
-   {:class (str "flex items-center p-2 text-base font-normal text-gray-800 hover:text-gray-900 rounded-lg "
+   {:class (str "flex items-center p-2 text-base font-normal text-gray-500 hover:text-gray-900 rounded-lg "
                 "transtion duration-75 hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-gray-700 "
                 (if aside-open?
                   "w-[calc(100%-8px)]"

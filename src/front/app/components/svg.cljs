@@ -322,7 +322,8 @@
                   :clip-rule "evenodd"})))
 
 (defnc github [class]
-  (d/svg {:class (str "flex-shrink-0 text-gray-300 transition duration-75 group-hover:text-gray-400 dark:text-gray-400 dark:group-hover:text-white" (or class "w-6 h-6 "))
+  (d/svg {:class (str "flex-shrink-0 transition duration-75 "
+                      (or class "w-6 h-6 "))
           :fill "currentColor"
           :viewBox "0 0 100 100"}
          (d/path {:fill-rule "evenodd"

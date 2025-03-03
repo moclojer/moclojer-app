@@ -285,15 +285,15 @@
            ($ button
               {:class
                (str "px-3 py-2 rounded-lg justify-end items-center gap-2 flex btn-add text-white "
-                    (if allow-save? "bg-pink-600" "btn-add__disabled bg-gray-600 cursor-not-allowed"))
+                    (if allow-save? "bg-pink-600" "btn-add__disabled bg-gray-400 cursor-not-allowed"))
                :on-click #(when allow-save?
                             (if (= (:subdomain new-mock) default-subdomain)
                               (refx/dispatch [:app.dashboard/create-mock new-mock])
                               (refx/dispatch [:app.dashboard/create-mock new-mock (:subdomain new-mock)])))}
               (d/div
-               {:class " text-xs font-bold leading-[18px]"}
-               " save")
-              ($ svg/save)))))})))
+               {:class " text-xs font-bold leading-[18px] text-white hover:text-white flex space-x-2 justify-center items-center"}
+               " save"
+               ($ svg/save))))))})))
 
 (defn mock-deletion-modal []
   (let [[open? set-open!] (hooks/use-state false)
@@ -384,7 +384,8 @@
 
     (hooks/use-effect
       [new-org]
-      (refx/dispatch [:app.dashboard/orgname-available? (:orgname new-org)]))
+      (when new-org
+        (refx/dispatch [:app.dashboard/orgname-available? (:orgname new-org)])))
 
     ($ modal
        {:title "New org"
@@ -436,9 +437,16 @@
                " save")
               ($ svg/save)))))})))
 
-(defn update-repo-modal []
+(defn update-git-repo []
   (let [require-git-repo? (refx/use-sub [:app.dashboard/require-git-repo?])
-        repos (refx/use-sub [:app.dashboard/repos])]
+        repos (refx/use-sub [:app.dashboard/repos])
+        mock-id (:id (refx/use-sub [:app.dashboard/server-mock]))]
+
+    (hooks/use-effect
+      [repos]
+      (when (empty? repos)
+        (refx/dispatch-sync [:app.dashboard/verify-mock-repo mock-id])))
+
     ($ modal
        {:title "Add a repo to your mock"
         :open? require-git-repo?
@@ -464,6 +472,53 @@
               (d/span
                {:class "flex-1"}
                (:full_name repo)))))))})))
+
+(defn git-docs-modal []
+  (let [docs-modal-open? (refx/use-sub [:app.dashboard/git-docs-modal-open?])
+        [page set-page] (hooks/use-state {:view 0})
+        change-page-btn-style "px-4 py-2 border rounded-lg hover:bg-gray-50 transition-all duration-75 "]
+    ($ modal
+       {:title (str "Docs 📖")
+        :open? docs-modal-open?
+        :on-close #(refx/dispatch-sync [:app.dashboard/toggle-git-docs docs-modal-open?])
+        :children
+        (d/div
+         {:class "w-screen md:w-[600px] p-6 gap-4 z-10"}
+         (d/div
+          {:class "w-[calc(100%)]"}
+          (d/div {:class "h-[300px]"}
+                 (cond
+                   (= (:view page) 0) (d/div {:class "h-[95%] space-y-2 overflow-y-auto overscroll-contain p-4"}
+                                             (d/h1 {:class "text-2xl border-b border-gray-100"} "Moclojer Git Sync")
+                                             (d/p {:class "w-full bg-red-100 py-2 px-1"} "Orgs cannot use git sync for now")
+                                             (d/p {:class "text-md"} "Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum comes from a line in section 1"))
+
+                   (= (:view page) 1)  (d/div {:class "h-[95%] space-y-2 overflow-y-auto overscroll-contain p-4"}
+                                              (d/h1 {:class "text-2xl border-b border-gray-100"}
+                                                    "Github Oauth"))
+
+                   (= (:view page) 2) (d/div {:class "h-[95%] space-y-2 overflow-y-auto overscroll-contain p-4"}
+
+                                             (d/h1 {:class "text-2xl border-b border-gray-100"}
+                                                   "Install Our App ")
+
+                                             (d/p {:class "w-full bg-red-100 py-2 px-1 underline"}
+                                                  (d/a {:href "https://github.com/apps/moclojer-sync"}
+                                                       "apps/moclojer-sync")))
+
+                   (= (:view page) 3) (d/div {:class "h-[95%] space-y-2 overflow-y-auto overscroll-contain p-4"}
+                                             (d/h1 {:class "text-2xl "} "Usage "))))
+          (d/div {:class "w-full flex justify-end items-end space-x-2"}
+                 (d/button {:class change-page-btn-style
+                            :on-click #(set-page assoc :view (- (if (< 1 (:view page))
+                                                                  (:view page)
+                                                                  1) 1))}
+                           "<")
+                 (d/button {:class change-page-btn-style
+                            :on-click #(set-page assoc :view (+ 1 (if (> 3 (:view page))
+                                                                    (:view page)
+                                                                    2)))}
+                           ">"))))})))
 
 (defnc user-li [{:keys [email username git user-id org-id]}]
   (d/div {:class "p-2 flex justify-between items-center border-b "}
@@ -566,6 +621,7 @@
             ($ mock-deletion-modal)
             ($ org-deletion-modal)
             ($ settings-modal)
-            ($ update-repo-modal)
+            ($ update-git-repo)
             ($ new-org-modal)
-            ($ add-user-org-modal)))))
+            ($ add-user-org-modal)
+            ($ git-docs-modal)))))

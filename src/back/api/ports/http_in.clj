@@ -73,19 +73,17 @@
 
 (defn handler-update-mock!
   [{:keys [parameters session-data components ctx]}]
-  (let [user-id (:user-id session-data)
-        old-mock (:body parameters)
+  (let [old-mock (:body parameters)
         content (:content old-mock)
         id (:id old-mock)
         sha (:sha old-mock)
-        git-path (:git-repo old-mock)
-        git-repo (when git-path (last (str/split git-path #"/")))
+        git-repo (:git-repo old-mock)
         new-mock (controllers.mocks/update-mock! (parse-uuid (str id))
                                                  (-> {}
                                                      (utils/assoc-if :content content)
                                                      (cond->
                                                       (utils/sha256? sha) (utils/assoc-if :sha sha)
-                                                      (utils/github-link? git-repo) (utils/assoc-if :git-repo git-path)))
+                                                      (utils/github-link? git-repo) (utils/assoc-if :git-repo git-repo)))
                                                  components
                                                  ctx)]
     {:status 200
@@ -263,6 +261,7 @@
   (into [] (filter #(and (= (last (str/split % #"/")) "moclojer.yml")
                          (str/includes? % "mocks/"))
                    files)))
+
 (defn handler-webhook
   [{:keys [headers parameters components ctx]}]
   (let [body (:body parameters)
@@ -354,7 +353,9 @@
             git-slug (get-in body [:installation :account :login])
             org (when (= sender-type "Organization") (controllers.orgs/get-by-git-orgname git-slug components ctx))
             user  (when (= sender-type "User") (controllers.user/get-by-git-username git-slug components ctx))
-            id (or (parse-uuid (:id org)) (parse-uuid (:uuid user)))]
+            id (if (= sender-type "User")
+                 (parse-uuid (str (:uuid user)))
+                 (parse-uuid (str (:id org))))]
         (logs/log :info "Processing Installation Event"
                   :ctx (assoc ctx :id id))
         (if-not (nil? (or (:id org) (:uuid user)))
@@ -364,7 +365,7 @@
                              (controllers.orgs/enable-sync install-id id components ctx)
                              (controllers.user/enable-sync install-id id components ctx))}}
           {:status 404
-           :body {:message "no org or user found"}}))
+           :body {:message "no org or user found or linked to git"}}))
       :else {:status 400
              :body {:message "Unhandled event type"}})))
 
@@ -372,10 +373,11 @@
   [{:keys [session-data components ctx]}]
   (let [user (controllers.user/get-user-by-id (:user-id session-data) components ctx)
         install-id (:git-install-id user)]
-    (if install-id
-      {:status 200
-       :body {:repositories (->> (controllers.sync/get-user-repos install-id components)
-                                 (map #(select-keys % [:full_name :html_url :owner])))}}
+    (if (and install-id (integer? install-id))
+      (let [repos (vec (->> (controllers.sync/get-user-repos install-id components)
+                            (map #(select-keys % [:full_name :html_url :owner]))))]
+        {:status 200
+         :body {:repositories repos}})
       {:status 404
        :body {:message "Could not retrieve user repos"}})))
 
@@ -383,7 +385,7 @@
   [{:keys [session-data components ctx]}]
   (let [user (controllers.user/get-user-by-id (:user-id session-data) components ctx)
         install-id (:git-install-id user)]
-    (if (number? install-id)
+    (if (integer? install-id)
       {:status 200
        :body {:sync-enabled true
               :message "Sync Enabled"}}
@@ -396,7 +398,7 @@
   (let [user (controllers.user/get-user-by-id (:user-id session-data) components ctx)
         install-id (:git-install-id user)]
     {:status 200
-     :body (controllers.sync/get-user-orgs install-id 0 components)}))
+     :body (controllers.sync/get-user-orgs install-id components)}))
 
 (defn handler-push-mock!
   [{{{:keys [id]} :path

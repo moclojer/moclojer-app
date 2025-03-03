@@ -147,6 +147,11 @@
      (not= (:content curr-mock) (:content server-mock)))))
 
 (refx/reg-sub
+ :app.dashboard/server-mock
+ (fn [db _]
+   (:server-mock db)))
+
+(refx/reg-sub
  :app.dashboard/orgname-valid?
  (fn [db _]
    (:orgname-available db)))
@@ -165,3 +170,8 @@
  :app.user/git-orgs
  (fn [db _]
    (:git-orgs db)))
+
+(refx/reg-sub
+ :app.dashboard/git-docs-modal-open?
+ (fn [db _]
+   (:git-docs-modal-open? db)))

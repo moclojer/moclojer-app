@@ -150,15 +150,17 @@
                                  (format "%s/installation/repositories" github-api-url)
                                  {})]
     (if (#{200 201} (:status response))
-      (-> response
-          :body
-          :repositories)
+      (try
+        (let [repos (-> response :body :repositories)]
+          repos)
+        (catch Exception e
+          (throw e)))
       (throw (ex-info "Failed to retrieve user repos"
                       {:status (:status response)
                        :body (:body response)})))))
 
 (defn pull!
-  "Uses installation-id to auth as a github app 
+  "Uses installation-id to auth as a github app
   and pull n files from a repo"
   [install-id owner repo files components ctx]
   (let [res (atom [])
@@ -177,7 +179,7 @@
     @res))
 
 (defn push!
-  "Uses installation-id to auth as a github app 
+  "Uses installation-id to auth as a github app
   and push n files from a repo"
   [install-id owner repo email paths base-tree-sha branch files components ctx]
   (let [config (get-in components [:config :config :git-sync])
@@ -209,33 +211,16 @@
                            :app-id app-id
                            :private-key private-key})))))
 
-(defn check-user-org-mermbership [install-id git-username git-orgname components]
+(defn get-user-orgs [install-id components]
   (let [config (get-in components [:config :config :git-sync])
-        github-api-url (:api-url config)
-        app-id (:app-id config)
-        private-key (:private-key config)
-        gh-client (create-github-client github-api-url app-id private-key)
-        response (gh-app/request gh-client install-id :get
-                                 (format "%s/orgs/%s/members/%s" github-api-url git-orgname git-username)
-                                 {})]
-    (if (#{204} (:status response))
-      {:status 204
-       :body {:is-member? true}}
-      (throw (ex-info "Failed to retrieve user repos"
-                      {:status (:status response)
-                       :body {:error (:body response)
-                              :is-member? false}})))))
-
-(defn get-user-orgs [install-id access-token components]
-  (let [config (get-in components [:config :config :git-sync])
-        github-api-url (:api-url config)
+        github-api-url "https://api.github.com"
         app-id (:app-id config)
         private-key (:private-key config)
         gh-client (create-github-client github-api-url app-id private-key)
         response (gh-app/request gh-client install-id :get
                                  (format "%s/user/memberships/orgs" github-api-url)
                                  {})]
-    (if (#{204} (:status response))
+    (if (#{200 201 204} (:status response))
       {:status 204
        :body {:orgs (-> response
                         :body)}}
@@ -244,13 +229,10 @@
                        :body {:error (:body response)
                               :is-member? false}})))))
 
-(defn get-user-install-id [access-token git-repo components]
-  ;; TODO
-  )
-
 (comment
-  (def app-id "")
-  (def private-key (slurp ""))
+  (def components {:config {:config {:git-sync {:secret "", :app-id "", :api-url "https://api.github.com", :private-key (slurp "")}}}})
+  (def app-id "1120143")
+  (def private-key (get-in components [:config :config :git-sync :private-key]))
   (def github-api-url "https://api.github.com")
   (def install-id "")
   (def base-sha "")
@@ -261,6 +243,7 @@
                   "https://api.github.com"
                   app-id
                   private-key))
+
   (create-commit install-id user "gh-app-test" "Felipe-gsilva@protonmail.com" paths files base-sha
                  {:github-api-url "https://api.github.com" :app-id app-id :private-key private-key})
   (create-tree install-id user "gh-app-test" paths files base-sha
@@ -287,4 +270,3 @@
   (gh-app/request gh-client install-id :get
                   (format "%s/user/installations" github-api-url)
                   {}))
-
