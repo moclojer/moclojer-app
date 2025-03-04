@@ -1,5 +1,7 @@
 (ns back.api.utils
-  (:require [clojure.string :as str])
+  (:require
+   [clojure.string :as str]
+   [com.moclojer.components.logs :as logs])
   (:import [java.util Base64]))
 
 (defn assoc-if
@@ -36,3 +38,25 @@
   (and (string? s)
        (not-empty s)
        (str/starts-with? s "https://github.com/")))
+
+(defn inspect
+  "Inspects a variable's contents and returns it without modifying its value."
+  [v & a]
+  (let [v (if (instance? clojure.lang.Atom v) @v v)]
+    (if (and (seq? v) (> (count v) 0))
+      (doseq [val v]
+        (logs/log :info val))
+      (logs/log :info "Inspect value: " v))
+    (when a
+      (doseq [arg a]
+        (logs/log :info "Additional arg:"
+                  (if (instance? clojure.lang.Atom arg)
+                    @arg
+                    arg))))
+    v))
+
+(defn inspect-if
+  "Inspects if condition is met"
+  [c v & a]
+  (when c
+    (apply inspect v a)))

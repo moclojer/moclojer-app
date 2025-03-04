@@ -4,7 +4,8 @@
    [back.api.db.mocks :as db.mocks]
    [back.api.logic.mocks :as logic.mocks]
    [back.api.ports.producers :as ports.producers]
-   [com.moclojer.components.logs :as logs]))
+   [com.moclojer.components.logs :as logs]
+   [clojure.string :as str]))
 
 (defn create-mock!
   [user-id mock {:keys [database mq]} ctx]
@@ -34,9 +35,12 @@
 
 (defn wildcard-available?
   [mock {:keys [database]} ctx]
-  (-> (logic.mocks/->db-by-wildcard mock)
-      (db.mocks/get-mock-by-wildcard database ctx)
-      (empty?)))
+  (logs/trace
+   ::wildcard-available?
+   {:mock-wildcard (:wildcard mock)}
+   (-> (logic.mocks/->db-by-wildcard mock)
+       (db.mocks/get-mock-by-wildcard database ctx)
+       (empty?))))
 
 (defn update-mock!
   ([id {:keys [content sha git-repo disable-sync?] :or {sha nil git-repo nil}} {:keys [database mq]} ctx]
@@ -59,6 +63,7 @@
      (throw (ex-info "Mock with given id invalid"
                      {:status-code 412
                       :cause :invalid-id})))))
+
 (defn get-mocks
   [{:keys [uuid username]} {:keys [database]} ctx]
   (logs/log :info "retrieving mocks"
@@ -82,37 +87,45 @@
 
 (defn publish-mock!
   [id {:keys [database mq]} ctx]
-  (-> (db.mocks/get-mock-by-id id database ctx)
-      logic.mocks/publish
-      (db.mocks/update! database ctx)
-      (adapter.mocks/->wire)
-      :id
-      (ports.producers/generate-single-yml! mq ctx))
+  (logs/trace
+   ::publish-mock!
+   {:mock-id id}
+   (-> (db.mocks/get-mock-by-id id database ctx)
+       logic.mocks/publish
+       (db.mocks/update! database ctx)
+       (adapter.mocks/->wire)
+       :id
+       (ports.producers/generate-single-yml! mq ctx)))
   true)
 
 (defn unpublish-mock!
   [id {:keys [database mq]} ctx]
-  (-> (db.mocks/get-mock-by-id id database ctx)
-      logic.mocks/unpublish
-      (db.mocks/update! database ctx)
-      (adapter.mocks/->wire)
-      :id
-      (ports.producers/generate-single-yml! mq ctx))
+  (logs/trace
+   ::unpublish-mock!
+   {:mock-id id}
+   (-> (db.mocks/get-mock-by-id id database ctx)
+       logic.mocks/unpublish
+       (db.mocks/update! database ctx)
+       (adapter.mocks/->wire)
+       :id
+       (ports.producers/generate-single-yml! mq ctx)))
   true)
 
 (defn delete-mock!
   [{:keys [user-id]} id {:keys [database mq]} ctx]
-  (logs/log :info "deleting mock"
-            :ctx (assoc ctx :mock-id id))
   (if-let [{:keys [id org-id user-id] :as ?mock}
            (some-> (db.mocks/get-mocks user-id database ctx)
                    (logic.mocks/filter-by-id id)
                    (adapter.mocks/->wire))]
-    (do
-      (db.mocks/delete-mock-by-id id database ctx)
-      (ports.producers/delete-single-yml! id (or org-id user-id) mq ctx)
-      (ports.producers/delete-domain! (logic.mocks/pack-domain ?mock) mq ctx)
-      true)
+    (logs/trace
+     ::delete-mock!
+     {:user-id user-id
+      :mock-id id}
+     (do
+       (db.mocks/delete-mock-by-id id database ctx)
+       (ports.producers/delete-single-yml! id (or org-id user-id) mq ctx)
+       (ports.producers/delete-domain! (logic.mocks/pack-domain ?mock) mq ctx)
+       true))
     (throw (ex-info "No mock found with given id"
                     {:status-code 400
                      :cause :invalid-id
@@ -120,22 +133,29 @@
 
 (defn get-mock-publication-status
   [id db ctx]
-  (if-let [mock (db.mocks/get-mock-by-id (parse-uuid (str id)) db ctx)]
-    (-> (adapter.mocks/->wire mock)
-        (select-keys [:dns-status :unification-status]))
-    (throw (ex-info "No mock found with given id"
-                    {:status-code 400
-                     :cause :invalid-id
-                     :value id}))))
+  (logs/trace
+   ::get-mock-pub-status
+   {:mock-id id}
+   (if-let [mock (db.mocks/get-mock-by-id (parse-uuid (str id)) db ctx)]
+     (-> (adapter.mocks/->wire mock)
+         (select-keys [:dns-status :unification-status]))
+     (throw (ex-info "No mock found with given id"
+                     {:status-code 400
+                      :cause :invalid-id
+                      :value id})))))
 
 (defn update-mock-dns-status!
   [domain new-status db ctx]
   (if-let [mock (-> (logic.mocks/unpack-domain domain)
                     (logic.mocks/->db-by-wildcard)
                     (db.mocks/get-mock-by-wildcard db ctx))]
-    (-> (logic.mocks/update-dns-status mock new-status)
-        (select-keys [:mock/id :mock/dns_status])
-        (db.mocks/update! db ctx))
+    (logs/trace
+     ::update-mock-dns-status!
+     {:mock-domain domain
+      :new-status new-status}
+     (-> (logic.mocks/update-dns-status mock new-status)
+         (select-keys [:mock/id :mock/dns_status])
+         (db.mocks/update! db ctx)))
     (throw (ex-info "No mock found with given domain"
                     {:cause :invalid-domain
                      :value domain}))))
@@ -143,9 +163,13 @@
 (defn update-mock-unification-status!
   [mock-id new-status db ctx]
   (if-let [mock (db.mocks/get-mock-by-id (parse-uuid (str mock-id)) db ctx)]
-    (-> (logic.mocks/update-unification-status mock new-status)
-        (select-keys [:mock/id :mock/unification_status])
-        (db.mocks/update! db ctx))
+    (logs/trace
+     ::update-mock-unif-status!
+     {:mock-id mock-id
+      :new-status new-status}
+     (-> (logic.mocks/update-unification-status mock new-status)
+         (select-keys [:mock/id :mock/unification_status])
+         (db.mocks/update! db ctx)))
     (throw (ex-info "No mock found with given id"
                     {:status-code 400
                      :cause :invalid-id

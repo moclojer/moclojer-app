@@ -1,4 +1,5 @@
 (ns back.api.logic.mocks
+  (:refer-clojure :exclude [update])
   (:require
    [camel-snake-kebab.core :as csk]
    [clojure.java.io :as io]

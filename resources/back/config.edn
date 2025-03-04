@@ -29,6 +29,11 @@
                          :prod "prod"
                          :default "prod"}
           :dsn #or [#env SENTRY_AUTH_TOKEN "foobar"]}
+ :opensearch {:username #or [#env OPENSEARCH_USERNAME "foobar"]
+              :password #or [#env OPENSEARCH_PASSWORD "foobar"]
+              :host #or [#env OPENSEARCH_HOST "foobar.com"]
+              :port #or [#env OPENSEARCH_PORT 25060]
+              :index #or [#env OPENSEARCH_INDEX "moclojer-api-test-tracing"]}
  :cloud-providers
  {:digital-ocean {:base-url "https://api.digitalocean.com/v2"
                   :token #or [#env DO_TOKEN "foobar"]

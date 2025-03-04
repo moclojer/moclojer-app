@@ -1,11 +1,29 @@
-(ns dev.utils
+(ns cloud-ops.api.utils
   (:require
-   [back.api.utils :as utils]
    [clojure.string :as str]
-   [com.moclojer.components.logs :as logs]
-   [com.moclojer.components.migrations :as migrations]
-   [com.stuartsierra.component :as component]
-   [pg-embedded-clj.core :as pg-emb]))
+   [com.moclojer.components.logs :as logs]))
+
+(defn inspect
+  "Inspects a variable's contents and returns it without modifying its value."
+  [v & a]
+  (let [v (if (instance? clojure.lang.Atom v) @v v)]
+    (if (and (seq? v) (> (count v) 0))
+      (doseq [val v]
+        (logs/log :info val))
+      (logs/log :info "Inspect value: " v))
+    (when a
+      (doseq [arg a]
+        (logs/log :info "Additional arg:"
+                  (if (instance? clojure.lang.Atom arg)
+                    @arg
+                    arg))))
+    v))
+
+(defn inspect-if
+  "Inspects if condition is met"
+  [c v & a]
+  (when c
+    (apply inspect v a)))
 
 (defn get-allowed-ns
   "Returns all ns of this project filtered"
@@ -47,44 +65,4 @@
                                    f)))
                (catch Exception e
                  (println "Failed to trace" sym (.getMessage e))))))))
-     (utils/inspect-if (= env :dev) @fn-names))))
-
-(defn start-system-dev!
-  ([sys-atom sys-map]
-   (start-system-dev! sys-atom sys-map true))
-  ([sys-atom sys-map init-pg?]
-   (when init-pg?
-     (pg-emb/init-pg)
-     (migrations/migrate (migrations/build-complete-db-config "back/config.edn")))
-   (->> sys-map
-        component/start
-        (reset! sys-atom))
-   (trace-all-ns @sys-atom)))
-
-(defn stop-system-dev!
-  ([sys-atom]
-   (stop-system-dev! sys-atom true))
-  ([sys-atom halt-pg?]
-   (logs/log :info "stopping system")
-   (swap!
-    sys-atom
-    (fn [s] (when s (component/stop s))))
-   (when halt-pg? (pg-emb/halt-pg!))))
-
-(comment
-  (trace-all-ns)
-
-  (trace-all-ns {:config {:env :prod}})
-
-  (defn f [& args]
-    (logs/trace
-     (keyword "traced-fn" (str 'dev.utils "/" 'prn))
-     {:test? :test}
-     (prn args)))
-
-  (f)
-
-  (logs/trace
-   ::testing-stuff
-   {:testing? :definitely}
-   (get-allowed-ns)))
+     (inspect-if (= env :dev) @fn-names))))

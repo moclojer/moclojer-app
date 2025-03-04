@@ -1,12 +1,16 @@
 (ns back.api.controllers.user
-  (:require [back.api.adapters.customers :as adapter.customers]
-            [back.api.db.customers :as db.customers]
-            [back.api.logic.customers :as logic.customers]
-            [com.moclojer.components.logs :as logs]))
+  (:require
+   [back.api.adapters.customers :as adapter.customers]
+   [back.api.db.customers :as db.customers]
+   [back.api.logic.customers :as logic.customers]
+   [com.moclojer.components.logs :as logs]))
 
 (defn username-available?
   [username {:keys [database]} ctx]
-  (nil? (db.customers/get-by-username username database ctx)))
+  (logs/trace
+   ::username-available?
+   {:username username}
+   (nil? (db.customers/get-by-username username database ctx))))
 
 (defn get-user-by-id
   [id {:keys [database]} ctx]
@@ -19,7 +23,10 @@
 
 (defn get-user-by-external-id
   [id database ctx]
-  (db.customers/get-by-external-id id database ctx))
+  (logs/trace
+   ::get-user-by-external-id
+   {:user-id id}
+   (db.customers/get-by-external-id id database ctx)))
 
 (defn edit-user!
   ([user-id username database ctx]

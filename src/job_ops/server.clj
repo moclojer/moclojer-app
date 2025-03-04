@@ -2,6 +2,7 @@
   (:require [com.moclojer.components.core :as components]
             [com.moclojer.components.logs :as logs]
             [com.stuartsierra.component :as component]
+            [job-ops.utils :refer [trace-all-ns]]
             [job-ops.ports.workers :refer [workers]])
   (:gen-class))
 
@@ -16,10 +17,11 @@
         [:config :sentry])))
 
 (defn start-system! [system-map]
-  (components/setup-logger [["*" :info]] :auto :prod)
   (->> system-map
        component/start
-       (reset! system-atom)))
+       (reset! system-atom))
+  ;; enable tracing
+  (trace-all-ns @system-atom))
 
 (defn stop-system! []
   (logs/log :info "stopping system")

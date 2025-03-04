@@ -2,6 +2,7 @@
   (:require [com.moclojer.components.core :as components]
             [com.moclojer.components.logs :as logs]
             [com.stuartsierra.component :as component]
+            [yaml-generator.utils :refer [trace-all-ns]]
             [yaml-generator.ports.workers :as p.workers])
   (:gen-class))
 
@@ -18,10 +19,10 @@
         [:config :database :storage :sentry])))
 
 (defn start-system! [system-map]
-  (components/setup-logger [["*" :info]] :auto :prod)
   (->> system-map
        component/start
-       (reset! system-atom)))
+       (reset! system-atom))
+  (trace-all-ns @system-atom))
 
 (defn stop-system! []
   (logs/log :info "stopping system")

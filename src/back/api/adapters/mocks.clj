@@ -1,5 +1,6 @@
 (ns back.api.adapters.mocks
-  (:require [back.api.utils :refer [assoc-if]]))
+  (:require
+   [back.api.utils :refer [assoc-if]]))
 
 (defn ->wire
   [{:mock/keys [id user_id org_id wildcard subdomain content sha
