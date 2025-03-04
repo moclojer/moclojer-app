@@ -29,6 +29,7 @@
         (swap! m conj (str d-ns "/" func))))
     @m))
 
+;; TODO fix this test [issue #397]
 (defflow
   fwrap-all-ns-functions
   {:init (utils/start-system! create-and-start-components)
