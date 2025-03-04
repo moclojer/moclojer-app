@@ -4,7 +4,7 @@
    [com.moclojer.components.core :as components]
    [com.moclojer.components.logs :as logs]
    [com.moclojer.components.mq :as mq]
-   [dev.utils :refer [trace-all-ns]]
+   [cloud-ops.api.utils :refer [trace-all-ns]]
    [com.stuartsierra.component :as component])
   (:gen-class))
 
@@ -21,10 +21,11 @@
         [:config :http :sentry])))
 
 (defn start-system! [system-map]
-  (components/setup-logger [["*" :info]] :auto :prod)
   (->> system-map
        component/start
-       (reset! system-atom)))
+       (reset! system-atom))
+  ;; enable tracing
+  (trace-all-ns @system-atom))
 
 (defn stop-system! []
   (logs/log :info "stopping system")
