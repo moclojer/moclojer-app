@@ -28,7 +28,8 @@
    [:id string?]
    [:content {:optional true} string?]
    [:git-repo {:optional true} string?]
-   [:sha {:optional true} string?]])
+   [:sha {:optional true} string?]
+   [:disable-sync? {:optional true} boolean?]])
 
 (def MockDelete
   [:map [:id string?]])

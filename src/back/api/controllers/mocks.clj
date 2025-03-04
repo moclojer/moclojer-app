@@ -39,13 +39,15 @@
       (empty?)))
 
 (defn update-mock!
-  ([id {:keys [content sha git-repo] :or {sha nil git-repo nil}} {:keys [database mq]} ctx]
+  ([id {:keys [content sha git-repo disable-sync?] :or {sha nil git-repo nil}} {:keys [database mq]} ctx]
    (if-let [mock (db.mocks/get-mock-by-id id database ctx)]
      (let [updated-mock (-> mock
                             (cond->
                              content (logic.mocks/update-content content)
                              sha (logic.mocks/update-sha sha)
-                             git-repo (logic.mocks/update-repo git-repo))
+                             ;; In order to disable sync, we can remove the git repo from the mock
+                             (and git-repo (not disable-sync?)) (logic.mocks/update-repo git-repo)
+                             disable-sync? (logic.mocks/update-repo nil))
                             (db.mocks/update! database ctx)
                             (adapter.mocks/->wire))
            ->wired-old-mock (adapter.mocks/->wire mock)]

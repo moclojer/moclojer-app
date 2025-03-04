@@ -72,18 +72,21 @@
      :body {:mock (controllers.mocks/create-mock! user-id mock components ctx)}}))
 
 (defn handler-update-mock!
-  [{:keys [parameters session-data components ctx]}]
+  [{:keys [parameters components ctx]}]
   (let [old-mock (:body parameters)
         content (:content old-mock)
         id (:id old-mock)
         sha (:sha old-mock)
         git-repo (:git-repo old-mock)
+        disable-sync? (:disable-sync? old-mock) 
         new-mock (controllers.mocks/update-mock! (parse-uuid (str id))
                                                  (-> {}
                                                      (utils/assoc-if :content content)
+                                                     (utils/assoc-if :disable-sync? disable-sync?)
                                                      (cond->
                                                       (utils/sha256? sha) (utils/assoc-if :sha sha)
-                                                      (utils/github-link? git-repo) (utils/assoc-if :git-repo git-repo)))
+                                                      (and (utils/github-link? git-repo) (not disable-sync?)) (utils/assoc-if :git-repo git-repo)))
+
                                                  components
                                                  ctx)]
     {:status 200

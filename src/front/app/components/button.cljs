@@ -38,7 +38,7 @@
     :or {aside-open? false}}]
   (d/button
    {:class (str "flex items-center p-2 text-base font-normal text-gray-900 rounded-lg "
-                "transtion duration-75 hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-gray-700 "
+                "transition duration-75 hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-gray-700 "
                 (if aside-open?
                   "w-[calc(100%-8px)] "
                   "w-full "))

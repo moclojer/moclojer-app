@@ -59,19 +59,16 @@
                           "remove")
                    ($ svg/trash))))
 
-(defn mock-svg-by-type [type]
-  (case type
-    "personal" svg/personal-mock
-    "org" svg/org-mock
-    :else svg/org-mock))
-
 (defnc apis-mocks [{:keys [subdomain mock-type apis]}]
   (d/div {:id "custom-mock"
           :class (str "w-full px-6 py-4 bg-white rounded-lg shadow flex-col justify-center items-start inline-flex "
                       "lg:p-8")
           :key (str subdomain)}
          (d/div {:class "self-stretch justify-start items-center gap-[15px] inline-flex"}
-                ($ (mock-svg-by-type mock-type))
+                (case mock-type
+                  "personal" ($ svg/personal-mock)
+                  "org" ($ svg/people {:class "w-6 h-6 "})
+                  :else ($  svg/org-mock))
                 (d/div {:on-click #(when (= mock-type "org") (rfe/push-state :app.core/orgs-view {:org-id (:org-id (first apis))}))
                         :class (str "w-full self-stretch text-gray-900 text-xl font-bold leading-[30px] "
                                     (when (= mock-type "org") "hover:cursor-pointer "))} subdomain))
@@ -91,8 +88,7 @@
 (defnc mocks []
   (let [current-user (refx/use-sub [:app.auth/current-user])
         mocks (refx/use-sub [:app.dashboard/mocks])
-        loading-mocks? (refx/use-sub [:app.dashboard/loading-mocks?]) ]
-
+        loading-mocks? (refx/use-sub [:app.dashboard/loading-mocks?])]
 
     (hooks/use-effect
       [mocks]
@@ -109,6 +105,6 @@
     ($ base/index
        (d/div {:class "flex flex-col lg:p-8 space-y-4"}
               (if (and (some? mocks) (not loading-mocks?))
-                (for [{:keys [mock-type subdomain apis] :or {mock-type "personal"}} mocks ]
+                (for [{:keys [mock-type subdomain apis] :or {mock-type "personal"}} mocks]
                   (<> {:key subdomain}
                       ($ apis-mocks {:mock-type mock-type :subdomain subdomain :apis apis}))))))))

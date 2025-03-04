@@ -120,48 +120,48 @@
 (defnc reload-button [{:keys [mock-id]}]
   (d/button
    {:class (str "px-3 py-2 bg-yellow-500 rounded-lg flex justify-center items-center space-x-2 "
-                "hover:bg-yellow-600 transition-all duration-75 ")
+                "hover:bg-yellow-600 transition-all duration-75 text-white ")
     :on-click #(refx/dispatch-sync [:app.dashboard/reload-mock mock-id])}
-   (d/div {:class "text-white text-xs font-bold leading-[18px]"}
-          "revert ")
+   (d/div {:class "text-xs font-bold leading-[18px]"}
+          "reload ")
    ($ loading-spinner)))
 
-(defnc enable-sync-button [{:keys [mock-id sync-enabled?]}]
+(defnc enable-sync-button [{:keys [mock-id sync-enabled? loading-sync?]}]
   (d/button
-   {:class (str "px-3 py-2 rounded-lg flex justify-center items-center space-x-2 "
-                "transition-all duration-75 ")
+   {:class (str "lg:px-4 flex justify-center items-center space-x-2 "
+                "transition-all duration-75 text-black hover:underline")
     :on-click #(if-not sync-enabled?
                  (refx/dispatch-sync [:app.dashboard/toggle-git-docs])
                  (refx/dispatch-sync [:app.dashboard/toggle-git-repo-modal false]))}
-   (d/div {:class "text-black text-xs font-bold leading-[18px]"}
+   (d/div {:class "text-black text-xs font-bold truncate"}
           (if-not sync-enabled?
             "enable git sync"
-            "link mock to repo"))
-   ($ loading-spinner)))
+            "link mock to repo"))))
+
+(defnc disable-sync-button [{:keys []}]
+  (d/button
+   {:class (str "lg:px-4 flex justify-center items-center space-x-2 "
+                "transition-all duration-75 hover:underline")
+    :on-click #(refx/dispatch-sync [:app.dashboard/disable-git-sync])}
+   (d/p {:class " text-black text-xs font-bold leading-[18px] "}
+        "disable git sync")))
 
 (defnc editor-toolbar [{:keys [mock-id org-mock? has-git-repo?]}]
   (let [has-changes? (refx/use-sub [:app.dashboard/mock-has-changes? mock-id])
         sync-enabled? (refx/use-sub [:app.dashboard/is-sync-enabled?])]
 
     (hooks/use-effect
-      [sync-enabled? mock-id]
-      (refx/dispatch-sync [:app.dashboard/enable-git-sync mock-id]))
-
-    (hooks/use-effect
       [sync-enabled? org-mock?]
       (when (and (not sync-enabled?) (not org-mock?))
-        (refx/dispatch-sync [:app.dashboard/enable-git-sync mock-id])))
+        (refx/dispatch-sync [:app.dashboard/sync-enabled? mock-id])))
 
     (d/span {:class "flex items-center space-x-2"}
-            (prn sync-enabled?)
-            (cond
-              (and (= false org-mock?) (or (= false sync-enabled?) (not has-git-repo?))) ($ enable-sync-button {:mock-id mock-id
-                                                                                                                :sync-enabled? sync-enabled?})
-              (and sync-enabled? has-changes? (= org-mock? false)) ($ reload-button {:mock-id mock-id}))
+            (when (and sync-enabled? has-changes? (not org-mock?))
+              ($ reload-button {:mock-id mock-id}))
             ($ remove-button {:mock-id mock-id})
             ($ save-button {:mock-id mock-id
                             :sync-enabled? sync-enabled?
-                            :allow-sync? (= org-mock? false)
+                            :allow-sync? (not org-mock?)
                             :class "ml-auto px-4 "}))))
 
 (defnc index [{:keys [route]}]
@@ -171,7 +171,6 @@
         mock-id (-> route :parameters :path :mock-id)
         mock-data (refx/use-sub [:app.dashboard/mock mock-id])
         org-mock? (uuid? (:org-id mock-data))
-        org-repo (:git-repo mock-data)
         [dragging-over? set-dragging-over!] (hooks/use-state false)
         handle-file-fn (partial file-handler
                                 #(refx/dispatch-sync
@@ -181,12 +180,21 @@
                                     :uploaded? true}])
                                 set-dragging-over!)
         [deleting? set-deleting!] (hooks/use-state false)
-        mock-to-delete (refx/use-sub [:app.dashboard/mock-to-delete])]
+        mock-to-delete (refx/use-sub [:app.dashboard/mock-to-delete])
+        sync-enabled? (refx/use-sub [:app.dashboard/is-sync-enabled?])
+        loading-sync? (refx/use-sub [:app.dashboard/loading-sync?])
+        server-mock (refx/use-sub [:app.dashboard/server-mock])
+        has-git-repo? (not (nil? (:git-repo server-mock)))]
 
     (hooks/use-effect
-      [org-repo]
-      (when org-repo
-        (refx/dispatch-sync [:app.dashboard/enable-git-sync mock-id])))
+      [has-git-repo? sync-enabled? org-mock?]
+      (when (and has-git-repo? (not sync-enabled?) (not org-mock?))
+        (refx/dispatch-sync [:app.dashboard/sync-enabled?])))
+
+    (hooks/use-effect
+      [has-git-repo? sync-enabled? org-mock?]
+      (when (and (not has-git-repo?) sync-enabled? (not org-mock?))
+        (refx/dispatch-sync [:app.dashboard/verify-mock-repo mock-id])))
 
     ;; since deleting the mock being currently being edited happens
     ;; outside of this component's state, this logic lets us know
@@ -245,15 +253,29 @@
                               (d/button {:class (str "hidden p-2 rounded-lg bg-transparent fill-gray-800 "
                                                      "hover:bg-gray-200 group-hover:block")}
                                         ($ svg/arrow-link)))))
-                (when org-mock?
+                (if org-mock?
                   (d/div {:class "flex items-center justify-start lg:justify-center p-2"}
-                         (d/p {:class "select-none text-xs w-max"} "Sync is not available for orgs")))
-                (d/div {:class (str "w-full lg:w-1/2 xl:w-1/4 flex flex-row justify-start lg:justify-end "
+                         (d/p {:class "select-none text-xs w-max"} "Sync is not available for orgs"))
+
+                  (cond
+                    (or (not sync-enabled?) (not has-git-repo?))
+                    (d/div {:class "flex items-center justify-start lg:justify-end py-2 w-full"}
+                           ($ enable-sync-button {:mock-id mock-id
+                                                  :sync-enabled? sync-enabled?
+                                                  :loading-sync? loading-sync?}))
+
+                    (and sync-enabled? has-git-repo?)
+                    (d/div {:class "flex items-center justify-start lg:justify-end py-2 w-full"}
+                           ($ disable-sync-button {:mock-id mock-id
+                                                   :sync-enabled? sync-enabled?
+                                                   :loading-sync? loading-sync?}))))
+
+                (d/div {:class (str "w-full lg:w-1/2 xl:w-1/3 flex flex-row justify-start lg:justify-end "
                                     "items-center mt-2 mb-4 lg:my-0 space-x-2 lg:mr-4 sm:mr-0 ")}
 
                        ($ editor-toolbar {:mock-id mock-id
                                           :org-mock? org-mock?
-                                          :has-git-repo? (not (nil? (:git-repo mock-data)))})
+                                          :has-git-repo? has-git-repo?})
                        ($ file-upload-button {:handle-file-fn handle-file-fn}))
                 ($ drag-drop
                    {:on-load (fn [e]

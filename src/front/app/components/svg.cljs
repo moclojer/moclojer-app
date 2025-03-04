@@ -69,8 +69,8 @@
   (d/svg {:class ""
           :fill "none"
           :width "22"
-          :height "23"
-          :viewBox "0 0 20 22"}
+          :height "22"
+          :viewBox "0 0 20 24"}
          (d/path {:stroke "#111928"
                   :stroke-width "2"
                   :stroke-linecap "round"

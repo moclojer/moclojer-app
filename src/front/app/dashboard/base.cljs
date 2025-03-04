@@ -117,10 +117,8 @@
                                 (d/p "Work in Progress"))
                                (= (:view setting) "git-org-update")
                                (d/div
-                                (prn git-orgs)
                                 (for [org git-orgs]
                                   (<>
-                                   (prn org)
                                    (d/li {:key (str (random-uuid))
                                           :class "flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer"
                                         ;:on-click #(refx/dispatch-sync [:app.dashboard/ (:html_url repo)]) 
@@ -441,10 +439,9 @@
   (let [require-git-repo? (refx/use-sub [:app.dashboard/require-git-repo?])
         repos (refx/use-sub [:app.dashboard/repos])
         mock-id (:id (refx/use-sub [:app.dashboard/server-mock]))]
-
     (hooks/use-effect
-      [repos]
-      (when (and (empty? repos) require-git-repo?)
+      [repos mock-id]
+      (when (empty? repos)
         (refx/dispatch-sync [:app.dashboard/verify-mock-repo mock-id])))
 
     ($ modal
@@ -463,6 +460,7 @@
               {:key (:full_name repo)
                :class "flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer"
                :on-click #(do
+                            (.preventDefault %)
                             (refx/dispatch-sync [:app.dashboard/update-git-repo (:html_url repo)])
                             (refx/dispatch-sync [:app.dashboard/toggle-git-repo-modal require-git-repo?]))}
               (d/img
@@ -476,7 +474,9 @@
 (defn git-docs-modal []
   (let [docs-modal-open? (refx/use-sub [:app.dashboard/git-docs-modal-open?])
         [page set-page] (hooks/use-state {:view 0})
-        git-userame (get-in (refx/use-sub [:app.auth/current-user]) [:user :user_metadata :user_name])
+        curr-user (refx/use-sub [:app.auth/current-user])
+        git-username (get-in  curr-user [:user :user_metadata :user_name])
+        sync-enabled? (refx/use-sub [:app.dashboard/is-sync-enabled?])
         change-page-btn-style "px-4 py-2 border rounded-lg hover:bg-gray-50 transition-all duration-75 "]
     ($ modal
        {:title (str "Docs 📖")
@@ -493,28 +493,30 @@
                    (d/div {:class "h-[95%] space-y-2 overflow-y-auto overscroll-contain p-4"}
                           (d/h1 {:class "text-2xl border-b border-gray-100"}
                                 "1. Moclojer Git Sync")
-                          (d/p {:class "w-full bg-red-100 py-2  flex justify-center items-center"} "Orgs mocks cannot use git sync for now")
+                          (d/p {:class "w-full bg-slate-100 py-2  flex justify-center items-center"} "Orgs mocks cannot use git sync for now")
                           (d/p {:class "text-md"}
                                "Moclojer Git Sync is a feature designed to seamlessly synchronize user mocks with a GitHub repository. 
-       This ensures that any changes made to your mocks are automatically reflected in your repository and vice versa. 
-       The feature leverages GitHub's infrastructure to provide a reliable and efficient syncing mechanism, 
+       This ensures that any changes made to your mocks are automatically reflected in your repository and vice versa."
+                               (d/br)
+                               (d/br)
+                               "The feature leverages GitHub's infrastructure to provide a reliable and efficient syncing mechanism, 
        allowing you to focus on your work without worrying about manual updates."))
 
                    (= (:view page) 1)
                    (d/div {:class "h-[95%] space-y-2 overflow-y-auto overscroll-contain p-4"}
                           (d/h1 {:class "text-2xl border-b border-gray-100"}
                                 "2. GitHub OAuth")
-                          (if git-userame
+                          (if git-username
                             (d/div {:class "w-full bg-green-100 py-2 flex justify-center items-center"}
                                    (d/p
                                     "You are currently logged in as " (d/a {:class "underline transition-all duration-75"
                                                                             :target "_blank"
-                                                                            :href (str "https://github.com/" git-userame)} git-userame)))
+                                                                            :href (str "https://github.com/" git-username)} git-username)))
                             (d/div {:class "w-full bg-red-100 py-2 flex justify-center items-center"}
                                    (d/p
                                     "You are not logged with a git account" (d/a {:class "underline transition-all duration-75"
                                                                                   :target "_blank"
-                                                                                  :href (str "https://github.com/" git-userame)} git-userame))))
+                                                                                  :href (str "https://github.com/" git-username)} git-username))))
                           (d/p {:class "text-md"}
                                "To use Moclojer Git Sync, you need to be logged in with a GitHub account. 
        If you are not already logged in with a GitHub account, you can log out and click the GitHub button 
@@ -524,12 +526,17 @@
                    (= (:view page) 2)
                    (d/div {:class "h-[95%] space-y-2 overflow-y-auto overscroll-contain p-4"}
                           (d/h1 {:class "text-2xl border-b border-gray-100"}
-                                "3. Installing The App")
-                          (d/p {:class "w-full bg-red-100 py-2 flex justify-center items-center "}
-                               "Install the app "
-                               (d/a {:class "underline ml-1"
-                                     :target "_blank"
-                                     :href "https://github.com/apps/moclojer-sync"} "here"))
+                                "3. Installing The Github App")
+                          (d/div
+                           (if sync-enabled?
+                             (d/p {:class "w-full bg-green-100 py-2 flex justify-center items-center "}
+                                  "Sync is already enabled! ")
+
+                             (d/p {:class "w-full bg-slate-100 py-2 flex justify-center items-center "}
+                                  "Install the app "
+                                  (d/a {:class "underline ml-1"
+                                        :target "_blank"
+                                        :href "https://github.com/apps/moclojer-sync"} "here"))))
                           (d/p {:class "text-md"}
                                "To get started with Moclojer Git Sync, you need to install our app via the following link: "
                                (d/a {:class "underline"
@@ -544,7 +551,8 @@
                           (d/p {:class "text-md"}
                                "To use Moclojer Git Sync, you will need to link a mock with a repository. This is handled by our system. 
        Every push from outside our editor, located in the path"
-                               (d/p {:class "bg-green-100 py-2"} "`resources/mocks/<mock-wildcard-here>/moclojer.yml`")
+                               (d/br)
+                               (d/b {:class "bg-slate-100 py-2"} "`resources/mocks/<mock-wildcard-here>/moclojer.yml`")
                                "on your repository, will be updated on our server automatically." (d/br) "You can reload the editor or the page 
        to see the changes. If you want to push over the received push content, you will need to do it while 
        on the page; reloading it will erase any local progress.")
@@ -552,7 +560,7 @@
                           (d/h1 {:class "text-xl border-b border-gray-100"} "Pushing content")
                           (d/p
                            "Clicking the save button will push content to the source, following the same path.")
-                          (d/p {:class "bg-green-100 py-2"} "`resources/mocks/<mock-wildcard-here>/moclojer.yml`"))))
+                          (d/p {:class "bg-slate-100 py-2"} "`resources/mocks/<mock-wildcard-here>/moclojer.yml`"))))
           (d/div {:class "w-full flex justify-end items-end space-x-2"}
                  (d/button {:class change-page-btn-style
                             :on-click #(set-page assoc :view (- (if (< 1 (:view page))
@@ -665,7 +673,8 @@
             ($ new-mock-modal)
             ($ mock-deletion-modal)
             ($ org-deletion-modal)
-            ($ settings-modal)
+            ;; TODO fix and make settings usable
+            #_($ settings-modal)
             ($ update-git-repo)
             ($ new-org-modal)
             ($ add-user-org-modal)
