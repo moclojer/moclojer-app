@@ -58,7 +58,7 @@
 
 (defnc blogpost-message
   [{:keys [children] :as props}]
-  (d/div {:class (str "w-full p-4 bg-gray-100 block flex flex-row sm:flex-col items-center justify-left border-b py-8"
+  (d/div {:class (str "w-full p-4 bg-gray-100 block flex flex-col items-center justify-left border-b py-8"
                       "border-gray-200 lg:mt-1.5 space-y-2")}
          (d/div {:class "flex items-center justify-left w-full"}
                 (d/div {:class "flex-shrink-0"}
